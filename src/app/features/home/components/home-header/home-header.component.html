@@ -1,0 +1,48 @@
+<header class="home-header" routerLink="/" style="cursor:pointer">
+
+  <!-- Left side branding -->
+  <div class="header-left">
+    <div class="header-login" (click)="$event.stopPropagation()">
+      <app-login-button></app-login-button>
+    </div>
+    <div class="game-subtitle">
+      <span class="subtitle-line">WHERE</span>
+      <span class="subtitle-line">WINDS</span>
+      <span class="subtitle-line">MEET</span>
+      <img src="icons/seal.png" alt="Seal" class="seal-img seal-img--small" />
+      <p class="game-tagline"></p>
+    </div>
+  </div>
+
+  <!-- Center title -->
+  <div class="header-center">
+    <div class="guild-label">
+      <span class="divider-line"></span>
+      <span class="guild-text">GUILD</span>
+      <span class="divider-line"></span>
+    </div>
+    <div class="game-title-wrapper">
+      <h1 class="game-title">
+        <span class="title-game">game</span><span class="title-vn">VN</span>
+      </h1>
+      <img src="icons/seal.png" alt="Seal" class="seal-img seal-img--title" />
+    </div>
+    <div class="game-motto">
+      <span class="divider-line short"></span>
+      UID: 10242973
+      <span class="divider-line short"></span>
+      Discord: https://discord.gg/gamevn
+      <span class="divider-line short"></span>
+    </div>
+  </div>
+
+  <!-- Right side artwork placeholder -->
+  <div class="header-right">
+    <!--<div class="right-text-column">
+    <span class="chinese-vert">Chơi Game</span>
+    <span class="chinese-vert">Đừng Để</span>
+    <span class="chinese-vert">Game Chơi</span>
+    <img src="icons/seal.png" alt="Seal" class="seal-img seal-img--small" />
+  </div>-->
+  </div>
+</header>

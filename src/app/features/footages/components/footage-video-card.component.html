@@ -1,0 +1,23 @@
+<article class="footage-card">
+  <header class="footage-card-header">
+    <span class="pill match-type-pill" [class]="matchTypeClass">{{ footage().matchType }}</span>
+    <span class="pill opponent-pill">{{ footage().opponent }}</span>
+  </header>
+
+  <div class="footage-card-body">
+    @if (eager()) {
+      <youtube-player [videoId]="footage().videoId" [width]="560" [height]="315"></youtube-player>
+    } @else {
+      @defer (on viewport) {
+        <youtube-player [videoId]="footage().videoId" [width]="560" [height]="315"></youtube-player>
+      } @placeholder {
+        <div class="video-placeholder">Loading video…</div>
+      }
+    }
+  </div>
+
+  <footer class="footage-card-footer">
+    <span>{{ displayDate }}</span>
+    <span>{{ footage().uploader }}</span>
+  </footer>
+</article>

@@ -1,0 +1,39 @@
+<div class="events-page">
+  <div class="events-header">
+    <h2 class="events-title">EVENTS</h2>
+    <p class="events-sub">Guild News &amp; Announcements</p>
+  </div>
+
+  @if (loading()) {
+    <p class="events-loading">Loading events…</p>
+  } @else if (events().length === 0) {
+    <p class="events-empty">No events to display.</p>
+  } @else {
+    <div class="events-list">
+      @for (event of events(); track event.title) {
+        <div class="event-item" [class.event-item--future]="isFuture(event.date)">
+
+          <!-- Header -->
+          <div class="event-header-card">
+            <div class="event-header-texture"><img src="images/card-texture.jpg" alt="" /></div>
+            @if (event.banner) {
+              <img class="event-header-banner-img" [src]="event.banner" alt="" />
+            }
+            <span class="event-header-title">{{ event.title }}</span>
+          </div>
+
+          <!-- Date -->
+          @if (event.date) {
+            <p class="event-date">{{ event.date }}</p>
+          }
+
+          <!-- Content -->
+          @if (event.description) {
+            <div class="event-content" [innerHTML]="buildDescription(event)"></div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,1 @@
+import{Q as o,ka as t}from"./chunk-YWBWPSRX.js";var n=class e{open=t(!1);show(){this.open.set(!0),document.body.style.overflow="hidden"}hide(){this.open.set(!1),document.body.style.overflow=""}static \u0275fac=function(a){return new(a||e)};static \u0275prov=o({token:e,factory:e.\u0275fac,providedIn:"root"})};export{n as a};

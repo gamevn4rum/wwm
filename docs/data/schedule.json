@@ -1,0 +1,37 @@
+[
+  {
+    "DateTime": "20:00",
+    "Type": "Daily",
+    "Activity": "Pool Party"
+  },
+  {
+    "DateTime": "Mon, Tue 20:00",
+    "Type": "Weekly",
+    "Activity": "Guild PvP"
+  },
+  {
+    "DateTime": "Thu, Fri 20:00",
+    "Type": "Weekly",
+    "Activity": "Guild Boss"
+  },
+  {
+    "DateTime": "Sat, Sun 19:30",
+    "Type": "GvG",
+    "Activity": "GvG SAGE League"
+  },
+  {
+    "DateTime": "Sat, Sun 20:30",
+    "Type": "GvG",
+    "Activity": "GvG Ranked"
+  },
+  {
+    "DateTime": "16/06/2026 21:15",
+    "Type": "Scrim",
+    "Activity": "VN-TanTieuHoi"
+  },
+  {
+    "DateTime": "17/06/2026 20:30",
+    "Type": "Scrim",
+    "Activity": "LangGia"
+  }
+]

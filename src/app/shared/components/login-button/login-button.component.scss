@@ -1,0 +1,130 @@
+:host {
+  display: block;
+}
+
+.member-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.525rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: #2d2416;
+  position: relative;
+  min-width: 0;
+  overflow: visible;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.rank-caller,
+.rank-warrior {
+  background: linear-gradient(135deg, #2e1a00, #4d3000);
+  border-color: #7a5000;
+}
+
+.rank-commander {
+  background: linear-gradient(135deg, #1a0030, #3a006a);
+  border-color: #7a00cc;
+}
+
+.rank-creator {
+  background: linear-gradient(135deg, #1a1200, #4d3d00);
+  border-color: #c9a84c;
+}
+
+.member-badge:hover {
+  box-shadow: 0 0 10px 6px rgba(255, 140, 0, 0.7);
+  border-color: #ff8c00;
+
+  .badge-avatar,
+  .badge-info {
+    opacity: 0;
+  }
+
+  .logout-overlay {
+    opacity: 1;
+  }
+}
+
+.badge-avatar {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+
+  .avatar-placeholder img {
+    display: block;
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    opacity: 0.95;
+  }
+}
+
+.badge-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  transition: opacity 0.2s;
+}
+
+.badge-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: #e8d9b0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.badge-rank {
+  font-family: 'Sigokae', cursive;
+  font-size: 0.63rem;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.login-badge {
+  min-width: 190px;
+
+  @media (max-width: 480px) {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+.login-only-text {
+  align-items: center;
+}
+
+.logout-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.87rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #e8d9b0;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
