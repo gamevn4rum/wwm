@@ -70,7 +70,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/gamevn-wwm/",
+              "baseHref": "/wwm/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
