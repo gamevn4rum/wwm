@@ -1,0 +1,100 @@
+<div class="schedule-page">
+
+  <!-- ══ PAGE HEADER ══ -->
+  <header class="schedule-header">
+    <span class="accent-line"></span>
+    <h1 class="schedule-title">SCHEDULE</h1>
+    <span class="accent-line"></span>
+  </header>
+
+  @if (loading()) {
+    <p class="schedule-loading">Loading schedule…</p>
+  } @else {
+
+    <!-- ══ WEEKLY ACTIVITIES ══ -->
+    <section class="schedule-section">
+
+      <div class="section-banner">
+        <h2 class="section-title">WEEKLY ACTIVITIES</h2>
+        <p class="section-sub">Fixed weekly schedule of guild activities.</p>
+      </div>
+
+      @if (weeklyActivities().length === 0) {
+        <p class="section-empty">No weekly activities to display.</p>
+      } @else {
+        <div class="schedule-rows">
+          @for (row of weeklyActivities(); track row.activity + row.dateTime) {
+            <div class="schedule-row schedule-row--fixed">
+
+              <div class="col-icon">
+                <span class="icon-circle" [class]="typeIconClass(row.type)">
+                  <img [src]="typeIconSrc(row.type)" alt="" />
+                </span>
+              </div>
+
+              <div class="col-time">
+                <span class="row-datetime">{{ row.dateTime }}</span>
+              </div>
+
+              <div class="col-badge">
+                <span class="row-badge" [class]="typeBadgeClass(row.type)">{{ row.type }}</span>
+              </div>
+
+              <div class="col-activity">
+                <span class="row-activity">{{ row.activity }}</span>
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+
+    </section>
+
+    <!-- ══ UPCOMING MATCHES ══ -->
+    <section class="schedule-section">
+
+      <div class="section-banner">
+        <h2 class="section-title">UPCOMING MATCHES</h2>
+        <p class="section-sub">Verified scrims and external matches.</p>
+      </div>
+
+      @if (upcomingMatches().length === 0) {
+        <p class="section-empty">No upcoming matches scheduled.</p>
+      } @else {
+        <div class="schedule-rows">
+          @for (row of upcomingMatches(); track row.activity + row.dateTime) {
+            <div class="schedule-row">
+
+              <div class="col-icon">
+                <span class="icon-circle icon-scrim">
+                  <img src="icons/icon-scrim.png" alt="" />
+                </span>
+              </div>
+
+              <div class="col-time">
+                <span class="row-datetime">{{ row.dateTime }}</span>
+              </div>
+
+              <div class="col-badge">
+                <span class="row-badge badge-scrim">Scrim</span>
+              </div>
+
+              <div class="col-activity">
+                <span class="row-activity">{{ row.activity }}</span>
+              </div>
+
+              <div class="col-chevron" (click)="goToFootages(row.activity)">
+                <span class="row-chevron">&#8250;</span>
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+
+    </section>
+
+  }
+
+</div>

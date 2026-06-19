@@ -1,0 +1,10 @@
+@if (!(currentUser$ | async)) {
+  <div class="register-wrapper">
+    <button type="button" class="register-btn" (click)="openForm()">
+      <span class="register-text">
+        <span class="register-main">REGISTER NOW</span>
+        <span class="register-sub">Secure a place in our GvG formation and access to vaults!</span>
+      </span>
+    </button>
+  </div>
+}

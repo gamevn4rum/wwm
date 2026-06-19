@@ -1,0 +1,75 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.page-backdrop {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #d6c9a8;
+  /* background-image set via [style.background-image] in template */
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.5vh 0;
+}
+
+.guild-panel {
+  position: relative;
+  z-index: 1;
+  width: min(1340px, 97vw);
+  min-height: 97vh;
+  background: rgba(214, 201, 168, 0.72);
+  backdrop-filter: blur(1px);
+  border: 1px solid rgba(100, 70, 20, 0.25);
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px rgba(201, 168, 76, 0.2),
+    0 8px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Mascot — decorative, behind all page content, anchored top-right
+.mascot-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(640px, 60%);
+  height: auto;
+  object-fit: contain;
+  object-position: top right;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .page-backdrop {
+    padding: 0;
+  }
+
+  .guild-panel {
+    width: 100vw;
+    min-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+// Ensure all direct content layers sit above the mascot
+app-home-header,
+.page-content {
+  position: relative;
+  z-index: 1;
+}
+
+.page-content {
+  flex: 1;
+}

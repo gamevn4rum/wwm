@@ -1,0 +1,51 @@
+name: Sync Google Sheets Data
+
+on:
+  schedule:
+    # Default: once per day at 00:00 UTC.
+    # To change the cadence, edit the cron expression below.
+    # (GitHub Actions does not support dynamic cron from repository variables.)
+    - cron: '0 * * * *'
+  workflow_dispatch:        # manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch sheet data
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: node scripts/fetch-data.js
+
+      - name: Build Angular app (bakes data files into docs/)
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: |
+          sed -i "s/YOUR_GOOGLE_API_KEY/$GOOGLE_API_KEY/" src/environments/environment.prod.ts
+          sed -i "s/YOUR_SPREADSHEET_ID/$GOOGLE_SHEET_ID/" src/environments/environment.prod.ts
+          npx ng build
+
+      - name: Commit and push updated files
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ docs/
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: sync sheet data [skip ci]"
+          git push

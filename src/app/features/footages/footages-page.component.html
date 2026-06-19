@@ -1,0 +1,50 @@
+<div class="footages-page">
+  <div class="footages-header">
+    <h2 class="footages-title">FOOTAGES</h2>
+    <p class="footages-sub">Battle Clips &amp; Match Videos</p>
+  </div>
+
+  <section class="filter-bar" aria-label="Footage filters">
+    <label class="filter-field">
+      <span>Match Type</span>
+      <select [ngModel]="selectedMatchType()" (ngModelChange)="onMatchTypeChange($event)">
+        <option value="All">All</option>
+        @for (type of matchTypeOptions; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="filter-field">
+      <span>Opponent</span>
+      <select [ngModel]="selectedOpponent()" (ngModelChange)="onOpponentChange($event)">
+        <option value="All">All</option>
+        @for (opponent of opponentOptions(); track opponent) {
+          <option [value]="opponent">{{ opponent }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="filter-field">
+      <span>Uploader</span>
+      <select [ngModel]="selectedUploader()" (ngModelChange)="onUploaderChange($event)">
+        <option value="All">All</option>
+        @for (uploader of uploaderOptions; track uploader) {
+          <option [value]="uploader">{{ uploader }}</option>
+        }
+      </select>
+    </label>
+  </section>
+
+  @if (loading()) {
+    <p class="footages-loading">Loading footages…</p>
+  } @else if (filteredFootages().length === 0) {
+    <p class="footages-empty">No videos found for selected filters.</p>
+  } @else {
+    <section class="footages-grid">
+      @for (footage of filteredFootages(); track footage.videoId + footage.date + footage.uploader) {
+        <app-footage-video-card [footage]="footage"></app-footage-video-card>
+      }
+    </section>
+  }
+</div>

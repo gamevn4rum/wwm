@@ -1,0 +1,279 @@
+// ── Overlay ────────────────────────────────────────────────────────────────────
+.reg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+// ── Panel ──────────────────────────────────────────────────────────────────────
+.reg-panel {
+  background: #f4e9cf;
+  border: 1px solid rgba(42, 26, 6, 0.35);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 3rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55);
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+.reg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem 0.8rem;
+  border-bottom: 1px solid rgba(42, 26, 6, 0.2);
+  background: rgba(214, 201, 168, 0.7);
+  flex-shrink: 0;
+  gap: 0.75rem;
+}
+
+.reg-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #2a1a06;
+}
+
+.reg-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid rgba(42, 26, 6, 0.3);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: rgba(42, 26, 6, 0.1);
+    border-color: rgba(42, 26, 6, 0.55);
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+// ── Body ───────────────────────────────────────────────────────────────────────
+.reg-body {
+  padding: 1.3rem 1.4rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+// ── Required note ──────────────────────────────────────────────────────────────
+.reg-required-note {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: #8a7a5a;
+  margin-bottom: 1.1rem;
+}
+
+// ── Field ──────────────────────────────────────────────────────────────────────
+.reg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.95rem;
+}
+
+.reg-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #2a1a06;
+
+  .req {
+    color: #c9a84c;
+    margin-left: 2px;
+  }
+}
+
+// ── Inputs ─────────────────────────────────────────────────────────────────────
+.reg-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  background: rgba(42, 26, 6, 0.05);
+  border: 1px solid rgba(42, 26, 6, 0.25);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: #2a1a06;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder {
+    color: rgba(42, 26, 6, 0.35);
+  }
+
+  &:focus {
+    border-color: #c9a84c;
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.2);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: #922020;
+  }
+}
+
+// ── Select wrapper ─────────────────────────────────────────────────────────────
+.reg-select-wrapper {
+  position: relative;
+
+  &::after {
+    content: '▾';
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    color: #8a7a5a;
+    pointer-events: none;
+  }
+}
+
+.reg-select {
+  width: 100%;
+  padding: 0.55rem 2rem 0.55rem 0.75rem;
+  background: rgba(42, 26, 6, 0.05);
+  border: 1px solid rgba(42, 26, 6, 0.25);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: #2a1a06;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    border-color: #c9a84c;
+    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.2);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: #922020;
+  }
+
+  option {
+    background: #f4e9cf;
+    color: #2a1a06;
+  }
+}
+
+// ── Validation error ───────────────────────────────────────────────────────────
+.reg-error {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: #922020;
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────────
+.reg-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(42, 26, 6, 0.15);
+}
+
+.reg-btn-cancel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #5a4a30;
+  background: none;
+  border: 1px solid rgba(42, 26, 6, 0.25);
+  border-radius: 5px;
+  padding: 0.55rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: rgba(42, 26, 6, 0.07);
+    border-color: rgba(42, 26, 6, 0.45);
+  }
+}
+
+.reg-btn-action {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #1a100a;
+  background: #c9a84c;
+  border: 1px solid #8a6a1a;
+  border-radius: 5px;
+  padding: 0.6rem 1.75rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #e2c97e;
+    box-shadow: 0 2px 8px rgba(201, 168, 76, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+// ── Success state ──────────────────────────────────────────────────────────────
+.reg-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 2.5rem 1rem 2rem;
+  text-align: center;
+}
+
+.reg-success-icon {
+  font-size: 2.2rem;
+  color: #c9a84c;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(201, 168, 76, 0.4);
+}
+
+.reg-success-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #2a1a06;
+}
+
+.reg-success-text {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  color: #5a4a30;
+  line-height: 1.65;
+  max-width: 300px;
+
+  margin-bottom: 0.5rem;
+}

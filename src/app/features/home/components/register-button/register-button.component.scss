@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.register-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0.6rem 0 1rem;
+}
+
+.register-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: #1a100a;
+  border: 2px solid #3d2b0e;
+  border-radius: 6px;
+  padding: 0.7rem 2.4rem;
+  min-width: 320px;
+  max-width: 100%;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+
+  &:hover {
+    background: #261608;
+    border-color: #c9a84c;
+  }
+
+  @media (max-width: 480px) {
+    min-width: unset;
+    width: 100%;
+    padding: 0.7rem 1.25rem;
+  }
+}
+
+.register-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.register-main {
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #c9a84c;
+}
+
+.register-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: #8a7a5a;
+}

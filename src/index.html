@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GameVN・Where Winds Meet</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700;900&family=Marcellus&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+  <script>
+    // Restore path encoded by 404.html for GitHub Pages SPA routing
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var p = params.get('p');
+      if (p) {
+        var parts = p.split('&');
+        var path = '/' + decodeURIComponent(parts[0]);
+        var query = parts.length > 1 ? '?' + parts.slice(1).join('&') : '';
+        window.history.replaceState(null, null, path + query + window.location.hash);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

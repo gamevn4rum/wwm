@@ -1,0 +1,162 @@
+<div class="match-history-page">
+
+  <!-- ══ HEADER ══ -->
+  <header class="chronicle-header">
+    <span class="accent-line"></span>
+    <h1 class="chronicle-title">BATTLE CHRONICLE</h1>
+    <span class="accent-line"></span>
+  </header>
+
+  <!-- ══ TIMELINE SECTION ══ -->
+  <section class="timeline-section">
+    <ngx-timeline
+      [events]="timelineEvents()"
+      [orientation]="horizontalOrientation"
+      [groupEvent]="monthYearGroup"
+      [enableAnimation]="false"
+      [eventCustomTemplate]="nodeTemplate"
+      [periodCustomTemplate]="periodTemplate"
+      [dateInstantCustomTemplate]="emptyTemplate"
+    ></ngx-timeline>
+  </section>
+
+  <!-- Blank template — suppresses the library's time-of-day display -->
+  <ng-template #emptyTemplate></ng-template>
+
+  <!-- Custom period (month milestone) template -->
+  <ng-template #periodTemplate let-period="period">
+    <div class="period-badge">
+      <span class="period-label">{{ getPeriodLabel(period) }}</span>
+    </div>
+  </ng-template>
+
+  <!-- Custom node template -->
+  <ng-template #nodeTemplate let-item="event">
+    @if (item?.eventInfo && !item.eventInfo['phantom']) {
+      <div class="timeline-node" [class.active]="item.eventInfo.id === activeNodeId()">
+        <div class="node-circle" [class]="'node-type-' + item.eventInfo['matchType']">
+          <span class="icon-placeholder">
+            <img [src]="getTypeIconSrc(item.eventInfo['matchType'])" alt="" />
+          </span>
+        </div>
+        <div class="node-info">
+          <span class="node-date">{{ item.eventInfo['label'] }}</span>
+          <span class="node-opponent">{{ item.eventInfo['opponent'] }}</span>
+          <span class="node-type-label" [class]="'result-label-' + resolveStatus(item.eventInfo['status'])">
+            {{ resolveStatus(item.eventInfo['status']).toUpperCase() }}
+          </span>
+        </div>
+      </div>
+    }
+  </ng-template>
+
+  <!-- ══ CATEGORIZED HISTORY GRID ══ -->
+  <section class="history-grid-section">
+
+    <!-- LEAGUE ROW -->
+    <div class="match-row">
+      <div class="row-banner banner-league">
+        <span class="row-title">League</span>
+      </div>
+      <div class="match-cards-grid">
+        @for (card of leagueMatches(); track card.opponent + card.date) {
+          <div class="match-card"
+               [class]="'card-status-' + resolveStatus(card.status)"
+               (click)="ftpPermission() && openPopup(card)">
+            <div class="bg-texture-placeholder"><img src="images/card-texture.jpg" alt="" /></div>
+            <div class="card-content">
+              <div class="card-top">
+                <span class="card-date">{{ formatDate(card.date) }}</span>
+              </div>
+              <div class="card-middle">
+                <span class="card-opponent">{{ card.opponent }}</span>
+              </div>
+              <div class="card-bottom">
+                <span class="icon-placeholder icon-swords"><img src="icons/icon-swords.png" alt="" /></span>
+                <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
+                  <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
+                    <img [src]="getResultIconSrc(card.status)" alt="" />
+                  </span>
+                </span>
+                <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
+                  {{ resolveStatus(card.status).toUpperCase() }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- RANKED ROW -->
+    <div class="match-row">
+      <div class="row-banner banner-ranked">
+        <span class="row-title">Ranked</span>
+      </div>
+      <div class="match-cards-grid">
+        @for (card of rankedMatches(); track card.opponent + card.date) {
+          <div class="match-card"
+               [class]="'card-status-' + resolveStatus(card.status)"
+               (click)="ftpPermission() && openPopup(card)">
+            <div class="bg-texture-placeholder"><img src="images/card-texture.jpg" alt="" /></div>
+            <div class="card-content">
+              <div class="card-top">
+                <span class="card-date">{{ formatDate(card.date) }}</span>
+              </div>
+              <div class="card-middle">
+                <span class="card-opponent">{{ card.opponent }}</span>
+              </div>
+              <div class="card-bottom">
+                <span class="icon-placeholder icon-mountain"><img src="icons/icon-mountain.png" alt="" /></span>
+                <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
+                  <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
+                    <img [src]="getResultIconSrc(card.status)" alt="" />
+                  </span>
+                </span>
+                <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
+                  {{ resolveStatus(card.status).toUpperCase() }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- SCRIM ROW -->
+    <div class="match-row">
+      <div class="row-banner banner-scrim">
+        <span class="row-title">Scrim</span>
+      </div>
+      <div class="match-cards-grid">
+        @for (card of scrimMatches(); track card.opponent + card.date) {
+          <div class="match-card"
+               [class]="'card-status-' + resolveStatus(card.status)"
+               (click)="ftpPermission() && openPopup(card)">
+            <div class="bg-texture-placeholder"><img src="images/card-texture.jpg" alt="" /></div>
+            <div class="card-content">
+              <div class="card-top">
+                <span class="card-date">{{ formatDate(card.date) }}</span>
+              </div>
+              <div class="card-middle">
+                <span class="card-opponent">{{ card.opponent }}</span>
+              </div>
+              <div class="card-bottom">
+                <span class="icon-placeholder icon-target"><img src="icons/icon-target.png" alt="" /></span>
+                <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
+                  <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
+                    <img [src]="getResultIconSrc(card.status)" alt="" />
+                  </span>
+                </span>
+                <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
+                  {{ resolveStatus(card.status).toUpperCase() }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </section>
+</div>

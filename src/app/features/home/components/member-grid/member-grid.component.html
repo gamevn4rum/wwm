@@ -1,0 +1,23 @@
+<section class="member-grid-section">
+  <div class="section-label">
+    <span class="divider-line"></span>
+    <span class="section-title">REGISTERED MEMBERS</span>
+    <span class="divider-line"></span>
+  </div>
+
+  <div class="member-grid">
+    @for (player of players(); track player.id) {
+      <div [class]="'member-badge rank-' + getRankClass(player.rank)">
+        <div class="badge-avatar">
+          <div class="avatar-placeholder">
+            <img [src]="'icons/rank-' + player.rankIconKey + '.png'" [alt]="player.rank" />
+          </div>
+        </div>
+        <div class="badge-info">
+          <span class="badge-name">{{ player.name }}</span>
+          <span class="badge-rank">{{ player.rank.toUpperCase() }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</section>
