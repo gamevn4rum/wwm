@@ -53,6 +53,8 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git rm --cached data/footages.json --ignore-unmatch
+          git rm --cached docs/data/footages.json --ignore-unmatch
+          rm -f docs/data/footages.json
           git add data/ docs/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "chore: sync sheet data [skip ci]"
