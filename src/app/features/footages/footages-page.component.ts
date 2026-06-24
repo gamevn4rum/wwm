@@ -24,7 +24,7 @@ export class FootagesPageComponent implements OnInit {
   readonly selectedUploader = signal<'All' | UploaderKey>('All');
 
   readonly matchTypeOptions: MatchType[] = ['League', 'Ranked', 'Scrim'];
-  readonly uploaderOptions: UploaderKey[] = ['Kam', 'Necro', 'VK', 'Ruby', 'Yuenshin', 'Sniper', 'canoc'];
+  readonly uploaderOptions: UploaderKey[] = ['Kam', 'Necro', 'VK', 'Ruby', 'Yuenshin', 'Sniper', 'canoc', 'LVH'];
 
   readonly opponentOptions = computed(() =>
     Array.from(new Set(this.allFootages().map((f) => f.opponent))).sort((a, b) => a.localeCompare(b))

@@ -20,6 +20,7 @@ const AVAILABILITY = ['7h30+', '8h30+', '9h30+', '🚫'] as const;
 // To find entry IDs: open the Google Form, right-click → View Page Source,
 // then search for "entry." to locate each field's entry ID.
 const FORM_ID         = '1FAIpQLSd6Yy9XG3ctcA76MXiL7FAMxBAjfnrMX6aflpcon4dnVTqgng';
+const ENTRY_UID = 'entry.1358790419';
 const ENTRY_IGN = 'entry.1196526175';
 const ENTRY_MAIN = 'entry.1309785826';
 const ENTRY_SECONDARY = 'entry.1132106276';
@@ -43,6 +44,7 @@ export class RegisterFormPopupComponent {
   readonly submitting       = signal(false);
 
   readonly form = new FormGroup({
+    uid:       new FormControl('', { validators: Validators.required, nonNullable: true }),
     ign:       new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
     main:      new FormControl('', { validators: Validators.required, nonNullable: true }),
     secondary: new FormControl('', { validators: Validators.required, nonNullable: true }),
@@ -65,6 +67,7 @@ export class RegisterFormPopupComponent {
 
     try {
       const body = new URLSearchParams({
+        [ENTRY_UID]:       v.uid,
         [ENTRY_IGN]:       v.ign,
         [ENTRY_MAIN]:      v.main,
         [ENTRY_SECONDARY]: v.secondary,

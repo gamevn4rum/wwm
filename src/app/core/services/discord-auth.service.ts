@@ -35,6 +35,7 @@ export class DiscordAuthService {
 
   private readonly currentUserSubject = new BehaviorSubject<DiscordUserSession | null>(null);
   readonly currentUser$ = this.currentUserSubject.asObservable();
+  get currentUser(): DiscordUserSession | null { return this.currentUserSubject.value; }
 
   private readonly devSession: DiscordUserSession = {
     username: 'Shinigamae',
@@ -53,16 +54,12 @@ export class DiscordAuthService {
     this.initialized = true;
 
     if (window.location.hostname === 'localhost') {
-      localStorage.setItem('FP', 'true');
-      localStorage.setItem('FTP', 'true');
       this.currentUserSubject.next(this.devSession);
       return;
     }
 
     const storedSession = this.getStoredSession();
     if (storedSession) {
-      localStorage.setItem('FP', String(storedSession.fp));
-      localStorage.setItem('FTP', String(storedSession.ftp));
       this.currentUserSubject.next(storedSession);
     }
 
@@ -89,8 +86,6 @@ export class DiscordAuthService {
 
   logout(): void {
     localStorage.removeItem(this.sessionKey);
-    localStorage.removeItem('FP');
-    localStorage.removeItem('FTP');
     this.currentUserSubject.next(null);
   }
 
@@ -125,8 +120,6 @@ export class DiscordAuthService {
           ftp,
         };
 
-        localStorage.setItem('FP',  String(fp));
-        localStorage.setItem('FTP', String(ftp));
         localStorage.setItem(this.sessionKey, JSON.stringify(session));
         this.currentUserSubject.next(session);
         return session;

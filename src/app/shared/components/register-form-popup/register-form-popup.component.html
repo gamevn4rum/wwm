@@ -30,6 +30,22 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <p class="reg-required-note">* Required</p>
 
+          <!-- UID -->
+          <div class="reg-field">
+            <label class="reg-label" for="reg-uid">UID <span class="req">*</span></label>
+            <input
+              id="reg-uid"
+              class="reg-input"
+              type="text"
+              formControlName="uid"
+              placeholder="Your in-game UID"
+              autocomplete="off"
+            />
+            @if (form.controls.uid.invalid && form.controls.uid.touched) {
+              <span class="reg-error">UID is required.</span>
+            }
+          </div>
+
           <!-- In-game Name -->
           <div class="reg-field">
             <label class="reg-label" for="reg-ign">In-game Name <span class="req">*</span></label>

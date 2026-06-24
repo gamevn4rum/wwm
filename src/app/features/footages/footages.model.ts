@@ -2,7 +2,7 @@ import { SheetRow } from '../../core/models/sheet.model';
 import { findVal } from '../../core/utils/sheet.utils';
 
 export type MatchType = 'League' | 'Ranked' | 'Scrim';
-export type UploaderKey = 'Kam' | 'Necro' | 'VK' | 'Ruby' | 'Yuenshin' | 'Sniper' | 'canoc';
+export type UploaderKey = 'Kam' | 'Necro' | 'VK' | 'Ruby' | 'Yuenshin' | 'Sniper' | 'canoc' | 'LVH';
 
 export interface FootageRecord {
   date: string;
@@ -12,7 +12,7 @@ export interface FootageRecord {
   videoId: string;
 }
 
-const uploaders: UploaderKey[] = ['Kam', 'Necro', 'VK', 'Ruby', 'Yuenshin', 'Sniper', 'canoc'];
+const uploaders: UploaderKey[] = ['Kam', 'Necro', 'VK', 'Ruby', 'Yuenshin', 'Sniper', 'canoc', 'LVH'];
 
 function normalizeMatchType(raw: string): MatchType {
   const lowered = raw.trim().toLowerCase();
