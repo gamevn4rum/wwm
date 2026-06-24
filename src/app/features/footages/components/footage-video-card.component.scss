@@ -45,7 +45,27 @@
     overflow: hidden;
 
     ::ng-deep .youtube-player-placeholder {
+      width: 100% !important;
       height: 100% !important;
+
+      button {
+        display: block;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
     }
 
     ::ng-deep iframe {

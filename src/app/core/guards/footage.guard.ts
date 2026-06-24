@@ -9,7 +9,7 @@ export const footageGuard: CanActivateFn = () => {
   // Ensure auth state (and FTP key) is initialised synchronously before checking
   auth.initializeAuthState();
 
-  return localStorage.getItem('FTP') === 'true'
+  return auth.currentUser?.ftp === true
     ? true
     : router.createUrlTree(['/']);
 };

@@ -9,7 +9,7 @@ export const formationGuard: CanActivateFn = () => {
   // Ensure auth state (and FP key) is initialised synchronously before checking
   auth.initializeAuthState();
 
-  return localStorage.getItem('FP') === 'true'
+  return auth.currentUser?.fp === true
     ? true
     : router.createUrlTree(['/']);
 };
