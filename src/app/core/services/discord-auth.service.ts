@@ -2,9 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { GoogleSheetsApiService } from './google-sheets/google-sheets-api.service';
+import { MembersDataService } from './members-data.service';
 import { SheetRow } from '../models/sheet.model';
-import { environment } from '../../../environments/environment';
 
 interface DiscordApiUser {
   id: string;
@@ -28,7 +27,7 @@ export interface DiscordUserSession {
 @Injectable({ providedIn: 'root' })
 export class DiscordAuthService {
   private readonly http = inject(HttpClient);
-  private readonly sheetsApi = inject(GoogleSheetsApiService);
+  private readonly membersData = inject(MembersDataService);
   private readonly sessionKey = 'gv_user_session';
   private readonly clientId = '1512670533093949570';
   private initialized = false;
@@ -90,9 +89,7 @@ export class DiscordAuthService {
   }
 
   private handleTokenLogin(accessToken: string): Observable<DiscordUserSession | null> {
-    const members$ = this.sheetsApi
-      .getRows(environment.defaultSpreadsheetId, 'Members', environment.googleApiKey)
-      .pipe(catchError(() => this.http.get<SheetRow[]>('data/members.json')));
+    const members$ = this.membersData.getRows();
 
     return this.fetchDiscordProfile(accessToken).pipe(
       switchMap((profile: DiscordApiUser) =>

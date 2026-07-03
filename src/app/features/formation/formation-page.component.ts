@@ -1,15 +1,12 @@
 import { Component } from '@angular/core';
+import { RegisterButtonComponent } from '../home/components/register-button/register-button.component';
+import { MemberGridComponent } from '../home/components/member-grid/member-grid.component';
 
 @Component({
   selector: 'app-formation-page',
   standalone: true,
-  template: `
-    <div class="stub-page">
-      <h2 class="stub-title">FORMATION</h2>
-      <p class="stub-sub">View Our Lineups</p>
-    </div>
-  `,
-  styleUrls: ['../../shared/styles/stub-page.component.scss'],
+  imports: [RegisterButtonComponent, MemberGridComponent],
+  templateUrl: './formation-page.component.html',
+  styleUrls: ['./formation-page.component.scss'],
 })
 export class FormationPageComponent {}
-

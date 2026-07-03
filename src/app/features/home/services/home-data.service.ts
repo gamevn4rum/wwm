@@ -1,12 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 import { Player } from '../models/player.model';
-import { GoogleSheetsApiService } from '../../../core/services/google-sheets/google-sheets-api.service';
-import { SheetRow } from '../../../core/models/sheet.model';
+import { MembersDataService } from '../../../core/services/members-data.service';
 import { findVal } from '../../../core/utils/sheet.utils';
-import { environment } from '../../../../environments/environment';
 
 function rankIconKey(rank: string): string {
   const afterDash = rank.includes(' ') ? rank.substring(rank.lastIndexOf(' ') + 1) : rank;
@@ -24,20 +21,10 @@ function sortPlayers(players: Player[]): Player[] {
 
 @Injectable({ providedIn: 'root' })
 export class HomeDataService {
-  private readonly http      = inject(HttpClient);
-  private readonly sheetsApi = inject(GoogleSheetsApiService);
+  private readonly membersData = inject(MembersDataService);
 
-  private readonly players$: Observable<Player[]> = this.http
-    .get<SheetRow[]>(`data/members.json?t=${Date.now()}`)
+  private readonly players$: Observable<Player[]> = this.membersData.getRows()
     .pipe(
-      switchMap((rows) =>
-        rows && rows.length > 0
-          ? of(rows)
-          : this.sheetsApi.getRows(environment.defaultSpreadsheetId, 'Members!A:Z', environment.googleApiKey)
-      ),
-      catchError(() =>
-        this.sheetsApi.getRows(environment.defaultSpreadsheetId, 'Members!A:Z', environment.googleApiKey)
-      ),
       map((rows) => {
         const players: Player[] = rows
           .map((row, i) => ({
