@@ -1,7 +1,6 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { FootagesDataService } from '../../features/footages/footages-data.service';
-import { FootageRecord, toIsoDate } from '../../features/footages/footages.model';
+import { Injectable, computed, signal } from '@angular/core';
 import { MatchRecord } from '../../features/match-history/match-record.model';
+import { FootageRecord, MatchType } from '../../features/footages/footages.model';
 
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -13,42 +12,33 @@ function formatDate(isoDate: string): string {
   return `${day}/${mon}/${year}`;
 }
 
+function toDisplayMatchType(type: MatchRecord['type']): MatchType {
+  return (type.charAt(0).toUpperCase() + type.slice(1)) as MatchType;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FootagePopupService {
-  private readonly footagesDataService = inject(FootagesDataService);
-
-  readonly allFootages     = signal<FootageRecord[]>([]);
-  readonly footagesLoading = signal(true);
-  readonly popupMatch      = signal<MatchRecord | null>(null);
+  readonly popupMatch = signal<MatchRecord | null>(null);
 
   readonly popupOpen = computed(() => this.popupMatch() !== null);
 
   readonly popupHeader = computed(() => {
     const match = this.popupMatch();
     if (!match) return '';
-    const type = match.type.charAt(0).toUpperCase() + match.type.slice(1);
-    return `${type} - ${match.opponent} - ${formatDate(match.date)}`;
+    return `${toDisplayMatchType(match.type)} - ${match.opponent} - ${formatDate(match.date)}`;
   });
 
-  readonly popupFootages = computed(() => {
+  readonly popupFootages = computed<FootageRecord[]>(() => {
     const match = this.popupMatch();
     if (!match) return [];
-    const isoDate = match.date;
-    return this.allFootages().filter(
-      (f) => toIsoDate(f.date) === isoDate && f.opponent === match.opponent
-    );
+    return match.footages.map((footage) => ({
+      date: match.date,
+      matchType: toDisplayMatchType(match.type),
+      opponent: match.opponent,
+      uploader: footage.uploader,
+      videoId: footage.videoId,
+    }));
   });
-
-  loadFootages(): void {
-    if (!this.footagesLoading() && this.allFootages().length > 0) return;
-    this.footagesDataService.getFootages().subscribe({
-      next: (footages) => {
-        this.allFootages.set(footages);
-        this.footagesLoading.set(false);
-      },
-      error: () => this.footagesLoading.set(false),
-    });
-  }
 
   open(match: MatchRecord): void {
     this.popupMatch.set(match);

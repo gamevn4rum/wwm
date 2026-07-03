@@ -11,8 +11,9 @@ if (!KEY_HEX || KEY_HEX.length !== 64) {
 
 const key = Buffer.from(KEY_HEX, 'hex');
 
-// Only files behind an auth guard should be listed here.
-const FILES = ['footages.json'];
+// Files whose plaintext should never be shipped/committed.
+// Match History carries the footage URLs now, so it's encrypted instead of footages.json.
+const FILES = ['match-history.json', 'members.json'];
 
 for (const filename of FILES) {
   const inPath  = `./data/${filename}`;

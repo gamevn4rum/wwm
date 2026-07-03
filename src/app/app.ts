@@ -22,9 +22,7 @@ import { RegisterFormPopupComponent } from './shared/components/register-form-po
             </button>
           </div>
           <div class="footage-popup-body">
-            @if (popup.footagesLoading()) {
-              <p class="footage-popup-empty">Loading footages…</p>
-            } @else if (popup.popupFootages().length === 0) {
+            @if (popup.popupFootages().length === 0) {
               <p class="footage-popup-empty">No footage found for this match.</p>
             } @else {
               <div class="footage-popup-grid">

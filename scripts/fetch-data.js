@@ -17,9 +17,10 @@ const PAGES = [
   { file: 'members.json',       range: 'Members!A:Z' },
   { file: 'formation.json',     range: 'Formation!A:Z' },
   { file: 'schedule.json',      range: 'Schedule!A:Z' },
+  // Match History now also carries the per-uploader footage URL columns —
+  // footages.json/Footages tab was retired and merged into this one.
   { file: 'match-history.json', range: 'Match History!A:Z' },
   { file: 'events.json',        range: 'Events!A:Z' },
-  { file: 'footages.json',      range: 'Footages!A:Z' },
 ];
 
 function md5(str) {
