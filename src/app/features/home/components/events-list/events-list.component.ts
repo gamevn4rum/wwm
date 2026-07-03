@@ -1,21 +1,27 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { EventsDataService } from './events-data.service';
-import { EventRecord } from './event-record.model';
+import { EventsDataService } from '../../../events/events-data.service';
+import { EventRecord } from '../../../events/event-record.model';
+
+const PAGE_SIZE = 2;
 
 @Component({
-  selector: 'app-events-page',
+  selector: 'app-events-list',
   standalone: true,
   imports: [],
-  templateUrl: './events-page.component.html',
-  styleUrls: ['./events-page.component.scss'],
+  templateUrl: './events-list.component.html',
+  styleUrls: ['./events-list.component.scss'],
 })
-export class EventsPageComponent implements OnInit {
+export class EventsListComponent implements OnInit {
   private readonly eventsDataService = inject(EventsDataService);
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly events = signal<EventRecord[]>([]);
   readonly loading = signal(true);
+  readonly visibleCount = signal(PAGE_SIZE);
+
+  readonly visibleEvents = computed(() => this.events().slice(0, this.visibleCount()));
+  readonly hasMore = computed(() => this.visibleCount() < this.events().length);
 
   ngOnInit(): void {
     this.eventsDataService.getEvents().subscribe({
@@ -25,6 +31,10 @@ export class EventsPageComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  showMore(): void {
+    this.visibleCount.update((count) => count + PAGE_SIZE);
   }
 
   buildDescription(event: EventRecord): SafeHtml {

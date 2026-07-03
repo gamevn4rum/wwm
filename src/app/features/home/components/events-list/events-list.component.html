@@ -1,4 +1,4 @@
-<div class="events-page">
+<div class="events-list-wrapper">
   <div class="events-header">
     <h2 class="events-title">EVENTS</h2>
     <p class="events-sub">Guild News &amp; Announcements</p>
@@ -10,7 +10,7 @@
     <p class="events-empty">No events to display.</p>
   } @else {
     <div class="events-list">
-      @for (event of events(); track event.title) {
+      @for (event of visibleEvents(); track event.title) {
         <div class="event-item" [class.event-item--future]="isFuture(event.date)">
 
           <!-- Header -->
@@ -29,11 +29,19 @@
 
           <!-- Content -->
           @if (event.description) {
-            <div class="event-content" [innerHTML]="buildDescription(event)"></div>
+            <div class="event-content-panel">
+              <div class="event-content" [innerHTML]="buildDescription(event)"></div>
+            </div>
           }
 
         </div>
       }
     </div>
+
+    @if (hasMore()) {
+      <div class="events-more">
+        <button type="button" class="view-more-btn" (click)="showMore()">View More</button>
+      </div>
+    }
   }
 </div>

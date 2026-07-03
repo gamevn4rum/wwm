@@ -40,11 +40,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/footages/footages-page.component').then((m) => m.FootagesPageComponent),
       },
-      {
-        path: 'events',
-        loadComponent: () =>
-          import('./features/events/events-page.component').then((m) => m.EventsPageComponent),
-      },
       { path: '**', redirectTo: '' },
     ],
   },
