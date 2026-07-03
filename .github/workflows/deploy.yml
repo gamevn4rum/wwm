@@ -1,0 +1,123 @@
+name: Build & Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # manual trigger + invoked by sync-sheets.yml after a data update
+
+# Only one deployment at a time; cancel any in-progress run for the same ref.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build → gh-pages branch
+    runs-on: ubuntu-latest
+
+    # Need write access to push the gh-pages branch.
+    permissions:
+      contents: write
+
+    steps:
+      # ── 1. Source checkout ────────────────────────────────────────────────
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          # Full history needed so we can push to a different branch later.
+          fetch-depth: 0
+
+      # ── 2. Node.js ───────────────────────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # ── 3. Dependencies ──────────────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 4. Secrets → environment file ───────────────────────────────────
+      #
+      # environment.prod.ts ships with placeholder values; bake in the real
+      # ones from repo secrets before building (same values used by
+      # sync-sheets.yml when it fetches/encrypts data/*.json).
+      #
+      - name: Inject secrets into environment.prod.ts
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
+        run: |
+          sed -i "s/YOUR_GOOGLE_API_KEY/$GOOGLE_API_KEY/" src/environments/environment.prod.ts
+          sed -i "s/YOUR_SPREADSHEET_ID/$GOOGLE_SHEET_ID/" src/environments/environment.prod.ts
+          sed -i "s/YOUR_DATA_ENCRYPTION_KEY/$DATA_ENCRYPTION_KEY/" src/environments/environment.prod.ts
+
+      # ── 5. Production build ───────────────────────────────────────────────
+      #
+      # angular.json already fixes outputPath to ./docs and baseHref to
+      # /wwm/ for the "production" configuration (the default), so a plain
+      # `ng build` is enough.
+      #
+      - name: Build (production)
+        run: npx ng build
+
+      # ── 6. Post-build: Jekyll bypass ──────────────────────────────────────
+      #
+      # GitHub Pages runs Jekyll by default, which ignores/mangles files and
+      # folders starting with "_". .nojekyll disables that.
+      #
+      # SPA deep-link routing is already handled by public/404.html (copied
+      # into docs/ as a build asset) together with the restore script in
+      # src/index.html — no extra copy step needed here.
+      #
+      - name: Post-build extras
+        run: touch docs/.nojekyll
+
+      # ── 7. Push docs/ to gh-pages branch ─────────────────────────────────
+      #
+      # Strategy:
+      #   a) Move ./docs out of the git working tree.
+      #   b) Check out (or create orphan) the gh-pages branch.
+      #   c) Wipe the working tree so the branch only contains what we publish.
+      #   d) Restore ./docs and add a root-level .nojekyll.
+      #   e) Commit & force-push.
+      #
+      # GitHub Pages should be configured as: Settings → Pages →
+      # Source: "Deploy from a branch" → Branch: gh-pages / docs
+      #
+      - name: Deploy to gh-pages branch
+        run: |
+          # Save built output before switching branches
+          cp -r docs /tmp/angular-docs
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check out existing branch or start an orphan
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            git checkout -B gh-pages origin/gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . --quiet 2>/dev/null || true
+          fi
+
+          # Wipe everything (tracked + untracked), keep only .git/
+          git rm -rf . --quiet 2>/dev/null || true
+          find . -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} + 2>/dev/null || true
+
+          # Restore the build
+          cp -r /tmp/angular-docs docs
+          touch .nojekyll
+
+          # Commit (skip if nothing changed)
+          git add -A
+          if git diff --staged --quiet; then
+            echo "Nothing new to deploy — skipping commit."
+          else
+            SHORT_SHA="${GITHUB_SHA::7}"
+            git commit -m "deploy: ${SHORT_SHA} ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git push origin gh-pages --force-with-lease 2>/dev/null \
+              || git push origin gh-pages --force
+          fi
