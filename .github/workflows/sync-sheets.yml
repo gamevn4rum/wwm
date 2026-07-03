@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: write            # needed to trigger deploy.yml below
 
 jobs:
   sync:
@@ -37,25 +38,28 @@ jobs:
           DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
         run: node scripts/encrypt-data.js
 
-      - name: Build Angular app (bakes data files into docs/)
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-          DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
-        run: |
-          sed -i "s/YOUR_GOOGLE_API_KEY/$GOOGLE_API_KEY/" src/environments/environment.prod.ts
-          sed -i "s/YOUR_SPREADSHEET_ID/$GOOGLE_SHEET_ID/" src/environments/environment.prod.ts
-          sed -i "s/YOUR_DATA_ENCRYPTION_KEY/$DATA_ENCRYPTION_KEY/" src/environments/environment.prod.ts
-          npx ng build
-
-      - name: Commit and push updated files
+      - name: Commit and push updated data
+        id: commit
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git rm --cached data/footages.json --ignore-unmatch
-          git rm --cached docs/data/footages.json --ignore-unmatch
-          rm -f docs/data/footages.json
-          git add data/ docs/
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git rm --cached data/match-history.json --ignore-unmatch
+          git rm --cached data/members.json --ignore-unmatch
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git commit -m "chore: sync sheet data [skip ci]"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # Building/deploying now lives in deploy.yml. A push made with the
+      # default GITHUB_TOKEN does NOT trigger other workflows' `push`
+      # events, so trigger it explicitly instead of relying on that push.
+      - name: Trigger deploy workflow
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main

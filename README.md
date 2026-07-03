@@ -10,16 +10,20 @@ A guild roster and information page for **GameVN**, deployed as a static site on
 
 ```
 Google Sheet
-     │  (GitHub Actions — hourly)
+     │  (sync-sheets.yml — hourly)
      ▼
-scripts/fetch-data.js  →  data/*.json  (source of truth)
-                                │
-                          ng build  →  docs/  (GitHub Pages root)
+scripts/fetch-data.js  →  data/*.json  (source of truth, committed to main)
+     │
+     │  triggers deploy.yml (workflow_dispatch)
+     ▼
+ng build  →  docs/  →  pushed to gh-pages branch
 ```
 
 - The **Angular app** fetches pre-built static JSON files (`data/*.json`) at runtime — no API calls from the browser.
-- The **GitHub Actions workflow** runs hourly, fetches fresh data from the Google Sheet, rebuilds the app, and pushes `data/` + `docs/` back to the repo.
-- **GitHub Pages** serves the `docs/` folder on the `main` branch.
+- **`sync-sheets.yml`** runs hourly: fetches fresh data from the Google Sheet, encrypts sensitive files, and commits `data/*.json` back to `main`. If anything changed, it triggers `deploy.yml`.
+- **`deploy.yml`** runs on every push to `main` (code changes) or when triggered by a sync: it builds the app and force-pushes the `docs/` output to the `gh-pages` branch (created automatically if it doesn't exist yet).
+- **GitHub Pages** serves the `gh-pages` branch's `docs/` folder.
+- **SPA deep-link routing**: GitHub Pages has no server-side router, so it 404s on any path other than `/`. `public/404.html` encodes the requested path into a `?p=` query param and redirects to the app root; `src/index.html` reads that param on boot and calls `history.replaceState` to restore the real URL before Angular's router takes over. This means child routes (e.g. `/wwm/schedule`) work correctly even on a hard refresh or direct link.
 
 ---
 
@@ -44,12 +48,14 @@ const PAGES = [
   { file: 'formation.json',     range: 'Formation' },
   { file: 'schedule.json',      range: 'Schedule' },
   { file: 'match-history.json', range: 'MatchHistory' },
-  { file: 'footages.json',      range: 'Footages' },
+  { file: 'events.json',        range: 'Events' },
 ];
 ```
 
 Each `range` must exactly match a **sheet tab name** in your Google Spreadsheet.  
 The sheet's first row is treated as column headers; all subsequent rows become JSON objects keyed by those headers.
+
+There is no separate Footages tab — the Match History sheet carries one column per uploader (`Kam`, `Necro`, `Ruby`, `VK`, `Yuenshin`, `canoc`, `Sniper`, `LVH`, `choxu`) holding that uploader's YouTube link for the match, if any. `MatchHistoryDataService` parses those columns into each `MatchRecord`'s `footages` array; the Footages gallery page and the match-card popup both derive their video lists from that same array instead of a separate fetch.
 
 ---
 
@@ -92,7 +98,7 @@ Open `http://localhost:4200/`. The dev server serves `data/*.json` as static ass
 ng build
 ```
 
-Output goes to `docs/`. Commit and push `docs/` to deploy to GitHub Pages.
+Output goes to `docs/` locally for inspection only — it is gitignored on `main`. Deployment happens via the `deploy.yml` workflow, which pushes `docs/` to the `gh-pages` branch.
 
 ---
 
@@ -100,13 +106,20 @@ Output goes to `docs/`. Commit and push `docs/` to deploy to GitHub Pages.
 
 1. Go to **Settings → Pages**
 2. Source: **Deploy from a branch**
-3. Branch: `main` / `docs` folder
+3. Branch: `gh-pages` / `docs` folder
+
+The `gh-pages` branch is created automatically the first time `deploy.yml` runs — no manual setup needed beyond pointing Pages at it.
 
 ---
 
-## Workflow: Manual Sync
+## Workflows
 
-Trigger a data sync at any time from **Actions → Sync Google Sheets Data → Run workflow**.
+| Workflow | Trigger | Does |
+|---|---|---|
+| `sync-sheets.yml` | Hourly cron, manual | Fetches/encrypts sheet data, commits `data/*.json` to `main`, triggers `deploy.yml` if data changed |
+| `deploy.yml` | Push to `main`, manual, or triggered by `sync-sheets.yml` | Builds the app and force-pushes `docs/` to `gh-pages` |
+
+Trigger either manually from **Actions → (workflow name) → Run workflow**.
 
 ---
 

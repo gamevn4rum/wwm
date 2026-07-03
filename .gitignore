@@ -2,6 +2,7 @@
 
 # Compiled output
 /dist
+/docs
 /tmp
 /out-tsc
 /bazel-out
@@ -45,5 +46,7 @@ __screenshots__/
 Thumbs.db
 
 # Plaintext form of encrypted data files — served only in encrypted form (.enc)
-data/footages.json
-docs/data/footages.json
+data/match-history.json
+docs/data/match-history.json
+data/members.json
+docs/data/members.json
