@@ -114,7 +114,6 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    this.popup.loadFootages();
     this.matchDataService.getMatches().subscribe({
       next: (matches) => {
         this.allMatches.set(matches);

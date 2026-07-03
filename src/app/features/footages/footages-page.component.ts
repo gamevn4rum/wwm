@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FootagesDataService } from './footages-data.service';
 import { FootageRecord, MatchType, UploaderKey } from './footages.model';
+import { UPLOADERS } from '../match-history/match-record.model';
 import { FootageVideoCardComponent } from './components/footage-video-card.component';
 
 @Component({
@@ -24,7 +25,7 @@ export class FootagesPageComponent implements OnInit {
   readonly selectedUploader = signal<'All' | UploaderKey>('All');
 
   readonly matchTypeOptions: MatchType[] = ['League', 'Ranked', 'Scrim'];
-  readonly uploaderOptions: UploaderKey[] = ['Kam', 'Necro', 'VK', 'Ruby', 'Yuenshin', 'Sniper', 'canoc', 'LVH'];
+  readonly uploaderOptions: UploaderKey[] = UPLOADERS;
 
   readonly opponentOptions = computed(() =>
     Array.from(new Set(this.allFootages().map((f) => f.opponent))).sort((a, b) => a.localeCompare(b))
