@@ -77,12 +77,12 @@ jobs:
 
       # ── 7. Push docs/ to gh-pages branch ─────────────────────────────────
       #
-      # Strategy:
-      #   a) Move ./docs out of the git working tree.
-      #   b) Check out (or create orphan) the gh-pages branch.
-      #   c) Wipe the working tree so the branch only contains what we publish.
-      #   d) Restore ./docs and add a root-level .nojekyll.
-      #   e) Commit & force-push.
+      # gh-pages is pure publish output, not a development branch — it is
+      # always rebuilt as a fresh orphan commit (no shared history with
+      # main) and force-pushed. Reusing/rebasing onto the previous gh-pages
+      # commit previously caused the branch to silently inherit all of
+      # main's history (ended up hundreds of commits deep, sharing main's
+      # root commit) instead of staying a single-commit snapshot.
       #
       # GitHub Pages should be configured as: Settings → Pages →
       # Source: "Deploy from a branch" → Branch: gh-pages / docs
@@ -90,20 +90,13 @@ jobs:
       - name: Deploy to gh-pages branch
         run: |
           # Save built output before switching branches
+          # (docs/.nojekyll already exists from the "Post-build extras" step)
           cp -r docs /tmp/angular-docs
 
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Check out existing branch or start an orphan
-          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
-            git checkout -B gh-pages origin/gh-pages
-          else
-            git checkout --orphan gh-pages
-            git rm -rf . --quiet 2>/dev/null || true
-          fi
-
-          # Wipe everything (tracked + untracked), keep only .git/
+          git checkout --orphan gh-pages
           git rm -rf . --quiet 2>/dev/null || true
           find . -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} + 2>/dev/null || true
 
@@ -111,13 +104,7 @@ jobs:
           cp -r /tmp/angular-docs docs
           touch .nojekyll
 
-          # Commit (skip if nothing changed)
           git add -A
-          if git diff --staged --quiet; then
-            echo "Nothing new to deploy — skipping commit."
-          else
-            SHORT_SHA="${GITHUB_SHA::7}"
-            git commit -m "deploy: ${SHORT_SHA} ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-            git push origin gh-pages --force-with-lease 2>/dev/null \
-              || git push origin gh-pages --force
-          fi
+          SHORT_SHA="${GITHUB_SHA::7}"
+          git commit -m "deploy: ${SHORT_SHA} ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+          git push origin gh-pages --force
