@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { MembersDataService } from './members-data.service';
 import { SheetRow } from '../models/sheet.model';
@@ -18,9 +18,9 @@ export interface DiscordUserSession {
   avatarUrl: string;
   isAuthorized: boolean;
   role: UserRole;
-  /** Formation Permission — saved to localStorage as 'FP' */
+  /** Formation Permission, from the Members sheet */
   fp: boolean;
-  /** Footage Permission — saved to localStorage as 'FTP' */
+  /** Footage Permission, from the Members sheet */
   ftp: boolean;
 }
 
@@ -28,9 +28,15 @@ export interface DiscordUserSession {
 export class DiscordAuthService {
   private readonly http = inject(HttpClient);
   private readonly membersData = inject(MembersDataService);
-  private readonly sessionKey = 'gv_user_session';
+  private readonly tokenKey = 'gv_access_token';
   private readonly clientId = '1512670533093949570';
   private initialized = false;
+
+  // Emits exactly once per page load, after the session (if any) has been
+  // verified against Discord + the Members sheet. Guards await this instead
+  // of reading `currentUser` synchronously, since fp/ftp are never trusted
+  // from storage — only from a token Discord itself just vouched for.
+  private readonly ready$ = new ReplaySubject<DiscordUserSession | null>(1);
 
   private readonly currentUserSubject = new BehaviorSubject<DiscordUserSession | null>(null);
   readonly currentUser$ = this.currentUserSubject.asObservable();
@@ -45,38 +51,49 @@ export class DiscordAuthService {
     ftp: true,
   };
 
-  initializeAuthState(): void {
+  /**
+   * Kicks off session resolution on first call (idempotent) and returns an
+   * observable that emits once resolution completes — used by route guards
+   * so they never decide access based on a not-yet-verified state.
+   */
+  initializeAuthState(): Observable<DiscordUserSession | null> {
     if (this.initialized) {
-      return;
+      return this.ready$;
     }
-
     this.initialized = true;
 
     if (window.location.hostname === 'localhost') {
       this.currentUserSubject.next(this.devSession);
-      return;
-    }
-
-    const storedSession = this.getStoredSession();
-    if (storedSession) {
-      this.currentUserSubject.next(storedSession);
+      this.ready$.next(this.devSession);
+      this.ready$.complete();
+      return this.ready$;
     }
 
     const hash = window.location.hash;
-    if (!hash || !hash.includes('access_token=')) {
-      return;
+    const hasFreshToken = hash.includes('access_token=');
+    let token = localStorage.getItem(this.tokenKey);
+
+    if (hasFreshToken) {
+      const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.substring(1) : hash);
+      this.clearUrlHash();
+      token = hashParams.get('access_token');
+      if (token) {
+        localStorage.setItem(this.tokenKey, token);
+      }
     }
 
-    const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.substring(1) : hash);
-    const accessToken = hashParams.get('access_token');
-
-    this.clearUrlHash();
-
-    if (!accessToken) {
-      return;
+    if (!token) {
+      this.ready$.next(null);
+      this.ready$.complete();
+      return this.ready$;
     }
 
-    this.handleTokenLogin(accessToken).subscribe();
+    this.resolveSession(token).subscribe((session) => {
+      this.ready$.next(session);
+      this.ready$.complete();
+    });
+
+    return this.ready$;
   }
 
   login(): void {
@@ -84,11 +101,17 @@ export class DiscordAuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.sessionKey);
+    localStorage.removeItem(this.tokenKey);
     this.currentUserSubject.next(null);
   }
 
-  private handleTokenLogin(accessToken: string): Observable<DiscordUserSession | null> {
+  /**
+   * Verifies an access token against Discord (authoritative identity — a
+   * forged/expired token simply fails here) and recomputes fp/ftp fresh
+   * from the Members sheet every time. Nothing about permissions is ever
+   * read back out of storage.
+   */
+  private resolveSession(accessToken: string): Observable<DiscordUserSession | null> {
     const members$ = this.membersData.getRows();
 
     return this.fetchDiscordProfile(accessToken).pipe(
@@ -117,11 +140,12 @@ export class DiscordAuthService {
           ftp,
         };
 
-        localStorage.setItem(this.sessionKey, JSON.stringify(session));
         this.currentUserSubject.next(session);
         return session;
       }),
       catchError(() => {
+        // Invalid/expired token, or the lookup failed — don't leave a stale
+        // session behind.
         this.logout();
         return of(null);
       })
@@ -156,38 +180,6 @@ export class DiscordAuthService {
     });
 
     return `https://discord.com/oauth2/authorize?${params.toString()}`;
-  }
-
-  private getStoredSession(): DiscordUserSession | null {
-    const rawSession = localStorage.getItem(this.sessionKey);
-    if (!rawSession) {
-      return null;
-    }
-
-    try {
-      const parsed = JSON.parse(rawSession) as Partial<DiscordUserSession>;
-      const validRoles: UserRole[] = ['Creator', 'Commander', 'Warrior'];
-      if (
-        typeof parsed.username === 'string'
-        && typeof parsed.avatarUrl === 'string'
-        && parsed.isAuthorized === true
-        && validRoles.includes(parsed.role as UserRole)
-      ) {
-        return {
-          username: parsed.username,
-          avatarUrl: parsed.avatarUrl,
-          isAuthorized: true,
-          role: parsed.role as UserRole,
-          fp:  parsed.fp  === true,
-          ftp: parsed.ftp === true,
-        };
-      }
-    } catch {
-      // Ignore bad local data and reset below.
-    }
-
-    localStorage.removeItem(this.sessionKey);
-    return null;
   }
 
   private buildAvatarUrl(profile: DiscordApiUser): string {
