@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { EventsDataService } from '../../../events/events-data.service';
 import { EventRecord } from '../../../events/event-record.model';
@@ -12,13 +12,14 @@ const PAGE_SIZE = 2;
   templateUrl: './events-list.component.html',
   styleUrls: ['./events-list.component.scss'],
 })
-export class EventsListComponent implements OnInit {
+export class EventsListComponent implements OnInit, OnDestroy {
   private readonly eventsDataService = inject(EventsDataService);
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly events = signal<EventRecord[]>([]);
   readonly loading = signal(true);
   readonly visibleCount = signal(PAGE_SIZE);
+  readonly lightboxSrc = signal<string | null>(null);
 
   readonly visibleEvents = computed(() => this.events().slice(0, this.visibleCount()));
   readonly hasMore = computed(() => this.visibleCount() < this.events().length);
@@ -33,8 +34,32 @@ export class EventsListComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+  }
+
   showMore(): void {
     this.visibleCount.update((count) => count + PAGE_SIZE);
+  }
+
+  openLightbox(src: string | null | undefined): void {
+    if (!src) return;
+    this.lightboxSrc.set(src);
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeLightbox(): void {
+    this.lightboxSrc.set(null);
+    document.body.style.overflow = '';
+  }
+
+  /** Event delegation — the description HTML is trusted/injected via innerHTML,
+   * so inline images can't take an Angular (click) binding directly. */
+  onContentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'IMG' && target.classList.contains('event-content-img')) {
+      this.openLightbox((target as HTMLImageElement).src);
+    }
   }
 
   buildDescription(event: EventRecord): SafeHtml {

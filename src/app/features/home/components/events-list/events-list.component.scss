@@ -6,33 +6,8 @@
 .events-list-wrapper {
   display: flex;
   flex-direction: column;
-  padding: var(--space-7) var(--space-6) var(--space-6);
+  padding: var(--space-5) var(--space-6) var(--space-6);
   gap: var(--space-5);
-}
-
-.events-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-
-.events-title {
-  font-family: var(--font-heading);
-  font-size: 2.1rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-ink);
-  margin: 0;
-}
-
-.events-sub {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  color: var(--color-ink-soft);
-  margin: 0;
 }
 
 .events-loading,
@@ -93,11 +68,18 @@
     object-fit: cover;
     display: block;
     z-index: 1;
+    cursor: zoom-in;
+    transition: filter var(--transition-fast);
+
+    &:hover {
+      filter: brightness(1.06);
+    }
   }
 
   .event-header-title {
     position: relative;
     z-index: 2;
+    pointer-events: none;
     font-family: var(--font-heading);
     font-size: 1.15rem;
     font-weight: 600;
@@ -156,6 +138,12 @@
     border-radius: var(--radius-sm);
     margin: 1rem auto;
     box-shadow: var(--shadow-sm);
+    cursor: zoom-in;
+    transition: filter var(--transition-fast);
+
+    &:hover {
+      filter: brightness(1.06);
+    }
   }
 }
 
@@ -183,5 +171,54 @@
     border-color: var(--color-primary-light);
     box-shadow: var(--shadow-sm);
     transform: translateY(-1px);
+  }
+}
+
+// ── Image lightbox — click any event picture to view it full size ────────────
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(16, 12, 8, 0.82);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: overlay-fade var(--transition-base);
+}
+
+.lightbox-image {
+  max-width: min(92vw, 1200px);
+  max-height: 88vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  cursor: default;
+  animation: panel-rise var(--transition-base);
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(251, 247, 238, 0.12);
+  border: 1px solid rgba(251, 247, 238, 0.3);
+  border-radius: 50%;
+  color: var(--color-on-dark);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+
+  &:hover {
+    background: rgba(251, 247, 238, 0.22);
+    border-color: rgba(251, 247, 238, 0.5);
   }
 }
