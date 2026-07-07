@@ -1,20 +1,30 @@
-@if (currentUser$ | async; as user) {
-  <div [class]="'member-badge login-badge rank-' + user.role.toLowerCase()" role="button" tabindex="0" (click)="onLogoutClick($event)">
-    <div class="badge-avatar">
-      <div class="avatar-placeholder">
-        <img [src]="user.avatarUrl" [alt]="user.username" />
+@if (authResolved$ | async) {
+  @if (currentUser$ | async; as user) {
+    <div [class]="'member-badge login-badge rank-' + user.role.toLowerCase()" role="button" tabindex="0" (click)="onLogoutClick($event)">
+      <div class="badge-avatar">
+        <div class="avatar-placeholder">
+          <img [src]="user.avatarUrl" [alt]="user.username" />
+        </div>
       </div>
+      <div class="badge-info">
+        <span class="badge-name">{{ user.username }}</span>
+        <span class="badge-rank">{{ user.role | uppercase }}</span>
+      </div>
+      <div class="logout-overlay">LOGOUT</div>
     </div>
-    <div class="badge-info">
-      <span class="badge-name">{{ user.username }}</span>
-      <span class="badge-rank">{{ user.role | uppercase }}</span>
-    </div>
-    <div class="logout-overlay">LOGOUT</div>
-  </div>
+  } @else {
+    <button type="button" class="member-badge rank-caller login-badge" (click)="onLoginClick()">
+      <div class="badge-info login-only-text">
+        <span class="badge-name">LOGIN</span>
+      </div>
+    </button>
+  }
 } @else {
-  <button type="button" class="member-badge rank-caller login-badge" (click)="onLoginClick()">
-    <div class="badge-info login-only-text">
-      <span class="badge-name">LOGIN</span>
+  <div class="member-badge login-badge login-skeleton" aria-hidden="true">
+    <div class="badge-avatar skeleton-shimmer"></div>
+    <div class="badge-info">
+      <span class="skeleton-line skeleton-shimmer"></span>
+      <span class="skeleton-line skeleton-line--short skeleton-shimmer"></span>
     </div>
-  </button>
+  </div>
 }

@@ -15,6 +15,7 @@ export class LoginButtonComponent {
   private readonly router = inject(Router);
 
   readonly currentUser$ = this.authService.currentUser$;
+  readonly authResolved$ = this.authService.authResolved$;
 
   constructor() {
     this.authService.initializeAuthState();

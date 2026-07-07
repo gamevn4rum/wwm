@@ -14,6 +14,7 @@ export class RegisterButtonComponent {
   private readonly authService = inject(DiscordAuthService);
   private readonly registerPopup = inject(RegisterPopupService);
   readonly currentUser$ = this.authService.currentUser$;
+  readonly authResolved$ = this.authService.authResolved$;
 
   openForm(): void {
     this.registerPopup.show();
