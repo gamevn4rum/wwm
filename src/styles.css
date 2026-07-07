@@ -1,5 +1,77 @@
 @import "tailwindcss";
 
+/* ────────────────────────────────────────────────────────────────────────
+   Design tokens — "official companion app" theme for Where Winds Meet
+   Warm rice-paper + white cards + soft bronze / sage accents.
+   ──────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --color-bg: #f6f0e3;
+  --color-bg-alt: #efe6d3;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fbf7ee;
+  --color-border: rgba(58, 48, 34, 0.10);
+  --color-border-strong: rgba(58, 48, 34, 0.20);
+
+  /* Ink / text */
+  --color-ink: #3a2f22;
+  --color-ink-soft: #6b5d4a;
+  --color-ink-faint: #9c8f79;
+  --color-on-dark: #f6f0e3;
+
+  /* Brand accents */
+  --color-primary: #ad7a4c;
+  --color-primary-dark: #8b5f37;
+  --color-primary-light: #d6b78c;
+  --color-primary-tint: rgba(173, 122, 76, 0.12);
+
+  --color-secondary: #7c9473;
+  --color-secondary-dark: #5f7757;
+  --color-secondary-tint: rgba(124, 148, 115, 0.14);
+
+  --color-danger: #b5533d;
+  --color-danger-tint: rgba(181, 83, 61, 0.12);
+
+  /* Restrained category accents (muted, harmonious with bronze/sage) */
+  --color-accent-blue: #6e88a8;
+  --color-accent-blue-tint: rgba(110, 136, 168, 0.14);
+  --color-accent-plum: #8b6f94;
+  --color-accent-plum-tint: rgba(139, 111, 148, 0.14);
+
+  /* Shadows — warm-tinted, soft */
+  --shadow-sm: 0 1px 3px rgba(58, 48, 34, 0.07);
+  --shadow-md: 0 6px 20px rgba(58, 48, 34, 0.09);
+  --shadow-lg: 0 16px 40px rgba(58, 48, 34, 0.14);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Typography */
+  --font-heading: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
+  --font-body: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --tracking-wide: 0.06em;
+  --tracking-wider: 0.14em;
+
+  /* Motion */
+  --transition-fast: 180ms ease;
+  --transition-base: 260ms ease;
+  --transition-slow: 340ms ease;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -8,7 +80,19 @@
 
 html, body {
   height: 100%;
-  background: #d6c9a8;
+  background: var(--color-bg-alt);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--color-primary-tint);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ── Footage Popup ─────────────────────────────────────────────────────────── */
@@ -16,42 +100,45 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(58, 48, 34, 0.45);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  animation: overlay-fade var(--transition-base);
 }
 
 .footage-popup-panel {
-  background: #f4e9cf;
-  border: 1px solid rgba(42, 26, 6, 0.35);
-  border-radius: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 1300px;
   max-height: calc(100dvh - 3rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: panel-rise var(--transition-base);
 }
 
 .footage-popup-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.1rem 0.75rem;
-  border-bottom: 1px solid rgba(42, 26, 6, 0.2);
-  background: rgba(214, 201, 168, 0.7);
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
   gap: 0.75rem;
   flex-shrink: 0;
 }
 
 .footage-popup-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #2a1a06;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
   flex: 1;
 }
 
@@ -59,48 +146,48 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   background: none;
-  border: 1px solid rgba(42, 26, 6, 0.3);
-  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .footage-popup-close:hover {
-  background: rgba(42, 26, 6, 0.1);
-  border-color: rgba(42, 26, 6, 0.55);
+  background: var(--color-primary-tint);
+  border-color: var(--color-primary-light);
 }
 
 .footage-popup-close img {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
   display: block;
+  opacity: 0.7;
 }
 
 .footage-popup-body {
-  padding: 1.1rem;
+  padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
 }
 
 .footage-popup-empty {
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  color: #4a3520;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-ink-soft);
   text-align: center;
   padding: 2rem 0;
-  letter-spacing: 0.08em;
 }
 
 .footage-popup-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 @media (max-width: 1080px) {
@@ -113,4 +200,34 @@ html, body {
   .footage-popup-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes panel-rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Page-enter motion ──────────────────────────────────────────────────────
+   Applied to each routed page's root wrapper so navigating between sections
+   feels alive rather than an instant swap. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-fade {
+  animation: page-enter var(--transition-slow);
+}
+
+/* ── Gradient accent text — used sparingly for a single hero word/glyph ── */
+.text-gradient-accent {
+  background: linear-gradient(120deg, var(--color-primary-dark), var(--color-primary) 45%, var(--color-secondary-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

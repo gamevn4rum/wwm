@@ -1,4 +1,4 @@
-<div class="match-history-page">
+<div class="match-history-page page-fade">
 
   <!-- ══ HEADER ══ -->
   <header class="chronicle-header">
@@ -63,7 +63,6 @@
           <div class="match-card"
                [class]="'card-status-' + resolveStatus(card.status)"
                (click)="ftpPermission() && openPopup(card)">
-            <div class="bg-texture-placeholder"><img src="images/card-texture.jpg" alt="" /></div>
             <div class="card-content">
               <div class="card-top">
                 <span class="card-date">{{ formatDate(card.date) }}</span>
@@ -73,14 +72,16 @@
               </div>
               <div class="card-bottom">
                 <span class="icon-placeholder icon-swords"><img src="icons/icon-swords.png" alt="" /></span>
-                <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
-                  <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
-                    <img [src]="getResultIconSrc(card.status)" alt="" />
+                <div class="card-result">
+                  <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
+                    <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
+                      <img [src]="getResultIconSrc(card.status)" alt="" />
+                    </span>
                   </span>
-                </span>
-                <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
-                  {{ resolveStatus(card.status).toUpperCase() }}
-                </span>
+                  <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
+                    {{ resolveStatus(card.status).toUpperCase() }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -98,7 +99,6 @@
           <div class="match-card"
                [class]="'card-status-' + resolveStatus(card.status)"
                (click)="ftpPermission() && openPopup(card)">
-            <div class="bg-texture-placeholder"><img src="images/card-texture.jpg" alt="" /></div>
             <div class="card-content">
               <div class="card-top">
                 <span class="card-date">{{ formatDate(card.date) }}</span>
@@ -108,14 +108,16 @@
               </div>
               <div class="card-bottom">
                 <span class="icon-placeholder icon-mountain"><img src="icons/icon-mountain.png" alt="" /></span>
-                <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
-                  <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
-                    <img [src]="getResultIconSrc(card.status)" alt="" />
+                <div class="card-result">
+                  <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
+                    <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
+                      <img [src]="getResultIconSrc(card.status)" alt="" />
+                    </span>
                   </span>
-                </span>
-                <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
-                  {{ resolveStatus(card.status).toUpperCase() }}
-                </span>
+                  <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
+                    {{ resolveStatus(card.status).toUpperCase() }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -133,7 +135,6 @@
           <div class="match-card"
                [class]="'card-status-' + resolveStatus(card.status)"
                (click)="ftpPermission() && openPopup(card)">
-            <div class="bg-texture-placeholder"><img src="images/card-texture.jpg" alt="" /></div>
             <div class="card-content">
               <div class="card-top">
                 <span class="card-date">{{ formatDate(card.date) }}</span>
@@ -143,14 +144,16 @@
               </div>
               <div class="card-bottom">
                 <span class="icon-placeholder icon-target"><img src="icons/icon-target.png" alt="" /></span>
-                <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
-                  <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
-                    <img [src]="getResultIconSrc(card.status)" alt="" />
+                <div class="card-result">
+                  <span class="card-result-icon" [class]="'result-' + resolveStatus(card.status)">
+                    <span class="icon-placeholder" [class]="getResultIconClass(card.status)">
+                      <img [src]="getResultIconSrc(card.status)" alt="" />
+                    </span>
                   </span>
-                </span>
-                <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
-                  {{ resolveStatus(card.status).toUpperCase() }}
-                </span>
+                  <span class="card-result-label" [class]="'label-' + resolveStatus(card.status)">
+                    {{ resolveStatus(card.status).toUpperCase() }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

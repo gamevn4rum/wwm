@@ -4,30 +4,51 @@
 }
 
 .member-grid-section {
-  padding: 0 1.5rem;
+  padding: var(--space-6) var(--space-6);
 }
 
-.section-label {
+// Page-header treatment — matches the accent-line + title pattern used on
+// the Schedule and Match History pages, for a consistent header across pages.
+.member-grid-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
 
-  .section-title {
-    font-family: 'HoshikoSatsuki', serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    color: #3d2b0e;
-    white-space: nowrap;
+.member-grid-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
+  white-space: nowrap;
+  margin: 0;
+}
+
+.accent-line {
+  display: inline-block;
+  flex: 1;
+  max-width: 200px;
+  height: 1px;
+  background: var(--color-border-strong);
+  position: relative;
+
+  &::after {
+    content: '❖';
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    transform: translateY(-50%);
+    font-size: 0.5rem;
+    color: var(--color-primary);
+    line-height: 1;
   }
 
-  .divider-line {
-    display: inline-block;
-    flex: 1;
-    max-width: 120px;
-    height: 1px;
-    background: #3d2b0e;
+  &:first-child::after {
+    right: auto;
+    left: -6px;
   }
 }
 
@@ -35,7 +56,7 @@
 .member-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 7px;
+  gap: var(--space-3);
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(4, 1fr);
@@ -48,41 +69,34 @@
 
 /* ── Badge ── */
 .member-badge {
+  --accent: var(--color-ink-faint);
+
   display: flex;
   align-items: center;
-  gap: 0.525rem;
-  padding: 0.45rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  background: #2d2416;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
   position: relative;
   min-width: 0;
-  overflow: visible;
   cursor: default;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
 }
 
-/* ── Rank color variants ── */
-.rank-carrier {
-  background: linear-gradient(135deg, #0d2e14, #1a4d22);
-  border-color: #2a7a3a;
-}
-.rank-caller {
-  background: linear-gradient(135deg, #2e1a00, #4d3000);
-  border-color: #7a5000;
-}
-.rank-attacker {
-  background: linear-gradient(135deg, #0d1a2e, #1a2d4d);
-  border-color: #2a4a7a;
-}
-.rank-healer {
-  background: linear-gradient(135deg, #1a2e0d, #2d4d1a);
-  border-color: #4a7a2a;
-}
-.rank-tanker {
-  background: linear-gradient(135deg, #2e2800, #4d4400);
-  border-color: #7a6e00;
-}
+/* ── Rank accent variants ── */
+.rank-carrier  { --accent: var(--color-secondary);   --accent-tint: var(--color-secondary-tint); }
+.rank-caller   { --accent: var(--color-primary);     --accent-tint: var(--color-primary-tint); }
+.rank-attacker { --accent: var(--color-accent-blue); --accent-tint: var(--color-accent-blue-tint); }
+.rank-healer   { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
+.rank-tanker   { --accent: var(--color-ink-soft);    --accent-tint: var(--color-border-strong); }
 
 /* ── Avatar ── */
 .badge-avatar {
@@ -90,8 +104,8 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--accent-tint, var(--color-surface-alt));
+  border: 1.5px solid var(--accent);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -99,10 +113,10 @@
 
   .avatar-placeholder img {
     display: block;
-    width: 42px;
-    height: 42px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
-    opacity: 0.9;
+    opacity: 0.85;
   }
 }
 
@@ -115,36 +129,23 @@
 }
 
 .badge-name {
-  font-family: 'Cinzel', serif;
-  font-size: 0.87rem;
-  font-weight: 700;
-  color: #e8d9b0;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .badge-rank {
-  font-family: 'Sigokae', cursive;
-  font-size: 0.63rem;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  line-height: 1.25;
 }
-
-/* ── Hover glow per rank ── */
-.rank-carrier:hover  { box-shadow: 0 0 10px 6px rgba(0, 160, 60, 0.7);   border-color: #00a03c; }
-.rank-caller:hover   { box-shadow: 0 0 10px 6px rgba(255, 140, 0, 0.7);  border-color: #ff8c00; }
-.rank-attacker:hover { box-shadow: 0 0 10px 6px rgba(40, 100, 255, 0.7); border-color: #2864ff; }
-.rank-healer:hover   { box-shadow: 0 0 10px 6px rgba(80, 220, 80, 0.7);  border-color: #50dc50; }
-.rank-tanker:hover   { box-shadow: 0 0 10px 6px rgba(230, 210, 0, 0.7);  border-color: #e6d200; }
-.member-badge:not(.rank-carrier):not(.rank-caller):not(.rank-attacker):not(.rank-healer):not(.rank-tanker):hover {
-  box-shadow: 0 0 10px 2px rgba(160, 160, 160, 0.6);
-  border-color: #a0a0a0;
-}
-
-

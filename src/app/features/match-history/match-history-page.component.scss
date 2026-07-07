@@ -1,26 +1,3 @@
-// ─── Color Tokens ──────────────────────────────────────────────────────────────
-$color-parchment:      #d6c9a8;
-$color-ink-dark:       #2a1a06;
-$color-ink-mid:        #4a3520;
-$color-ink-light:      #7a6040;
-$color-gold:           #c9a84c;
-$color-gold-light:     #e2c97e;
-$color-gold-dark:      #8a6520;
-
-$color-league-banner:  #1a3a5c;
-$color-league-card-a:  #1e3d5e;  // victory
-$color-league-card-b:  #5c2020;  // failure
-
-$color-ranked-banner:  #3a1a5c;
-$color-ranked-card-a:  #3a2060;
-$color-ranked-card-b:  #5c2020;
-
-$color-scrim-banner:   #1a3a1a;
-$color-scrim-card-a:   #1e3d1e;
-$color-scrim-card-b:   #5c2020;
-
-$color-draw-card:      #3a3020;
-
 // ─── Host ──────────────────────────────────────────────────────────────────────
 :host {
   display: block;
@@ -29,10 +6,10 @@ $color-draw-card:      #3a3020;
 
 // ─── Page wrapper ──────────────────────────────────────────────────────────────
 .match-history-page {
-  padding: 1.25rem 1.5rem 2rem;
+  padding: var(--space-6) var(--space-6) var(--space-7);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-5);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,16 +19,16 @@ $color-draw-card:      #3a3020;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.1rem;
-  margin-bottom: 0.25rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-1);
 }
 
 .chronicle-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  color: $color-ink-dark;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
   white-space: nowrap;
 }
 
@@ -60,45 +37,48 @@ $color-draw-card:      #3a3020;
   flex: 1;
   max-width: 200px;
   height: 1px;
-  background: linear-gradient(to right, transparent, $color-ink-mid 40%, $color-ink-mid 60%, transparent);
+  background: var(--color-border-strong);
   position: relative;
 
   &::after {
-    content: '◆';
+    content: '❖';
     position: absolute;
     top: 50%;
-    right: -2px;
+    right: -6px;
     transform: translateY(-50%);
-    font-size: 0.38rem;
-    color: $color-ink-mid;
+    font-size: 0.5rem;
+    color: var(--color-primary);
     line-height: 1;
   }
 
   &:first-child::after {
     right: auto;
-    left: -2px;
-    content: '◆';
+    left: -6px;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIMELINE SECTION
 // ─────────────────────────────────────────────────────────────────────────────
-// TIMELINE SECTION — fixed 300px, 100% width
 // The library bakes `min-height: 300px` per col and `min-height: max(20rem,100%)`
 // on the row container. All overrides use ::ng-deep on the exact class names
-// from the compiled library template.
+// from the compiled library template — structure is preserved, only colour changes.
 // ─────────────────────────────────────────────────────────────────────────────
 .timeline-section {
-  background: rgba(214, 201, 168, 0.55);
-  border: 1px solid rgba(100, 70, 20, 0.18);
-  border-radius: 6px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   width: 100%;
   height: 300px;
   overflow-x: auto;
   overflow-y: hidden;
 
-  // ── Let the library container be as wide as its content ───────────────
+  // Override the library's own CSS custom properties (default: orange) —
+  // simpler and more robust than fighting its selector specificity.
+  --ngx-timeline-icon: var(--color-border-strong);
+  --ngx-timeline-line-background: var(--color-border-strong);
+  --ngx-timeline-period-inner-container: var(--color-primary);
+
   ::ng-deep ngx-timeline,
   ::ng-deep ngx-timeline .main-container {
     display: flex;
@@ -107,7 +87,6 @@ $color-draw-card:      #3a3020;
     height: 100%;
   }
 
-  // The horizontal items row
   ::ng-deep .items-container.horizontal {
     display: flex;
     flex-direction: row;
@@ -119,7 +98,6 @@ $color-draw-card:      #3a3020;
     padding: 0;
   }
 
-  // Each "row" inside horizontal mode is one node column
   ::ng-deep .items-container.horizontal .row {
     flex: 0 0 120px;
     min-width: 120px;
@@ -127,7 +105,6 @@ $color-draw-card:      #3a3020;
     height: 100%;
   }
 
-  // Kill the 300px hardcoded min-heights on col-left / col-right
   ::ng-deep .items-container.horizontal .col-left,
   ::ng-deep .items-container.horizontal .col-right {
     flex: 1 1 0;
@@ -138,7 +115,6 @@ $color-draw-card:      #3a3020;
     justify-content: center;
   }
 
-  // The centre connector row — keep it compact
   ::ng-deep .items-container.horizontal .col-center {
     flex: 0 0 auto;
     min-height: unset !important;
@@ -155,17 +131,15 @@ $color-draw-card:      #3a3020;
     max-height: 2px;
   }
 
-  // Center dot icon
   ::ng-deep .center-icon-container {
     padding: 0 0.25rem;
   }
   ::ng-deep .center-icon-container .icon {
-    background: $color-ink-mid;
+    background: var(--color-border-strong);
     height: 8px;
     width: 8px;
   }
 
-  // Period badges — styled as month milestone labels
   ::ng-deep .period-container {
     display: flex;
     justify-content: center;
@@ -173,11 +147,11 @@ $color-draw-card:      #3a3020;
   }
   ::ng-deep .period-inner-container {
     background: transparent !important;
-    color: $color-ink-dark !important;
-    font-family: 'Cinzel', serif !important;
-    font-size: 0.6rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.15em !important;
+    color: var(--color-ink) !important;
+    font-family: var(--font-body) !important;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: var(--tracking-wide) !important;
     white-space: nowrap;
     padding: 0 !important;
   }
@@ -199,19 +173,16 @@ $color-draw-card:      #3a3020;
     width: 100%;
   }
 
-  // Arrow tips — not needed in our custom layout
   ::ng-deep .arrow {
     display: none;
   }
 
-  // The time-of-day `.hour` columns — hidden via emptyTemplate but also guard here
   ::ng-deep .hour {
     display: none !important;
   }
 
-  // Connector line colour
   ::ng-deep .line {
-    background: $color-ink-mid !important;
+    background: var(--color-border-strong) !important;
   }
   ::ng-deep .line.transparent {
     background: transparent !important;
@@ -226,16 +197,15 @@ $color-draw-card:      #3a3020;
 }
 
 .period-label {
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: $color-ink-dark;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-primary-dark);
   white-space: nowrap;
-  background: rgba($color-gold, 0.18);
-  border: 1px solid rgba($color-gold-dark, 0.45);
-  border-radius: 3px;
-  padding: 0.15rem 0.5rem;
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.6rem;
 }
 
 // ── Individual Timeline Node ──────────────────────────────────────────────────
@@ -244,32 +214,31 @@ $color-draw-card:      #3a3020;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   width: 100%;
   height: 100%;
   cursor: default;
 
   &.active .node-circle {
-    border-color: $color-gold;
-    box-shadow: 0 0 0 3px rgba($color-gold, 0.45), 0 0 14px 4px rgba($color-gold, 0.3);
-    transform: scale(1.15);
+    box-shadow: 0 0 0 3px var(--color-primary-tint);
+    transform: scale(1.12);
   }
 }
 
 .node-circle {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 2px solid $color-ink-mid;
+  border: 1.5px solid var(--color-border-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-  background: rgba($color-ink-dark, 0.85);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  background: var(--color-surface);
 
-  &.node-type-league  { border-color: color-mix(in srgb, $color-league-banner 60%, white); background: $color-league-banner; }
-  &.node-type-ranked  { border-color: color-mix(in srgb, $color-ranked-banner 60%, white); background: $color-ranked-banner; }
-  &.node-type-scrim   { border-color: color-mix(in srgb, $color-scrim-banner 60%, white);  background: $color-scrim-banner; }
+  &.node-type-league  { border-color: var(--color-accent-blue); background: var(--color-accent-blue-tint); }
+  &.node-type-ranked  { border-color: var(--color-accent-plum); background: var(--color-accent-plum-tint); }
+  &.node-type-scrim   { border-color: var(--color-secondary);   background: var(--color-secondary-tint); }
 }
 
 .node-info {
@@ -280,25 +249,25 @@ $color-draw-card:      #3a3020;
 }
 
 .node-date {
-  font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.06em;
-  color: $color-ink-mid;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-faint);
+  font-weight: 600;
 }
 
 .node-opponent {
-  font-family: 'Marcellus', serif;
-  font-size: 0.65rem;
-  color: $color-ink-dark;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--color-ink);
   font-weight: 600;
 }
 
 .node-type-label {
-  font-family: 'Cinzel', serif;
-  font-size: 0.48rem;
-  letter-spacing: 0.1em;
-  color: $color-ink-light;
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink-faint);
   text-transform: uppercase;
 }
 
@@ -308,36 +277,34 @@ $color-draw-card:      #3a3020;
 .history-grid-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-5);
 }
 
 // ── Row ───────────────────────────────────────────────────────────────────────
 .match-row {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-3);
 }
 
 .row-banner {
   display: inline-flex;
   align-items: center;
-  padding: 0.22rem 1.1rem 0.22rem 0.9rem;
-  border-radius: 3px 0 0 3px;
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+  padding: 0.35rem 1.1rem;
+  border-radius: var(--radius-pill);
   width: fit-content;
-  min-width: 110px;
 
-  &.banner-league { background: $color-league-banner; }
-  &.banner-ranked { background: $color-ranked-banner; }
-  &.banner-scrim  { background: $color-scrim-banner; }
+  &.banner-league { background: var(--color-accent-blue-tint); }
+  &.banner-ranked { background: var(--color-accent-plum-tint); }
+  &.banner-scrim  { background: var(--color-secondary-tint); }
 }
 
 .row-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: $color-gold-light;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
   text-transform: capitalize;
 }
 
@@ -345,7 +312,7 @@ $color-draw-card:      #3a3020;
 .match-cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: var(--space-3);
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, 1fr);
@@ -358,57 +325,40 @@ $color-draw-card:      #3a3020;
 // ── Individual Match Card ─────────────────────────────────────────────────────
 .match-card {
   position: relative;
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border-strong);
+  background: var(--color-surface);
   overflow: hidden;
-  min-height: 108px;
+  min-height: 112px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 
   &:hover {
-    border-color: rgba($color-gold, 0.6);
-    box-shadow: 0 0 12px 2px rgba($color-gold, 0.2);
-  }
-
-  // Status-based card backgrounds
-  &.card-status-victory {
-    background: linear-gradient(145deg, color-mix(in srgb, $color-league-card-a 85%, black), $color-league-card-a 60%, color-mix(in srgb, $color-league-card-a 70%, black));
-  }
-  &.card-status-failure {
-    background: linear-gradient(145deg, #4a1a1a, #5c2020 60%, #3a1010);
-  }
-  &.card-status-draw {
-    background: linear-gradient(145deg, color-mix(in srgb, $color-draw-card 85%, black), $color-draw-card 60%, color-mix(in srgb, $color-draw-card 70%, black));
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
 }
 
-// Rows use their own color for victory cards
-.match-row:has(.banner-league) .card-status-victory {
-  background: linear-gradient(145deg, #1a3450, #1e3d5e 60%, #162840);
-}
-.match-row:has(.banner-ranked) .card-status-victory {
-  background: linear-gradient(145deg, #2a1650, #3a2060 60%, #1e1040);
-}
-.match-row:has(.banner-scrim) .card-status-victory {
-  background: linear-gradient(145deg, #1a3418, #1e3d1e 60%, #162814);
-}
+// Left accent bar colour-codes each card by its row category (League/Ranked/Scrim).
+.match-row:has(.banner-league) .match-card { border-left-color: var(--color-accent-blue); }
+.match-row:has(.banner-ranked) .match-card { border-left-color: var(--color-accent-plum); }
+.match-row:has(.banner-scrim) .match-card  { border-left-color: var(--color-secondary); }
 
-// ── Background texture placeholder ────────────────────────────────────────────
-.bg-texture-placeholder {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.35;
-    display: block;
-  }
+// Result wash colour-codes each card by outcome — readable at a glance,
+// independent of the category accent bar above.
+.match-card.card-status-victory {
+  background: linear-gradient(165deg, var(--color-secondary-tint) 0%, var(--color-surface) 60%);
+}
+.match-card.card-status-failure {
+  background: linear-gradient(165deg, var(--color-danger-tint) 0%, var(--color-surface) 60%);
+}
+.match-card.card-status-draw {
+  background: linear-gradient(165deg, var(--color-surface-alt) 0%, var(--color-surface) 60%);
 }
 
 // ── Card Content ──────────────────────────────────────────────────────────────
@@ -418,8 +368,8 @@ $color-draw-card:      #3a3020;
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 0.5rem 0.65rem 0.45rem;
-  gap: 0.2rem;
+  padding: var(--space-3) var(--space-4);
+  gap: 0.25rem;
 }
 
 .card-top {
@@ -428,10 +378,10 @@ $color-draw-card:      #3a3020;
 }
 
 .card-date {
-  font-family: 'Marcellus', serif;
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 0.04em;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--color-ink-faint);
+  letter-spacing: 0.02em;
 }
 
 .card-middle {
@@ -439,11 +389,11 @@ $color-draw-card:      #3a3020;
 }
 
 .card-opponent {
-  font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #e8d9b0;
-  letter-spacing: 0.04em;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: 0.01em;
   line-height: 1.25;
   display: block;
   margin-top: 0.1rem;
@@ -453,25 +403,41 @@ $color-draw-card:      #3a3020;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-top: 0.4rem;
+  margin-top: var(--space-2);
 }
 
 .card-result-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.result-victory { background: var(--color-secondary-tint); }
+  &.result-failure { background: var(--color-danger-tint); }
+  &.result-draw    { background: var(--color-border-strong); }
+}
+
+.card-result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .card-result-label {
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: var(--tracking-wide);
   font-weight: 700;
-  align-self: flex-end;
+  align-self: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-pill);
 
-  &.label-victory { color: $color-gold-light; }
-  &.label-failure { color: #e05050; }
-  &.label-draw    { color: rgba(255, 255, 255, 0.7); }
+  &.label-victory { color: var(--color-secondary-dark); background: var(--color-secondary-tint); }
+  &.label-failure { color: var(--color-danger); background: var(--color-danger-tint); }
+  &.label-draw    { color: var(--color-ink-soft); background: var(--color-border-strong); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -482,8 +448,9 @@ $color-draw-card:      #3a3020;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
+  opacity: 0.72;
 
   img {
     width: 100%;
@@ -493,12 +460,32 @@ $color-draw-card:      #3a3020;
   }
 }
 
-.icon-trophy { width: 28px; height: 28px; }
-.icon-cross  { width: 26px; height: 26px; }
-.icon-shield { width: 26px; height: 26px; }
+.icon-trophy { width: 26px; height: 26px; }
+.icon-cross  { width: 24px; height: 24px; }
+.icon-shield { width: 24px; height: 24px; }
+
+// Category icon (swords/mountain/target) gets a tinted circle matching its
+// row, reinforcing the League/Ranked/Scrim colour-coding at a glance.
+// (Direct-child selector so this doesn't also catch the nested result icon.)
+.card-bottom > .icon-placeholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  opacity: 1;
+  padding: 5px;
+
+  img {
+    opacity: 0.75;
+  }
+}
+
+.match-row:has(.banner-league) .card-bottom > .icon-placeholder { background: var(--color-accent-blue-tint); }
+.match-row:has(.banner-ranked) .card-bottom > .icon-placeholder { background: var(--color-accent-plum-tint); }
+.match-row:has(.banner-scrim)  .card-bottom > .icon-placeholder { background: var(--color-secondary-tint); }
 
 // ── Timeline node icons ───────────────────────────────────────────────────────
 .node-circle .icon-placeholder {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+  opacity: 0.85;
 }

@@ -1,34 +1,5 @@
-// ─── Color Tokens ──────────────────────────────────────────────────────────────
-// Mirror the palette used across match-history and events pages.
-$color-parchment:  #d6c9a8;
-$color-ink-dark:   #2a1a06;
-$color-ink-mid:    #4a3520;
-$color-ink-light:  #7a6040;
-$color-gold:       #c9a84c;
-$color-gold-light: #e2c97e;
-$color-gold-dark:  #8a6520;
-
-// ─── Badge & Icon Tints ────────────────────────────────────────────────────────
-$tint-daily-bg:    #7a4a10;
-$tint-daily-icon:  #f0c060;
-$tint-daily-ring:  #b8860b;
-
-$tint-weekly-bg:   #1a3d6a;
-$tint-weekly-icon: #8ab4e8;
-$tint-weekly-ring: #3a6aaa;
-
-$tint-gvg-bg:      #4d1a80;
-$tint-gvg-icon:    #c080e0;
-$tint-gvg-ring:    #7a3aaa;
-
-$tint-scrim-bg:    #1a5c30;
-$tint-scrim-icon:  #60c890;
-$tint-scrim-ring:  #2a8a50;
-
 // ─── Shared Row Grid ──────────────────────────────────────────────────────────
-// Five-column grid used by Upcoming Matches rows (with chevron).
 $row-grid:       56px 150px 120px 1fr 32px;
-// Four-column grid used by Weekly Activities rows (no chevron).
 $row-grid-fixed: 56px 150px 120px 1fr;
 $row-col-gap: 1rem;
 
@@ -40,10 +11,10 @@ $row-col-gap: 1rem;
 
 // ─── Page Wrapper ──────────────────────────────────────────────────────────────
 .schedule-page {
-  padding: 1.25rem 1.5rem 2.5rem;
+  padding: var(--space-6) var(--space-6) var(--space-7);
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: var(--space-6);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,16 +24,16 @@ $row-col-gap: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.1rem;
-  margin-bottom: 0.25rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-1);
 }
 
 .schedule-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  color: $color-ink-dark;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
   white-space: nowrap;
   margin: 0;
 }
@@ -72,29 +43,23 @@ $row-col-gap: 1rem;
   flex: 1;
   max-width: 200px;
   height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    $color-ink-mid 40%,
-    $color-ink-mid 60%,
-    transparent
-  );
+  background: var(--color-border-strong);
   position: relative;
 
   &::after {
-    content: '◆';
+    content: '❖';
     position: absolute;
     top: 50%;
-    right: -2px;
+    right: -6px;
     transform: translateY(-50%);
-    font-size: 0.38rem;
-    color: $color-ink-mid;
+    font-size: 0.5rem;
+    color: var(--color-primary);
     line-height: 1;
   }
 
   &:first-child::after {
     right: auto;
-    left: -2px;
+    left: -6px;
   }
 }
 
@@ -103,12 +68,11 @@ $row-col-gap: 1rem;
 // ─────────────────────────────────────────────────────────────────────────────
 .schedule-loading,
 .section-empty {
-  font-family: 'Cinzel', serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.1em;
-  color: $color-ink-light;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--color-ink-soft);
   text-align: center;
-  padding: 1.25rem 0;
+  padding: var(--space-5) 0;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -117,33 +81,32 @@ $row-col-gap: 1rem;
 .schedule-section {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: var(--space-3);
 }
 
 // ─── Section Banner ────────────────────────────────────────────────────────────
 .section-banner {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0 0 0.5rem 0;
-  border-bottom: 1px solid rgba($color-gold-dark, 0.4);
+  gap: 0.2rem;
+  padding: 0 0 var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .section-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.26em;
-  color: $color-ink-dark;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-ink);
   margin: 0;
   line-height: 1.2;
 }
 
 .section-sub {
-  font-family: 'Marcellus', serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  color: $color-ink-light;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
   margin: 0;
   line-height: 1.3;
 }
@@ -154,8 +117,7 @@ $row-col-gap: 1rem;
 .schedule-rows {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  max-width: 50%;
+  gap: var(--space-2);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -166,29 +128,26 @@ $row-col-gap: 1rem;
   grid-template-columns: $row-grid;
   align-items: center;
   column-gap: $row-col-gap;
-  padding: 0.7rem 1rem 0.7rem 0.8rem;
+  padding: var(--space-3) var(--space-4);
 
-  background: linear-gradient(
-    135deg,
-    rgba(22, 14, 5, 0.84) 0%,
-    rgba(36, 24, 10, 0.80) 55%,
-    rgba(28, 18, 6, 0.82) 100%
-  );
-  border: 1px solid rgba(0, 0, 0, 0.32);
-  border-radius: 5px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 
   &:hover {
-    border-color: rgba($color-gold, 0.52);
-    box-shadow: 0 0 16px 2px rgba($color-gold, 0.13);
-    background: linear-gradient(
-      135deg,
-      rgba(28, 18, 6, 0.90) 0%,
-      rgba(44, 30, 12, 0.86) 55%,
-      rgba(34, 22, 8, 0.88) 100%
-    );
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
+
+  // Left accent bar colour-codes the row by activity type at a glance.
+  &:has(.icon-daily)  { border-left-color: var(--color-primary); }
+  &:has(.icon-weekly) { border-left-color: var(--color-accent-blue); }
+  &:has(.icon-gvg)    { border-left-color: var(--color-accent-plum); }
+  &:has(.icon-scrim)  { border-left-color: var(--color-secondary); }
 }
 
 // Fixed-activity rows have no chevron — use the four-column grid.
@@ -237,46 +196,34 @@ $row-col-gap: 1rem;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba($color-ink-dark, 0.55);
+  background: var(--color-surface-alt);
 
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  color: $color-gold-light;
-
-  transition: background 0.18s ease;
+  transition: background var(--transition-fast);
 
   img {
-    width: 78%;
-    height: 78%;
+    width: 55%;
+    height: 55%;
     object-fit: contain;
     display: block;
-    border-radius: 2px;
   }
 
-  // Per-type tints — colour only, no border
-  &.icon-daily  { color: $tint-daily-icon;  }
-  &.icon-weekly { color: $tint-weekly-icon; }
-  &.icon-gvg    { color: $tint-gvg-icon;    }
-  &.icon-scrim  { color: $tint-scrim-icon;  }
-}
-
-.schedule-row:hover .icon-circle {
-  color: $color-gold-light;
+  // Per-type tints — soft tinted circle background
+  &.icon-daily  { background: var(--color-primary-tint); }
+  &.icon-weekly { background: var(--color-accent-blue-tint); }
+  &.icon-gvg    { background: var(--color-accent-plum-tint); }
+  &.icon-scrim  { background: var(--color-secondary-tint); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATE / TIME
 // ─────────────────────────────────────────────────────────────────────────────
 .row-datetime {
-  font-family: 'Marcellus', serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  color: rgba($color-parchment, 0.72);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -289,23 +236,22 @@ $row-col-gap: 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.33rem 0.975rem;
-  border-radius: 3px;
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--radius-pill);
 
-  font-family: 'Cinzel', serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: #f0ece2;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   white-space: nowrap;
   line-height: 1;
 
-  // Badge colour variants — adjust just the background to restyle any type
-  &.badge-daily   { background: $tint-daily-bg;  }
-  &.badge-weekly  { background: $tint-weekly-bg; }
-  &.badge-gvg     { background: $tint-gvg-bg;    }
-  &.badge-scrim   { background: $tint-scrim-bg;  }
-  &.badge-default { background: $color-ink-mid;  }
+  // Badge colour variants — tinted background, matching solid text
+  &.badge-daily   { background: var(--color-primary-tint);     color: var(--color-primary-dark); }
+  &.badge-weekly  { background: var(--color-accent-blue-tint); color: var(--color-accent-blue); }
+  &.badge-gvg     { background: var(--color-accent-plum-tint); color: var(--color-accent-plum); }
+  &.badge-scrim   { background: var(--color-secondary-tint);   color: var(--color-secondary-dark); }
+  &.badge-default { background: var(--color-surface-alt);      color: var(--color-ink-soft); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -313,11 +259,10 @@ $row-col-gap: 1rem;
 // ─────────────────────────────────────────────────────────────────────────────
 .row-activity {
   display: block;
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #e8d9b0;
+  font-weight: 600;
+  color: var(--color-ink);
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
@@ -331,22 +276,28 @@ $row-col-gap: 1rem;
   font-size: 1.3rem;
   font-weight: 300;
   line-height: 1;
-  color: rgba($color-gold, 0.4);
-  transition: color 0.18s ease, transform 0.18s ease;
+  color: var(--color-ink-faint);
+  transition: color var(--transition-fast), transform var(--transition-fast);
 }
 
 .schedule-row:hover .row-chevron {
-  color: rgba($color-gold, 0.9);
+  color: var(--color-primary);
   transform: translateX(3px);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // RESPONSIVE — narrow screens
 // ─────────────────────────────────────────────────────────────────────────────
+@media (max-width: 900px) {
+  .schedule-rows {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 640px) {
   .schedule-page {
-    padding: 1rem 0.75rem 2rem;
-    gap: 1.25rem;
+    padding: var(--space-4) var(--space-3) var(--space-6);
+    gap: var(--space-5);
   }
 
   // Collapse to a two-line layout:
@@ -359,7 +310,7 @@ $row-col-gap: 1rem;
       "icon meta     chevron";
     row-gap: 0.2rem;
     column-gap: 0.7rem;
-    padding: 0.65rem 0.65rem 0.65rem 0.7rem;
+    padding: var(--space-3);
   }
 
   // Fixed rows have no chevron column on mobile either.
@@ -386,23 +337,18 @@ $row-col-gap: 1rem;
 
   // Badge lives inside the time cell on mobile
   .col-badge { display: none; }
-  .col-time::after {
-    // badge is rendered separately — use CSS to pull it in via the .col-time flex row
-    display: none;
-  }
 
   .icon-circle {
-    width: 40px;
-    height: 40px;
-    font-size: 0.75rem;
+    width: 38px;
+    height: 38px;
   }
 
-  .row-activity { font-size: 0.82rem; }
-  .row-datetime { font-size: 0.72rem; }
+  .row-activity { font-size: 0.85rem; }
+  .row-datetime { font-size: 0.74rem; }
 }
 
 // On very narrow viewports (< 420 px) also shrink padding further
 @media (max-width: 420px) {
-  .schedule-page { padding: 0.75rem 0.5rem 1.5rem; }
-  .row-activity  { font-size: 0.76rem; }
+  .schedule-page { padding: var(--space-3) var(--space-2) var(--space-5); }
+  .row-activity  { font-size: 0.8rem; }
 }

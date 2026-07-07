@@ -8,7 +8,7 @@
 
   <!-- Action buttons row -->
   <div class="misc-actions">
-    <a class="misc-btn" routerLink="/schedule" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+    <a class="misc-btn misc-btn--blue" routerLink="/schedule" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
       <span class="misc-icon">
         <img src="icons/icon-schedule.png" alt="Schedule" class="misc-icon-img" />
       </span>
@@ -20,7 +20,7 @@
 
     @if (currentUser$ | async; as user) {
       @if (user.fp) {
-        <a class="misc-btn" routerLink="/formation" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <a class="misc-btn misc-btn--plum" routerLink="/formation" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
           <span class="misc-icon">
             <img src="icons/icon-formation.png" alt="Formation" class="misc-icon-img" />
           </span>
@@ -31,7 +31,7 @@
         </a>
       }
 
-        <a class="misc-btn" routerLink="/match-history" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <a class="misc-btn misc-btn--sage" routerLink="/match-history" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
           <span class="misc-icon">
             <img src="icons/icon-match-history.png" alt="Match History" class="misc-icon-img" />
           </span>
@@ -42,7 +42,7 @@
         </a>
 
       @if (user.ftp) {
-        <a class="misc-btn" routerLink="/footages" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <a class="misc-btn misc-btn--bronze" routerLink="/footages" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
           <span class="misc-icon">
             <img src="icons/icon-footages.png" alt="Footages" class="misc-icon-img" />
           </span>
