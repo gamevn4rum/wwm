@@ -1,0 +1,49 @@
+<nav class="home-nav">
+  <div class="nav-actions">
+    <a class="nav-btn nav-btn--blue" routerLink="/schedule" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      <span class="nav-icon">
+        <img src="icons/icon-schedule.png" alt="Schedule" class="nav-icon-img" />
+      </span>
+      <span class="nav-text">
+        <span class="nav-main">SCHEDULE</span>
+        <span class="nav-sub">UPCOMING EVENTS</span>
+      </span>
+    </a>
+
+    @if (currentUser$ | async; as user) {
+      @if (user.fp) {
+        <a class="nav-btn nav-btn--plum" routerLink="/formation" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+          <span class="nav-icon">
+            <img src="icons/icon-formation.png" alt="Formation" class="nav-icon-img" />
+          </span>
+          <span class="nav-text">
+            <span class="nav-main">FORMATION</span>
+            <span class="nav-sub">VIEW OUR LINEUPS</span>
+          </span>
+        </a>
+      }
+
+      <a class="nav-btn nav-btn--sage" routerLink="/match-history" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <span class="nav-icon">
+          <img src="icons/icon-match-history.png" alt="Match History" class="nav-icon-img" />
+        </span>
+        <span class="nav-text">
+          <span class="nav-main">MATCH HISTORY</span>
+          <span class="nav-sub">PAST BATTLES</span>
+        </span>
+      </a>
+
+      @if (user.ftp) {
+        <a class="nav-btn nav-btn--bronze" routerLink="/footages" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+          <span class="nav-icon">
+            <img src="icons/icon-footages.png" alt="Footages" class="nav-icon-img" />
+          </span>
+          <span class="nav-text">
+            <span class="nav-main">FOOTAGES</span>
+            <span class="nav-sub">HIGHLIGHTS &amp; CLIPS</span>
+          </span>
+        </a>
+      }
+    }
+  </div>
+</nav>

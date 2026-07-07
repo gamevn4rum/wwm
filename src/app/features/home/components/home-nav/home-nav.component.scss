@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.home-nav {
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+// Grid with auto-fit evenly distributes however many buttons are visible
+// (2–4, depending on the viewer's fp/ftp permissions) across the full width.
+.nav-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.nav-btn {
+  --accent: var(--color-primary);
+  --accent-tint: var(--color-primary-tint);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+
+  &:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  &.active {
+    background: var(--accent-tint);
+    border-color: var(--accent);
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &--blue   { --accent: var(--color-accent-blue);  --accent-tint: var(--color-accent-blue-tint); }
+  &--plum   { --accent: var(--color-accent-plum);  --accent-tint: var(--color-accent-plum-tint); }
+  &--sage   { --accent: var(--color-secondary);    --accent-tint: var(--color-secondary-tint); }
+  &--bronze { --accent: var(--color-primary);      --accent-tint: var(--color-primary-tint); }
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.nav-icon-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.nav-main {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
+}
+
+.nav-sub {
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  color: var(--color-ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
