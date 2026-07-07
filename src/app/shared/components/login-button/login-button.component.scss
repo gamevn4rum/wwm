@@ -3,39 +3,42 @@
 }
 
 .member-badge {
+  --accent: var(--color-ink-faint);
+
   display: flex;
   align-items: center;
-  gap: 0.525rem;
-  padding: 0.45rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  background: #2d2416;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
   position: relative;
   min-width: 0;
-  overflow: visible;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .rank-caller,
 .rank-warrior {
-  background: linear-gradient(135deg, #2e1a00, #4d3000);
-  border-color: #7a5000;
+  --accent: var(--color-primary);
+  --accent-tint: var(--color-primary-tint);
 }
 
 .rank-commander {
-  background: linear-gradient(135deg, #1a0030, #3a006a);
-  border-color: #7a00cc;
+  --accent: var(--color-accent-plum);
+  --accent-tint: var(--color-accent-plum-tint);
 }
 
 .rank-creator {
-  background: linear-gradient(135deg, #1a1200, #4d3d00);
-  border-color: #c9a84c;
+  --accent: var(--color-secondary);
+  --accent-tint: var(--color-secondary-tint);
 }
 
 .member-badge:hover {
-  box-shadow: 0 0 10px 6px rgba(255, 140, 0, 0.7);
-  border-color: #ff8c00;
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+  transform: translateY(-1px);
 
   .badge-avatar,
   .badge-info {
@@ -49,23 +52,22 @@
 
 .badge-avatar {
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--accent-tint, var(--color-surface-alt));
+  border: 1.5px solid var(--accent);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-fast);
 
   .avatar-placeholder img {
     display: block;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     object-fit: cover;
-    opacity: 0.95;
   }
 }
 
@@ -74,29 +76,29 @@
   flex-direction: column;
   min-width: 0;
   flex: 1;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-fast);
 }
 
 .badge-name {
-  font-family: 'Cinzel', serif;
-  font-size: 0.87rem;
-  font-weight: 700;
-  color: #e8d9b0;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .badge-rank {
-  font-family: 'Sigokae', cursive;
-  font-size: 0.63rem;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .login-badge {
@@ -118,13 +120,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Cinzel', serif;
-  font-size: 0.87rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  color: #e8d9b0;
-  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-fast);
   pointer-events: none;
 }

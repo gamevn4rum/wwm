@@ -4,28 +4,77 @@
   flex-shrink: 0;
 }
 
+// ── Cinematic hero band ──────────────────────────────────────────────────────
+// Full-bleed ink-wash artwork with a dark scrim, echoing the official game
+// site's masthead treatment. Present on every page via the shared layout.
 .home-header {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 2.5fr 1fr;
-  align-items: stretch;
-  padding: 1.5rem 2rem 0.5rem;
-  position: relative;
+  align-items: center;
+  padding: var(--space-7) var(--space-6);
+  min-height: 300px;
+  overflow: hidden;
+  color: var(--color-on-dark);
+
+  background-color: #14100c;
+
+  border-bottom: 1px solid rgba(233, 207, 122, 0.25);
+  box-shadow: 0 2px 0 rgba(233, 207, 122, 0.12);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
-    padding: 1rem 1.25rem 0.5rem;
+    min-height: 260px;
+    padding: var(--space-5) var(--space-4);
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    padding: 0.75rem 1rem 0.5rem;
+    min-height: 220px;
+    padding: var(--space-5) var(--space-4);
   }
+}
+
+.header-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  pointer-events: none;
+  display: block;
+}
+
+.header-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(16, 12, 8, 0.55) 0%, rgba(16, 12, 8, 0.2) 45%, rgba(16, 12, 8, 0.6) 100%),
+    linear-gradient(90deg, rgba(10, 8, 5, 0.4) 0%, transparent 40%, rgba(10, 8, 5, 0.25) 100%);
+}
+
+.header-left,
+.header-center,
+.header-right {
+  position: relative;
+  z-index: 1;
 }
 
 .header-login {
   display: flex;
   justify-content: flex-start;
+
+  // Frosted glass badge so the light-themed login control stays legible
+  // over the photographic backdrop.
+  ::ng-deep .member-badge {
+    background: rgba(251, 247, 238, 0.94);
+    backdrop-filter: blur(6px);
+  }
 }
 
 /* ── Left ── */
@@ -33,27 +82,21 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.4rem;
+  gap: var(--space-3);
 }
 
 .game-subtitle {
   display: flex;
   flex-direction: column;
+
   .subtitle-line {
-    font-family: 'HoshikoSatsuki', serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: #2a1a06;
-    line-height: 1.15;
-  }
-  .game-tagline {
-    font-family: 'Sigokae', cursive;
-    font-size: 0.52rem;
-    letter-spacing: 0.08em;
-    color: #5a4a30;
-    margin-top: 0.3rem;
-    line-height: 1.4;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+    color: var(--color-on-dark);
+    line-height: 1.2;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -62,7 +105,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  gap: var(--space-2);
 
   @media (max-width: 768px) {
     grid-column: 1 / -1;
@@ -73,20 +116,21 @@
 .guild-label {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-family: 'HoshikoSatsuki', serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.25em;
-  color: #3d2b0e;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  color: rgba(246, 240, 227, 0.75);
 }
 
 .divider-line {
   display: inline-block;
-  width: 60px;
+  width: 48px;
   height: 1px;
-  background: #3d2b0e;
+  background: rgba(246, 240, 227, 0.35);
   &.short {
-    width: 40px;
+    width: 32px;
   }
 }
 
@@ -97,30 +141,32 @@
 }
 
 .game-title {
-  font-family: 'ExcessV', serif;
-  font-size: clamp(2.5rem, 6vw, 5.5rem);
-  font-weight: 900;
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 600;
   line-height: 1;
   margin: 0;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+
   .title-game {
-    color: #1a0d00;
-    -webkit-text-stroke: 1px #1a0d00;
+    color: var(--color-on-dark);
   }
   .title-vn {
-    color: #c9a84c;
-    -webkit-text-stroke: 1px #8a6a1a;
+    color: #e9cf7a;
   }
 }
 
 .game-motto {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  font-family: 'Cinzel', serif;
+  gap: var(--space-3);
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  color: #3d2b0e;
+  letter-spacing: var(--tracking-wide);
+  color: rgba(246, 240, 227, 0.7);
   white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 
   @media (max-width: 768px) {
     display: none;
@@ -129,50 +175,29 @@
 
 /* ── Right ── */
 .header-right {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
   height: 100%;
   align-self: stretch;
 
   @media (max-width: 768px) {
-    align-items: flex-end;
-    justify-content: flex-start;
-  }
-
-  @media (max-width: 480px) {
-    align-items: flex-start;
-  }
-}
-
-.right-text-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.05rem;
-  margin-right: 0;
-  .chinese-vert {
-    font-size: 1rem;
-    color: #3d2b0e;
-    font-weight: 600;
-    line-height: 1.3;
+    display: none;
   }
 }
 
 /* ── Shared seal image ── */
 .seal-img {
   object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.5));
+
   &--small {
-    width: 28px;
-    height: 28px;
-    margin-top: 0.3rem;
+    width: 22px;
+    height: 22px;
+    margin-top: var(--space-2);
   }
   &--title {
     position: absolute;
-    top: 0.2rem;
-    right: -2.2rem;
-    width: 48px;
-    height: 48px;
+    top: 0.1rem;
+    right: -1.75rem;
+    width: 36px;
+    height: 36px;
   }
 }

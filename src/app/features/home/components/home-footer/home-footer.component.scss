@@ -5,7 +5,9 @@
 }
 
 .home-footer {
-  padding: 0.8rem 1.5rem 1rem;
+  padding: var(--space-5) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-5);
 }
 
 /* ── Misc label ── */
@@ -13,14 +15,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 
   .misc-title {
-    font-family: 'Cinzel', serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    color: #3d2b0e;
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+    color: var(--color-ink-soft);
     white-space: nowrap;
   }
 
@@ -29,7 +32,7 @@
     flex: 1;
     max-width: 120px;
     height: 1px;
-    background: #3d2b0e;
+    background: var(--color-border-strong);
   }
 }
 
@@ -38,36 +41,44 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.6rem;
+  gap: var(--space-3);
 }
 
 .misc-btn {
+  --accent: var(--color-primary);
+  --accent-tint: var(--color-primary-tint);
+
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  flex: 1 1 180px;
-  max-width: 260px;
-  background: #1a100a;
-  border: 2px solid #3d2b0e;
-  border-radius: 6px;
-  padding: 0.7rem 1rem;
+  gap: var(--space-3);
+  flex: 1 1 190px;
+  max-width: 270px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-  box-shadow: inset 0 0 12px rgba(0,0,0,0.4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 
   &:hover {
-    background: #261608;
-    border-color: #c9a84c;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
 
   &.active {
-    background: #110a05;
-    border-color: #2a1e0e;
-    cursor: not-allowed;
+    background: var(--accent-tint);
+    border-color: var(--accent);
+    cursor: default;
     pointer-events: none;
-    opacity: 0.45;
   }
+
+  &--blue   { --accent: var(--color-accent-blue);  --accent-tint: var(--color-accent-blue-tint); }
+  &--plum   { --accent: var(--color-accent-plum);  --accent-tint: var(--color-accent-plum-tint); }
+  &--sage   { --accent: var(--color-secondary);    --accent-tint: var(--color-secondary-tint); }
+  &--bronze { --accent: var(--color-primary);      --accent-tint: var(--color-primary-tint); }
 }
 
 @media (max-width: 480px) {
@@ -84,12 +95,16 @@
   flex-shrink: 0;
   width: 36px;
   height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-tint);
+  transition: background var(--transition-fast);
 }
 
 .misc-icon-img {
-  width: 36px;
-  height: 36px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
+  opacity: 0.75;
 }
 
 .misc-text {
@@ -99,18 +114,18 @@
 }
 
 .misc-main {
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #c9a84c;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
 }
 
 .misc-sub {
-  font-family: 'Cinzel', serif;
-  font-size: 0.5rem;
-  letter-spacing: 0.08em;
-  color: #8a7a5a;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  color: var(--color-ink-faint);
 }
 
 /* ── Footer tagline ── */
@@ -118,29 +133,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  margin-top: 0.9rem;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 
   .tagline-text {
-    font-family: 'Cinzel', 'Noto Serif SC', serif;
+    font-family: var(--font-heading);
     font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    color: #3d2b0e;
+    font-style: italic;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-ink-soft);
     white-space: nowrap;
   }
 
   .divider-line {
     display: inline-block;
     height: 1px;
-    background: #3d2b0e;
+    background: var(--color-border-strong);
     &.short {
-      width: 60px;
+      width: 44px;
     }
   }
 }
 
 .seal-img {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
+  opacity: 0.7;
 }
