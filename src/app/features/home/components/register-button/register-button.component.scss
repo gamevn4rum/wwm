@@ -1,61 +1,41 @@
 :host {
   display: block;
-  width: 100%;
 }
 
 .register-wrapper {
   display: flex;
-  justify-content: center;
-  padding: var(--space-5) 0 var(--space-6);
+  justify-content: flex-end;
 }
 
 .register-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-4);
+  gap: var(--space-2);
   background: var(--color-primary);
   border: 1px solid var(--color-primary-dark);
   border-radius: var(--radius-md);
-  padding: var(--space-4) var(--space-6);
-  min-width: 340px;
-  max-width: 100%;
+  padding: var(--space-3) var(--space-5);
   cursor: pointer;
   font: inherit;
   transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 
   &:hover {
     background: var(--color-primary-dark);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-md);
     transform: translateY(-1px);
   }
 
   @media (max-width: 480px) {
-    min-width: unset;
     width: 100%;
-    padding: var(--space-4) var(--space-5);
   }
 }
 
-.register-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  text-align: center;
-}
-
 .register-main {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
   letter-spacing: var(--tracking-wide);
   color: var(--color-on-dark);
-}
-
-.register-sub {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  letter-spacing: 0.03em;
-  color: rgba(246, 240, 227, 0.85);
 }

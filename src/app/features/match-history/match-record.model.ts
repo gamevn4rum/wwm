@@ -3,9 +3,14 @@ import { NgxTimelineEvent } from '@frxjs/ngx-timeline';
 export type MatchType = 'league' | 'ranked' | 'scrim';
 
 /** Guild members who upload match footage — one sheet column per uploader. */
-export type UploaderKey = 'Kam' | 'Necro' | 'Ruby' | 'VK' | 'Yuenshin' | 'canoc' | 'Sniper' | 'LVH' | 'choxu';
+export type UploaderKey =
+  | 'Kam' | 'Necro' | 'Ruby' | 'VK' | 'Yuenshin' | 'canoc' | 'Sniper' | 'LVH' | 'choxu'
+  | 'MADAFAKA' | 'MinhVũ' | 'Initiate';
 
-export const UPLOADERS: UploaderKey[] = ['Kam', 'Necro', 'Ruby', 'VK', 'Yuenshin', 'canoc', 'Sniper', 'LVH', 'choxu'];
+export const UPLOADERS: UploaderKey[] = [
+  'Kam', 'Necro', 'Ruby', 'VK', 'Yuenshin', 'canoc', 'Sniper', 'LVH', 'choxu',
+  'MADAFAKA', 'MinhVũ', 'Initiate',
+];
 
 export interface FootageEntry {
   uploader: UploaderKey;
