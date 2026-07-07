@@ -25,8 +25,18 @@
     "Activity": "GvG Ranked"
   },
   {
-    "DateTime": "24/06/2026 21:15",
+    "DateTime": "08/07/2026 21:15",
     "Type": "Scrim",
-    "Activity": "MôiDày"
+    "Activity": "CoHonCave"
+  },
+  {
+    "DateTime": "09/07/2026 21:15",
+    "Type": "Scrim",
+    "Activity": "Vnfriends/AEEL"
+  },
+  {
+    "DateTime": "10/07/2026 21:15",
+    "Type": "Scrim",
+    "Activity": "Tàng Long"
   }
 ]
