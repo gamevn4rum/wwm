@@ -13,4 +13,5 @@ import { DiscordAuthService } from '../../../../core/services/discord-auth.servi
 export class HomeNavComponent {
   private readonly authService = inject(DiscordAuthService);
   readonly currentUser$ = this.authService.currentUser$;
+  readonly authResolved$ = this.authService.authResolved$;
 }

@@ -42,6 +42,12 @@ export class DiscordAuthService {
   readonly currentUser$ = this.currentUserSubject.asObservable();
   get currentUser(): DiscordUserSession | null { return this.currentUserSubject.value; }
 
+  // Flips to true once, after the session (if any) has been verified — the
+  // header/nav bind to this so they show a loading state instead of briefly
+  // rendering "logged out" while a real session is still being resolved.
+  private readonly authResolvedSubject = new BehaviorSubject<boolean>(false);
+  readonly authResolved$ = this.authResolvedSubject.asObservable();
+
   private readonly devSession: DiscordUserSession = {
     username: 'Shinigamae',
     avatarUrl: 'https://cdn.discordapp.com/embed/avatars/0.png',
@@ -66,6 +72,7 @@ export class DiscordAuthService {
       this.currentUserSubject.next(this.devSession);
       this.ready$.next(this.devSession);
       this.ready$.complete();
+      this.authResolvedSubject.next(true);
       return this.ready$;
     }
 
@@ -85,12 +92,14 @@ export class DiscordAuthService {
     if (!token) {
       this.ready$.next(null);
       this.ready$.complete();
+      this.authResolvedSubject.next(true);
       return this.ready$;
     }
 
     this.resolveSession(token).subscribe((session) => {
       this.ready$.next(session);
       this.ready$.complete();
+      this.authResolvedSubject.next(true);
     });
 
     return this.ready$;

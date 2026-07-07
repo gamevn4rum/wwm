@@ -1,4 +1,4 @@
-@if (!(currentUser$ | async)) {
+@if ((authResolved$ | async) && !(currentUser$ | async)) {
   <div class="register-wrapper">
     <button
       type="button"

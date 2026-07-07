@@ -130,3 +130,49 @@
   transition: opacity var(--transition-fast);
   pointer-events: none;
 }
+
+/* ── Loading skeleton — shown while the session is being verified against
+   Discord + the Members sheet, so we never flash a "logged out" state for a
+   user who is actually logged in. ── */
+.login-skeleton {
+  cursor: default;
+
+  .badge-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+}
+
+.skeleton-line {
+  display: block;
+  height: 10px;
+  width: 100%;
+  border-radius: 4px;
+  background: var(--color-surface-alt);
+
+  &--short {
+    width: 55%;
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+    transform: translateX(-100%);
+    animation: login-skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes login-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
