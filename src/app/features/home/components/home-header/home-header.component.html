@@ -1,5 +1,5 @@
 <header class="home-header" routerLink="/" style="cursor:pointer">
-  <img class="header-bg" src="images/hero-ink-wash.jpg" alt="" aria-hidden="true" />
+  <img class="header-bg" src="images/hero-banner.jpg" alt="" aria-hidden="true" />
   <div class="header-scrim" aria-hidden="true"></div>
 
   <!-- Left side branding -->
@@ -37,5 +37,9 @@
     </div>
   </div>
 
-  <div class="header-right"></div>
+  <div class="header-right">
+    <div class="header-register" (click)="$event.stopPropagation()">
+      <app-register-button></app-register-button>
+    </div>
+  </div>
 </header>

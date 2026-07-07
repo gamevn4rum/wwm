@@ -12,15 +12,40 @@
   align-items: flex-start;
   justify-content: center;
   padding: clamp(0.75rem, 2.5vh, 2.5rem) 1rem;
-
-  // Warm rice-paper backdrop: soft radial depth + a faint fibrous grain,
-  // so the surrounding page reads as textured paper rather than a flat tint.
   background-color: var(--color-bg-alt);
-  background-image:
-    radial-gradient(ellipse 120% 70% at 50% 0%, rgba(255, 253, 247, 0.9), transparent 60%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  background-size: cover, 220px 220px;
-  background-repeat: no-repeat, repeat;
+}
+
+// Whole-page atmosphere — the ink-wash artwork sits fixed behind everything,
+// tinted warm to stay in the rice-paper palette. The white panel above it
+// (guild-panel, z-index 1) is what carries all readable content.
+.backdrop-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  opacity: 0.6;
+  pointer-events: none;
+  display: block;
+}
+
+.backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255, 253, 247, 0.5), transparent 65%),
+    linear-gradient(180deg, var(--color-bg-alt) 0%, rgba(239, 230, 211, 0.2) 12%, rgba(239, 230, 211, 0.15) 55%, var(--color-bg-alt) 100%);
+}
+
+@media (max-width: 480px) {
+  .backdrop-bg,
+  .backdrop-overlay {
+    display: none;
+  }
 }
 
 .guild-panel {
