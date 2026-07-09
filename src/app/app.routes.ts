@@ -14,11 +14,6 @@ export const routes: Routes = [
           import('./features/home/home-page.component').then((m) => m.HomePageComponent),
       },
       {
-        path: 'sheet',
-        loadComponent: () =>
-          import('./features/sheet/sheet.component').then((m) => m.SheetComponent),
-      },
-      {
         path: 'formation',
         canActivate: [formationGuard],
         loadComponent: () =>

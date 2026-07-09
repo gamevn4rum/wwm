@@ -40,18 +40,15 @@ jobs:
 
       # ── 4. Secrets → environment file ───────────────────────────────────
       #
-      # environment.prod.ts ships with placeholder values; bake in the real
-      # ones from repo secrets before building (same values used by
-      # sync-sheets.yml when it fetches/encrypts data/*.json).
+      # The app is static-only and never calls the Sheets API from the browser,
+      # so no API key / spreadsheet ID is baked into the bundle. Only the data
+      # decryption key is injected (used client-side to read data/*.enc).
+      # NOTE: this key necessarily ships to the browser — see SECURITY.md.
       #
       - name: Inject secrets into environment.prod.ts
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
         run: |
-          sed -i "s/YOUR_GOOGLE_API_KEY/$GOOGLE_API_KEY/" src/environments/environment.prod.ts
-          sed -i "s/YOUR_SPREADSHEET_ID/$GOOGLE_SHEET_ID/" src/environments/environment.prod.ts
           sed -i "s/YOUR_DATA_ENCRYPTION_KEY/$DATA_ENCRYPTION_KEY/" src/environments/environment.prod.ts
 
       # ── 5. Production build ───────────────────────────────────────────────

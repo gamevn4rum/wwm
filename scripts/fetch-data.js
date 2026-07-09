@@ -2,11 +2,27 @@ import fs from 'fs';
 import https from 'https';
 import crypto from 'crypto';
 
-const API_KEY = process.env.GOOGLE_API_KEY;
+// ── Auth configuration ──────────────────────────────────────────────────────
+//
+// Preferred: a Google service account. Set GOOGLE_SERVICE_ACCOUNT_JSON to the
+// full JSON key file contents (as a single secret). The sheet is then shared
+// with the service account's client_email as *Viewer* and can be fully private
+// — no API key, and nothing that would work from a browser.
+//
+// Legacy/transition: an API key (GOOGLE_API_KEY) still works, but it requires
+// the sheet to be link-readable ("anyone with the link"), i.e. public. Prefer
+// the service account and remove the key once migrated.
+//
+const SERVICE_ACCOUNT_JSON = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+const API_KEY  = process.env.GOOGLE_API_KEY;
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
-if (!API_KEY || !SHEET_ID) {
-  console.error('Missing required env vars: GOOGLE_API_KEY, GOOGLE_SHEET_ID');
+if (!SHEET_ID) {
+  console.error('Missing required env var: GOOGLE_SHEET_ID');
+  process.exit(1);
+}
+if (!SERVICE_ACCOUNT_JSON && !API_KEY) {
+  console.error('Provide GOOGLE_SERVICE_ACCOUNT_JSON (preferred) or GOOGLE_API_KEY.');
   process.exit(1);
 }
 
@@ -27,9 +43,18 @@ function md5(str) {
   return crypto.createHash('md5').update(str).digest('hex');
 }
 
-function fetchJson(url) {
+function base64url(input) {
+  return Buffer.from(input)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+/** Low-level HTTPS request returning parsed JSON. */
+function request(method, url, { headers = {}, body } = {}) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
+    const req = https.request(url, { method, headers }, (res) => {
       let raw = '';
       res.on('data', (chunk) => (raw += chunk));
       res.on('end', () => {
@@ -37,7 +62,7 @@ function fetchJson(url) {
           resolve({ _notFound: true });
           return;
         }
-        if (res.statusCode !== 200) {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
           reject(new Error(`HTTP ${res.statusCode} for ${url}\n${raw}`));
           return;
         }
@@ -47,8 +72,61 @@ function fetchJson(url) {
           reject(new Error(`Invalid JSON from ${url}: ${e.message}`));
         }
       });
-    }).on('error', reject);
+    });
+    req.on('error', reject);
+    if (body) req.write(body);
+    req.end();
   });
+}
+
+/**
+ * Mint a short-lived OAuth access token from a service-account key using the
+ * JWT-bearer grant. Uses Node's built-in crypto — no external dependencies.
+ */
+async function getAccessToken() {
+  if (!SERVICE_ACCOUNT_JSON) return null;
+
+  let sa;
+  try {
+    sa = JSON.parse(SERVICE_ACCOUNT_JSON);
+  } catch (e) {
+    throw new Error(`GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON: ${e.message}`);
+  }
+  if (!sa.client_email || !sa.private_key) {
+    throw new Error('Service account JSON must contain client_email and private_key.');
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claims = {
+    iss:   sa.client_email,
+    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    aud:   'https://oauth2.googleapis.com/token',
+    iat:   now,
+    exp:   now + 3600,
+  };
+
+  const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(claims))}`;
+  const signature = crypto.sign('RSA-SHA256', Buffer.from(signingInput), sa.private_key);
+  const assertion = `${signingInput}.${base64url(signature)}`;
+
+  const form = new URLSearchParams({
+    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+    assertion,
+  }).toString();
+
+  const token = await request('POST', 'https://oauth2.googleapis.com/token', {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': Buffer.byteLength(form),
+    },
+    body: form,
+  });
+
+  if (!token.access_token) {
+    throw new Error('Token endpoint did not return an access_token.');
+  }
+  return token.access_token;
 }
 
 function parseRows({ values }) {
@@ -67,8 +145,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 /**
  * Converts any string value matching DD/MM/YYYY or DD/MM/YY (numeric month)
  * to DD/MMM/YYYY (named month) so that the Angular parsers always receive a
- * consistent format regardless of whether data came from the JSON cache or
- * directly from the Google Sheets API.
+ * consistent format.
  */
 function normalizeRowDates(row) {
   const result = {};
@@ -89,9 +166,12 @@ function normalizeRowDates(row) {
   return result;
 }
 
-async function fetchPage({ file, range }) {
-  const url = `${BASE_URL}/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
-  const data = await fetchJson(url);
+async function fetchPage({ file, range }, accessToken) {
+  const path = `${BASE_URL}/${SHEET_ID}/values/${encodeURIComponent(range)}`;
+  const url = accessToken ? path : `${path}?key=${API_KEY}`;
+  const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+
+  const data = await request('GET', url, { headers });
   if (data._notFound) {
     console.warn(`⚠ ${file} — range "${range}" not found (404), skipped`);
     return;
@@ -116,7 +196,14 @@ async function fetchPage({ file, range }) {
 async function main() {
   fs.mkdirSync('./data', { recursive: true });
 
-  const results = await Promise.allSettled(PAGES.map(fetchPage));
+  const accessToken = await getAccessToken();
+  if (accessToken) {
+    console.log('🔑 Authenticated with service account (sheet can be private).');
+  } else {
+    console.warn('⚠ Using API key — this requires the sheet to be publicly link-readable. Migrate to GOOGLE_SERVICE_ACCOUNT_JSON.');
+  }
+
+  const results = await Promise.allSettled(PAGES.map((p) => fetchPage(p, accessToken)));
 
   let hasError = false;
   results.forEach((result, i) => {
