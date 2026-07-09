@@ -26,32 +26,26 @@ public. If a column must stay private, do not export it — filter it out in
 data to *some* viewers and not others is to put a real server-side trust
 boundary in front of it (see "If you need real access control").
 
-## Required owner actions (cannot be done in code)
+## Owner actions — completed (verified 2026-07-09)
 
-These are the highest-priority items and only the repo/Google Cloud owner can do
-them:
+The high-priority owner actions from the original review are done and were
+verified against the live services:
 
-1. **Rotate the exposed Google API key.** The key
-   `AIzaSy…Z57M` was committed in `src/environments/environment.ts` and shipped
-   in the production bundle. Assume it is compromised. Create a new key in
-   Google Cloud Console and update the `GOOGLE_API_KEY` **repository secret**
-   (Settings → Secrets and variables → Actions). Do not put it back in source.
-2. **Restrict the new key** in Google Cloud Console:
-   - *Application restriction* → HTTP referrers → `https://gamevn4rum.github.io/*`
-   - *API restriction* → Google Sheets API only.
-   This limits a leaked key to Sheets reads from your domain instead of any
-   Google API / anyone.
-3. **Review the Google Sheet's sharing.** For the in-browser API-key fallback
-   to work, the sheet must be readable by the key (i.e. link-shared). Confirm
-   the sheet grants **view-only** at most, and that no sensitive tab is exposed.
-   Anyone with the (public) spreadsheet ID + key can read every shared tab
-   directly via `sheets.googleapis.com`, bypassing the app entirely.
-4. **The `DATA_ENCRYPTION_KEY` secret provides no confidentiality** here because
-   it ships to the browser. Keep it only if you want light obfuscation; do not
-   rely on it. Rotating it does not change the exposure.
-5. **Purge secrets from git history.** Rotating is enough to make the old key
-   useless, but the old value remains in past commits. Rotation (step 1) is the
-   real fix; history rewriting is optional cleanup.
+1. **The exposed Google API key `AIzaSy…Z57M` is dead.** The Sheets API now
+   rejects it (`API_KEY_INVALID`). The old value still sits in git history,
+   which is harmless now; history rewriting remains optional cleanup.
+2. **The sheet is private.** Anonymous export of the spreadsheet returns 401.
+   It is shared only with the sync service account (Viewer). The spreadsheet ID
+   in old commits no longer grants anyone access.
+3. **Sync uses a service account** (`GOOGLE_SERVICE_ACCOUNT_JSON` secret) —
+   `sync-sheets.yml` runs succeed against the private sheet. The legacy
+   `GOOGLE_API_KEY` fallback was removed from the workflow; the corresponding
+   repo secret can be deleted.
+4. **The `DATA_ENCRYPTION_KEY` secret provides no confidentiality** because it
+   ships to the browser. Keep it only as light obfuscation; do not rely on it.
+   Rotating it does not change the exposure. Real per-user access control needs
+   the Apps Script gateway (`scripts/apps-script-gateway.gs`) wired into the
+   app — this is the main remaining item.
 
 ## Fixes already applied in this repo
 
@@ -61,8 +55,12 @@ them:
   longer fall back to the live Sheets API from the client. `googleApiKey` and
   `defaultSpreadsheetId` were dropped from both `environment.ts` files and from
   the `deploy.yml` injection step, so no API key ships in the bundle anymore.
-  (The `GOOGLE_API_KEY` secret is still used server-side by `fetch-data.js` in
-  `sync-sheets.yml` — that is fine; it never reaches a browser there.)
+  (`fetch-data.js` in `sync-sheets.yml` authenticates server-side with the
+  service account; nothing Google-related reaches a browser.)
+- **Removed the stale `data/footages.json`.** The Footages tab was merged into
+  Match History and its URLs are published only as `match-history.enc`, but the
+  old plaintext export (member names + footage URLs) was still tracked and
+  served from the live site, bypassing that encryption.
 - **Deleted the public `/sheet` debug route** and its `SheetComponent` /
   `SheetDataService` / `GoogleSheetsApiService`, which live-queried the Sheets
   API (tab `Sheet1`) with the bundled key on demand.

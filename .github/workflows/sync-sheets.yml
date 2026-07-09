@@ -29,10 +29,9 @@ jobs:
 
       - name: Fetch sheet data
         env:
-          # Preferred: service account (lets the sheet be fully private).
+          # Service account auth — the sheet is private and shared only with
+          # the service account's client_email (Viewer).
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          # Legacy fallback during migration; remove once the SA is in place.
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: node scripts/fetch-data.js
 
