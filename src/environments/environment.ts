@@ -1,7 +1,8 @@
 export const environment = {
   production: false,
-  googleApiKey: 'AIzaSyAD9--6nWYRTNhBFGga0KF9GTDgAp_Z57M',
-  defaultSpreadsheetId: '1TkO9t_lMRXhzfMOcD6istvi8_7c2opqc_gwZBB6ME6A',
-  // Empty in dev — service falls back to plaintext file then Sheets API.
+  // The app is static-only: it reads the prebuilt data/*.json (dev) or
+  // data/*.enc (prod) files and never calls the Google Sheets API from the
+  // browser, so no API key or spreadsheet ID is shipped to the client.
+  // Empty in dev — MembersDataService/MatchHistoryDataService read plaintext JSON.
   dataEncryptionKey: '',
 };

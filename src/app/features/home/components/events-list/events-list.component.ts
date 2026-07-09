@@ -1,5 +1,5 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, SecurityContext, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { EventsDataService } from '../../../events/events-data.service';
 import { EventRecord } from '../../../events/event-record.model';
 
@@ -62,7 +62,7 @@ export class EventsListComponent implements OnInit, OnDestroy {
     }
   }
 
-  buildDescription(event: EventRecord): SafeHtml {
+  buildDescription(event: EventRecord): string {
     const placeholders: Record<string, string | null> = {
       '[P1]': event.p1,
       '[P2]': event.p2,
@@ -74,11 +74,28 @@ export class EventsListComponent implements OnInit, OnDestroy {
     let html = event.description;
     for (const [token, url] of Object.entries(placeholders)) {
       if (url) {
-        html = html.split(token).join(`<img src="${url}" class="event-content-img" alt="" />`);
+        // Escape the sheet-supplied URL before it lands in an attribute value,
+        // so it can't break out of src="" with something like  x" onerror="…
+        const safeUrl = this.escapeAttr(url);
+        html = html.split(token).join(`<img src="${safeUrl}" class="event-content-img" alt="" />`);
       }
     }
 
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    // Run the whole description (which is authored in the Google Sheet) through
+    // Angular's HTML sanitizer instead of bypassing it. Safe markup — <img>,
+    // basic formatting, the event-content-img class — survives; <script>,
+    // onerror/onclick handlers and other injection vectors are stripped. This
+    // is what stops a sheet editor from running JS in every visitor's browser.
+    return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
+  }
+
+  private escapeAttr(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   isFuture(date: string): boolean {

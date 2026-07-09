@@ -1,11 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
-import { GoogleSheetsApiService } from '../../core/services/google-sheets/google-sheets-api.service';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 import { SheetRow } from '../../core/models/sheet.model';
 import { findVal } from '../../core/utils/sheet.utils';
-import { environment } from '../../../environments/environment';
 import { EventRecord } from './event-record.model';
 
 const MONTH_MAP_EV: Record<string, number> = {
@@ -55,20 +53,16 @@ function rowToEventRecord(row: SheetRow): EventRecord | null {
 
 @Injectable({ providedIn: 'root' })
 export class EventsDataService {
-  private readonly http      = inject(HttpClient);
-  private readonly sheetsApi = inject(GoogleSheetsApiService);
+  private readonly http = inject(HttpClient);
 
+  // Static-only: the prebuilt data/events.json is the single source of truth.
+  // No in-browser Sheets API fallback — that would require shipping the API
+  // key in the bundle. On any fetch failure we render nothing rather than
+  // calling out to Google from the client.
   private readonly records$: Observable<EventRecord[]> = this.http
     .get<SheetRow[]>(`data/events.json?t=${Date.now()}`)
     .pipe(
-      switchMap((rows) =>
-        rows && rows.length > 0
-          ? of(rows)
-          : this.sheetsApi.getRows(environment.defaultSpreadsheetId, 'Events!A:Z', environment.googleApiKey)
-      ),
-      catchError(() =>
-        this.sheetsApi.getRows(environment.defaultSpreadsheetId, 'Events!A:Z', environment.googleApiKey)
-      ),
+      catchError(() => of<SheetRow[]>([])),
       map((rows) =>
         rows
           .map(rowToEventRecord)
