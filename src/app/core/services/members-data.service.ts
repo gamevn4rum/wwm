@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, of } from 'rxjs';
 import { catchError, shareReplay, switchMap } from 'rxjs/operators';
-import { GoogleSheetsApiService } from './google-sheets/google-sheets-api.service';
 import { SheetRow } from '../models/sheet.model';
 import { environment } from '../../../environments/environment';
 import { EncryptedPayload, decryptJson } from '../utils/crypto.utils';
@@ -10,7 +9,6 @@ import { EncryptedPayload, decryptJson } from '../utils/crypto.utils';
 @Injectable({ providedIn: 'root' })
 export class MembersDataService {
   private readonly http = inject(HttpClient);
-  private readonly sheetsApi = inject(GoogleSheetsApiService);
 
   private readonly rows$: Observable<SheetRow[]> = this.loadRows().pipe(shareReplay(1));
 
@@ -20,20 +18,22 @@ export class MembersDataService {
 
   private loadRows(): Observable<SheetRow[]> {
     const key = environment.dataEncryptionKey;
-    const sheets$ = this.sheetsApi.getRows(environment.defaultSpreadsheetId, 'Members!A:Z', environment.googleApiKey);
 
+    // Static-only: no in-browser Sheets API fallback (that would require the
+    // API key in the bundle). On any failure, fail closed with an empty roster
+    // rather than calling Google from the client — which, for auth, means
+    // "no one is recognised as a member" instead of a silent live lookup.
     if (!key) {
-      // Dev: fetch plaintext, fall back to Sheets API.
+      // Dev: plaintext file.
       return this.http.get<SheetRow[]>(`data/members.json?t=${Date.now()}`).pipe(
-        switchMap((rows) => (rows?.length ? of(rows) : sheets$)),
-        catchError(() => sheets$),
+        catchError(() => of<SheetRow[]>([])),
       );
     }
 
-    // Prod: fetch encrypted file and decrypt; fall back to Sheets API on any error.
+    // Prod: fetch the encrypted file and decrypt it.
     return this.http.get<EncryptedPayload>(`data/members.enc?t=${Date.now()}`).pipe(
       switchMap((payload) => from(decryptJson<SheetRow[]>(payload, key))),
-      catchError(() => sheets$),
+      catchError(() => of<SheetRow[]>([])),
     );
   }
 }
