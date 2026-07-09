@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
-import { GoogleSheetsApiService } from '../../core/services/google-sheets/google-sheets-api.service';
 import { SheetRow } from '../../core/models/sheet.model';
 import { findVal } from '../../core/utils/sheet.utils';
 import { extractYouTubeVideoId } from '../../core/utils/youtube.utils';
@@ -72,8 +71,7 @@ function rowToMatchRecord(row: SheetRow): MatchRecord | null {
 
 @Injectable({ providedIn: 'root' })
 export class MatchHistoryDataService {
-  private readonly http      = inject(HttpClient);
-  private readonly sheetsApi = inject(GoogleSheetsApiService);
+  private readonly http = inject(HttpClient);
 
   private readonly records$: Observable<MatchRecord[]> = this.loadRows().pipe(
     map((rows) =>
@@ -90,21 +88,21 @@ export class MatchHistoryDataService {
   }
 
   private loadRows(): Observable<SheetRow[]> {
-    const key     = environment.dataEncryptionKey;
-    const sheets$ = this.sheetsApi.getRows(environment.defaultSpreadsheetId, 'Match History!A:Z', environment.googleApiKey);
+    const key = environment.dataEncryptionKey;
 
+    // Static-only: no in-browser Sheets API fallback (that would require the
+    // API key in the bundle). Fail closed with an empty list on any error.
     if (!key) {
-      // Dev: fetch plaintext, fall back to Sheets API.
+      // Dev: plaintext file.
       return this.http.get<SheetRow[]>(`data/match-history.json?t=${Date.now()}`).pipe(
-        switchMap((rows) => (rows?.length ? of(rows) : sheets$)),
-        catchError(() => sheets$),
+        catchError(() => of<SheetRow[]>([])),
       );
     }
 
-    // Prod: fetch encrypted file and decrypt; fall back to Sheets API on any error.
+    // Prod: fetch the encrypted file and decrypt it.
     return this.http.get<EncryptedPayload>(`data/match-history.enc?t=${Date.now()}`).pipe(
       switchMap((payload) => from(decryptJson<SheetRow[]>(payload, key))),
-      catchError(() => sheets$),
+      catchError(() => of<SheetRow[]>([])),
     );
   }
 }
