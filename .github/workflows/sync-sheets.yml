@@ -2,7 +2,7 @@ name: Sync Google Sheets Data
 
 on:
   schedule:
-    # Default: once per day at 00:00 UTC.
+    # Runs once per hour, on the hour (UTC).
     # To change the cadence, edit the cron expression below.
     # (GitHub Actions does not support dynamic cron from repository variables.)
     - cron: '0 * * * *'
@@ -54,8 +54,22 @@ jobs:
             exit 0
           fi
           git commit -m "chore: sync sheet data [skip ci]"
-          git push
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+          # Push, but tolerate main advancing between checkout and push (a
+          # concurrent run, or a manual push landing meanwhile). On a rejected
+          # non-fast-forward, rebase our commit onto the latest main and retry.
+          # This commit only ever touches data/ (regenerated deterministically),
+          # so the rebase applies cleanly against unrelated changes.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt/5) — rebasing onto latest main and retrying…"
+            git pull --rebase origin main
+          done
+          echo "::error::Failed to push updated data after 5 attempts"
+          exit 1
 
       # Building/deploying now lives in deploy.yml. A push made with the
       # default GITHUB_TOKEN does NOT trigger other workflows' `push`
