@@ -28,6 +28,9 @@ if (!SERVICE_ACCOUNT_JSON && !API_KEY) {
 
 const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
 
+/** client_email of the service account, kept for diagnostics (not secret). */
+let saClientEmail = null;
+
 /** Pages mapped to their sheet/range names */
 const PAGES = [
   { file: 'members.json',       range: 'Members!A:Z' },
@@ -95,6 +98,7 @@ async function getAccessToken() {
   if (!sa.client_email || !sa.private_key) {
     throw new Error('Service account JSON must contain client_email and private_key.');
   }
+  saClientEmail = sa.client_email;
 
   const now = Math.floor(Date.now() / 1000);
   const header = { alg: 'RS256', typ: 'JWT' };
@@ -198,7 +202,7 @@ async function main() {
 
   const accessToken = await getAccessToken();
   if (accessToken) {
-    console.log('🔑 Authenticated with service account (sheet can be private).');
+    console.log(`🔑 Authenticated with service account ${saClientEmail} (sheet can be private).`);
   } else {
     console.warn('⚠ Using API key — this requires the sheet to be publicly link-readable. Migrate to GOOGLE_SERVICE_ACCOUNT_JSON.');
   }
@@ -206,12 +210,24 @@ async function main() {
   const results = await Promise.allSettled(PAGES.map((p) => fetchPage(p, accessToken)));
 
   let hasError = false;
+  let hasPermissionError = false;
   results.forEach((result, i) => {
     if (result.status === 'rejected') {
       console.error(`✗ ${PAGES[i].file}: ${result.reason.message}`);
       hasError = true;
+      if (result.reason.message.includes('HTTP 403')) hasPermissionError = true;
     }
   });
+
+  if (hasPermissionError && accessToken) {
+    console.error(
+      '\nThe service account authenticated, but Google denied access to the ' +
+      'spreadsheet (403 PERMISSION_DENIED). To fix:\n' +
+      `  1. Open the sheet → Share → add ${saClientEmail} as Viewer.\n` +
+      '  2. Confirm the GOOGLE_SHEET_ID secret matches that sheet\'s ID.\n' +
+      "  3. Confirm the Google Sheets API is enabled in the service account's project."
+    );
+  }
 
   if (hasError) {
     process.exit(1);
