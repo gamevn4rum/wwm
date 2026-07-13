@@ -104,7 +104,9 @@ async function getAccessToken() {
   const header = { alg: 'RS256', typ: 'JWT' };
   const claims = {
     iss:   sa.client_email,
-    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    // drive.metadata.readonly is only used by the 403 diagnostic below, to
+    // check whether GOOGLE_SHEET_ID is among the files shared with this SA.
+    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/drive.metadata.readonly',
     aud:   'https://oauth2.googleapis.com/token',
     iat:   now,
     exp:   now + 3600,
@@ -131,6 +133,33 @@ async function getAccessToken() {
     throw new Error('Token endpoint did not return an access_token.');
   }
   return token.access_token;
+}
+
+/**
+ * On PERMISSION_DENIED: list the files the service account can actually see
+ * (Drive metadata) and say whether GOOGLE_SHEET_ID is one of them. Prints only
+ * counts and a yes/no match — no names or IDs, since Actions logs are public.
+ */
+async function diagnoseAccess(accessToken) {
+  try {
+    const data = await request(
+      'GET',
+      'https://www.googleapis.com/drive/v3/files?pageSize=100&fields=files(id)',
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    const files = data.files ?? [];
+    const match = files.some((f) => f.id === SHEET_ID);
+    console.error(
+      `\nDiagnostic: the service account can see ${files.length} file(s) via the Drive API.\n` +
+      (match
+        ? 'GOOGLE_SHEET_ID IS among them — sharing looks right; check that the Google Sheets API is enabled in the service account\'s project.'
+        : files.length === 0
+          ? 'GOOGLE_SHEET_ID is NOT among them and nothing is shared with this account — the Share step did not take effect. Re-share the sheet with the exact client_email above.'
+          : 'GOOGLE_SHEET_ID is NOT among them, but something else IS shared with this account — the GOOGLE_SHEET_ID secret most likely points to a different spreadsheet than the one you shared.')
+    );
+  } catch (e) {
+    console.error(`\nDiagnostic Drive check failed: ${e.message}`);
+  }
 }
 
 function parseRows({ values }) {
@@ -227,6 +256,7 @@ async function main() {
       '  2. Confirm the GOOGLE_SHEET_ID secret matches that sheet\'s ID.\n' +
       "  3. Confirm the Google Sheets API is enabled in the service account's project."
     );
+    await diagnoseAccess(accessToken);
   }
 
   if (hasError) {
