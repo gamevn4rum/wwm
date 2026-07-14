@@ -7,6 +7,29 @@
     <span class="accent-line"></span>
   </header>
 
+  <!-- ══ FILTER BAR ══ -->
+  <section class="filter-bar" aria-label="Match filters">
+    <span class="filter-label">Opponent</span>
+    <div class="chip-group" role="group" aria-label="Filter by opponent">
+      <button type="button"
+              class="chip"
+              [class.active]="selectedOpponents().size === 0"
+              [attr.aria-pressed]="selectedOpponents().size === 0"
+              (click)="clearOpponents()">
+        All
+      </button>
+      @for (opponent of opponentOptions(); track opponent) {
+        <button type="button"
+                class="chip"
+                [class.active]="isOpponentSelected(opponent)"
+                [attr.aria-pressed]="isOpponentSelected(opponent)"
+                (click)="toggleOpponent(opponent)">
+          {{ opponent }}
+        </button>
+      }
+    </div>
+  </section>
+
   <!-- ══ TIMELINE SECTION ══ -->
   <section class="timeline-section">
     <ngx-timeline
