@@ -57,6 +57,16 @@ The sheet's first row is treated as column headers; all subsequent rows become J
 
 There is no separate Footages tab — the Match History sheet carries one column per uploader (`Kam`, `Necro`, `Ruby`, `VK`, `Yuenshin`, `canoc`, `Sniper`, `LVH`, `choxu`) holding that uploader's YouTube link for the match, if any. `MatchHistoryDataService` parses those columns into each `MatchRecord`'s `footages` array; the Footages gallery page and the match-card popup both derive their video lists from that same array instead of a separate fetch.
 
+Both the Match History and Footages pages let you filter by opponent. Footages uses single-select dropdowns (match type / opponent / uploader); Match History uses a multi-select chip group so you can view several opponents at once (no chips selected = all matches).
+
+---
+
+## Content-Security-Policy
+
+A `Content-Security-Policy` is set via a meta tag in [`src/index.html`](src/index.html) as defense-in-depth (see [`SECURITY.md`](SECURITY.md)). It allow-lists the external origins the app depends on — YouTube (footage player), the Discord CDN (avatars), Google Fonts, and image hosts.
+
+**Gotcha:** event banners/screenshots (`events.json`) are hosted externally on [ImgBB](https://ibb.co) (`https://i.ibb.co`). If you add images from a new host, add that origin to the `img-src` directive in `src/index.html` or the browser will silently block them.
+
 ---
 
 ## Local Development

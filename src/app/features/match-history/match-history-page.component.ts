@@ -46,10 +46,27 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
   readonly allMatches = signal<MatchRecord[]>([]);
   readonly loading    = signal(true);
 
+  // ── Opponent filter ───────────────────────────────────────────────────────
+  /** Selected opponents; an empty set means "All". */
+  readonly selectedOpponents = signal<ReadonlySet<string>>(new Set());
+
+  readonly opponentOptions = computed(() =>
+    Array.from(new Set(this.allMatches().map(m => m.opponent).filter(o => !!o)))
+      .sort((a, b) => a.localeCompare(b))
+  );
+
+  /** All matches after applying the opponent filter. */
+  readonly filteredMatches = computed(() => {
+    const selected = this.selectedOpponents();
+    return selected.size === 0
+      ? this.allMatches()
+      : this.allMatches().filter(m => selected.has(m.opponent));
+  });
+
   // ── Derived filtered lists ────────────────────────────────────────────────
-  readonly leagueMatches = computed(() => this.allMatches().filter(m => m.type === 'league'));
-  readonly rankedMatches = computed(() => this.allMatches().filter(m => m.type === 'ranked'));
-  readonly scrimMatches  = computed(() => this.allMatches().filter(m => m.type === 'scrim'));
+  readonly leagueMatches = computed(() => this.filteredMatches().filter(m => m.type === 'league'));
+  readonly rankedMatches = computed(() => this.filteredMatches().filter(m => m.type === 'ranked'));
+  readonly scrimMatches  = computed(() => this.filteredMatches().filter(m => m.type === 'scrim'));
 
   /**
    * All matches from the start of the previous calendar month, sorted
@@ -61,7 +78,7 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
     const now = new Date();
     const cutoff = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-    const sorted = [...this.allMatches()]
+    const sorted = [...this.filteredMatches()]
       .filter(m => new Date(m.date) >= cutoff)
       .sort((a, b) => a.date.localeCompare(b.date));
 
@@ -128,6 +145,24 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  isOpponentSelected(opponent: string): boolean {
+    return this.selectedOpponents().has(opponent);
+  }
+
+  toggleOpponent(opponent: string): void {
+    const next = new Set(this.selectedOpponents());
+    if (next.has(opponent)) {
+      next.delete(opponent);
+    } else {
+      next.add(opponent);
+    }
+    this.selectedOpponents.set(next);
+  }
+
+  clearOpponents(): void {
+    this.selectedOpponents.set(new Set());
+  }
 
   resolveStatus(status: MatchRecord['status']): 'victory' | 'failure' | 'draw' {
     if (status === '✅') return 'victory';

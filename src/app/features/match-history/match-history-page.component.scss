@@ -13,6 +13,66 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FILTER BAR
+// ─────────────────────────────────────────────────────────────────────────────
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-label {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  color: var(--color-ink-soft);
+  font-weight: 600;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chip {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-tint);
+  }
+
+  &.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-dark);
+    font-weight: 600;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // HEADER
 // ─────────────────────────────────────────────────────────────────────────────
 .chronicle-header {
