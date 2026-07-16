@@ -22,14 +22,14 @@ jobs:
     steps:
       # ── 1. Source checkout ────────────────────────────────────────────────
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Full history needed so we can push to a different branch later.
           fetch-depth: 0
 
       # ── 2. Node.js ───────────────────────────────────────────────────────
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
           cache: npm

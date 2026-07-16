@@ -28,6 +28,40 @@ if (!SERVICE_ACCOUNT_JSON && !API_KEY) {
 
 const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
 
+// ── Resilience knobs ────────────────────────────────────────────────────────
+// Google's APIs occasionally stall a connection or return a transient 429/5xx.
+// A single blip used to fail the whole hourly sync, so every request now has a
+// hard socket timeout and is retried with exponential backoff.
+const REQUEST_TIMEOUT_MS = 30_000;
+const RETRY_ATTEMPTS     = 3;
+const RETRY_BASE_DELAY_MS = 1_000;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Retry `fn` while it rejects with a *retriable* error (network failure,
+ * socket timeout, 429, or 5xx). Permanent errors (e.g. 403, bad key) throw
+ * immediately so real misconfiguration still surfaces.
+ */
+async function withRetry(fn, { attempts = RETRY_ATTEMPTS, label = 'request' } = {}) {
+  let lastErr;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (!err.retriable || attempt === attempts) throw err;
+      const delay = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+      console.warn(
+        `↻ ${label} failed (attempt ${attempt}/${attempts}): ` +
+        `${err.message.split('\n')[0]} — retrying in ${delay}ms`
+      );
+      await sleep(delay);
+    }
+  }
+  throw lastErr;
+}
+
 /** client_email of the service account, kept for diagnostics (not secret). */
 let saClientEmail = null;
 
@@ -54,8 +88,14 @@ function base64url(input) {
     .replace(/\//g, '_');
 }
 
-/** Low-level HTTPS request returning parsed JSON. */
-function request(method, url, { headers = {}, body } = {}) {
+/**
+ * Low-level HTTPS request returning parsed JSON.
+ *
+ * Errors carry a `retriable` flag consumed by withRetry(): network failures
+ * and socket timeouts are transient, as are 429/5xx responses; other non-2xx
+ * responses (e.g. 403 PERMISSION_DENIED) are permanent and thrown as-is.
+ */
+function request(method, url, { headers = {}, body, timeoutMs = REQUEST_TIMEOUT_MS } = {}) {
   return new Promise((resolve, reject) => {
     const req = https.request(url, { method, headers }, (res) => {
       let raw = '';
@@ -66,7 +106,10 @@ function request(method, url, { headers = {}, body } = {}) {
           return;
         }
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          reject(new Error(`HTTP ${res.statusCode} for ${url}\n${raw}`));
+          const err = new Error(`HTTP ${res.statusCode} for ${url}\n${raw}`);
+          err.statusCode = res.statusCode;
+          err.retriable = res.statusCode === 429 || res.statusCode >= 500;
+          reject(err);
           return;
         }
         try {
@@ -76,7 +119,17 @@ function request(method, url, { headers = {}, body } = {}) {
         }
       });
     });
-    req.on('error', reject);
+    req.on('error', (err) => {
+      // Network-level failures (ECONNRESET, ETIMEDOUT, socket hang up) and the
+      // timeout abort below are all transient.
+      if (err.retriable === undefined) err.retriable = true;
+      reject(err);
+    });
+    req.setTimeout(timeoutMs, () => {
+      const err = new Error(`Request to ${url} timed out after ${timeoutMs}ms`);
+      err.retriable = true;
+      req.destroy(err);
+    });
     if (body) req.write(body);
     req.end();
   });
@@ -121,13 +174,17 @@ async function getAccessToken() {
     assertion,
   }).toString();
 
-  const token = await request('POST', 'https://oauth2.googleapis.com/token', {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': Buffer.byteLength(form),
-    },
-    body: form,
-  });
+  const token = await withRetry(
+    () =>
+      request('POST', 'https://oauth2.googleapis.com/token', {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(form),
+        },
+        body: form,
+      }),
+    { label: 'OAuth token' }
+  );
 
   if (!token.access_token) {
     throw new Error('Token endpoint did not return an access_token.');
@@ -204,7 +261,7 @@ async function fetchPage({ file, range }, accessToken) {
   const url = accessToken ? path : `${path}?key=${API_KEY}`;
   const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 
-  const data = await request('GET', url, { headers });
+  const data = await withRetry(() => request('GET', url, { headers }), { label: file });
   if (data._notFound) {
     console.warn(`⚠ ${file} — range "${range}" not found (404), skipped`);
     return;
@@ -229,7 +286,25 @@ async function fetchPage({ file, range }, accessToken) {
 async function main() {
   fs.mkdirSync('./data', { recursive: true });
 
-  const accessToken = await getAccessToken();
+  let accessToken;
+  try {
+    accessToken = await getAccessToken();
+  } catch (err) {
+    // A transient failure minting the token means we can't fetch anything this
+    // run. Rather than error the hourly sync, keep all last-good data and exit
+    // cleanly; the next run recovers. Permanent auth errors (bad key, denied
+    // grant) still fail loudly.
+    if (err.retriable) {
+      console.warn(
+        `⚠ Could not mint an access token after ${RETRY_ATTEMPTS} attempts ` +
+        `(${err.message.split('\n')[0]}). Keeping all last-good data and exiting successfully.`
+      );
+      return;
+    }
+    console.error(`✗ Authentication failed: ${err.message}`);
+    process.exit(1);
+  }
+
   if (accessToken) {
     console.log(`🔑 Authenticated with service account ${saClientEmail} (sheet can be private).`);
   } else {
@@ -242,9 +317,19 @@ async function main() {
   let hasPermissionError = false;
   results.forEach((result, i) => {
     if (result.status === 'rejected') {
-      console.error(`✗ ${PAGES[i].file}: ${result.reason.message}`);
+      const err = result.reason;
+      // Transient error that survived all retries: leave data/<file> untouched
+      // (last-good stays served) and don't fail the run.
+      if (err.retriable) {
+        console.warn(
+          `⚠ ${PAGES[i].file}: ${err.message.split('\n')[0]} — ` +
+          `kept last-good data after ${RETRY_ATTEMPTS} attempts.`
+        );
+        return;
+      }
+      console.error(`✗ ${PAGES[i].file}: ${err.message}`);
       hasError = true;
-      if (result.reason.message.includes('HTTP 403')) hasPermissionError = true;
+      if (err.statusCode === 403 || err.message.includes('HTTP 403')) hasPermissionError = true;
     }
   });
 
