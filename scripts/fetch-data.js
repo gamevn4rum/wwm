@@ -73,7 +73,7 @@ const PAGES = [
   // Match History now also carries the per-uploader footage URL columns —
   // footages.json/Footages tab was retired and merged into this one.
   { file: 'match-history.json', range: 'Match History!A:Z' },
-  { file: 'events.json',        range: 'Events!A:Z' },
+  { file: 'events.json',        range: 'Events!A:J' },
 ];
 
 function md5(str) {
@@ -256,12 +256,54 @@ function normalizeRowDates(row) {
   return result;
 }
 
+/** Build a values.get URL, folding in the API key (key auth) and any extra
+ *  query params (e.g. render options). */
+function valuesUrl(range, accessToken, extraParams = {}) {
+  const params = new URLSearchParams(extraParams);
+  if (!accessToken) params.set('key', API_KEY);
+  const qs = params.toString();
+  return `${BASE_URL}/${SHEET_ID}/values/${encodeURIComponent(range)}${qs ? `?${qs}` : ''}`;
+}
+
 async function fetchPage({ file, range }, accessToken) {
-  const path = `${BASE_URL}/${SHEET_ID}/values/${encodeURIComponent(range)}`;
-  const url = accessToken ? path : `${path}?key=${API_KEY}`;
   const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 
-  const data = await withRetry(() => request('GET', url, { headers }), { label: file });
+  let data;
+  try {
+    data = await withRetry(
+      () => request('GET', valuesUrl(range, accessToken), { headers }),
+      { label: file }
+    );
+  } catch (err) {
+    // A persistent 5xx on a single tab is often not the service being down but
+    // Google failing to serialize a specific cell under the default
+    // FORMATTED_VALUE rendering — most commonly an =IMAGE()/=IMPORTRANGE()
+    // formula (the Events tab's Banner/P1–P5 columns are exactly this shape).
+    // If the default render exhausted its retries with a retriable error, try
+    // once more asking for UNFORMATTED values, which skips that rendering path.
+    // dateTimeRenderOption=FORMATTED_STRING keeps date cells as strings so the
+    // downstream date normalization still works; only numeric cells change
+    // shape (string → number), which is an acceptable trade for getting data
+    // at all instead of serving stale.
+    if (!err.retriable) throw err;
+    console.warn(
+      `↻ ${file} — default render failed (${err.message.split('\n')[0]}); ` +
+      `retrying with UNFORMATTED_VALUE render.`
+    );
+    data = await withRetry(
+      () =>
+        request(
+          'GET',
+          valuesUrl(range, accessToken, {
+            valueRenderOption: 'UNFORMATTED_VALUE',
+            dateTimeRenderOption: 'FORMATTED_STRING',
+          }),
+          { headers }
+        ),
+      { label: `${file} (unformatted)` }
+    );
+  }
+
   if (data._notFound) {
     console.warn(`⚠ ${file} — range "${range}" not found (404), skipped`);
     return;
