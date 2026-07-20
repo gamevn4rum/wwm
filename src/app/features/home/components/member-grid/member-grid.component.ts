@@ -51,6 +51,9 @@ export class MemberGridComponent implements OnInit {
   private readonly innerWaysById = signal<Map<number, InnerWayCatalogueEntry>>(new Map());
   private readonly setsById = signal<Map<number, SetCatalogueEntry>>(new Map());
   readonly expandedId = signal<string | null>(null);
+  // Only one member card is ever expanded at a time, so keying by inner-way id
+  // alone (no player id) is safe — no cross-card collisions.
+  private readonly activeUprankTab = signal<Map<number, number>>(new Map());
 
   ngOnInit(): void {
     this.homeDataService.getPlayers().subscribe((data: Player[]) => {
@@ -133,6 +136,35 @@ export class MemberGridComponent implements OnInit {
   innerWayInfo(id: number | null): InnerWayCatalogueEntry | undefined {
     if (id == null) return undefined;
     return this.innerWaysById().get(id);
+  }
+
+  /**
+   * Best-effort default tab: the highest advancement rank whose world-level
+   * requirement the player's own level clears. This is an approximation, not
+   * a fact — a player's actual uprank purchases aren't exposed by the live
+   * Player() call, only their character level, which the ranks' worldLevel
+   * gate loosely tracks.
+   */
+  defaultUprankTab(entry: InnerWayCatalogueEntry, playerLevel: number | null): number {
+    let idx = 0;
+    for (let i = 0; i < entry.upranks.length; i++) {
+      const wl = entry.upranks[i].worldLevel;
+      if (wl != null && playerLevel != null && wl <= playerLevel) idx = i;
+    }
+    return idx;
+  }
+
+  activeUprankIndex(innerWayId: number | null, entry: InnerWayCatalogueEntry, playerLevel: number | null): number {
+    if (innerWayId == null) return 0;
+    return this.activeUprankTab().get(innerWayId) ?? this.defaultUprankTab(entry, playerLevel);
+  }
+
+  setActiveUprank(innerWayId: number | null, index: number, event: Event): void {
+    event.stopPropagation();
+    if (innerWayId == null) return;
+    const next = new Map(this.activeUprankTab());
+    next.set(innerWayId, index);
+    this.activeUprankTab.set(next);
   }
 
   /**

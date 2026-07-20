@@ -22,8 +22,16 @@ export interface MatchRecord {
   opponent: string;
   type: MatchType;
   status: '✅' | '❌' | '➕';
+  /** Raw "Season" column value from the sheet (e.g. "1", "2"). Empty string if blank. */
+  season: string;
   /** Footage clips uploaded for this match, keyed by uploader — one row now covers both. */
   footages: FootageEntry[];
+}
+
+/** Numeric seasons sort by magnitude; anything non-numeric (or blank) sorts last. */
+export function seasonSortValue(season: string): number {
+  const n = parseFloat(season);
+  return isNaN(n) ? -Infinity : n;
 }
 
 export interface TimelineNode extends NgxTimelineEvent {

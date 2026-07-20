@@ -65,6 +65,7 @@ function rowToMatchRecord(row: SheetRow): MatchRecord | null {
     opponent,
     type,
     status,
+    season:   findVal(row, 'season'),
     footages: rowToFootages(row),
   };
 }
