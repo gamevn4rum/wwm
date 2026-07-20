@@ -13,7 +13,9 @@ const key = Buffer.from(KEY_HEX, 'hex');
 
 // Files whose plaintext should never be shipped/committed.
 // Match History carries the footage URLs now, so it's encrypted instead of footages.json.
-const FILES = ['match-history.json', 'members.json'];
+// player-stats.json carries in-game player data pulled per-member; keep it
+// encrypted like the roster it derives from.
+const FILES = ['match-history.json', 'members.json', 'player-stats.json'];
 
 for (const filename of FILES) {
   const inPath  = `./data/${filename}`;

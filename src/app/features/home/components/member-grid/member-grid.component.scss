@@ -57,6 +57,7 @@
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: var(--space-3);
+  align-items: start;
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(4, 1fr);
@@ -71,23 +72,28 @@
 .member-badge {
   --accent: var(--color-ink-faint);
 
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
   position: relative;
   min-width: 0;
-  cursor: default;
   transition: box-shadow var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 
-  &:hover {
+  &.has-stats:not(.is-expanded):hover {
     box-shadow: var(--shadow-md);
     border-color: var(--accent);
     transform: translateY(-1px);
+  }
+
+  // Expanded card takes the full row so the grid reflows others around it.
+  &.is-expanded {
+    grid-column: 1 / -1;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
+    background:
+      linear-gradient(180deg, var(--accent-tint, transparent), transparent 90px),
+      var(--color-surface);
   }
 }
 
@@ -97,6 +103,28 @@
 .rank-attacker { --accent: var(--color-accent-blue); --accent-tint: var(--color-accent-blue-tint); }
 .rank-healer   { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
 .rank-tanker   { --accent: var(--color-ink-soft);    --accent-tint: var(--color-border-strong); }
+
+/* ── Collapsed summary (clickable surface) ── */
+.badge-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: default;
+  border-radius: inherit;
+
+  &.clickable { cursor: pointer; }
+  &:disabled { cursor: default; }
+}
+
+// Collapse the summary once the rich detail header takes over.
+.is-expanded .badge-summary { display: none; }
 
 /* ── Avatar ── */
 .badge-avatar {
@@ -126,7 +154,10 @@
   flex-direction: column;
   min-width: 0;
   flex: 1;
+  // Leave room for the corner level pill so names ellipsis-clip before it.
+  padding-right: 6px;
 }
+.has-stats .badge-info { padding-right: 34px; }
 
 .badge-name {
   font-family: var(--font-body);
@@ -148,4 +179,315 @@
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.25;
+}
+
+/* Level pill — corner badge on collapsed cards that have stats */
+.badge-level {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  background: var(--accent-tint, var(--color-surface-alt));
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.4rem;
+  line-height: 1.4;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Expanded detail
+   ════════════════════════════════════════════════════════════════════════ */
+.badge-detail {
+  padding: 0 var(--space-5) var(--space-5);
+  animation: detail-reveal var(--transition-base);
+}
+
+@keyframes detail-reveal {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-4);
+}
+
+.detail-avatar {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  .avatar-placeholder img { width: 36px; height: 36px; }
+}
+
+.detail-identity { min-width: 0; flex: 1; }
+
+.detail-name {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-ink);
+}
+
+.detail-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 0.35rem;
+}
+
+.rank-chip {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent);
+  background: var(--accent-tint, var(--color-surface-alt));
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 0.12rem 0.5rem;
+}
+
+.detail-uid, .detail-joined {
+  font-size: 0.72rem;
+  color: var(--color-ink-faint);
+}
+.detail-joined::before { content: '·'; margin-right: var(--space-2); }
+
+.detail-notes {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--color-ink-soft);
+}
+
+.detail-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+
+  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--accent-tint); border-color: var(--accent); color: var(--accent); }
+}
+
+/* ── Stat tiles ── */
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.stat-tile {
+  --tile-accent: var(--accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--tile-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+
+  .tile-icon {
+    grid-row: 1 / 3;
+    width: 26px;
+    height: 26px;
+    color: var(--tile-accent);
+  }
+  .tile-label {
+    font-size: 0.64rem;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+    line-height: 1.2;
+  }
+  .tile-value {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .tile-value-sub { font-size: 0.85rem; color: var(--color-ink-faint); font-weight: 500; }
+}
+
+.tile-level   { --tile-accent: var(--color-primary); }
+.tile-mastery { --tile-accent: var(--color-secondary-dark); }
+.tile-region  { --tile-accent: var(--color-accent-blue); }
+/* tile-school accent is set inline from the school palette */
+
+/* ── Gear ── */
+.gear-section { margin-top: var(--space-2); }
+
+.gear-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: var(--space-3);
+
+  svg { width: 18px; height: 18px; color: var(--accent); }
+}
+.gear-count {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-ink-faint);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.45rem;
+}
+
+.gear-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+/* Ordinal gear-rarity ramp — grey → sage → blue → plum → gold (game convention).
+   Colour is paired with the "T{n}" label, never the sole cue. */
+.gear-card {
+  --tier: var(--color-ink-faint);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--tier);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.tier-0 { --tier: var(--color-ink-faint); }
+.tier-1 { --tier: #9c8f79; }
+.tier-2 { --tier: #7c9473; }
+.tier-3 { --tier: #6e88a8; }
+.tier-4 { --tier: #8b6f94; }
+.tier-5 { --tier: #c8912f; }
+
+.gear-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.gear-slotname {
+  font-size: 0.62rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+.gear-tier {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--tier);
+  border-radius: var(--radius-sm);
+  padding: 0.05rem 0.35rem;
+  letter-spacing: 0.02em;
+}
+.gear-name {
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--tier);
+  line-height: 1.2;
+}
+.gear-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.gear-set {
+  font-size: 0.68rem;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-pill);
+  padding: 0.08rem 0.45rem;
+}
+.gear-ilvl {
+  font-size: 0.68rem;
+  color: var(--color-ink-faint);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 0.08rem 0.45rem;
+}
+
+.gear-attrs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  padding-top: var(--space-1);
+  border-top: 1px dashed var(--color-border);
+}
+.attr-chip {
+  font-size: 0.7rem;
+  color: var(--color-ink-soft);
+  b { color: var(--color-ink); font-weight: 700; }
+}
+
+.gear-affixes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+}
+.affix {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: 0.74rem;
+  color: var(--color-ink-soft);
+}
+.affix-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tier);
+  align-self: center;
+}
+.affix-name { flex: 1; min-width: 0; }
+.affix-val { font-weight: 700; color: var(--color-ink); }
+.affix.effect {
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--color-ink-faint);
+  line-height: 1.35;
+  .affix-dot { align-self: flex-start; margin-top: 0.45em; }
+}
+
+/* Respect reduced-motion for the reveal animation */
+@media (prefers-reduced-motion: reduce) {
+  .badge-detail { animation: none; }
 }
