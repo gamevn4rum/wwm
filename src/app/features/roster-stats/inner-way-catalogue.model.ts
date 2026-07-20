@@ -13,4 +13,11 @@ export interface InnerWayCatalogueEntry {
   path: { id: number | null; name: string } | null;
   weapon: { id: number | null; name: string } | null;
   effectTypes: InnerWayEffectType[];
+  /** Flavour/lore text — not a mechanical effect. */
+  lore: string;
+  /** Base passive's mechanical effect, matching a player's live `tier`. */
+  effect: string;
+  maxAdvancedLevel: number | null;
+  /** Cumulative effect text at full advancement — NOT necessarily this player's current state (uprank progress isn't exposed by the live Player() call). */
+  maxEffect: string | null;
 }

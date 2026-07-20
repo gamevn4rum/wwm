@@ -3,9 +3,21 @@ import { DecimalPipe } from '@angular/common';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
-import { MatchedPlayerStats } from '../../../roster-stats/player-stats.model';
+import { MatchedPlayerStats, PlayerDetail } from '../../../roster-stats/player-stats.model';
 import { InnerWayCatalogueService } from '../../../roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogue.model';
+import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
+import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
+
+/** A gear set with enough matching pieces equipped to have an active bonus. */
+export interface ActiveSetEffect {
+  set: SetCatalogueEntry;
+  count: number;
+  bonus2Active: boolean;
+  bonus4Active: boolean;
+  /** bonus2's level-scaled attribute(s), resolved to the player's actual level. */
+  resolvedBonus2: { attrName: string; value: number }[];
+}
 
 // Schools get a fixed categorical palette (assigned by stable index, never a
 // cycled/generated hue). Colour is never the sole cue — the school name is always
@@ -32,10 +44,12 @@ export class MemberGridComponent implements OnInit {
   private homeDataService = inject(HomeDataService);
   private playerStatsService = inject(PlayerStatsDataService);
   private innerWayCatalogueService = inject(InnerWayCatalogueService);
+  private setCatalogueService = inject(SetCatalogueService);
 
   readonly players = signal<Player[]>([]);
   private readonly statsByIgn = signal<Map<string, MatchedPlayerStats>>(new Map());
   private readonly innerWaysById = signal<Map<number, InnerWayCatalogueEntry>>(new Map());
+  private readonly setsById = signal<Map<number, SetCatalogueEntry>>(new Map());
   readonly expandedId = signal<string | null>(null);
 
   ngOnInit(): void {
@@ -51,6 +65,11 @@ export class MemberGridComponent implements OnInit {
       const map = new Map<number, InnerWayCatalogueEntry>();
       for (const e of entries) if (e.id != null) map.set(e.id, e);
       this.innerWaysById.set(map);
+    });
+    this.setCatalogueService.getAll().subscribe((entries) => {
+      const map = new Map<number, SetCatalogueEntry>();
+      for (const e of entries) if (e.id != null) map.set(e.id, e);
+      this.setsById.set(map);
     });
   }
 
@@ -114,5 +133,46 @@ export class MemberGridComponent implements OnInit {
   innerWayInfo(id: number | null): InnerWayCatalogueEntry | undefined {
     if (id == null) return undefined;
     return this.innerWaysById().get(id);
+  }
+
+  /**
+   * Gear sets with 2+ matching pieces equipped (game convention: bonuses
+   * unlock at 2 and 4 pieces). Multiple sets can be active simultaneously.
+   */
+  activeSetEffects(p: PlayerDetail): ActiveSetEffect[] {
+    const counts = new Map<number, number>();
+    for (const slot of p.gear) {
+      if (slot.set?.id == null) continue;
+      counts.set(slot.set.id, (counts.get(slot.set.id) ?? 0) + 1);
+    }
+
+    const results: ActiveSetEffect[] = [];
+    for (const [setId, count] of counts) {
+      if (count < 2) continue;
+      const set = this.setsById().get(setId);
+      if (!set) continue;
+      results.push({
+        set,
+        count,
+        bonus2Active: count >= 2,
+        bonus4Active: count >= 4,
+        resolvedBonus2: set.bonuses2.map((b) => ({
+          attrName: b.attrName,
+          value: this.resolveScaledValue(b.values, p.level),
+        })),
+      });
+    }
+    return results;
+  }
+
+  /** Pick the highest level-gated value the player's level actually qualifies for. */
+  private resolveScaledValue(values: { level: number | null; value: number | null }[], level: number | null): number {
+    let best = 0;
+    for (const v of values) {
+      if (v.level == null || v.value == null) continue;
+      if (level != null && v.level > level) continue;
+      best = v.value;
+    }
+    return best;
   }
 }

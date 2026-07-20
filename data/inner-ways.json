@@ -21,7 +21,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "A book written with sweat and tears of the three kings of the Tiger Fort! \nFilled with years of Jianghu experience of these three kings!\nThe first volume, Dragon's Vitality, claims that the reader will never lose another fight. \nThe second volume, Tiger's Agility, guarantees escape when you can't win.\nZhang Bao, the third king, was rejected by his two brothers when he asked to be a co-author of the book, so he started writing Panther's Spirit, a third installment, on his own. \nBut he has not made any progress so far.",
+    "effect": "Reduces the Endurance cost by 10% when dashing forward with Movement Mystic Skill Skywalk Dash while airborne. Outside the Arena, increases Movement Speed by 30% for 3s after landing. Restores HP after defeating any enemy (1% Max HP + 1,000).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases the dash speed and reduces the Endurance cost of Movement Mystic Skill Skywalk Dash; reduces Endurance cost briefly after landing. Outside the Arena, Movement Speed is also increased briefly after landing. Restores HP after defeating any enemy."
   },
   {
     "id": 2,
@@ -41,7 +45,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "Watch the wind travel through the willow trees and the plums covered by snow at night.\nThe once innocent girl, now weathered by life's hardships, stood with her loved one atop the snowy peak and laid bare her heart at last.\nThe missing Inner Way that she was forced to study has been completed.\nThe plum in the snow finally sees the spring it has been waiting for.",
+    "effect": "Within 12 seconds upon entering combat, if HP falls below 60%, gain Snow Vision for 4 seconds, restoring 2% HP +600 HP per second. This effect can trigger once every 300 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Within a certain duration upon entering combat, if your HP falls below a certain percentage, gain a short buff that restores HP every second. While this buff is active, you can recover HP based on the damage dealt, and your next 2 skills are guaranteed to be Critical. This effect has a cooldown."
   },
   {
     "id": 3,
@@ -61,7 +69,11 @@
         "id": 12,
         "name": "Control Resistance"
       }
-    ]
+    ],
+    "lore": "Lie Yan once roamed the lands of Qinghe. \nHe enjoyed listening to stories told by Jianghu Wanderers, but he couldn't find someone who would take him.\nOne day, he found an old and torn book on Inner Way in a pile of old books. \nThe book was also pieced together using information from all over the place. \nEven the name of the book sounded fraudulent.\nBut Lie Yan was born with a knack for these things. \nAnd managed to train himself into something with this book.",
+    "effect": "Less likely to suffer stagger effect when attacked. Invalid when the attack comes from a boss or player.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Less likely to suffer stun effect when attacked. Higher resistance when more enemy units are nearby. Invalid when the attack comes from a player. When attacked, you have a chance to gain a special effect that deals counterattack damage back to the attacker over a short period, and a chance to increase Physical Defense."
   },
   {
     "id": 4,
@@ -85,7 +97,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "The moonlight reaches the bottom of the lake, with no shadows reflected back at the sky.\nIn a valley devoid of people, a sorrowful tale remains unknown.\nWho betrayed whom? Who owed whom?\nWhere do we start with this old story?\nThe blind girl put down her sword and put on makeup, just so she could start waiting for those eyes, that someone.",
+    "effect": "Enhances Touch of Death, increasing its range by 1.5m and damage by 10%. Upon a successful hit, restores HP equal to 5% of the damage dealt.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Enhances Touch of Death, increasing its range and damage. Upon a successful hit, restores HP based on the damage dealt, immediately enters Stealth, and has a chance to obtain loot from the target. The Stealth effect has a 20-second cooldown."
   },
   {
     "id": 5,
@@ -109,7 +125,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "Bliss Turns to Blood, the Land Drenched in Sorrow.\nThis Inner Way was created by Xue Futu, one of the Seven Chief Elders of Midnight Blades.\nIt causes blood to surge violently until it spills forth, with victims dying in a ghastly laughter.\nYet Xue Futu vanished long ago, and the Inner Way was lost with none to inherit it. Only fragments remain, and its true essence has been lost.",
+    "effect": "Dealing damage has a 10% chance to apply one stack of Weeping Blood for 5 seconds, damaging the target once per second (up to 5 stacks, duration refreshed upon stacking). At 5 stacks, Weeping Blood will be removed from the target and deal piercing damage once.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Dealing damage has a chance to apply Weeping Blood that damages the target every second, stacking up to 5 times. At max stacks, Weeping Blood will be removed from the target and deal piercing damage. If Weeping Blood fails to reach max stacks before expiry, there is still a chance to deal piercing damage. Chance to retain some Weeping Blood stacks when dealing piercing damage."
   },
   {
     "id": 6,
@@ -133,7 +153,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "Wandering Free in the Sand \nLike a fish flicking its tail. \n\n Someone unknown \nleft this in the Divinecraft Corridor. \n\n Someone seems to \nTurn into a fish, swimming through sand?",
+    "effect": "While transformed into a brocade carp via Moonleap Morph, sprinting and jumping consume 50% less Endurance.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Koi Form: Sprinting and jumping no longer consume Endurance. Out of combat, HP and Vitality gradually recover over time. Gathering has a chance to trigger a critical success. Leaving this form grants a temporary HP shield. When in the Carp or Breeze form, there is a chance to get critical yields from gathering."
   },
   {
     "id": 41,
@@ -157,7 +181,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "The soldiers are not like the bright moon. Yet year after year, their shadows fall among the pear blossoms.\nThe nameless one, in the dark, sang a song about their home, even when they would not identify those next to them. \nBut the faint singing told them that they were not alone.\nTo them, the world is huge, and anywhere can be a prison. \nThey can enjoy a moment of calm when singing.",
+    "effect": "Increases all damage and healing done by 5%. This effect is disabled for 5 seconds after being hit. Taking a hit also grants a Cage effect, increasing all damage taken by 5%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases all damage and healing done. This effect is disabled briefly after being hit. Landing an attack while this effect is active applies a mark to the target; when attacked by a marked target, the effect is no longer disabled. Taking a hit also grants another effect: Increases all damage taken, disabled temporarily after hitting any attack."
   },
   {
     "id": 42,
@@ -181,7 +209,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "The fragrant willow branches, The lamentable years and the departures.\nThe girl, tasked with watching over the imperial heir's duty of restoring the glory, never answered his enthusiastic questions.\nThe emotions within became drops of poison that fell from her fingertips, \nTurning into a spell for those who came after her, and an enigma that the heir never solved.",
+    "effect": "When dealing damage, there is a 10% chance to apply a Poison effect for 5 seconds, dealing damage once per second. The Poison reduces target's Physical Defense by 0.6% for 10 seconds, stacking up to 5 times (duration refreshed upon stacking).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When dealing or taking damage, there is a chance to apply a Poison effect that deals damage every second while active. The Poison also reduces the target's Physical Defense. At max stacks, the Poison also reduces the target's Physical Resistance."
   },
   {
     "id": 43,
@@ -201,7 +233,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "The Palace of Annals once took in a group of Yan refugees. \nThe Sword Saints of the Hanging Blade, those who control the palace, taught them martial arts.\nThe techniques were bold and resonant, resembling the north. \nThose who learned it secretly called it the Vital Leech.\nThe Palace of Annals closed three years ago, and these techniques faded with it.",
+    "effect": "Casting Exhaustion Execution skill restores HP equal to 8% of the damage dealt.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases the damage of the Exhaustion Execution skill. Casting Exhaustion Execution skill also restores HP and Qi based on the damage dealt. Additionally, attacking Exhausted targets with any skill other than Exhaustion Execution skill will also restore HP based on the damage dealt."
   },
   {
     "id": 44,
@@ -225,7 +261,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "The Ye family has always chosen to be in the military and a life of conquest. \nThey have a unique battlefield philosophy. \nWith their bravery and physique, they always go all out.\nWhen Ye Wanshan devastated a city, he combined the family's martial arts with his rage, creating his own Inner Way Fury Harvest.\nWhen one is full of anger, Good and evil are only separated by a thin line.",
+    "effect": "Vitality is required to cast Mystic Skills. Certain recovery actions have a 50% chance to grant 1 bonus Vitality. No bonus Vitality is rewarded when you gain Vitality by attacking, taking a hit, or successfully deflecting an attack.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Vitality is required to cast Mystic Skills. Certain recovery actions have a chance to grant bonus Vitality. After casting a Mystic Skill, part of Vitality consumed within a short duration will be refunded (Vitality refunded per cast cannot exceed a certain limit)."
   },
   {
     "id": 45,
@@ -249,7 +289,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "Bearing sin, they kneel to gods. Eternal life, a stolen word... \nImmortal body, formless reign.\nHe was born in a village of eternal life, but he inherited a flawed bloodline. \nHe kept defeating his opponents, dying to remove the curse of his blood. \nWhen he was defeated by a swordsman, the person he followed won it for him with poison.\nHe knew his flaw was still there. \nHe returned to where his ancestors' spirits rested, and repeated his cultivation. \nHe defeated all the intruders until he fell again.",
+    "effect": "Upon a successful deflection, gain one of the following effects: \n   Immortal Guidance: Increases the next skill's damage by 10%. \n   Immortal Heart: The next skill is guaranteed to be Critical. \n   Immortal Spirit: The next skill is guaranteed to be an Affinity hit. \nThe effect lasts 10 seconds and can only trigger once every 30 seconds. \nIt applies to Martial Art Skills, Perception Skills, Special Skills, Charged Skills, and Varied Combos.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Upon a successful Deflection, increases the damage of the next skill, reduces damage taken from the next hit, and guarantees the next skill to trigger a Critical or Affinity Hit (has a cooldown interval). A successful Deflection also restores additional Qi."
   },
   {
     "id": 46,
@@ -269,7 +313,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "Phantoms of fish and dragons dance. A carnival of shadows, a swirling trance. \nBodies move as thoughts command. Their forms ungraspable, magic and grand. \nXue Chou learned illusions from Old Xue of the Ghostlight Market, conjuring clouds and shaping mountains from thin air to grasp the true meaning, thus awakening Evasive Charge.\nThose who master it can dodge enemy attacks, vanish without a trace, and retreat calmly by suppressing their inner breath.",
+    "effect": "After a Perfect Dodge, there is a 50% chance to refund 100% of the Endurance consumed.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Reduces the Endurance cost of dodging and the damage taken during dodging. Perfect Dodge gains increased invincibility duration, restores Max HP, and has a chance to refund the Endurance consumed."
   },
   {
     "id": 47,
@@ -293,7 +341,11 @@
         "id": 8,
         "name": "DMG Reduction"
       }
-    ]
+    ],
+    "lore": "Beacon fires temper courage and resolve; loyal bones lie buried far from home.\n\nZhang Yichao raised the Guiyi banner, \ngathering sparks amid circling wolves, \nuntil they blazed into wildfire.\n\nTidings of victory sent to Chang'an only brought deeper suspicion.\n\nLoyalty and betrayal clashed, light and dark tore. \n\nHe sheathed his sword, no longer holding the standard, \njourneyed eastward, his eyes fixed only on the rivers and mountains.",
+    "effect": "With a rallying cry, the banner of Righteous Return is raised. Gain Righteous Return: Increases direct damage dealt by 3%, with an additional increase based on target's missing HP percentage (0.5% increase per 20% HP lost, up to 2%).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Gain Righteous Return: Increases all direct damage dealt, with an additional increase based on target's missing HP percentage. Gain Relentless Combat: Reduces direct damage taken and increases healing done, with an additional increase based on your missing HP percentage."
   },
   {
     "id": 48,
@@ -317,7 +369,11 @@
         "id": 5,
         "name": "Counter"
       }
-    ]
+    ],
+    "lore": "The Guiyi legacy draws killing shadows, \nice-hearted fragments scattering away. \n\nHuaishen took the Guiyi banner— \nwolves watched again, waiting.\n\nShadows elusive, Huaishen fell beneath a blade. \nWho held the bloodied edge? \nWhose loyal heart was misplaced?\n\nRain about to pour, people in straw cloaks silently inscribe the stele. \nA mystery ages may not settle—not asking of the marks, only inscribing loyal souls.",
+    "effect": "Triggers Vigilance effect when own Health falls below 30%, restoring 20% Health and reducing damage taken by 20% for 10 seconds. Triggers once every 120 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When your HP is low, trigger Vigilance: Restores a large amount of HP and reduces your damage taken. This effect has a trigger interval. Dealing or taking damage during Vigilance restores a small amount of HP and deals Gouging DMG to the enemy while applying Interrogation."
   },
   {
     "id": 81,
@@ -341,7 +397,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "A white horse with a simple carriage, seeing someone off at the edge of Yi River.\nTian Ying, a renowned warrior who rarely showed his face, was never found by anyone.\nFor many years, his deeds at the Breeze Post were committed because he wanted to, regardless of success. \nHe never betrayed himself. He remained nameless, but no one spoke ill of him.",
+    "effect": "80% chance to gain one stack of Yi River when attacking or healing: Increases Physical Damage and healing by 1% for 8 seconds, stacking up to 5 times. The chance to gain Yi River is only calculated once every 2 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Attacking or healing has a chance to grant one stack of effect that increases your damage, healing, and Physical Penetration, stacking up to 5 times. It can only be triggered every 2s. When the target is controlled, doubles the effect and number of stacks gained. At max stacks, additionally attacks or heals the target 1-2 times based on whether the target is under control."
   },
   {
     "id": 82,
@@ -365,7 +425,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "No element reigns forever supreme. Seasons shift and their thrones lean.\nDays stretch thin, then shrink with light. The moon's pale cycle ends, then starts bright.\nWhen activated, this Inner Way briefly enhances power as if aided by seasonal spirits.\nCreated by a genius disciple of the Su family in Luan City a hundred years ago, even the most talented person can only be submerged in the waves of history, for seasons change, and nothing lasts forever.",
+    "effect": "When a Dual-Weapon Skill is released, randomly gain one of the following Seasonal Edge effects:\nSpring: Restores 30 Endurance immediately and recovers 1% HP per second.\nSummer: Increases All Martial Arts Enhancement by 10%, and by an additional 10% when HP is above 75%.\nAutumn: Increases Mystic Skill damage by 10% and restores 2 Vitality per second.\nWinter: Reduces damage taken by 20% and increases the Endurance cost of sprinting, dodging, and jumping by 200%.\nThis effect lasts up to 10 seconds, and triggers once every 30 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When a Dual-Weapon Skill is released, randomly gain one to four of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Dealing damage or healing with a Dual-Weapon Skill also triggers a random Seasonal Edge effect, with the chance of gaining Springor Winter greatly reduced."
   },
   {
     "id": 101,
@@ -389,7 +453,11 @@
         "id": 6,
         "name": "Cost Reduction"
       }
-    ]
+    ],
+    "lore": "This spell spread through the Tang's army, and the soldiers learned it. \nIt was improved by Shi Jiuge of the Raging Tides.\nHe was the pioneer of it, spreading it to the rest of the world, regardless of sects or factions. \nAnd then everyone was able to learn martial arts.",
+    "effect": "Extends the duration of Endless Gale from Nameless Spear's Martial Art Skill Qiankun's Lock to 10s, and increases its Endurance cost reduction to 20% (with an extra 10% reduction for Sprint and Charged Skills).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases the Endurance restored and Endurance cost reduction (higher reduction for Sprint and Charged Skills) from Nameless Spear's Martial Art Skill Qiankun's Lock, and extends Endless Gale duration. Hitting a boss unit with any Bellstrike - Splendor Martial Art Skill inflicts Qi Imbalance. Increases Direct Affinity Rate while Endless Gale is active. Hitting non-boss units with Martial Art Skills applies Moving Mountain; Charged Skills restore Endurance upon hitting units with Moving Mountain or Qi Imbalance."
   },
   {
     "id": 102,
@@ -409,7 +477,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "The lone spear was broken before the Snow Blade was forged.\nA senior warrior once gave the Thousand Crate to Zhu Xianyu because he was his student.\nLater on, Zhu Xianyu was trapped in ancient mountain formations for more than a month. \nAfter breaking his spear and running out of food for several days, he had to fight without a weapon. He defeated evil with his inner fire and managed to escape amid the flames.",
+    "effect": "Refunds 3.5% of the Endurance consumed.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Refunds a portion of the Endurance consumed. Refunds a fixed amount of Endurance after consuming a certain amount (this effect has a trigger interval). Increases Endurance Recovery when Endurance changes by a certain amount in a single instance."
   },
   {
     "id": 103,
@@ -429,7 +501,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "Huiyong, the Monk of Rebirth, is extremely powerful. He has been clumsy since he was young.\nBut even the clumsy ones could be something.\nHe managed to create an Inner Way that focused on his strength.\nRumor has it that he took the throne of Buddha Fort because of his martial prowess.",
+    "effect": "Increases Charged Skills' damage against all bosses by 10%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases Charged Skills' damage against all enemies (including players with less than 60% Endurance). When a Charged Skill is Critical or Affinity, if the target is a player, reduces their Endurance; if the target is a boss, restores your Endurance. This effect has a trigger interval. When dealing damage with a Charged Skill, if the target is a player, increases the damage based on the difference in Endurance between you and the target; if the target is a boss, deals bonus damage based on the Endurance you have consumed."
   },
   {
     "id": 104,
@@ -456,7 +532,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "In youth, Jiang Yan served in the army, fighting battles in the south and the north, which exposed him to the hardships of the world.\nIn his early adulthood, he was forced to flee into the jianghu, where the deceit and cunning of human society made him keenly aware of the true face of the mortal world.\nIn middle age, he retired to a bamboo cottage, wrote down his Inner Ways, and encapsulated all he had learned in half his life.\nHe knew that one day, he would illuminate the path ahead for that child.",
+    "effect": "When Nameless Sword's Charged Skill Vagrant Sword is charged while the Qi shield is active, it unleashes multiple sword energy attacks upon charging to the second stage. Charging beyond the second stage no longer consumes Endurance. When unleashed, the multiple sword energy attacks consume extra Endurance to increase damage by 1.5% per point consumed, up to 30%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Nameless Sword's Charged Skill Vagrant Sword can unleash multiple sword energy attacks when you are not in combat, have a Qi shield present, as well as within 5s after unleashing the sword energy of Special Skill Shadow Step or the Charged Skill. The multiple sword energy attacks will not cause Abrasion when hitting Exhausted units, and the third one is guaranteed to be an Affinity hit against Exhausted non-player units. Unleashing multiple sword energy attacks triggers Qi Surge: immediately restores some Endurance; you can unleash the sword energy attacks again without charging. Qi Surge has a trigger interval that can be reduced the first time sword energy hits a boss unit."
   },
   {
     "id": 151,
@@ -479,7 +559,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "Shiye was a child who grew up with the wolves.\nHe watched them day and night, and imitated their breathing.\nEventually, he created a breathing technique of his own.\nEventually, he was brought back to the Raging Tides by Shi Jiuge.\nWith Shi's help, he arranged the breathing techniques into an exclusive Inner Way.\nIt imitates a wolf pack, becoming shadowless when activated.",
+    "effect": "Reduces the required combo number to gain the buff of Heavenquaker Spear's Martial Art Skill, Sober Sorrow from 5/10 to 4/8. When Sober Sorrow hits a unit with Bleed effect from you, there is a 60%/70%/80%/90%/100% chance to increase the combo count by 1 based on the number of Bleed stacks.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases the damage of Martial Art Skill Sober Sorrow, reduces the required combo number to gain buff, and increases the duration of this buff. Hitting a boss with Bleeding effect from you has a chance to increase the combo count; when combo hit reaches 10, you gain Empowered River Flow. While casting this skill, you gain DMG Reduction and Tenacity. Hitting a target affected by Soul-Shaken will apply another stack of Soul-Shaken on the target. After hitting the same target at least 5 times in a row, increases the damage you deal against this target."
   },
   {
     "id": 152,
@@ -503,7 +587,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "Many years ago...\nWang Qing roamed the Yanyun area and fought the Khitan. \nHe founded the Northern Vow and helped Jin take the Sixteen Prefectures of Yanyun.\nFor more than a decade, he fought in countless battles, and came near death plenty of times.\nHis martial arts were no longer hindered by physical limits, as the art of conversion was commonplace on the battlefield.",
+    "effect": "Gain a Weapon Mastery effect based on your current Blade Weapon: \n     Sword: 100% chance to apply one stack of Bleed to the target when dealing Affinity DMG. \n     Spear: Attacks ignore 12.5% of target's Physical Defense. \n     Dual Blades: After a Perfect Dodge, increases the next Martial Art Skill damage within 8 seconds by 25%. \n     Mo Blade: Increases the Critical DMG of Charged Skills and Parry Counter Skills by 20%. \n     Heng Blade: After a deflection, increases the damage of Light/Heavy Attack Varied Combo by 5% for 5 seconds. \nThe above Weapon Mastery effects have the following cooldowns: Sword - 6 seconds, Dual Blades - 10 seconds, Heng Blade - 20 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Gain a Martial Art effect based on your current Blade Weapon. Dual-Weapon Skill restores Endurance on cast, maintains the previous Martial Art effect for a period, increases your own Movement Speed after cast, and reduces target's Movement Speed on hit."
   },
   {
     "id": 153,
@@ -527,7 +615,11 @@
         "id": 8,
         "name": "DMG Reduction"
       }
-    ]
+    ],
+    "lore": "Feng Jisheng worked on marksmanship for many years. \nIt started with his hands and eyes, then it was his heart, and then it was his mind.\nHe can identify enemy weaknesses and kill them quickly. \nThe more time he spends in his mind, the more weaknesses are exposed. \nBeasts and birds could not escape his arrows. \nEven skilled wanderers became easily exposed during this move.\nBut Feng Jisheng was not stingy about this ultimate art, teaching it to whomever he came across.",
+    "effect": "Dealing Affinity DMG generates Focus. When Focus is full, enter the Concentration state for 10 seconds.\nConcentration: Increases Affinity DMG by 10%. Upon hit, there is a 5% chance to reduce damage taken by 40%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Dealing Affinity DMG enhances the ability to reveal enemy attacks, increasing Affinity DMG, Direct Affinity Rate and DoT, granting a chance to reduce damage taken, and a DMG Boost based on current HP percentage or restoring HP based on damage dealt."
   },
   {
     "id": 154,
@@ -554,7 +646,11 @@
         "id": 3,
         "name": "Pursuit"
       }
-    ]
+    ],
+    "lore": "Those without a name fear not. \nThose without ambition seek not. \nYet halfway through life, Ni Laoshan realized his lifelong pursuits were empty.\nHe turned white overnight on the cliff of the Beihai, and gathered all his sword energy into the sword tip. \nHowever, it is not easy to hide the edge, and when the sword energy overflows, it should sweep the world.",
+    "effect": "After casting Strategic Sword's Martial Art Skill, Special Skill, or Charged Skill, press the skill button at the perfect timing during the ending phase to cast Crisscrossing Swords and unleash follow-up attacks. If the target has 5 stacks of Bleed, remove all Bleed stacks and deal high Bleed damage once.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "After casting Strategic Sword's Martial Art Skill, Special Skill, or Charged Skill, you can cast Crosswind Blade during the ending phase to unleash follow-up attacks and deal High Bleeding damage if the target has max stacks of Bleeding. You also gain Sword's Zenith; once it's maxed, your next High Bleeding damage is guaranteed to be an Affinity hit. Casting Crosswind Blade restores Endurance. While you have Sword's Zenith, High Bleeding damage is increased and applies extra Bleeding. After triggering the Affinity hit at max Sword's Zenith, you retain some Sword's Zenith."
   },
   {
     "id": 301,
@@ -577,7 +673,11 @@
         "id": 4,
         "name": "Support"
       }
-    ]
+    ],
+    "lore": "Silver Needle's way was healing—skilled in medicine, not in battle.\n\nFuling was not fond of saving others,\n but she liked the Silver Needle and made it her home.\n\nShe once snuck into the archives,\n left this book, but changed its name.\n\nTherefore Silver Needle does pass down this art, but no one knows where it came from.",
+    "effect": "Grants 2 charges to Inkwell Fan's Peak's Springless Silence, but increases its cooldown by 3 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Grants 2 charges to Inkwell Fan's move Spring Empties the Mountains but increases its cooldown. Returning to the original location via water clone reduces the cooldown, increases your Movement Speed, and empowers the next Light Attack Charged Skill Forsaken Fame. If you hit a target but fail to knock it airborne, increases the damage of the next Special Skill and reduce its cooldown. Upon hitting a target and successfully launching it airborne or applying Lingering Bone, reduces the skill's cooldown and resets Moonrise Startles Spring cooldown."
   },
   {
     "id": 302,
@@ -597,7 +697,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "The spring breeze comes from the northeast, bringing rain with it.\nThrough countless lightless nights,I've listened to the faint sounds above the clouds—\nwaiting for the thunder of awakening to come down and strike the chill of winter.",
+    "effect": "Upon completing a Martial Art Skill cast, gains 3 stacks of Spring Thunder: Each time Heavy Attack, Heavy Attack Pursuit Skill, Light Attack, and Ballistic Skill deals damage, consume 1 stack to increase the HP damage dealt by these skills by 15% for that hit and the next 1 second. The DMG Boost cannot stack. Spring Thunder can only trigger once every 15 seconds and be retained for up to 12 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Moving for a long distance in a short time grants Spring Thunder. Casting Heavy Attack/Heavy Attack Pursuit Skill/Light Attack/Ballistic Skill consumes one stack of Spring Thunder to increase the HP damage of such skills, and hitting a target with low Qi or that is Exhausted restores 1 stack of Spring Thunder (has a cooldown interval)."
   },
   {
     "id": 303,
@@ -621,7 +725,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "Smoke rises from the ground as the Earth Fiend Deity breaks through the soil.\nSince encountering the elder with a white bear in front of the Earth Temple and seeing a mouse digging a hole, \nthe Earth Fiend Deity thought it had received something from the Tudi Gong, and trained every day until it had mastered the skill. \nIt can break through the soil and leap twice its height, riding on someone's shoulder. How incredible!",
+    "effect": "Gain 5% Physical Attack bonus for up to 8 seconds after applying Lingering Bone Mark to an enemy. This bonus can only be gained once per second, and gaining it again will refresh its duration. \nKnocking a target Airborne increases the Physical Attack bonus to 10%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Inflicting Lingering Bone or Airborne on enemies grants Physical Attack bonus (the bonus is higher if the target was Exhausted before airborne or has low Qi.) Damaging an airborne target with Lingering Bone applied by you can increase your damage against them or restore your HP based on your HP percentage."
   },
   {
     "id": 304,
@@ -648,7 +756,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "On the first day of Zhengyue in the first year of the Jianlong Era, Kaifeng was shaken by an uprising caused by a nursery rhyme. As panic spread through, only Velvet Shade remained calm, untouched by mortal troubles.\nWhen the dust settled, the top Flower Messenger and current clan master Zhou Qiang choreographed a dance to commemorate the event, naming it Blossom Barrage.\nIt's a tribute to the beauty of moonlit blossoms in the spring breeze.",
+    "effect": "Vernal Umbrella's Martial Art Skill Spring Sorrow can hold up to 2 stacks. Hitting a target applies the Combo effect: increases Damage taken from the caster's Ballistic Skills by 10% for 10s.\nAffected Ballistic Skills include: Martial Art Skill Let Spring Go, Special Skill Everbloom , Umbrella - Light Attack and its Charged Skill Spring Away.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Ninefold Umbrella's move, Spring Sorrow can store up to 3 charges and can be cast 30% faster. Hitting an enemy with this skill increases your Projectile Skill damage against them. Hitting a target that satisfies the condition with Light Attack Charged Skill deals increased damage and increases the max number of targets hit. Hitting enemies consecutively reduces the skill's cooldown and grants Blossoms."
   },
   {
     "id": 351,
@@ -675,7 +787,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "I wish the heaven and earth were a furnace,\nwhere many healers like Bian Que could be nurtured.\nSun Yuan once took an oath to become a doctor.\nHe wished to become a furnace and treat patients.\nHe then shared his experiences with everyone,\nwishing them good vitality, food on their plate, and no suffering.",
+    "effect": "Increases the healing effect of the water clone created by Panacea Fan's Martial Art Skill, Cloudburst Healing by 10%. If you are within its range, gain 1 Dew each time when receive healing over time.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "The Water Clone's healing effect is increased and additionally restores Dewdrops and Vitality. Casting Perception Skill Endless White Clouds applies a healing over time effect to allies healed by it. Reduces your damage taken. A Water Clone is summoned when you are defeated; teammates entering the Water Clone's range gain a resurrection skill to revive you."
   },
   {
     "id": 352,
@@ -699,7 +815,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "Master Moonstream founded the Healers' Union \nand left a medical book behind for all newly joined healers to read.\nThe book did not have a name at first, as it was a precious collection of her experiences from treating patients.\nShe vanished a long time ago. \nTo remember her, the union members named the book. \nThe blossoms have vanished, perhaps spring has left.",
+    "effect": "Dealing Critical healing applies one stack of Nurturing for 6 seconds, increasing healing received by 2%, stacking up to 3 times.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Dealing Critical healing increases target's healing received and your healing. The increase accumulates faster against targets with low HP."
   },
   {
     "id": 353,
@@ -723,7 +843,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "Mysterious texts expound yin and yang. \nThese two, the sovereign laws of all things.\nA daoist, wandering the world, found Lu Zu's Esoteric Wisdom in a Qingcheng stone room. \nHe grasped the mystery and understood the profound truth, and opened an unparalleled sleep skill.\nIt can escape the life and death crisis in dreams, travel to the realm of immortality, so he made comments on this chapter for later generations.",
+    "effect": "Increases the healing of Panacea Fan's Perception Skill, Resurrection, by 50% on the revived target.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases the healing of Perception Skill Resurrection on the revived target, shares the damage they take, and grants them DMG Reduction and healing over time."
   },
   {
     "id": 354,
@@ -750,7 +874,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "A thousand threads, the Soulcalling Gu. \nThis Inner Way was created by Sun Buqi before he went into poison, and he sealed it in a dungeon in Kaifeng. \nDuring the first year of the Xiande Era, a flood triggered a sinkhole, exposing the dungeon and unleashing the fungal threads. \nThe young Zheng E went to investigate and was helped by someone to carry it out. \nPerhaps it was fate that both the creator of the Inner Way and the one who eventually obtained it were trying to save the world, and died while doing it.",
+    "effect": "Casting Soulshade Umbrella's Special Skill, Echoing Grow restores 5 Dew and additionally heals 10% of your Max HP for every 100 Dew consumed.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Herbal Resonance now heals both yourself and the nearby ally with the lowest HP percentage. Heals yourself based on Dew consumed. Reduces the cooldown of Herbal Resonance."
   },
   {
     "id": 401,
@@ -774,7 +902,11 @@
         "id": 5,
         "name": "Counter"
       }
-    ]
+    ],
+    "lore": "The wind stirs bells to soothe departed souls.\nSunrise and moonrise light unyielding goals.\nAfter the Verdant Wilds battle,\nthe Eight Talents of Hedong lay either dead or wounded,\nand those who survived scattered across the land. Brothers Sheng Wen and Sheng Wu choreographed a shadow play to mourn the past.\nWandering Qinghe's wilderness, you may chance upon their Exquisite Scenery.",
+    "effect": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 5s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in the Arena, defending also restores Endurance. While performing third stage Light/Heavy Attack Charged Skills and their Varied Combos, you can consume extra Battle Will to deal increased damage."
   },
   {
     "id": 402,
@@ -798,7 +930,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "A beast at bay will breach its chain. Beware the foe with naught to gain. \nSixteen years ago during the Khitan siege, Zhu Yousheng rallied resistance. \nHowever, the Khitans came fiercely, and everyone was trapped underground, becoming a caged beast.\nTo survive, Zhu Yousheng founded the Nine Mortal Ways and adapted Ghost Valley martial arts. \nAmong these is the Cornered Beast, later a lifesaving technique for many heroes.",
+    "effect": "Taking damage while HP is below 30% triggers Cornered Beast, generating a shield that absorbs damage up to 30% of Max HP. This effect lasts 4 seconds and can trigger once every 300 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Taking damage while HP is below 30% generates a shield that absorbs damage up to 40% of Max HP. Cooldown: 180 seconds. While the shield is present, increases healing received and effect of medicine. If the shield is destroyed before expiry, reduces its cooldown by 120 seconds."
   },
   {
     "id": 403,
@@ -818,7 +954,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "A painstaking work by Fang Chengshi, a disciple of Well of Heaven, compiling his years of brotherhood and chivalrous generosity.\nIt is said that when this Inner Way was completed, Fang Chengshi once planned to name it \"Rolling Knife Meat\", but it was opposed by many fellow disciples and abandoned.",
+    "effect": "Increases the duration of your own HP shield and the bonus effects of its source skill by 4 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Increases the duration of your own HP shield and the additional effects of its source skill. While under HP Shield protection, increases all damage dealt and healing granted. Increases the HP damage absorption of all shields. If the HP shield is not broken during its duration, it immediately restores HP based on the remaining shield capacity (does not apply to damage-immunity shields). If broken during its duration, gains a buff that increases your damage dealt and healing received."
   },
   {
     "id": 404,
@@ -842,7 +982,11 @@
         "id": 8,
         "name": "DMG Reduction"
       }
-    ]
+    ],
+    "lore": "Where the blade is drawn, wrists may break—\nyet the heart, like rock, shall never twist.\nAffected by the harm of Linghu Xi's land management,\nnameless heroes hid underground in Kaifeng,\ndeprived of sunlight for years.\nTo save them, Zhu Jie, the first Dao Lord, created Rock Solid,\nmeaning that no matter how many setbacks there are, one must stay strong as a boulder.\nThose who master it may yet find hope in despair.",
+    "effect": "Increases the DMG Reduction of Stormbreaker Spear's Storm Roar by 20% after taunting a boss unit, and by 5% after taunting a non-boss unit, up to 20% in total. While the DMG Reduction is active, reduces all damage dealt by 10%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "The DMG Reduction of Stormbreaker Spear move Storm Roar is increased on a successful Taunt. During the effect's duration, you deal reduced damage but generate more aggro. When attacking a taunted unit, you deal increased damage, generate more aggro, and recover HP based on Battle Will consumed. Storm Roar's cooldown is reduced."
   },
   {
     "id": 451,
@@ -866,7 +1010,11 @@
         "id": 10,
         "name": "Debuff"
       }
-    ]
+    ],
+    "lore": "Rumors say that there is an emotion manipulation master in the Aureate Pavilion. \nOne hook of a finger induces euphoria, sorrow, pain, or hopelessness. \nIt only takes a fleeting moment to go through all the emotions and kill the target. \nTherefore the spell is also called Echoes of Oblivion, because those who die from it cannot enter reincarnation. Instead, they're stuck in the muddy river between cause and karma.",
+    "effect": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Infernal Twinblades Light Attack inflicts Sin. Fury Flame state Light Attack inflicts Karma. Gain Samsara when attacking targets affected by both Sin and Karmic or when triggering a Perfect Dodge. While Samsara is present, dealing damage grants 1 Karmic Flame."
   },
   {
     "id": 452,
@@ -890,7 +1038,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "Ni Laoshan was brave and journeyed a lot on his own. \nOne day, he fell into the water after being seriously injured, and saw several fish swim by. \nBetween life and death, he was enlightened. Fish use the water to travel, and cranes use the wind to fly. When walking the Jianghu, one should rely on power. That was why he created the Inner Way. \nWhen Guo Wei devastated the city, the art left the city with disciples of Nine Mortal Ways, then was picked up by a fleeting mouse and hidden in a cave. \nMany years later, when the mouse moved with its family to Jadewood Court, they were caught by a patrolling wooden eagle, and the Inner Ways ended up inside the wooden eagle.",
+    "effect": "Bladebound Thread's Vendetta Token, Rodent Rampage, and rodents summoned by Charging Stance last 15 seconds longer and restore 20 Tokens of Gratitude.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Bladebound Thread: Extends the duration of Vendetta Mark. When the rodent attacks a target with Vendetta Token, it deals increased damage and restores a small amount of Token of Gratitude. Applies Rodent Hunt to enemy hit. Upon expiring, it deals damage equal to a percentage of all damage the rodents dealt to the target during its duration."
   },
   {
     "id": 453,
@@ -914,7 +1066,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "Yi Dao and his brother grew up in Jianghu and never learned anything seriously.\nYoung Yi Dao knew it was important to be good at something, so he thought one powerful slash was good enough to immobilize the target, increasing his chance of winning.\nHis older brother once asked him, \"What form is this?\" Young Yi Dao scratched his head and answered, \"Nothing, just give it all you've got.\"",
+    "effect": "Dealing Critical Damage to an enemy under the Spirit Depletion state grants you 1 stack of Collapse. Each stack of Collapse increases your Physical Penetration by 5 and Critical Damage by 5%. Stacks up to 3 times, lasting 3 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Hitting Exhausted enemies with a Critical Hit gains a stack of Disintegration that increases your Physical Penetration and Critical DMG Bonus.\nTriggering a Perfect Dodge also grants Disintegration."
   },
   {
     "id": 454,
@@ -934,7 +1090,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "During the battle of Langshan, the Star Stealer came out of nowhere and got the Canglang Sword. \nAfter learning, however, she thought it focused too much on form and not enough on the mind, making it difficult to read. \nAfter pouring everything she has learned and stayed up for seven nights in a row, she finally understood the secret it contained. \nThe order in which it must be studied was shuffled by an expert, and only by reordering can one learn the real Inner Way, which is about the Riptide Reflex.",
+    "effect": "Hitting an Enemy with a Control Skill reduces the Cooldown of the current Martial Art Skill by 1s. This effect can only trigger once every 10s.\nAffected Control Skills include: Bladebound Thread, Coiled Dragon, Qiankun's Lock, Spring Sorrow, Moon Shatter Spring, Wayfarer's Drift, Peak's Springless Silence.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Hitting an enemy with a Crowd Control skill reduces the current Martial Skill's cooldown, and Martial Skill HP and Chi Damage dealt to targets afflicted with your own Crowd Control or Erosion state is increased."
   },
   {
     "id": 501,
@@ -958,7 +1118,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "Alone he gives the new command: a thousand camps answer as one.\nGuo Xin, Anxi Army commander, was a master of the army banner, making it snap and roar in the wind.\nThis inner way was forged by him and his soldiers while defending Jade Gate Pass: Where the banner points, the Anxi Army charges.\nEven if flesh fails, as long as the banner stands, it summons endless phantoms. One shout, a hundred answers.",
+    "effect": "The first umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. Perfect Catches and phantom umbrella summons trigger a resonance with all existing phantom umbrellas, dealing area damage.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Each umbrella thrown by Scarlet Spin summons a Phantom Umbrella. During a Perfect Catch and when summoning a Phantom Umbrella, all Phantom Umbrellas on the battlefield will resonate, dealing area damage and reducing enemy's Physical Resistance. Resonance also pulls in nearby enemies. The pull-in effect can only trigger once every 20 seconds."
   },
   {
     "id": 502,
@@ -982,7 +1146,11 @@
         "id": 6,
         "name": "Cost Reduction"
       }
-    ]
+    ],
+    "lore": "Legends speak of a boat lost in the sand sea, gradually becoming driftwood. \nIts branches hang like ropes around the hull. If the reckless approach, the lifeless wood revives, swinging to defend. \nA passing master observed the wood's movements and comprehended this inner way. Later wanderers using ropes as weapons may study it and surely gain insight.",
+    "effect": "Gains 50 Tokens of Gratitude after casting Soul Sweep. Each hit of Piercing Dart's sweeping combo inflicts 1 stack of Soul Loss (additional 1 stack in the Soulbound state), and the first sweeping hit pulls the enemy in.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Casting Soul Sweep grants additional Tokens of Gratitude. Each hit of Piercing Dart's sweeping combo deals increased damage and inflicts Soul Loss, and the first sweeping hit pulls the enemy in. Increases the duration of Soulbreak and Soul Return. When Soulbreak ends, additional damage is calculated and dealt. Burn and Bury deals increased damage. The finger snap refreshes your own Soul Return state, and the Soulbreak state on nearby enemies is immediately calculated and refreshed ."
   },
   {
     "id": 503,
@@ -1006,7 +1174,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "An inner way passed down through generations of Karez well diggers.\nNo matter how deep the darkness, as long as the lamp still burns, one can emerge from arid lands and find water.",
+    "effect": "When hitting 3 or more enemies at once, inflict Candlelight on them for 3s. Each stack reduces Movement Speed by 4% and increases damage taken by 2%, stacking up to 5 times. Candlelight can be inflicted once per 0.5s on each enemy (from any source).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When hitting 2 or more enemies at once, inflict Candlelight on them. Each stack reduces Movement Speed and increases damage taken, stacking up to 5 times. You can deal more damage to enemies with 5 stacks of Candlelight and inflict Immobilization on them."
   },
   {
     "id": 504,
@@ -1030,7 +1202,11 @@
         "id": 3,
         "name": "Pursuit"
       }
-    ]
+    ],
+    "lore": "A melody sung by thousands of unnamed Tang soldiers in tumultuous times, filled with hope. \nA hidden martial artist, hearing this solemn song, comprehended this inner way. \nSince then, every Tang person keeps a home in their heart—a constant inspiration, a lasting missing.",
+    "effect": "When dealing damage with Martial Art skills, gain Tang Melody for 4s (max 5 stacks, limited to 1 stack per second). Each stack grants Martial Art Skill bonus: when above 50% HP, +2% Critical Damage; when below 50% HP, +2% HP Drain (capped at 2.5% of your Max HP per second).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Dealing damage to an enemy with a Martial Art Skill grants the Tang Melody effect, stacking up to 5 times: Gain either increased Martial Art Skill Critical DMG or HP Drain based on current HP. If the Martial Art Skill hits no less than 2 enemies simultaneously, gain 1 extra stack of Tang Melody."
   },
   {
     "id": 551,
@@ -1057,7 +1233,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "Well of Heaven was founded with followers drawn by Guo Xie's knightly fame. \nBut Guo claimed his blade art came from slaughter, naming Ju Meng as founder. \nYet without Guo Xie's decisive actions, Well of Heaven would not have taken root.\n\nHis belief—\"If heaven lacks justice, I'll walk my own path\"—became Well of Heaven's foundation. \nPerpetual snow on Yuntai Peak—this spirit passed down through generations.",
+    "effect": "Successfully deflecting with Snowparting Blade can activate Heavy Attack Varied Combo Snowbreak Spring: Press Varied Combo or Heavy Attack to consume 1 bar of Blade Momentum to quickly slash the enemy once while granting Tenacity. This attack deals 36% bonus HP damage against non-player units. Snowbreak Spring can only be triggered once every 2 seconds.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Successfully deflecting with Snowparting Blade or fully casting Light Attack Charged Skill and Heng Blade - Dual-Weapon Skill can activate Varied Combo Snowbreak Spring, quickly slashing the enemy once while granting Tenacity. This attack deals 36% bonus HP damage against non-player units. During the Iron Guards state, hitting an enemy with Snowbreak Spring summons a Heng Blade Anxi Soldier to deal additional follow-up damage."
   },
   {
     "id": 552,
@@ -1084,7 +1264,11 @@
         "id": 6,
         "name": "Cost Reduction"
       }
-    ]
+    ],
+    "lore": "When the city fell, Guo Xin entrusted the Raging Tides founder with broken armor and a long blade, facing east toward Chang'an to await relief.\nLater, Raging Tides disciple Zhang Huaishen led the Guiyi Army with that same resolve, wielding the blade against bandits.\n\nHuaishen refined this inner way, simplifying and enhancing its power. Anxi soul, Guiyi spirit—loyalty unshaken, edge unbroken.",
+    "effect": "Phalanxbane Blade Heavy Attack Charged Skill Heart Ablaze gains a third charge stage that deals massive damage. While Ironclad Soul is active, an Anxi Army Mo Blade soldier performs the third-stage leap slash at your target.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Phalanxbane Blade's Heavy Attack Charged Skill Burning Heart can charge up to the 3rd stage, unleashing a charged leap attack that deals high damage. During the Iron Guards state, Mo Blade Anxi Soldier will appear during the 3rd stage charging and perform a leap attack toward the target."
   },
   {
     "id": 553,
@@ -1108,7 +1292,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "Raging Tides Founder Guo Huailie—peerless in battle and drink. \nThis is his \"Drink's Peak\" inner way.\n\nRaging Tides craves wine, especially throat-searing liquor. \nIt captures the sense of \"a thousand waves rising in the throat, stars falling and thunder crashing with each tilt.\" \nA line of sharpness—the heart itself a blade.",
+    "effect": "When Light/Heavy Attack Varied Combo deals damage, gains Throat-Pierced for 8 seconds, stacking up to 3 times: Direct damage dealt ignores 2 points of the target's Physical Resistance and increases Critical DMG by 2%.\n\nApplicable skills include: Thundercry Blade - Light Attack Varied Combo, Thundercry Blade - Heavy Attack Varied Combo, Moon Shatter Spring, Colorful Phoenix, Bamboo Breeze, Frozen Under Spring, and Finding Spring.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When Light/Heavy Attack Varied Combo and Assist Trigger Skill and Assist effects deal damage, gains Throat-Pierced: Your direct damage ignores part of the target's Physical Resistance and deals increased Critical DMG. Throat-Pierced stacks up to 5 times. Each successful deflection grants max Throat-Pierced stacks. This effect has a cooldown."
   },
   {
     "id": 554,
@@ -1132,7 +1320,11 @@
         "id": 14,
         "name": "Recovery"
       }
-    ]
+    ],
+    "lore": "Raging Tides Founder Guo Huailie—peerless in battle and drink. \nThis is his \"War's Peak\" inner way.\n\nBefore horse and rider move, wind and thunder gather—a hoof splits the air, cleaving lightning. \nHorse and rider as one, unhindered by cloud or mud!",
+    "effect": "While in Tenacity, damage dealt increases by 4%. Gain an extra 1% per enemy within 3 meters, up to an additional 3%.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "Tenacity increases all damage dealt, and grants DMG Reduction and HP Drain. The damage bonus and reduction effects are further increased for each surviving enemy nearby."
   },
   {
     "id": 601,
@@ -1159,7 +1351,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "In days of yore, Qiongqi Artificer leveraged the might of Qin to unravel the Thousand Birds.\nSacrificing his own body as a vessel, he forged countless mystic arts. This Inner Way is one such creation.\n\n It complements the Mohist Fist style, amplifying its power manifold.\nAlas, it vanished with the fall of the Qin Dynasty.",
+    "effect": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Charged Heavy Attack evolves into Vile Condemned: End, consuming all 3 bars to unleash devastating damage over a larger area and grant invincibility during execution (18-second cooldown). Deals an additional 20% max HP damage to non-player units. Hitting enemies with Vile Condemned: End refunds 1 bar of Heaven's Will."
   },
   {
     "id": 602,
@@ -1186,7 +1382,11 @@
         "id": 3,
         "name": "Pursuit"
       }
-    ]
+    ],
+    "lore": "In her youth, Halcyon studied the sect's Skygrasp Rope Dart under Crane.\nThough exquisite, she found it lacking in power, insufficient for disciples' self-defense.\n\nLearning that the technique originated from the Mountains, she retraced the steps of the sages, scaling countless cliffs, and finally created Sky Gripped.",
+    "effect": "When Skygrasp Rope Dart's Martial Art Skill - Snaring Lash damages an enemy, it inflicts Heaven's Might for up to 15 seconds: Falcon's Pursuit and Vile Condemned series skills deal 10% bonus HP damage to targets affected by Heaven's Might from you. If Heavenwill Gauntlets is also equipped, casting Snaring Lash triggers Falcon's Pursuit once, dealing Multi-hit Damage and restoring 0.1 bars of Heaven's Will (0.3 bars in the Heaven's Unity state).",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When Skygrasp Rope Dart's Martial Art Skill - Snaring Lash damages an enemy, it inflicts Heaven's Might for up to 24 seconds: Falcon's Pursuit and Vile Condemned series skills deal 10% bonus HP damage to targets affected by Heaven's Might from you. If Heavenwill Gauntlets is also equipped, casting Snaring Lash triggers Falcon's Pursuit once."
   },
   {
     "id": 603,
@@ -1210,7 +1410,11 @@
         "id": 16,
         "name": "Stacking"
       }
-    ]
+    ],
+    "lore": "When Mozi renounced Confucianism to found Mohism, he established the Three Standards, upon which he devised the Three Inquiries.\nTo trace the root is to inquire into antiquity; to verify the source is to inquire into reality; to apply the use is to inquire into benefit. These are the Three Inquiries. \n\n Mozi said: He who masters these may comprehend heaven, earth, and all laws of existence.",
+    "effect": "When Martial Art Triggered Effects deal damage, gains Cognition for 5 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "When Martial Art Triggered Effects deal damage, gains Cognition (stacking up to 5 times): Increases Physical Penetration and all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects. This increase is further enhanced for Falcon's Pursuit and Vile Condemned series skills."
   },
   {
     "id": 604,
@@ -1234,7 +1438,11 @@
         "id": 5,
         "name": "Counter"
       }
-    ]
+    ],
+    "lore": "Long ago, Deng Lingzi led Mohist disciples to champion justice, yet often lamented that one man's strength was finite, unable to shelter all common folk.\nHe vowed to create a technique accessible to all, granting the people a blade for self-defense.\n\n He devoted a decade of blood and sweat, gathering the strengths of a hundred schools, to complete half a tome.\nThough but a fragmentary volume, it has illuminated ages since, a deed of boundless merit.",
+    "effect": "After triggering a perfect dodge, gain Unceasing for 5 seconds: Increases damage and healing dealt by 0.5%, deals 0.8% bonus damage to enemies within 5 meters and 0.8% bonus healing to allies within 5 meters. Unceasing stacks up to 5 times.",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "After triggering a perfect dodge, gain Ceaseless (stacks up to 5 times): Boosts damage and healing dealt, with additional bonuses based on proximity to enemies and allies."
   },
   {
     "id": 651,
@@ -1261,7 +1469,11 @@
         "id": 4,
         "name": "Support"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 6,
+    "maxEffect": "While in Wind-riding State, releasing Flowing Silks's special skill Rippling Dew grants the Blazing Drum state to you and nearby allies: increases all types of attack (including Physical Attack and all Attribute Attacks) and also increases movement speed. Rippling Dew is enhanced when used while under the Blazing Drum state."
   },
   {
     "id": 100001,
@@ -1277,7 +1489,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100002,
@@ -1293,7 +1509,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100003,
@@ -1309,7 +1529,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100004,
@@ -1325,7 +1549,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100005,
@@ -1341,7 +1569,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100006,
@@ -1357,7 +1589,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100007,
@@ -1373,7 +1609,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100008,
@@ -1389,7 +1629,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100009,
@@ -1405,7 +1649,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100010,
@@ -1421,7 +1669,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100011,
@@ -1437,7 +1689,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100012,
@@ -1453,7 +1709,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100013,
@@ -1469,7 +1729,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100015,
@@ -1485,7 +1749,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100016,
@@ -1501,7 +1769,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100017,
@@ -1517,7 +1789,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100018,
@@ -1533,7 +1809,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100019,
@@ -1549,7 +1829,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100020,
@@ -1565,7 +1849,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100021,
@@ -1581,7 +1869,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100022,
@@ -1597,7 +1889,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100023,
@@ -1613,7 +1909,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100024,
@@ -1629,7 +1929,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100025,
@@ -1645,7 +1949,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100026,
@@ -1661,7 +1969,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100027,
@@ -1677,7 +1989,11 @@
         "id": 9,
         "name": "Buff"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 100911,
@@ -1701,7 +2017,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Nameless Sword's Charged Skill, Vagrant Sword, now unleashes multiple bonus sword energy attacks.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 101911,
@@ -1725,7 +2045,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Nameless Spear's Martial Art Skill, Qiankun's Lock#C, drains all Endurance from the target hit and reduces their Endurance Recovery.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 102911,
@@ -1749,7 +2073,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Increases the dash distance and sword array length of Strategic Sword's Charged Skill Vagrant Sword.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 103911,
@@ -1773,7 +2101,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Heavenquaker Spear's Charged Skill Vagrant Sword will Silences the enemy hit.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 104911,
@@ -1797,7 +2129,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Thundercry Blade's Special Skill, Wind Vortex, knocks away targets in an area on its second hit.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 105911,
@@ -1821,7 +2157,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Storm Roar: Extends Taunt duration and increases damage transfer ratio.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 106911,
@@ -1845,7 +2185,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Panacea Fan's Martial Art Skill, Cloudburst Healing, grants allies DMG Reduction continuously.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 107911,
@@ -1869,7 +2213,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Vernal Umbrella's Charged Skill grants Stealth to allies within a 15m radius for 12 seconds.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 108911,
@@ -1893,7 +2241,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Inkwell Fan's Martial Art Skill can teleport to a target with over 50 Imbalance and attack them.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 109911,
@@ -1917,7 +2269,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "After closing the umbrella with Soulshade Umbrella's Special Skill, immediately teleport to the location of the target healed.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 110911,
@@ -1941,7 +2297,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Infernal Twinblades' Burst Skill, Flamelash can be cast during stagger.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 111911,
@@ -1965,7 +2325,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Mortal Rope Dart increases the attack range of Martial Art Skill and Charged Attack Varied Combo, and makes them unable to be deflected or defended.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 112911,
@@ -1989,7 +2353,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Spring Dreamscape's Special Skill deals damage in a large area and pulls in enemies when swapping positions with a Phantom Umbrella.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 113911,
@@ -2013,7 +2381,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Fleeting Clouds' Special Skill deals bonus AOE Damage around you.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 114911,
@@ -2037,7 +2409,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Snowparting Blade's Inner Passion grants immunity to one fatal instance of damage. When triggered, it prevents death and grants Super Armor for 4 seconds. Cooldown: 180 seconds.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 115911,
@@ -2061,7 +2437,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "While Iron Guards is activated for Phalanxbane Blade, taking damage triggers an automatic counterattack from the Anxi Army. Cooldown: 5 seconds.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 116911,
@@ -2085,7 +2465,11 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Targets hit by the Heavenwill Gauntlets's Special Skill are more vulnerable to Stagger for 10 seconds.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   },
   {
     "id": 117911,
@@ -2109,6 +2493,10 @@
         "id": 7,
         "name": "DMG Boost"
       }
-    ]
+    ],
+    "lore": "",
+    "effect": "Hitting a player with less than 50% Qi using Skygrasp Rope Dart's Martial Art Skill triggers Snaring Lash: Sever. Cooldown: 30 seconds.",
+    "maxAdvancedLevel": 1,
+    "maxEffect": null
   }
 ]

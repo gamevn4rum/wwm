@@ -5,11 +5,15 @@ import crypto from 'crypto';
 //
 // Enriches the guild roster with in-game player stats (level, weapon mastery,
 // school, region, and full gear loadout) pulled from the community site
-// wwmdb.vlt.fyi, matched to each member by their IGN.
+// wwmdb.vlt.fyi, matched to each member by their IGN. Also refreshes two
+// static, non-player-specific catalogues from the same relay: Inner Ways
+// (descriptions + cumulative rank effects, from wwmdb.vlt.fyi/inner-ways) and
+// Sets (2pc/4pc gear-set bonuses, from wwmdb.vlt.fyi/sets).
 //
 // Pipeline position: run AFTER fetch-data.js (which produces data/members.json)
 // and BEFORE encrypt-data.js (which encrypts data/player-stats.json). Reads the
-// `IGN` column from data/members.json; writes data/player-stats.json.
+// `IGN` column from data/members.json; writes data/player-stats.json,
+// data/inner-ways.json and data/sets.json.
 //
 // ⚠ This is a "Route A" integration: it rides wwmdb's own private relay of
 // NetEase's official game API. The bearer scheme below is reconstructed from
@@ -32,12 +36,17 @@ const API_BASE = 'https://wwmdb.vlt.fyi/api/wwm.v1.WwmService';
 
 const MEMBERS_PATH = './data/members.json';
 const OUT_PATH = './data/player-stats.json';
-// Static game-data catalogue (inner ways), not player-specific — plaintext,
-// same as the other static data/*.json files (not in encrypt-data.js's list).
+// Static game-data catalogues (inner ways, gear sets), not player-specific —
+// plaintext, same as the other static data/*.json files (not in
+// encrypt-data.js's list).
 const INNER_WAYS_OUT_PATH = './data/inner-ways.json';
+const SETS_OUT_PATH = './data/sets.json';
 
 // Be a good neighbour: this hits a third party's relay, and stats change slowly.
 const DELAY_BETWEEN_MEMBERS_MS = 400;
+// Catalogue detail calls (per inner-way / per-set) are cheaper individually but
+// there are a lot of them (97 inner ways, 67 sets) — same "gentle" spacing.
+const DELAY_BETWEEN_CATALOGUE_ITEMS_MS = 250;
 const REQUEST_TIMEOUT_MS = 20_000;
 const RETRY_ATTEMPTS = 3;
 const RETRY_BASE_DELAY_MS = 1_000;
@@ -154,15 +163,57 @@ function shapeInnerWay(iw) {
   };
 }
 
-function shapeCatalogueInnerWay(iw) {
+/**
+ * Shape the *detailed* InnerWay({id}) response (from wwmdb.vlt.fyi/inner-ways),
+ * not the plain InnerWays({}) list — the list has no description text at all.
+ * `effect` is the base passive's mechanical description (matches a player's
+ * live `tier`, since that's the same passive rank the base tier represents).
+ * `maxEffect` is the *cumulative* description at full advancement (the last
+ * uprank's briefDesc already reads as the full stacked effect, not a delta) —
+ * we don't know which uprank an individual player has actually bought (that
+ * isn't exposed by the live Player() call), so this is deliberately framed as
+ * "fully upgraded", not "this player's current effect".
+ */
+function shapeInnerWayDetail(item) {
+  const upranks = Array.isArray(item.upranks) ? item.upranks : [];
+  const lastUprank = upranks.length ? upranks[upranks.length - 1] : null;
   return {
-    id: iw.id ?? null,
-    name: iw.name ?? '',
-    tier: iw.tier ?? null,
-    path: iw.path ? { id: iw.path.id ?? null, name: iw.path.name ?? '' } : null,
-    weapon: iw.weapon ? { id: iw.weapon.id ?? null, name: iw.weapon.name ?? '' } : null,
-    effectTypes: Array.isArray(iw.effectTypes)
-      ? iw.effectTypes.map((e) => ({ id: e.id ?? null, name: e.name ?? '' }))
+    id: item.id ?? null,
+    name: item.name ?? '',
+    tier: item.tier ?? null,
+    path: item.path ? { id: item.path.id ?? null, name: item.path.name ?? '' } : null,
+    weapon: item.weapon ? { id: item.weapon.id ?? null, name: item.weapon.name ?? '' } : null,
+    effectTypes: Array.isArray(item.effectTypes)
+      ? item.effectTypes.map((e) => ({ id: e.id ?? null, name: e.name ?? '' }))
+      : [],
+    lore: item.desc ?? '',
+    effect: item.passiveSkill?.description ?? '',
+    maxAdvancedLevel: item.maxAdvancedLevel ?? null,
+    maxEffect: lastUprank?.briefDesc ?? null,
+  };
+}
+
+/**
+ * Shape the Suit({id}) response (from wwmdb.vlt.fyi/sets). bonuses2 is a
+ * player-level-scaled stat table (active once 2+ pieces are equipped);
+ * bonuses4 is a named proc effect (active once 4 pieces are equipped).
+ */
+function shapeSuitDetail(item) {
+  return {
+    id: item.id ?? null,
+    name: item.name ?? '',
+    shortName: item.shortName ?? '',
+    bonuses2: Array.isArray(item.bonuses2)
+      ? item.bonuses2.map((b) => ({
+          attrId: b.attrId ?? null,
+          attrName: b.attrName ?? '',
+          values: Array.isArray(b.values)
+            ? b.values.map((v) => ({ level: v.level ?? null, value: v.value ?? null }))
+            : [],
+        }))
+      : [],
+    bonuses4: Array.isArray(item.bonuses4)
+      ? item.bonuses4.map((b) => ({ id: b.id ?? null, name: b.name ?? '', description: b.description ?? '' }))
       : [],
   };
 }
@@ -231,31 +282,80 @@ async function fetchOne(ign) {
   return { ign, matched: true, player: shapePlayer(player) };
 }
 
-// ── Static catalogue (not player-specific — one call per run) ──────────────
-async function syncInnerWaysCatalogue() {
-  let catalogue;
+/**
+ * Fetch a list of ids via `listMethod`, then the full detail for each id via
+ * `detailMethod`, shaping each with `shapeFn`. Per-id failures keep the
+ * last-good entry for that id (from `previousById`) rather than dropping it or
+ * failing the whole catalogue — one bad id shouldn't wipe 96 good ones.
+ */
+async function syncDetailCatalogue({ label, outPath, listMethod, detailMethod, shapeFn }) {
+  let ids;
   try {
-    const res = await call('InnerWays', {});
-    catalogue = Array.isArray(res?.items) ? res.items.map(shapeCatalogueInnerWay) : [];
+    const list = await call(listMethod, {});
+    ids = Array.isArray(list?.items) ? list.items.map((it) => it.id).filter((id) => id != null) : [];
   } catch (err) {
-    console.warn(`⚠ InnerWays catalogue fetch failed: ${err.message.split('\n')[0]}; keeping last-good file`);
+    console.warn(`⚠ ${label} list fetch failed: ${err.message.split('\n')[0]}; keeping last-good file`);
     return;
   }
+
+  const previous = fs.existsSync(outPath) ? JSON.parse(fs.readFileSync(outPath, 'utf8')) : [];
+  const previousById = new Map(previous.map((e) => [e.id, e]));
+
+  const catalogue = [];
+  let fetched = 0;
+  let kept = 0;
+  for (const id of ids) {
+    try {
+      const detail = await call(detailMethod, { id });
+      const item = detail?.item;
+      if (!item) throw new Error('empty item');
+      catalogue.push(shapeFn(item));
+      fetched++;
+    } catch (err) {
+      const prev = previousById.get(id);
+      if (prev) {
+        catalogue.push(prev);
+        kept++;
+      } else {
+        console.warn(`⚠ ${label} #${id} fetch failed: ${err.message.split('\n')[0]}; no last-good entry, skipping`);
+      }
+    }
+    await sleep(DELAY_BETWEEN_CATALOGUE_ITEMS_MS);
+  }
+
   const newContent = JSON.stringify(catalogue, null, 2);
-  if (
-    fs.existsSync(INNER_WAYS_OUT_PATH) &&
-    md5(fs.readFileSync(INNER_WAYS_OUT_PATH, 'utf8')) === md5(newContent)
-  ) {
-    console.log(`– inner-ways.json — no changes (${catalogue.length} entries)`);
+  if (fs.existsSync(outPath) && md5(fs.readFileSync(outPath, 'utf8')) === md5(newContent)) {
+    console.log(`– ${outPath} — no changes (${catalogue.length} entries)`);
     return;
   }
-  fs.writeFileSync(INNER_WAYS_OUT_PATH, newContent, 'utf8');
-  console.log(`✓ inner-ways.json — ${catalogue.length} entries`);
+  fs.writeFileSync(outPath, newContent, 'utf8');
+  console.log(`✓ ${outPath} — ${catalogue.length} entries (${fetched} fetched, ${kept} kept last-good)`);
+}
+
+async function syncInnerWaysCatalogue() {
+  await syncDetailCatalogue({
+    label: 'InnerWay',
+    outPath: INNER_WAYS_OUT_PATH,
+    listMethod: 'InnerWays',
+    detailMethod: 'InnerWay',
+    shapeFn: shapeInnerWayDetail,
+  });
+}
+
+async function syncSetsCatalogue() {
+  await syncDetailCatalogue({
+    label: 'Suit',
+    outPath: SETS_OUT_PATH,
+    listMethod: 'Suits',
+    detailMethod: 'Suit',
+    shapeFn: shapeSuitDetail,
+  });
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   await syncInnerWaysCatalogue();
+  await syncSetsCatalogue();
 
   if (!fs.existsSync(MEMBERS_PATH)) {
     console.error(`✗ ${MEMBERS_PATH} not found — run fetch-data.js first.`);

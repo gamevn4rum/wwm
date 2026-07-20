@@ -1,0 +1,4824 @@
+[
+  {
+    "id": 1,
+    "name": "Jadeware",
+    "shortName": "Combat",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4001,
+        "name": "Jadeware",
+        "description": "Casting Martial Art Skill activates Jadeware effect: Increases Affinity DMG by 10% and increases Direct Affinity Rate by 7.5% against targets in Qi Imbalance or with a Qi percentage lower than yours or below 40%. This effect lasts 10s and can only trigger once every 12s."
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Formbend",
+    "shortName": "Easy",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4002,
+        "name": "Formbend",
+        "description": "Your shield duration is extended by 2 seconds. If you have more than 85% Qi or a Qi damage immunity shield, reduce all HP damage taken by 20%."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Hawkwing",
+    "shortName": "Fly",
+    "bonuses2": [
+      {
+        "attrId": 330,
+        "attrName": "Affinity Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.003
+          },
+          {
+            "level": 31,
+            "value": 0.005
+          },
+          {
+            "level": 41,
+            "value": 0.009
+          },
+          {
+            "level": 51,
+            "value": 0.012
+          },
+          {
+            "level": 56,
+            "value": 0.015
+          },
+          {
+            "level": 61,
+            "value": 0.019
+          },
+          {
+            "level": 71,
+            "value": 0.023
+          },
+          {
+            "level": 81,
+            "value": 0.027
+          },
+          {
+            "level": 86,
+            "value": 0.032
+          },
+          {
+            "level": 91,
+            "value": 0.037
+          },
+          {
+            "level": 96,
+            "value": 0.045
+          },
+          {
+            "level": 100,
+            "value": 0.052
+          },
+          {
+            "level": 105,
+            "value": 0.061
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4003,
+        "name": "Hawkwing",
+        "description": "When any of your damage triggers Affinity, gain Hawkwing: Increases Physical Attack by 2% for 5 seconds, stacking up to 5 times."
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Eaglerise",
+    "shortName": "Hawk",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4004,
+        "name": "Eaglerise",
+        "description": "Dealing damage over time or healing grants 1 stack of Eaglerise: Reduces damage taken by 1.2% for 10 seconds, stacking up to 5 times. At max stacks, receives an Eagle Guard effect that reduces the next incoming damage within 10 seconds by 90% (halved when the damage comes from a boss). This effect can only trigger once every 30 seconds."
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Rainwhisper",
+    "shortName": "Rain",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.008
+          },
+          {
+            "level": 41,
+            "value": 0.015
+          },
+          {
+            "level": 51,
+            "value": 0.021
+          },
+          {
+            "level": 56,
+            "value": 0.027
+          },
+          {
+            "level": 61,
+            "value": 0.035
+          },
+          {
+            "level": 71,
+            "value": 0.041
+          },
+          {
+            "level": 81,
+            "value": 0.048
+          },
+          {
+            "level": 86,
+            "value": 0.056
+          },
+          {
+            "level": 91,
+            "value": 0.066
+          },
+          {
+            "level": 96,
+            "value": 0.08
+          },
+          {
+            "level": 100,
+            "value": 0.093
+          },
+          {
+            "level": 105,
+            "value": 0.108
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4007,
+        "name": "Rainwhisper",
+        "description": "Increases all Critical DMG and healing by 10%, and further increases them by 15% when you have an HP shield applied by yourself."
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Moonflare",
+    "shortName": "Month",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4008,
+        "name": "Moonflare",
+        "description": "When attacking while defending, there is a 30% chance to create a shield that absorbs up to 10% of Max HP, lasting 20 seconds. If a shield already exists, restores 2% HP in addition. This effect can only trigger once every 60 seconds."
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Swift Gale",
+    "shortName": "Wind",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4009,
+        "name": "Swift Gale",
+        "description": "Increases Airborne Heavy Attack by 10% and knocks the target. The Knocked-Down effect can only trigger once every 10 seconds."
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Agile Steps",
+    "shortName": "Stride",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4010,
+        "name": "Agile Steps",
+        "description": "Upon a successful deflection, reduces all damage taken within 2 seconds by 20%, stacking up to 3 times."
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Swaying Heights",
+    "shortName": "Mountain",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4011,
+        "name": "Swaying Heights",
+        "description": "Increases the damage dealt against targets with more than 50% HP by 5%. Every 5% more HP further increases this bonus by 1%, up to 10%."
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Flawless Defense",
+    "shortName": "Defense",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 4012,
+        "name": "Flawless Defense",
+        "description": "Reduces damage taken by 5%. When HP falls below 60%, further reduces damage taken by 1% for every 10% HP lost, stacking up to 5 times."
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Yanyun Northward",
+    "shortName": "Swallow",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 14,
+    "name": "Wandering in Jianghu",
+    "shortName": "Lake",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 15,
+    "name": "At Heaven's Pier",
+    "shortName": "Divine",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 16,
+    "name": "Oarsong on Luoshui",
+    "shortName": "Luo",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 17,
+    "name": "Shattered Jade",
+    "shortName": "Shard",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 18,
+    "name": "Tale of Heroes",
+    "shortName": "my blade",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 19,
+    "name": "Deerwell Spring",
+    "shortName": "Deer",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 20,
+    "name": "Silence Moon",
+    "shortName": "Empty",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 21,
+    "name": "Unworthy Son",
+    "shortName": "Zi",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 22,
+    "name": "Nowhere to Rest",
+    "shortName": "Perching",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 23,
+    "name": "Swallowcall",
+    "shortName": "Return",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2016,
+        "name": "Swallowcall",
+        "description": "Light Attacks and effects triggered by Light Attacks (e.g., rodents) deal 12% more HP damage, and deal 6% more Physical and Bamboocut damage to targets with below 40% Qi or suffering from a Qi Anomaly status (including Bone Corrosion and Qi Imbalance)."
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Calmwaters",
+    "shortName": "River",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2017,
+        "name": "Calmwaters",
+        "description": "Performing a Perfect Dodge has a 50% chance to restore 10 Endurance and 1% HP, with an additional 2% HP restored each time when your HP is below 50% and 20% (up to a maximum of 5% HP)."
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Mistwillow",
+    "shortName": "Smoke",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.008
+          },
+          {
+            "level": 41,
+            "value": 0.015
+          },
+          {
+            "level": 51,
+            "value": 0.021
+          },
+          {
+            "level": 56,
+            "value": 0.027
+          },
+          {
+            "level": 61,
+            "value": 0.035
+          },
+          {
+            "level": 71,
+            "value": 0.041
+          },
+          {
+            "level": 81,
+            "value": 0.048
+          },
+          {
+            "level": 86,
+            "value": 0.056
+          },
+          {
+            "level": 91,
+            "value": 0.066
+          },
+          {
+            "level": 96,
+            "value": 0.08
+          },
+          {
+            "level": 100,
+            "value": 0.093
+          },
+          {
+            "level": 105,
+            "value": 0.108
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 6001,
+        "name": "Mistwillow",
+        "description": "Landing a Heavy Attack/Heavy Attack Pursuit Skill increases the Physical and Silkbind damage of Light Attacks and Projectile Skills by 10% for 15 seconds, and vice versa. When both damage bonuses exist at the same time, they will be upgraded to Veil of the Willow: increases the Physical and Silkbind damage of both Light Attack/Projectile Skills and Heavy Attack/Heavy Attack Pursuit Skills. Hitting the enemy with corresponding skills again can refresh the effect's duration.\nThe duration of the effects above can only be refreshed once every 2 seconds."
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "name": "Beyond the Chill",
+    "shortName": "Chill",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 6002,
+        "name": "Beyond the Chill",
+        "description": "After entering combat, if no damage is taken for 10 seconds, gain Beyond the Chill: Reduces the next damage taken and all damage taken within 2 seconds afterward by 40%. Beyond the Chill is removed upon leaving combat."
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "name": "Flower's Message",
+    "shortName": "Flower",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 28,
+    "name": "Eagle Never Fall",
+    "shortName": "Yuan",
+    "bonuses2": [
+      {
+        "attrId": 329,
+        "attrName": "Critical Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.009
+          },
+          {
+            "level": 41,
+            "value": 0.017
+          },
+          {
+            "level": 51,
+            "value": 0.023
+          },
+          {
+            "level": 56,
+            "value": 0.031
+          },
+          {
+            "level": 61,
+            "value": 0.039
+          },
+          {
+            "level": 71,
+            "value": 0.046
+          },
+          {
+            "level": 81,
+            "value": 0.054
+          },
+          {
+            "level": 86,
+            "value": 0.063
+          },
+          {
+            "level": 91,
+            "value": 0.074
+          },
+          {
+            "level": 96,
+            "value": 0.09
+          },
+          {
+            "level": 100,
+            "value": 0.104
+          },
+          {
+            "level": 105,
+            "value": 0.121
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 29,
+    "name": "Ivorybloom",
+    "shortName": "Flower",
+    "bonuses2": [
+      {
+        "attrId": 329,
+        "attrName": "Critical Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.009
+          },
+          {
+            "level": 41,
+            "value": 0.017
+          },
+          {
+            "level": 51,
+            "value": 0.023
+          },
+          {
+            "level": 56,
+            "value": 0.031
+          },
+          {
+            "level": 61,
+            "value": 0.039
+          },
+          {
+            "level": 71,
+            "value": 0.046
+          },
+          {
+            "level": 81,
+            "value": 0.054
+          },
+          {
+            "level": 86,
+            "value": 0.063
+          },
+          {
+            "level": 91,
+            "value": 0.074
+          },
+          {
+            "level": 96,
+            "value": 0.09
+          },
+          {
+            "level": 100,
+            "value": 0.104
+          },
+          {
+            "level": 105,
+            "value": 0.121
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2020,
+        "name": "Ivorybloom",
+        "description": "At Max HP, there is a bonus 5% chance to deal Critical healing and damage, and increases the effects of Critical healing and damage by 15%."
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "name": "Whirlsnow",
+    "shortName": "Snow",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2021,
+        "name": "Whirlsnow",
+        "description": "When you lose more than 40% of Max HP in a single instance of damage or when your HP falls below 20%, the next healing you receive within 5 seconds restores an additional 25% of your Max HP. This effect triggers once every 60 seconds."
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "name": "Heart of Martial Temple",
+    "shortName": "Martial",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 32,
+    "name": "A Promise Fulfilled",
+    "shortName": "days",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 33,
+    "name": "Eternal Sovereign",
+    "shortName": "Ten Thousand",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.008
+          },
+          {
+            "level": 41,
+            "value": 0.015
+          },
+          {
+            "level": 51,
+            "value": 0.021
+          },
+          {
+            "level": 56,
+            "value": 0.027
+          },
+          {
+            "level": 61,
+            "value": 0.035
+          },
+          {
+            "level": 71,
+            "value": 0.041
+          },
+          {
+            "level": 81,
+            "value": 0.048
+          },
+          {
+            "level": 86,
+            "value": 0.056
+          },
+          {
+            "level": 91,
+            "value": 0.066
+          },
+          {
+            "level": 96,
+            "value": 0.08
+          },
+          {
+            "level": 100,
+            "value": 0.093
+          },
+          {
+            "level": 105,
+            "value": 0.108
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 34,
+    "name": "Stars Align",
+    "shortName": "Star",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2022,
+        "name": "Stars Align",
+        "description": "When hitting at least 2 enemies simultaneously, or hitting a boss or player, you gain 1 stack of Stars Align: For 5 seconds, Martial Art Skills deal 3% increased damage and further bonus damage to enemies more than 4 meters away; the bonus increases with distance, up to 1% at 8 meters. Stars Align stacks up to 5 times, and 1 stack is removed each time you take damage. Up to 2 stacks of Stars Align can be gained per second."
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "name": "Jade Embrace",
+    "shortName": "Jade",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2023,
+        "name": "Jade Embrace",
+        "description": "When moving more than 6 meters within 1 second, gain the Jade Embrace effect: Reduces HP and Qi damage taken by 15% for 5 seconds. This effect can only trigger once every 20 seconds."
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "name": "Thief's Code",
+    "shortName": "Theft",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.008
+          },
+          {
+            "level": 41,
+            "value": 0.015
+          },
+          {
+            "level": 51,
+            "value": 0.021
+          },
+          {
+            "level": 56,
+            "value": 0.027
+          },
+          {
+            "level": 61,
+            "value": 0.035
+          },
+          {
+            "level": 71,
+            "value": 0.041
+          },
+          {
+            "level": 81,
+            "value": 0.048
+          },
+          {
+            "level": 86,
+            "value": 0.056
+          },
+          {
+            "level": 91,
+            "value": 0.066
+          },
+          {
+            "level": 96,
+            "value": 0.08
+          },
+          {
+            "level": 100,
+            "value": 0.093
+          },
+          {
+            "level": 105,
+            "value": 0.108
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 37,
+    "name": "The Northwest's Lone Sentinel",
+    "shortName": "Loyalty",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 38,
+    "name": "Eternal Gold",
+    "shortName": "Shan",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 39,
+    "name": "A Dream of Shifting Sands",
+    "shortName": "Dream",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 40,
+    "name": "Where Lies the Letter",
+    "shortName": "Sound",
+    "bonuses2": [
+      {
+        "attrId": 329,
+        "attrName": "Critical Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.009
+          },
+          {
+            "level": 41,
+            "value": 0.017
+          },
+          {
+            "level": 51,
+            "value": 0.023
+          },
+          {
+            "level": 56,
+            "value": 0.031
+          },
+          {
+            "level": 61,
+            "value": 0.039
+          },
+          {
+            "level": 71,
+            "value": 0.046
+          },
+          {
+            "level": 81,
+            "value": 0.054
+          },
+          {
+            "level": 86,
+            "value": 0.063
+          },
+          {
+            "level": 91,
+            "value": 0.074
+          },
+          {
+            "level": 96,
+            "value": 0.09
+          },
+          {
+            "level": 100,
+            "value": 0.104
+          },
+          {
+            "level": 105,
+            "value": 0.121
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 41,
+    "name": "Peaceful Returning",
+    "shortName": "Arms",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 42,
+    "name": "Moon Nectar",
+    "shortName": "Poem",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 43,
+    "name": "Breaking Calamity, Cleansing Obstruction",
+    "shortName": "Shatter",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 44,
+    "name": "Fletchlodge",
+    "shortName": "Yu",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.002
+          },
+          {
+            "level": 31,
+            "value": 0.004
+          },
+          {
+            "level": 41,
+            "value": 0.008
+          },
+          {
+            "level": 51,
+            "value": 0.01
+          },
+          {
+            "level": 56,
+            "value": 0.014
+          },
+          {
+            "level": 61,
+            "value": 0.017
+          },
+          {
+            "level": 71,
+            "value": 0.02
+          },
+          {
+            "level": 81,
+            "value": 0.024
+          },
+          {
+            "level": 86,
+            "value": 0.028
+          },
+          {
+            "level": 91,
+            "value": 0.033
+          },
+          {
+            "level": 96,
+            "value": 0.04
+          },
+          {
+            "level": 100,
+            "value": 0.047
+          },
+          {
+            "level": 105,
+            "value": 0.054
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 45,
+    "name": "Stringshock",
+    "shortName": "String",
+    "bonuses2": [
+      {
+        "attrId": 329,
+        "attrName": "Critical Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.003
+          },
+          {
+            "level": 31,
+            "value": 0.005
+          },
+          {
+            "level": 41,
+            "value": 0.009
+          },
+          {
+            "level": 51,
+            "value": 0.012
+          },
+          {
+            "level": 56,
+            "value": 0.015
+          },
+          {
+            "level": 61,
+            "value": 0.019
+          },
+          {
+            "level": 71,
+            "value": 0.023
+          },
+          {
+            "level": 81,
+            "value": 0.027
+          },
+          {
+            "level": 86,
+            "value": 0.032
+          },
+          {
+            "level": 91,
+            "value": 0.037
+          },
+          {
+            "level": 96,
+            "value": 0.045
+          },
+          {
+            "level": 100,
+            "value": 0.052
+          },
+          {
+            "level": 105,
+            "value": 0.061
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 46,
+    "name": "Shadowchase",
+    "shortName": "Shadow",
+    "bonuses2": [
+      {
+        "attrId": 330,
+        "attrName": "Affinity Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.001
+          },
+          {
+            "level": 31,
+            "value": 0.002
+          },
+          {
+            "level": 41,
+            "value": 0.004
+          },
+          {
+            "level": 51,
+            "value": 0.006
+          },
+          {
+            "level": 56,
+            "value": 0.008
+          },
+          {
+            "level": 61,
+            "value": 0.01
+          },
+          {
+            "level": 71,
+            "value": 0.011
+          },
+          {
+            "level": 81,
+            "value": 0.014
+          },
+          {
+            "level": 86,
+            "value": 0.016
+          },
+          {
+            "level": 91,
+            "value": 0.018
+          },
+          {
+            "level": 96,
+            "value": 0.022
+          },
+          {
+            "level": 100,
+            "value": 0.026
+          },
+          {
+            "level": 105,
+            "value": 0.03
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 48,
+    "name": "Seeking Osmanthus, Bearing Wine",
+    "shortName": "Seeking",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 49,
+    "name": "A Hundred Feet Sky-High",
+    "shortName": "Ruler",
+    "bonuses2": [
+      {
+        "attrId": 329,
+        "attrName": "Critical Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.009
+          },
+          {
+            "level": 41,
+            "value": 0.017
+          },
+          {
+            "level": 51,
+            "value": 0.023
+          },
+          {
+            "level": 56,
+            "value": 0.031
+          },
+          {
+            "level": 61,
+            "value": 0.039
+          },
+          {
+            "level": 71,
+            "value": 0.046
+          },
+          {
+            "level": 81,
+            "value": 0.054
+          },
+          {
+            "level": 86,
+            "value": 0.063
+          },
+          {
+            "level": 91,
+            "value": 0.074
+          },
+          {
+            "level": 96,
+            "value": 0.09
+          },
+          {
+            "level": 100,
+            "value": 0.104
+          },
+          {
+            "level": 105,
+            "value": 0.121
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 50,
+    "name": "Shattered Ridge",
+    "shortName": "Break",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2025,
+        "name": "Shattered Ridge",
+        "description": "Hitting a boss or player grants Shattered Ridge for 5 seconds: Increases HP damage dealt by 1%, stacking up to 5 times. At 5 stacks, increases damage of Light/Heavy Attack Varied Combo, Assist Trigger Skill, and assist effects by a further 8%. A successful Deflect immediately grants 5 stacks of Shattered Ridge.\nThe extra DMG Boost applies to the following skills: Light/Heavy Attack Varied Combo of Snowparting Blade, Thundercry Blade, and Vernal Umbrella; Inkwell Fan - Moon Shatter Spring; Anxi Army Assist and its Trigger Skills of Snowparting Blade and Phalanxbane Blade."
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "name": "Obsidian Armor",
+    "shortName": "Dark",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2026,
+        "name": "Obsidian Armor",
+        "description": "Tenacity reduces HP damage taken by 5%. Taking a hit under Tenacity grants Obsidian Armor for 5 seconds: Reduces the chance to receive Critical DMG by 2% and Affinity DMG by 1%, stacking up to 5 times."
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "name": "Winter Trio",
+    "shortName": "Wintry",
+    "bonuses2": [
+      {
+        "attrId": 330,
+        "attrName": "Affinity Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.003
+          },
+          {
+            "level": 31,
+            "value": 0.005
+          },
+          {
+            "level": 41,
+            "value": 0.009
+          },
+          {
+            "level": 51,
+            "value": 0.012
+          },
+          {
+            "level": 56,
+            "value": 0.015
+          },
+          {
+            "level": 61,
+            "value": 0.019
+          },
+          {
+            "level": 71,
+            "value": 0.023
+          },
+          {
+            "level": 81,
+            "value": 0.027
+          },
+          {
+            "level": 86,
+            "value": 0.032
+          },
+          {
+            "level": 91,
+            "value": 0.037
+          },
+          {
+            "level": 96,
+            "value": 0.045
+          },
+          {
+            "level": 100,
+            "value": 0.052
+          },
+          {
+            "level": 105,
+            "value": 0.061
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 53,
+    "name": "Old Acquaintances",
+    "shortName": "Current",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 54,
+    "name": "After the Clouds Parted",
+    "shortName": "Floating",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.002
+          },
+          {
+            "level": 31,
+            "value": 0.004
+          },
+          {
+            "level": 41,
+            "value": 0.008
+          },
+          {
+            "level": 51,
+            "value": 0.01
+          },
+          {
+            "level": 56,
+            "value": 0.014
+          },
+          {
+            "level": 61,
+            "value": 0.017
+          },
+          {
+            "level": 71,
+            "value": 0.02
+          },
+          {
+            "level": 81,
+            "value": 0.024
+          },
+          {
+            "level": 86,
+            "value": 0.028
+          },
+          {
+            "level": 91,
+            "value": 0.033
+          },
+          {
+            "level": 96,
+            "value": 0.04
+          },
+          {
+            "level": 100,
+            "value": 0.047
+          },
+          {
+            "level": 105,
+            "value": 0.054
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 55,
+    "name": "Dilemma",
+    "shortName": "Previous",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 56,
+    "name": "Etherwrath",
+    "shortName": "Impact",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2027,
+        "name": "Etherwrath",
+        "description": "Hitting a boss or player grants Etherwrath: Increases all types of Attack by 1% (including Physical Attack and all Attribute Attacks) for 8s, stacking up to 5 times. At 5 stacks of Etherwrath, grants 4 additional Attribute Attack Penetration for all types when Martial Trigger Effects deal damage. Triggering a Perfect Dodge instantly grants 5 stacks of Etherwrath.\nApplicable Martial Trigger Effects: Heavenwill Gauntlets' Falcon's Pursuit and Vile Condemned series, Mortal Rope Dart's Rodent, Everspring Umbrella's Resonance, Phalanxbane Blade's Anxi Army Assist."
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "name": "Exalted Righteousness",
+    "shortName": "Foster",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": [
+      {
+        "id": 2028,
+        "name": "Exalted Righteousness",
+        "description": "Triggering a perfect dodge grants Honorbound for 5 seconds: Reduces HP Damage taken by 10%, and further reduces Critical DMG and Affinity DMG taken by 12%. Honorbound can only be gained once every 10 seconds."
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "name": "Lost Relics",
+    "shortName": "Fallen",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 59,
+    "name": "Returning Together",
+    "shortName": "Gone",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 60,
+    "name": "Looking Back Again",
+    "shortName": "Back",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.008
+          },
+          {
+            "level": 41,
+            "value": 0.015
+          },
+          {
+            "level": 51,
+            "value": 0.021
+          },
+          {
+            "level": 56,
+            "value": 0.027
+          },
+          {
+            "level": 61,
+            "value": 0.035
+          },
+          {
+            "level": 71,
+            "value": 0.041
+          },
+          {
+            "level": 81,
+            "value": 0.048
+          },
+          {
+            "level": 86,
+            "value": 0.056
+          },
+          {
+            "level": 91,
+            "value": 0.066
+          },
+          {
+            "level": 96,
+            "value": 0.08
+          },
+          {
+            "level": 100,
+            "value": 0.093
+          },
+          {
+            "level": 105,
+            "value": 0.108
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 61,
+    "name": "Skyward Echoes",
+    "shortName": "Remnant",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 62,
+    "name": "Night of Duel",
+    "shortName": "Blood",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 63,
+    "name": "Different Paths, Same Destiny",
+    "shortName": "Different",
+    "bonuses2": [
+      {
+        "attrId": 330,
+        "attrName": "Affinity Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.003
+          },
+          {
+            "level": 31,
+            "value": 0.005
+          },
+          {
+            "level": 41,
+            "value": 0.009
+          },
+          {
+            "level": 51,
+            "value": 0.012
+          },
+          {
+            "level": 56,
+            "value": 0.015
+          },
+          {
+            "level": 61,
+            "value": 0.019
+          },
+          {
+            "level": 71,
+            "value": 0.023
+          },
+          {
+            "level": 81,
+            "value": 0.027
+          },
+          {
+            "level": 86,
+            "value": 0.032
+          },
+          {
+            "level": 91,
+            "value": 0.037
+          },
+          {
+            "level": 96,
+            "value": 0.045
+          },
+          {
+            "level": 100,
+            "value": 0.052
+          },
+          {
+            "level": 105,
+            "value": 0.061
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 64,
+    "name": "The Vast Distant Sky",
+    "shortName": "Distant",
+    "bonuses2": [
+      {
+        "attrId": 15,
+        "attrName": "Min Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 65,
+    "name": "Bound for Hutuo",
+    "shortName": "Tuo",
+    "bonuses2": [
+      {
+        "attrId": 16,
+        "attrName": "Max Physical Attack",
+        "values": [
+          {
+            "level": 3,
+            "value": 1.2
+          },
+          {
+            "level": 16,
+            "value": 4.4
+          },
+          {
+            "level": 31,
+            "value": 8.2
+          },
+          {
+            "level": 41,
+            "value": 15
+          },
+          {
+            "level": 51,
+            "value": 20.2
+          },
+          {
+            "level": 56,
+            "value": 26.8
+          },
+          {
+            "level": 61,
+            "value": 33.8
+          },
+          {
+            "level": 71,
+            "value": 39.6
+          },
+          {
+            "level": 81,
+            "value": 47
+          },
+          {
+            "level": 86,
+            "value": 54.8
+          },
+          {
+            "level": 91,
+            "value": 63.8
+          },
+          {
+            "level": 96,
+            "value": 77.8
+          },
+          {
+            "level": 100,
+            "value": 90.6
+          },
+          {
+            "level": 105,
+            "value": 105.6
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 66,
+    "name": "Between Indigo and Blue",
+    "shortName": "Between",
+    "bonuses2": [
+      {
+        "attrId": 329,
+        "attrName": "Critical Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.009
+          },
+          {
+            "level": 41,
+            "value": 0.017
+          },
+          {
+            "level": 51,
+            "value": 0.023
+          },
+          {
+            "level": 56,
+            "value": 0.031
+          },
+          {
+            "level": 61,
+            "value": 0.039
+          },
+          {
+            "level": 71,
+            "value": 0.046
+          },
+          {
+            "level": 81,
+            "value": 0.054
+          },
+          {
+            "level": 86,
+            "value": 0.063
+          },
+          {
+            "level": 91,
+            "value": 0.074
+          },
+          {
+            "level": 96,
+            "value": 0.09
+          },
+          {
+            "level": 100,
+            "value": 0.104
+          },
+          {
+            "level": 105,
+            "value": 0.121
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 67,
+    "name": "Father and Son",
+    "shortName": "Ping",
+    "bonuses2": [
+      {
+        "attrId": 328,
+        "attrName": "Precision Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.005
+          },
+          {
+            "level": 31,
+            "value": 0.008
+          },
+          {
+            "level": 41,
+            "value": 0.015
+          },
+          {
+            "level": 51,
+            "value": 0.021
+          },
+          {
+            "level": 56,
+            "value": 0.027
+          },
+          {
+            "level": 61,
+            "value": 0.035
+          },
+          {
+            "level": 71,
+            "value": 0.041
+          },
+          {
+            "level": 81,
+            "value": 0.048
+          },
+          {
+            "level": 86,
+            "value": 0.056
+          },
+          {
+            "level": 91,
+            "value": 0.066
+          },
+          {
+            "level": 96,
+            "value": 0.08
+          },
+          {
+            "level": 100,
+            "value": 0.093
+          },
+          {
+            "level": 105,
+            "value": 0.108
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 68,
+    "name": "Journey Together",
+    "shortName": "Jun",
+    "bonuses2": [
+      {
+        "attrId": 38,
+        "attrName": "Physical Defense",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.6
+          },
+          {
+            "level": 16,
+            "value": 2.2
+          },
+          {
+            "level": 31,
+            "value": 4.2
+          },
+          {
+            "level": 41,
+            "value": 7.4
+          },
+          {
+            "level": 51,
+            "value": 10.2
+          },
+          {
+            "level": 56,
+            "value": 13.4
+          },
+          {
+            "level": 61,
+            "value": 17
+          },
+          {
+            "level": 71,
+            "value": 19.8
+          },
+          {
+            "level": 81,
+            "value": 23.6
+          },
+          {
+            "level": 86,
+            "value": 27.4
+          },
+          {
+            "level": 91,
+            "value": 32
+          },
+          {
+            "level": 96,
+            "value": 39
+          },
+          {
+            "level": 100,
+            "value": 45.4
+          },
+          {
+            "level": 105,
+            "value": 52.8
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 69,
+    "name": "Yestereve's Snow",
+    "shortName": "Previous",
+    "bonuses2": [
+      {
+        "attrId": 9,
+        "attrName": "Max HP",
+        "values": [
+          {
+            "level": 3,
+            "value": 40
+          },
+          {
+            "level": 16,
+            "value": 160
+          },
+          {
+            "level": 31,
+            "value": 320
+          },
+          {
+            "level": 41,
+            "value": 560
+          },
+          {
+            "level": 51,
+            "value": 780
+          },
+          {
+            "level": 56,
+            "value": 1020
+          },
+          {
+            "level": 61,
+            "value": 1280
+          },
+          {
+            "level": 71,
+            "value": 1500
+          },
+          {
+            "level": 81,
+            "value": 1780
+          },
+          {
+            "level": 86,
+            "value": 2080
+          },
+          {
+            "level": 91,
+            "value": 2420
+          },
+          {
+            "level": 96,
+            "value": 2960
+          },
+          {
+            "level": 100,
+            "value": 3440
+          },
+          {
+            "level": 105,
+            "value": 4000
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  },
+  {
+    "id": 70,
+    "name": "Beyond the Noise",
+    "shortName": "Listen.",
+    "bonuses2": [
+      {
+        "attrId": 330,
+        "attrName": "Affinity Rate",
+        "values": [
+          {
+            "level": 3,
+            "value": 0.001
+          },
+          {
+            "level": 16,
+            "value": 0.003
+          },
+          {
+            "level": 31,
+            "value": 0.005
+          },
+          {
+            "level": 41,
+            "value": 0.009
+          },
+          {
+            "level": 51,
+            "value": 0.012
+          },
+          {
+            "level": 56,
+            "value": 0.015
+          },
+          {
+            "level": 61,
+            "value": 0.019
+          },
+          {
+            "level": 71,
+            "value": 0.023
+          },
+          {
+            "level": 81,
+            "value": 0.027
+          },
+          {
+            "level": 86,
+            "value": 0.032
+          },
+          {
+            "level": 91,
+            "value": 0.037
+          },
+          {
+            "level": 96,
+            "value": 0.045
+          },
+          {
+            "level": 100,
+            "value": 0.052
+          },
+          {
+            "level": 105,
+            "value": 0.061
+          }
+        ]
+      }
+    ],
+    "bonuses4": []
+  }
+]

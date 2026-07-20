@@ -7,8 +7,10 @@ name: Sync Player Stats
 
 on:
   schedule:
-    # Once a day at 02:15 UTC. Deliberately not hourly — be gentle on wwmdb.
-    - cron: '15 2 * * *'
+    # Once a day at 03:59 ICT (UTC+7) = 20:59 UTC. Deliberately not hourly —
+    # be gentle on wwmdb (this run also syncs the InnerWays and Suits/Sets
+    # catalogues, ~160 extra detail calls on top of the per-member lookups).
+    - cron: '59 20 * * *'
   workflow_dispatch:        # manual trigger
 
 permissions:

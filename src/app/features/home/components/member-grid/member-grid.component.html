@@ -134,10 +134,66 @@
                             @for (e of info!.effectTypes; track e.id) { <span class="iw-tag">{{ e.name }}</span> }
                           </div>
                         }
+                        @if (info?.effect) {
+                          <p class="iw-tooltip-desc">{{ info!.effect }}</p>
+                        }
+                        @if (info?.maxEffect) {
+                          <div class="iw-tooltip-row iw-tooltip-max-label">Fully upgraded effect</div>
+                          <p class="iw-tooltip-desc iw-tooltip-max">{{ info!.maxEffect }}</p>
+                        }
                         @if (!info) {
                           <div class="iw-tooltip-row iw-tooltip-unknown">No catalogue data for this inner way yet.</div>
                         }
                       </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Set Effects (active 2pc/4pc bonuses) -->
+            @let activeSets = activeSetEffects(p);
+            @if (activeSets.length) {
+              <div class="set-effects-section">
+                <h3 class="gear-heading">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                    <path d="M3 7l9 5 9-5M12 12v10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                  </svg>
+                  Set Effects <span class="gear-count">{{ activeSets.length }}</span>
+                </h3>
+                <div class="set-effects-grid">
+                  @for (active of activeSets; track active.set.id) {
+                    <div class="set-effect-card">
+                      <div class="set-effect-top">
+                        <span class="set-effect-name">{{ active.set.name }}</span>
+                        <span class="set-effect-count">{{ active.count }}/4</span>
+                      </div>
+
+                      @if (active.bonus2Active && active.resolvedBonus2.length) {
+                        <div class="set-bonus-row">
+                          <span class="set-bonus-pc">2pc</span>
+                          <span class="set-bonus-body">
+                            @for (b of active.resolvedBonus2; track b.attrName) {
+                              <span class="attr-chip">{{ b.attrName }} <b>{{ b.value | number:'1.0-2' }}</b></span>
+                            }
+                          </span>
+                        </div>
+                      }
+
+                      @if (active.bonus4Active) {
+                        @for (b of active.set.bonuses4; track b.id) {
+                          <div class="set-bonus-row">
+                            <span class="set-bonus-pc">4pc</span>
+                            <span class="set-bonus-body set-bonus-desc">{{ b.description }}</span>
+                          </div>
+                        }
+                      } @else if (active.count === 2 || active.count === 3) {
+                        <div class="set-bonus-row set-bonus-locked">
+                          <span class="set-bonus-pc">4pc</span>
+                          <span class="set-bonus-body">Locked — needs {{ 4 - active.count }} more piece(s)</span>
+                        </div>
+                      }
                     </div>
                   }
                 </div>
