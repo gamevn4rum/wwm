@@ -5,18 +5,163 @@
     <span class="accent-line"></span>
   </header>
 
-  <div class="member-grid">
+  <div class="member-grid" [class.has-expanded]="expandedId() !== null">
     @for (player of players(); track player.id) {
-      <div [class]="'member-badge rank-' + getRankClass(player.rank)">
-        <div class="badge-avatar">
-          <div class="avatar-placeholder">
-            <img [src]="'icons/rank-' + player.rankIconKey + '.png'" [alt]="player.rank" />
+      @let stats = statsFor(player);
+      <div
+        class="member-badge"
+        [class]="'member-badge rank-' + getRankClass(player.rank)"
+        [class.has-stats]="!!stats"
+        [class.is-expanded]="isExpanded(player)"
+        [style.view-transition-name]="'card-' + player.id"
+      >
+        <!-- Collapsed summary (always visible; the clickable surface) -->
+        <button
+          type="button"
+          class="badge-summary"
+          [class.clickable]="!!stats"
+          [attr.aria-expanded]="!!stats ? isExpanded(player) : null"
+          [disabled]="!stats"
+          (click)="toggle(player, $event)"
+        >
+          <div class="badge-avatar">
+            <div class="avatar-placeholder">
+              <img [src]="'icons/rank-' + player.rankIconKey + '.png'" [alt]="player.rank" />
+            </div>
           </div>
-        </div>
-        <div class="badge-info">
-          <span class="badge-name">{{ player.name }}</span>
-          <span class="badge-rank">{{ player.rank.toUpperCase() }}</span>
-        </div>
+          <div class="badge-info">
+            <span class="badge-name">{{ player.name }}</span>
+            <span class="badge-rank">{{ player.rank.toUpperCase() }}</span>
+          </div>
+
+          @if (stats && !isExpanded(player)) {
+            <span class="badge-level" title="Level">Lv {{ stats.player.level }}</span>
+          }
+        </button>
+
+        <!-- Expanded detail -->
+        @if (isExpanded(player) && stats) {
+          @let p = stats.player;
+          <div class="badge-detail">
+            <div class="detail-header">
+              <div class="badge-avatar detail-avatar">
+                <div class="avatar-placeholder">
+                  <img [src]="'icons/rank-' + player.rankIconKey + '.png'" [alt]="player.rank" />
+                </div>
+              </div>
+              <div class="detail-identity">
+                <span class="detail-name">{{ p.name }}</span>
+                <span class="detail-sub">
+                  <span class="detail-rank rank-chip">{{ player.rank.toUpperCase() }}</span>
+                  @if (p.numberId) { <span class="detail-uid">#{{ p.numberId }}</span> }
+                  @if (joinedLabel(p.createTime); as joined) { <span class="detail-joined">{{ joined }}</span> }
+                </span>
+                @if (player.notes) { <span class="detail-notes">{{ player.notes }}</span> }
+              </div>
+              <button type="button" class="detail-close" aria-label="Collapse" (click)="toggle(player, $event)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Stat tiles -->
+            <div class="stat-tiles">
+              <div class="stat-tile tile-level">
+                <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 22l-5.3-2.8 1-5.8-4.2-4.1 5.9-.9z"
+                    fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                </svg>
+                <span class="tile-label">Level</span>
+                <span class="tile-value">{{ p.level }}</span>
+              </div>
+
+              <div class="stat-tile tile-mastery">
+                <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14.5 3.5l6 6L9 21l-3-3zM6 3l3 3M3 6l3 3M4 20l4-4"
+                    fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="tile-label">Weapon Mastery</span>
+                <span class="tile-value">{{ p.weaponMasteryMax | number }}</span>
+              </div>
+
+              @if (p.school) {
+                <div class="stat-tile tile-school" [style.--tile-accent]="schoolColor(p.school)">
+                  <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 21h16M5 21v-8h14v8M3 13l9-6 9 6M9 21v-4h6v4"
+                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="tile-label">School</span>
+                  <span class="tile-value">{{ p.school }}</span>
+                </div>
+              }
+
+              <div class="stat-tile tile-region">
+                <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6" />
+                  <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"
+                    fill="none" stroke="currentColor" stroke-width="1.6" />
+                </svg>
+                <span class="tile-label">Region</span>
+                <span class="tile-value">{{ p.region || '—' }}@if (p.server) {<span class="tile-value-sub"> · {{ p.server }}</span>}</span>
+              </div>
+            </div>
+
+            <!-- Gear -->
+            @if (p.gear.length) {
+              <div class="gear-section">
+                <h3 class="gear-heading">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V5z"
+                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                  </svg>
+                  Gear <span class="gear-count">{{ p.gear.length }}</span>
+                </h3>
+                <div class="gear-grid">
+                  @for (slot of p.gear; track slot.slot) {
+                    <div class="gear-card" [class]="'gear-card ' + tierClass(slot.tier)">
+                      <div class="gear-card-top">
+                        <span class="gear-slotname">{{ slot.slotName || 'Slot ' + slot.slot }}</span>
+                        @if (slot.tier) { <span class="gear-tier">T{{ slot.tier }}</span> }
+                      </div>
+                      <span class="gear-name">{{ slot.name }}</span>
+                      <div class="gear-tags">
+                        @if (slot.set?.name) { <span class="gear-set">◈ {{ slot.set!.name }}</span> }
+                        @if (slot.level) { <span class="gear-ilvl">iLv {{ slot.level }}</span> }
+                      </div>
+
+                      @if (slot.attributes.length) {
+                        <div class="gear-attrs">
+                          @for (a of slot.attributes; track a.name) {
+                            <span class="attr-chip">{{ a.name }} <b>{{ a.value | number:'1.0-2' }}</b></span>
+                          }
+                        </div>
+                      }
+
+                      @if (slot.affixes.length) {
+                        <ul class="gear-affixes">
+                          @for (af of slot.affixes; track $index) {
+                            @if (isEffectAffix(af.name)) {
+                              <li class="affix effect" [class]="'affix effect ' + tierClass(af.tier)">
+                                <span class="affix-dot"></span>{{ af.name }}
+                              </li>
+                            } @else {
+                              <li class="affix" [class]="'affix ' + tierClass(af.tier)">
+                                <span class="affix-dot"></span>
+                                <span class="affix-name">{{ af.name }}</span>
+                                <span class="affix-val">{{ af.value | number:'1.0-2' }}</span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
     }
   </div>

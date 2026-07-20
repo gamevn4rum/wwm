@@ -1,24 +1,27 @@
-name: Sync Google Sheets Data
+name: Sync Player Stats
+
+# Enriches the roster with in-game stats/gear pulled from wwmdb.vlt.fyi, matched
+# by IGN. Runs daily (stats change slowly, and this hits a third party's relay —
+# see scripts/fetch-player-stats.js for the Route-A / PII caveats). Self-contained:
+# re-fetches the roster, looks up each member, encrypts, commits, triggers deploy.
 
 on:
   schedule:
-    # Runs once per hour, on the hour (UTC).
-    # To change the cadence, edit the cron expression below.
-    # (GitHub Actions does not support dynamic cron from repository variables.)
-    - cron: '0 * * * *'
+    # Once a day at 02:15 UTC. Deliberately not hourly — be gentle on wwmdb.
+    - cron: '15 2 * * *'
   workflow_dispatch:        # manual trigger
 
 permissions:
   contents: write
   actions: write            # needed to trigger deploy.yml below
 
-# Shared with sync-player-stats.yml so the two data-sync jobs never push at once.
+# Never overlap with the hourly sheet sync's commit-and-push.
 concurrency:
   group: data-sync
   cancel-in-progress: false
 
 jobs:
-  sync:
+  sync-player-stats:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,13 +35,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Fetch sheet data
+      - name: Fetch sheet data (roster source of truth)
         env:
-          # Service account auth — the sheet is private and shared only with
-          # the service account's client_email (Viewer).
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: node scripts/fetch-data.js
+
+      - name: Fetch player stats from wwmdb
+        env:
+          # Optional override if wwmdb rotates the token embedded in their bundle.
+          WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
+        run: node scripts/fetch-player-stats.js
 
       - name: Encrypt sensitive data files
         env:
@@ -52,19 +59,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git rm --cached data/match-history.json --ignore-unmatch
           git rm --cached data/members.json --ignore-unmatch
+          git rm --cached data/player-stats.json --ignore-unmatch
           git add data/
           if git diff --cached --quiet; then
             echo "No changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "chore: sync sheet data [skip ci]"
+          git commit -m "chore: sync player stats [skip ci]"
 
-          # Push, but tolerate main advancing between checkout and push (a
-          # concurrent run, or a manual push landing meanwhile). On a rejected
-          # non-fast-forward, rebase our commit onto the latest main and retry.
-          # This commit only ever touches data/ (regenerated deterministically),
-          # so the rebase applies cleanly against unrelated changes.
+          # Tolerate main advancing between checkout and push (e.g. the hourly
+          # sheet sync landing meanwhile): rebase and retry on non-fast-forward.
           for attempt in 1 2 3 4 5; do
             if git push; then
               echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -76,9 +81,6 @@ jobs:
           echo "::error::Failed to push updated data after 5 attempts"
           exit 1
 
-      # Building/deploying now lives in deploy.yml. A push made with the
-      # default GITHUB_TOKEN does NOT trigger other workflows' `push`
-      # events, so trigger it explicitly instead of relying on that push.
       - name: Trigger deploy workflow
         if: steps.commit.outputs.changed == 'true'
         env:
