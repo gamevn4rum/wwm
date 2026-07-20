@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
-import { MatchedPlayerStats, PlayerDetail } from '../../../roster-stats/player-stats.model';
+import { MatchedPlayerStats, PlayerDetail, PlayerInnerWay } from '../../../roster-stats/player-stats.model';
 import { InnerWayCatalogueService } from '../../../roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
@@ -54,6 +54,8 @@ export class MemberGridComponent implements OnInit {
   // Only one member card is ever expanded at a time, so keying by inner-way id
   // alone (no player id) is safe — no cross-card collisions.
   private readonly activeUprankTab = signal<Map<number, number>>(new Map());
+  /** Which inner way's detail card is open (click-to-open, not hover). */
+  readonly openInnerWayId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.homeDataService.getPlayers().subscribe((data: Player[]) => {
@@ -136,6 +138,28 @@ export class MemberGridComponent implements OnInit {
   innerWayInfo(id: number | null): InnerWayCatalogueEntry | undefined {
     if (id == null) return undefined;
     return this.innerWaysById().get(id);
+  }
+
+  findInnerWay(p: PlayerDetail, id: number | null): PlayerInnerWay | undefined {
+    if (id == null) return undefined;
+    return p.innerWays.find((iw) => iw.id === id);
+  }
+
+  /** Click a chip: opens its detail card, or closes it if it's already open. */
+  toggleInnerWayDetail(id: number | null, event: Event): void {
+    event.stopPropagation();
+    if (id == null) return;
+    this.openInnerWayId.set(this.openInnerWayId() === id ? null : id);
+  }
+
+  closeInnerWayDetail(): void {
+    this.openInnerWayId.set(null);
+  }
+
+  /** Click anywhere outside a chip/the detail card closes it — both handlers above stop propagation. */
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.openInnerWayId() !== null) this.closeInnerWayDetail();
   }
 
   /**

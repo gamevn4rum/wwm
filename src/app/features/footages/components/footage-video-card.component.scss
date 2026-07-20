@@ -42,6 +42,12 @@
   color: var(--color-ink-soft);
 }
 
+.season-pill {
+  background: var(--color-secondary);
+  color: var(--color-on-dark);
+  font-weight: 700;
+}
+
 .footage-card-body {
   padding: 0 var(--space-3);
 

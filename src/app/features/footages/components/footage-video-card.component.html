@@ -1,5 +1,6 @@
 <article class="footage-card">
   <header class="footage-card-header">
+    @if (footage().season) { <span class="pill season-pill">S{{ footage().season }}</span> }
     <span class="pill match-type-pill" [class]="matchTypeClass">{{ footage().matchType }}</span>
     <span class="pill opponent-pill">{{ footage().opponent }}</span>
   </header>

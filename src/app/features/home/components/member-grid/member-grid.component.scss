@@ -351,7 +351,6 @@
 /* Reuses the same ordinal tier ramp as gear (--tier custom property, tier-0..5). */
 .inner-way-card {
   --tier: var(--color-ink-faint);
-  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -361,13 +360,17 @@
   background: var(--color-surface);
   padding: 0.3rem 0.7rem;
   box-shadow: var(--shadow-sm);
-  cursor: default;
+  cursor: pointer;
+  font: inherit;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 
-  &:hover, &:focus-visible, &:focus-within {
+  &:hover, &:focus-visible {
     box-shadow: var(--shadow-md);
-    outline: none;
+  }
 
-    .iw-tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+  &.selected {
+    border-color: var(--tier);
+    box-shadow: 0 0 0 2px var(--tier);
   }
 }
 
@@ -388,38 +391,57 @@
   letter-spacing: 0.02em;
 }
 
-.iw-tooltip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
-  z-index: 5;
-  min-width: 220px;
-  max-width: 320px;
-  max-height: 320px;
+/* ── Inner-way detail card — click-to-open, appears below the whole grid ── */
+.iw-detail-panel {
+  --tier: var(--color-ink-faint);
+  margin-top: var(--space-3);
+  max-height: 420px;
   overflow-y: auto;
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--tier);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-lg);
-  padding: var(--space-3);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(4px);
-  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
-  pointer-events: none;
-}
-.inner-way-card:hover .iw-tooltip,
-.inner-way-card:focus-visible .iw-tooltip,
-.inner-way-card:focus-within .iw-tooltip {
-  pointer-events: auto;
+  padding: var(--space-4);
+  animation: iw-detail-reveal var(--transition-base);
 }
 
-.iw-tooltip-name {
+@keyframes iw-detail-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.iw-detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.iw-detail-name {
   font-family: var(--font-heading);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--color-ink);
-  margin-bottom: var(--space-2);
+  flex: 1;
+}
+
+.iw-detail-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+
+  svg { width: 14px; height: 14px; }
+  &:hover { background: var(--color-surface-alt); border-color: var(--color-primary); color: var(--color-primary); }
 }
 
 .iw-tooltip-row {

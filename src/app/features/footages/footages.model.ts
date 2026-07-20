@@ -10,4 +10,5 @@ export interface FootageRecord {
   opponent: string;
   uploader: UploaderKey;
   videoId: string;
+  season: string;
 }
