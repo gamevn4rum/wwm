@@ -22,6 +22,7 @@ export class FootagesDataService {
           opponent: match.opponent,
           uploader: footage.uploader,
           videoId: footage.videoId,
+          season: match.season,
         } satisfies FootageRecord))
       )
       // matches are already sorted newest-first by MatchHistoryDataService

@@ -37,6 +37,7 @@ export class FootagePopupService {
       opponent: match.opponent,
       uploader: footage.uploader,
       videoId: footage.videoId,
+      season: match.season,
     }));
   });
 
