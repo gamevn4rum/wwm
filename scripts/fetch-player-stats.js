@@ -32,6 +32,9 @@ const API_BASE = 'https://wwmdb.vlt.fyi/api/wwm.v1.WwmService';
 
 const MEMBERS_PATH = './data/members.json';
 const OUT_PATH = './data/player-stats.json';
+// Static game-data catalogue (inner ways), not player-specific — plaintext,
+// same as the other static data/*.json files (not in encrypt-data.js's list).
+const INNER_WAYS_OUT_PATH = './data/inner-ways.json';
 
 // Be a good neighbour: this hits a third party's relay, and stats change slowly.
 const DELAY_BETWEEN_MEMBERS_MS = 400;
@@ -143,6 +146,27 @@ function shapeGearSlot(slot) {
   };
 }
 
+function shapeInnerWay(iw) {
+  return {
+    id: iw.id ?? null,
+    name: iw.name ?? '',
+    tier: iw.tier ?? null,
+  };
+}
+
+function shapeCatalogueInnerWay(iw) {
+  return {
+    id: iw.id ?? null,
+    name: iw.name ?? '',
+    tier: iw.tier ?? null,
+    path: iw.path ? { id: iw.path.id ?? null, name: iw.path.name ?? '' } : null,
+    weapon: iw.weapon ? { id: iw.weapon.id ?? null, name: iw.weapon.name ?? '' } : null,
+    effectTypes: Array.isArray(iw.effectTypes)
+      ? iw.effectTypes.map((e) => ({ id: e.id ?? null, name: e.name ?? '' }))
+      : [],
+  };
+}
+
 /** Copy ONLY known-safe fields. Never `account`/email or any raw upstream spread. */
 function shapePlayer(player) {
   const gear = [];
@@ -151,6 +175,7 @@ function shapePlayer(player) {
       if (slot && typeof slot === 'object') gear.push({ slot: key, ...shapeGearSlot(slot) });
     }
   }
+  const innerWays = Array.isArray(player.innerWays) ? player.innerWays.map(shapeInnerWay) : [];
   return {
     name: player.name ?? '',
     numberId: player.numberId ?? null, // public in-game id, not the email
@@ -164,6 +189,7 @@ function shapePlayer(player) {
     language: player.language ?? null,
     createTime: player.createTime ?? null,
     gear,
+    innerWays,
   };
 }
 
@@ -205,8 +231,32 @@ async function fetchOne(ign) {
   return { ign, matched: true, player: shapePlayer(player) };
 }
 
+// ── Static catalogue (not player-specific — one call per run) ──────────────
+async function syncInnerWaysCatalogue() {
+  let catalogue;
+  try {
+    const res = await call('InnerWays', {});
+    catalogue = Array.isArray(res?.items) ? res.items.map(shapeCatalogueInnerWay) : [];
+  } catch (err) {
+    console.warn(`⚠ InnerWays catalogue fetch failed: ${err.message.split('\n')[0]}; keeping last-good file`);
+    return;
+  }
+  const newContent = JSON.stringify(catalogue, null, 2);
+  if (
+    fs.existsSync(INNER_WAYS_OUT_PATH) &&
+    md5(fs.readFileSync(INNER_WAYS_OUT_PATH, 'utf8')) === md5(newContent)
+  ) {
+    console.log(`– inner-ways.json — no changes (${catalogue.length} entries)`);
+    return;
+  }
+  fs.writeFileSync(INNER_WAYS_OUT_PATH, newContent, 'utf8');
+  console.log(`✓ inner-ways.json — ${catalogue.length} entries`);
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
+  await syncInnerWaysCatalogue();
+
   if (!fs.existsSync(MEMBERS_PATH)) {
     console.error(`✗ ${MEMBERS_PATH} not found — run fetch-data.js first.`);
     process.exit(1);

@@ -107,6 +107,43 @@
               </div>
             </div>
 
+            <!-- Inner Ways -->
+            @if (p.innerWays.length) {
+              <div class="inner-ways-section">
+                <h3 class="gear-heading">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6" />
+                    <path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" stroke-width="1.6" />
+                  </svg>
+                  Inner Ways <span class="gear-count">{{ p.innerWays.length }}</span>
+                </h3>
+                <div class="inner-ways-grid">
+                  @for (iw of p.innerWays; track iw.id) {
+                    @let info = innerWayInfo(iw.id);
+                    <div class="inner-way-card" [class]="'inner-way-card ' + tierClass(iw.tier)" tabindex="0">
+                      <span class="iw-name">{{ iw.name }}</span>
+                      @if (iw.tier) { <span class="iw-tier">T{{ iw.tier }}</span> }
+
+                      <div class="iw-tooltip" role="tooltip">
+                        <div class="iw-tooltip-name">{{ iw.name }}</div>
+                        @if (iw.tier) { <div class="iw-tooltip-row"><span class="iw-tooltip-label">Current tier</span> {{ iw.tier }}</div> }
+                        @if (info?.path?.name) { <div class="iw-tooltip-row"><span class="iw-tooltip-label">Path</span> {{ info!.path!.name }}</div> }
+                        @if (info?.weapon?.name) { <div class="iw-tooltip-row"><span class="iw-tooltip-label">Weapon</span> {{ info!.weapon!.name }}</div> }
+                        @if (info?.effectTypes?.length) {
+                          <div class="iw-tooltip-tags">
+                            @for (e of info!.effectTypes; track e.id) { <span class="iw-tag">{{ e.name }}</span> }
+                          </div>
+                        }
+                        @if (!info) {
+                          <div class="iw-tooltip-row iw-tooltip-unknown">No catalogue data for this inner way yet.</div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
             <!-- Gear -->
             @if (p.gear.length) {
               <div class="gear-section">

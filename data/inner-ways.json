@@ -1,0 +1,2114 @@
+[
+  {
+    "id": 1,
+    "name": "Wind Beneath Wings",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 18,
+        "name": "Mystic Skills"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Evening Snow",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Steadfast Stance",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 2,
+        "name": "Defense"
+      },
+      {
+        "id": 12,
+        "name": "Control Resistance"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Shadow Assault",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 18,
+        "name": "Mystic Skills"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Fivefold Bleed",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 13,
+        "name": "Damage"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Sandswirl Tail",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 6,
+        "name": "Cost Reduction"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "name": "Envigorated Warrior",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "name": "Bitter Seasons",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 10,
+        "name": "Debuff"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "name": "Vital Leech",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 3,
+        "name": "Pursuit"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "name": "Fury Harvest",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 18,
+        "name": "Mystic Skills"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "name": "Divine Roulette",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 5,
+        "name": "Counter"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "name": "Evasive Charge",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 6,
+        "name": "Cost Reduction"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "name": "Light and Shadow Alike",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 8,
+        "name": "DMG Reduction"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "name": "Heart of Fire",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 2,
+        "name": "Defense"
+      },
+      {
+        "id": 8,
+        "name": "DMG Reduction"
+      },
+      {
+        "id": 5,
+        "name": "Counter"
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "name": "Morale Chant",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "name": "Seasonal Edge",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "name": "Mountain's Might",
+    "tier": 4,
+    "path": {
+      "id": 1,
+      "name": "Bellstrike - Splendor"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 6,
+        "name": "Cost Reduction"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Wildfire Spark",
+    "tier": 4,
+    "path": {
+      "id": 1,
+      "name": "Bellstrike - Splendor"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Battle Anthem",
+    "tier": 4,
+    "path": {
+      "id": 1,
+      "name": "Bellstrike - Splendor"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Sword Morph",
+    "tier": 5,
+    "path": {
+      "id": 1,
+      "name": "Bellstrike - Splendor"
+    },
+    "weapon": {
+      "id": 10102,
+      "name": "Nameless Sword"
+    },
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 151,
+    "name": "Wolfchaser's Art",
+    "tier": 4,
+    "path": {
+      "id": 6,
+      "name": "Bellstrike - Umbra"
+    },
+    "weapon": {
+      "id": 10201,
+      "name": "Heavenquaker Spear"
+    },
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 152,
+    "name": "Adaptive Steel",
+    "tier": 4,
+    "path": {
+      "id": 6,
+      "name": "Bellstrike - Umbra"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 153,
+    "name": "Insightful Strike",
+    "tier": 4,
+    "path": {
+      "id": 6,
+      "name": "Bellstrike - Umbra"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 8,
+        "name": "DMG Reduction"
+      }
+    ]
+  },
+  {
+    "id": 154,
+    "name": "Sword Horizon",
+    "tier": 5,
+    "path": {
+      "id": 6,
+      "name": "Bellstrike - Umbra"
+    },
+    "weapon": {
+      "id": 10101,
+      "name": "Strategic Sword"
+    },
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 3,
+        "name": "Pursuit"
+      }
+    ]
+  },
+  {
+    "id": 301,
+    "name": "Gourd Toss",
+    "tier": 4,
+    "path": {
+      "id": 3,
+      "name": "Silkbind - Jade"
+    },
+    "weapon": {
+      "id": 10302,
+      "name": "Inkwell Fan"
+    },
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 4,
+        "name": "Support"
+      }
+    ]
+  },
+  {
+    "id": 302,
+    "name": "Thunderous Bloom",
+    "tier": 4,
+    "path": {
+      "id": 3,
+      "name": "Silkbind - Jade"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 303,
+    "name": "Star Reacher",
+    "tier": 4,
+    "path": {
+      "id": 3,
+      "name": "Silkbind - Jade"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 3,
+        "name": "Pursuit"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 304,
+    "name": "Blossom Barrage",
+    "tier": 5,
+    "path": {
+      "id": 3,
+      "name": "Silkbind - Jade"
+    },
+    "weapon": {
+      "id": 20601,
+      "name": "Vernal Umbrella"
+    },
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 351,
+    "name": "Royal Remedy",
+    "tier": 5,
+    "path": {
+      "id": 8,
+      "name": "Silkbind - Deluge"
+    },
+    "weapon": {
+      "id": 10301,
+      "name": "Panacea Fan"
+    },
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 352,
+    "name": "Restoring Blossom",
+    "tier": 4,
+    "path": {
+      "id": 8,
+      "name": "Silkbind - Deluge"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 353,
+    "name": "Esoteric Revival",
+    "tier": 4,
+    "path": {
+      "id": 8,
+      "name": "Silkbind - Deluge"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 354,
+    "name": "Mending Loom",
+    "tier": 4,
+    "path": {
+      "id": 8,
+      "name": "Silkbind - Deluge"
+    },
+    "weapon": {
+      "id": 20602,
+      "name": "Soulshade Umbrella"
+    },
+    "effectTypes": [
+      {
+        "id": 4,
+        "name": "Support"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 401,
+    "name": "Exquisite Scenery",
+    "tier": 5,
+    "path": {
+      "id": 7,
+      "name": "Stonesplit - Might"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 2,
+        "name": "Defense"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 5,
+        "name": "Counter"
+      }
+    ]
+  },
+  {
+    "id": 402,
+    "name": "Trapped Beast",
+    "tier": 4,
+    "path": {
+      "id": 7,
+      "name": "Stonesplit - Might"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 2,
+        "name": "Defense"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 403,
+    "name": "Art of Resistance",
+    "tier": 4,
+    "path": {
+      "id": 7,
+      "name": "Stonesplit - Might"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 2,
+        "name": "Defense"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 404,
+    "name": "Rock Solid",
+    "tier": 4,
+    "path": {
+      "id": 7,
+      "name": "Stonesplit - Might"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 2,
+        "name": "Defense"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 8,
+        "name": "DMG Reduction"
+      }
+    ]
+  },
+  {
+    "id": 451,
+    "name": "Echoes of Oblivion",
+    "tier": 5,
+    "path": {
+      "id": 5,
+      "name": "Bamboocut - Wind"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 3,
+        "name": "Pursuit"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 10,
+        "name": "Debuff"
+      }
+    ]
+  },
+  {
+    "id": 452,
+    "name": "Vendetta",
+    "tier": 4,
+    "path": {
+      "id": 5,
+      "name": "Bamboocut - Wind"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 453,
+    "name": "Breaking Point",
+    "tier": 4,
+    "path": {
+      "id": 5,
+      "name": "Bamboocut - Wind"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 3,
+        "name": "Pursuit"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 454,
+    "name": "Riptide Reflex",
+    "tier": 4,
+    "path": {
+      "id": 5,
+      "name": "Bamboocut - Wind"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 11,
+        "name": "Control"
+      },
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 501,
+    "name": "Phantom Rally",
+    "tier": 5,
+    "path": {
+      "id": 10,
+      "name": "Bamboocut - Dust"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 502,
+    "name": "Towline Sweep",
+    "tier": 4,
+    "path": {
+      "id": 10,
+      "name": "Bamboocut - Dust"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 6,
+        "name": "Cost Reduction"
+      }
+    ]
+  },
+  {
+    "id": 503,
+    "name": "Light Anew",
+    "tier": 4,
+    "path": {
+      "id": 10,
+      "name": "Bamboocut - Dust"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 504,
+    "name": "Song of Tang",
+    "tier": 4,
+    "path": {
+      "id": 10,
+      "name": "Bamboocut - Dust"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 16,
+        "name": "Stacking"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 3,
+        "name": "Pursuit"
+      }
+    ]
+  },
+  {
+    "id": 551,
+    "name": "Frost-Clad Night",
+    "tier": 5,
+    "path": {
+      "id": 2,
+      "name": "Stonesplit - Strength"
+    },
+    "weapon": {
+      "id": 20801,
+      "name": "Snowparting Blade"
+    },
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 552,
+    "name": "Steadfast Devotion",
+    "tier": 4,
+    "path": {
+      "id": 2,
+      "name": "Stonesplit - Strength"
+    },
+    "weapon": {
+      "id": 20402,
+      "name": "Phalanxbane Blade"
+    },
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 6,
+        "name": "Cost Reduction"
+      }
+    ]
+  },
+  {
+    "id": 553,
+    "name": "Throat-Piercing Art",
+    "tier": 4,
+    "path": {
+      "id": 2,
+      "name": "Stonesplit - Strength"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 554,
+    "name": "Wildfire Surge",
+    "tier": 4,
+    "path": {
+      "id": 2,
+      "name": "Stonesplit - Strength"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 8,
+        "name": "DMG Reduction"
+      },
+      {
+        "id": 14,
+        "name": "Recovery"
+      }
+    ]
+  },
+  {
+    "id": 601,
+    "name": "Soaring High",
+    "tier": 5,
+    "path": {
+      "id": 12,
+      "name": "BambooCut – Kite"
+    },
+    "weapon": {
+      "id": 20901,
+      "name": "Heavenwill Gauntlets"
+    },
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 602,
+    "name": "Sky Gripped",
+    "tier": 4,
+    "path": {
+      "id": 12,
+      "name": "BambooCut – Kite"
+    },
+    "weapon": {
+      "id": 20703,
+      "name": "Skygrasp Rope Dart"
+    },
+    "effectTypes": [
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 3,
+        "name": "Pursuit"
+      }
+    ]
+  },
+  {
+    "id": 603,
+    "name": "Empirical Edge",
+    "tier": 4,
+    "path": {
+      "id": 12,
+      "name": "BambooCut – Kite"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 16,
+        "name": "Stacking"
+      }
+    ]
+  },
+  {
+    "id": 604,
+    "name": "Celestial Vigor",
+    "tier": 4,
+    "path": {
+      "id": 12,
+      "name": "BambooCut – Kite"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 8,
+        "name": "DMG Reduction"
+      },
+      {
+        "id": 5,
+        "name": "Counter"
+      }
+    ]
+  },
+  {
+    "id": 651,
+    "name": "Song of Harmony",
+    "tier": 5,
+    "path": {
+      "id": 13,
+      "name": "#13"
+    },
+    "weapon": {
+      "id": 21001,
+      "name": "#21001"
+    },
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      },
+      {
+        "id": 4,
+        "name": "Support"
+      }
+    ]
+  },
+  {
+    "id": 100001,
+    "name": "Attack - Common",
+    "tier": 1,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100002,
+    "name": "Defense - Common",
+    "tier": 1,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100003,
+    "name": "HP - Common",
+    "tier": 1,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100004,
+    "name": "Attack - Uncommon",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100005,
+    "name": "Defense - Uncommon",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100006,
+    "name": "HP - Uncommon",
+    "tier": 3,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100007,
+    "name": "Attack: Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100008,
+    "name": "Defense - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100009,
+    "name": "HP - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100010,
+    "name": "Active - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100011,
+    "name": "Special - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100012,
+    "name": "Charge - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100013,
+    "name": "Light/Heavy Attack - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100015,
+    "name": "Heal - Rare",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100016,
+    "name": "Soul Return",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100017,
+    "name": "Vitality Regen",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100018,
+    "name": "Chasing the Moon",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100019,
+    "name": "Blood Feast",
+    "tier": 4,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100020,
+    "name": "Twilight Rage",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100021,
+    "name": "Qi Surge",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100022,
+    "name": "Blade's Return",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100023,
+    "name": "Snowprint Step",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100024,
+    "name": "Raging Waves",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100025,
+    "name": "Divinecraft - Fire",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100026,
+    "name": "Divinecraft - Water",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100027,
+    "name": "Divinecraft - Poison",
+    "tier": 5,
+    "path": {
+      "id": null,
+      "name": "General"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 9,
+        "name": "Buff"
+      }
+    ]
+  },
+  {
+    "id": 100911,
+    "name": "Nameless Sword",
+    "tier": 5,
+    "path": {
+      "id": 1,
+      "name": "Bellstrike - Splendor"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 101911,
+    "name": "Nameless Spear",
+    "tier": 5,
+    "path": {
+      "id": 1,
+      "name": "Bellstrike - Splendor"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 102911,
+    "name": "Strategic Sword",
+    "tier": 5,
+    "path": {
+      "id": 6,
+      "name": "Bellstrike - Umbra"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 103911,
+    "name": "Heavenquaker Spear",
+    "tier": 5,
+    "path": {
+      "id": 6,
+      "name": "Bellstrike - Umbra"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 104911,
+    "name": "Thundercry Blade",
+    "tier": 5,
+    "path": {
+      "id": 7,
+      "name": "Stonesplit - Might"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 105911,
+    "name": "Stormbreaker Spear",
+    "tier": 5,
+    "path": {
+      "id": 7,
+      "name": "Stonesplit - Might"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 106911,
+    "name": "Panacea Fan",
+    "tier": 5,
+    "path": {
+      "id": 8,
+      "name": "Silkbind - Deluge"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 107911,
+    "name": "Vernal Umbrella",
+    "tier": 5,
+    "path": {
+      "id": 3,
+      "name": "Silkbind - Jade"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 108911,
+    "name": "Inkwell Fan",
+    "tier": 5,
+    "path": {
+      "id": 3,
+      "name": "Silkbind - Jade"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 109911,
+    "name": "Soulshade Umbrella",
+    "tier": 5,
+    "path": {
+      "id": 8,
+      "name": "Silkbind - Deluge"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 110911,
+    "name": "Infernal Twinblades",
+    "tier": 5,
+    "path": {
+      "id": 5,
+      "name": "Bamboocut - Wind"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 111911,
+    "name": "Mortal Rope Dart",
+    "tier": 5,
+    "path": {
+      "id": 5,
+      "name": "Bamboocut - Wind"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 112911,
+    "name": "Everspring Umbrella",
+    "tier": 5,
+    "path": {
+      "id": 10,
+      "name": "Bamboocut - Dust"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 113911,
+    "name": "Unfettered Rope Dart",
+    "tier": 5,
+    "path": {
+      "id": 10,
+      "name": "Bamboocut - Dust"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 114911,
+    "name": "Snowparting Blade",
+    "tier": 5,
+    "path": {
+      "id": 2,
+      "name": "Stonesplit - Strength"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 115911,
+    "name": "Phalanxbane Blade",
+    "tier": 5,
+    "path": {
+      "id": 2,
+      "name": "Stonesplit - Strength"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 116911,
+    "name": "Heavenwill Gauntlets",
+    "tier": 5,
+    "path": {
+      "id": 12,
+      "name": "BambooCut – Kite"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  },
+  {
+    "id": 117911,
+    "name": "Skygrasp Rope Dart",
+    "tier": 5,
+    "path": {
+      "id": 12,
+      "name": "BambooCut – Kite"
+    },
+    "weapon": null,
+    "effectTypes": [
+      {
+        "id": 1,
+        "name": "Attack"
+      },
+      {
+        "id": 17,
+        "name": "Martial Arts"
+      },
+      {
+        "id": 7,
+        "name": "DMG Boost"
+      }
+    ]
+  }
+]

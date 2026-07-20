@@ -1,0 +1,911 @@
+
+<style>
+  :root {
+    --paper: #f4f2ec;
+    --card: #fbfaf6;
+    --ink: #20232a;
+    --ink-soft: #4b515c;
+    --ink-faint: #7a818d;
+    --rule: #e0ddd2;
+    --rule-strong: #cfcbbd;
+    --jade: #2f8f6f;
+    --jade-deep: #1f6b52;
+    --jade-wash: #e7efe9;
+    --vermilion: #bb452c;
+    --vermilion-wash: #f5e6e1;
+    --gold: #a97b28;
+    --code-bg: #f0eee6;
+    --shadow: 0 1px 2px rgba(32,35,42,.06), 0 8px 28px rgba(32,35,42,.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14161a;
+      --card: #1b1e24;
+      --ink: #e8e6df;
+      --ink-soft: #b0b4bc;
+      --ink-faint: #7d838d;
+      --rule: #2a2e35;
+      --rule-strong: #3a3f48;
+      --jade: #5fb894;
+      --jade-deep: #82ccab;
+      --jade-wash: #16241f;
+      --vermilion: #e08066;
+      --vermilion-wash: #2c1a16;
+      --gold: #cfa64f;
+      --code-bg: #12141a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+
+  :root[data-theme="light"] {
+    --paper: #f4f2ec;
+    --card: #fbfaf6;
+    --ink: #20232a;
+    --ink-soft: #4b515c;
+    --ink-faint: #7a818d;
+    --rule: #e0ddd2;
+    --rule-strong: #cfcbbd;
+    --jade: #2f8f6f;
+    --jade-deep: #1f6b52;
+    --jade-wash: #e7efe9;
+    --vermilion: #bb452c;
+    --vermilion-wash: #f5e6e1;
+    --gold: #a97b28;
+    --code-bg: #f0eee6;
+    --shadow: 0 1px 2px rgba(32,35,42,.06), 0 8px 28px rgba(32,35,42,.05);
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #14161a;
+    --card: #1b1e24;
+    --ink: #e8e6df;
+    --ink-soft: #b0b4bc;
+    --ink-faint: #7d838d;
+    --rule: #2a2e35;
+    --rule-strong: #3a3f48;
+    --jade: #5fb894;
+    --jade-deep: #82ccab;
+    --jade-wash: #16241f;
+    --vermilion: #e08066;
+    --vermilion-wash: #2c1a16;
+    --gold: #cfa64f;
+    --code-bg: #12141a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .doc {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(1.5rem, 5vw, 4.5rem) 1.25rem 5rem;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 740px;
+    margin: 0 auto;
+  }
+
+  .serif {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+
+  .eyebrow {
+    font-size: .72rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--jade);
+    font-weight: 600;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+  }
+
+    .eyebrow::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--rule-strong);
+    }
+
+  h1.title {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 5.5vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    margin: 0 0 .6rem;
+  }
+
+  .standfirst {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 34em;
+    margin: 0 0 1.4rem;
+    text-wrap: pretty;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.4rem;
+    align-items: center;
+    font-size: .82rem;
+    color: var(--ink-faint);
+    padding-bottom: 1.6rem;
+    border-bottom: 2px solid var(--ink);
+  }
+
+    .meta .mono {
+      color: var(--ink-soft);
+    }
+
+  .verdict {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--jade);
+    border-radius: 10px;
+    padding: 1.5rem 1.6rem;
+    margin: 2.2rem 0 2.8rem;
+    box-shadow: var(--shadow);
+  }
+
+    .verdict h2 {
+      font-size: .74rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--jade);
+      margin: 0 0 .9rem;
+      font-weight: 700;
+    }
+
+    .verdict p {
+      margin: 0 0 .7rem;
+    }
+
+      .verdict p:last-child {
+        margin-bottom: 0;
+      }
+
+    .verdict strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+  section {
+    margin: 2.8rem 0;
+  }
+
+  h2.sec {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    margin: 0 0 .3rem;
+    text-wrap: balance;
+    display: flex;
+    align-items: baseline;
+    gap: .7rem;
+  }
+
+    h2.sec .num {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: .8rem;
+      color: var(--jade);
+      font-weight: 600;
+      letter-spacing: 0;
+      border: 1px solid var(--rule-strong);
+      border-radius: 5px;
+      padding: .1rem .45rem;
+      transform: translateY(-1px);
+    }
+
+  h3.sub {
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 .5rem;
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: .55rem;
+  }
+
+    h3.sub .dot {
+      color: var(--jade);
+      font-size: .7em;
+    }
+
+  .sec-lede {
+    color: var(--ink-faint);
+    font-size: .95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  p {
+    margin: 0 0 1rem;
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--jade-deep);
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+  }
+
+  strong {
+    font-weight: 650;
+  }
+
+  em.q {
+    font-style: italic;
+  }
+
+  .layers {
+    list-style: none;
+    padding: 0;
+    margin: 1.2rem 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+    .layers li {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 1.2rem 1.35rem;
+      box-shadow: var(--shadow);
+    }
+
+    .layers .lyr-label {
+      font-size: .72rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin: 0 0 .5rem;
+    }
+
+    .layers h3 {
+      font-family: "Iowan Old Style", Palatino, Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 .5rem;
+    }
+
+    .layers p {
+      margin: 0;
+      font-size: .95rem;
+      color: var(--ink-soft);
+    }
+
+      .layers p + p {
+        margin-top: .5rem;
+      }
+
+    .layers code {
+      color: var(--ink);
+    }
+
+  pre, code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  code {
+    background: var(--code-bg);
+    padding: .1em .38em;
+    border-radius: 4px;
+    font-size: .86em;
+    border: 1px solid var(--rule);
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    margin: 1.2rem 0;
+    overflow-x: auto;
+    font-size: .82rem;
+    line-height: 1.6;
+    box-shadow: var(--shadow);
+  }
+
+    pre code {
+      background: none;
+      border: 0;
+      padding: 0;
+      font-size: 1em;
+      color: var(--ink);
+    }
+
+  .tok-c {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  .tok-k {
+    color: var(--jade-deep);
+    font-weight: 600;
+  }
+
+  .tok-s {
+    color: var(--gold);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    margin: 1.2rem 0;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .88rem;
+    background: var(--card);
+  }
+
+  th, td {
+    text-align: left;
+    padding: .6rem .9rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  th {
+    font-size: .68rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 700;
+    background: var(--code-bg);
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  td.mono {
+    font-size: .8rem;
+    color: var(--jade-deep);
+    white-space: nowrap;
+  }
+
+  td .mono {
+    font-size: .82rem;
+    color: var(--jade-deep);
+  }
+
+  .routes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+    margin: 1.3rem 0;
+  }
+
+  @media (max-width: 620px) {
+    .routes {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .route {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 1.3rem 1.35rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+    .route.pick {
+      border-color: var(--jade);
+      border-width: 1.5px;
+    }
+
+  .route-tag {
+    align-self: flex-start;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    margin-bottom: .8rem;
+  }
+
+  .route .route-tag {
+    background: var(--code-bg);
+    color: var(--ink-faint);
+  }
+
+  .route.pick .route-tag {
+    background: var(--jade-wash);
+    color: var(--jade-deep);
+  }
+
+  .route h3 {
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 .6rem;
+  }
+
+  .route p {
+    font-size: .92rem;
+    color: var(--ink-soft);
+    margin: 0 0 .9rem;
+  }
+
+  .pc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: .4rem;
+    font-size: .88rem;
+  }
+
+    .pc li {
+      display: flex;
+      gap: .55rem;
+      align-items: baseline;
+      line-height: 1.45;
+    }
+
+    .pc .mk {
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .pc .pro .mk {
+      color: var(--jade);
+    }
+
+    .pc .con .mk {
+      color: var(--vermilion);
+    }
+
+    .pc li span:last-child {
+      color: var(--ink-soft);
+    }
+
+  /* Data-plane cards for the architecture */
+  .planes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+    margin: 1.3rem 0 .5rem;
+  }
+
+  @media (max-width: 620px) {
+    .planes {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .plane {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 1.3rem 1.35rem;
+    box-shadow: var(--shadow);
+  }
+
+    .plane .pl-tag {
+      font-size: .68rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--jade-deep);
+      margin: 0 0 .5rem;
+    }
+
+    .plane h4 {
+      font-family: "Iowan Old Style", Palatino, Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 .5rem;
+    }
+
+    .plane p {
+      font-size: .9rem;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .plane .who {
+      font-size: .8rem;
+      color: var(--ink-faint);
+      margin-top: .7rem;
+      padding-top: .6rem;
+      border-top: 1px dashed var(--rule-strong);
+    }
+
+  /* Flow strip */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: .5rem;
+    margin: 1.4rem 0;
+    font-size: .8rem;
+  }
+
+    .flow .node {
+      flex: 1 1 120px;
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: 9px;
+      padding: .7rem .8rem;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+      .flow .node .nlabel {
+        font-size: .64rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--jade);
+        font-weight: 700;
+        display: block;
+        margin-bottom: .25rem;
+      }
+
+      .flow .node .nbody {
+        color: var(--ink-soft);
+        line-height: 1.4;
+      }
+
+      .flow .node .mono {
+        font-size: .74rem;
+        color: var(--jade-deep);
+      }
+
+    .flow .arrow {
+      align-self: center;
+      color: var(--ink-faint);
+      font-weight: 700;
+    }
+
+  @media (max-width: 620px) {
+    .flow {
+      flex-direction: column;
+    }
+
+      .flow .arrow {
+        transform: rotate(90deg);
+        align-self: flex-start;
+        margin-left: 1.4rem;
+      }
+  }
+
+  /* Phases */
+  .phases {
+    list-style: none;
+    counter-reset: ph;
+    padding: 0;
+    margin: 1.3rem 0;
+    display: grid;
+    gap: .7rem;
+  }
+
+    .phases li {
+      counter-increment: ph;
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 1rem 1.2rem 1rem 3.3rem;
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+      .phases li::before {
+        content: counter(ph);
+        position: absolute;
+        left: 1rem;
+        top: 1rem;
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 6px;
+        background: var(--jade-wash);
+        color: var(--jade-deep);
+        font-family: ui-monospace, Menlo, monospace;
+        font-weight: 700;
+        font-size: .85rem;
+        display: grid;
+        place-items: center;
+      }
+
+    .phases h4 {
+      font-size: 1rem;
+      font-weight: 650;
+      margin: 0 0 .25rem;
+      color: var(--ink);
+    }
+
+    .phases p {
+      font-size: .9rem;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .phases .tag {
+      font-size: .72rem;
+      color: var(--jade-deep);
+      font-family: ui-monospace, Menlo, monospace;
+    }
+
+  .callout {
+    background: var(--vermilion-wash);
+    border: 1px solid var(--vermilion);
+    border-left-width: 3px;
+    border-radius: 10px;
+    padding: 1.15rem 1.35rem;
+    margin: 1.6rem 0;
+  }
+
+    .callout .co-label {
+      font-size: .72rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--vermilion);
+      font-weight: 700;
+      margin: 0 0 .5rem;
+    }
+
+    .callout p {
+      margin: 0 0 .6rem;
+      font-size: .92rem;
+      color: var(--ink-soft);
+    }
+
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+
+    .callout strong {
+      color: var(--ink);
+    }
+
+    .callout ul {
+      margin: .3rem 0 0;
+      padding-left: 1.1rem;
+      font-size: .9rem;
+      color: var(--ink-soft);
+    }
+
+    .callout li {
+      margin-bottom: .35rem;
+    }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-size: .82rem;
+    color: var(--ink-faint);
+  }
+
+    footer .src {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem .9rem;
+      margin-top: .6rem;
+    }
+
+    footer a {
+      color: var(--ink-soft);
+    }
+</style>
+
+<div class="doc">
+  <div class="wrap">
+
+    <p class="eyebrow">Technical Investigation · Rev. 2</p>
+    <h1 class="title serif">Where <span style="color:var(--jade-deep)">Winds Meet</span> data: source map &amp; the Route B build plan</h1>
+    <p class="standfirst">Where <code class="mono">wwmdb.vlt.fyi</code> gets its data, and a concrete plan to build <code class="mono">gamevn-wwm</code> on first-party sources — covering static game data <em>and</em> live player, guild, and ranking data, with the exact APIs.</p>
+    <div class="meta">
+      <span>Prepared for <strong style="color:var(--ink)">Khanh</strong></span>
+      <span>Subject: <span class="mono">wwmdb.vlt.fyi</span> · <span class="mono">sixhorse.game.163.com</span></span>
+      <span>2026-07-19</span>
+    </div>
+
+    <div class="verdict">
+      <h2>The short version</h2>
+      <p>wwmdb is a thin wrapper over <strong>two upstreams</strong>: it datamines the game client for <strong>static data</strong> (items, gear, recipes), and it proxies <strong>NetEase's official game API</strong> (<code class="mono">sixhorse.game.163.com</code>) for <strong>live data</strong> — player profiles, gear loadouts, guilds, and leaderboards. Its own <code class="mono">/api</code> just re-serves both behind a token hardcoded in its public JavaScript.</p>
+      <p>So Route B splits cleanly in two: get static data from the <strong>open <code class="mono">ejtechdev/wwm-data</code> repo</strong> (or datamine the Messiah-engine client yourself), and get live data from the <strong>official NetEase API</strong> the way the official Data Tool does.</p>
+      <p><strong>Recommendation:</strong> stand up the static layer first (it's easy and clean), then add the live layer against the official API — and read the privacy caveat before you store a single player record.</p>
+    </div>
+
+    <section>
+      <h2 class="sec serif"><span class="num">01</span> What the site actually is</h2>
+      <p>A fan-built <em>Where Winds Meet</em> database (author handle <strong>zelenin</strong>, with Discord and Buy-Me-a-Coffee links). The front end is a SolidJS single-page app; the bundle carries no data and fetches every record at runtime from a backend on the same domain.</p>
+    </section>
+
+    <section>
+      <h2 class="sec serif"><span class="num">02</span> Where the data comes from</h2>
+      <p class="sec-lede">Their <code>/api</code> is a facade. Behind it sit two genuinely different upstreams — and that split is the key to your own build.</p>
+      <ul class="layers">
+        <li>
+          <p class="lyr-label">Upstream A · Static game data</p>
+          <h3 class="serif">Datamined from the game client</h3>
+          <p>Items, gear, affixes, crafting recipes, inner ways, suits, books, world levels. Records carry the game's <em>internal</em> IDs and tables (e.g. item <code>1100001</code> "True Heart&nbsp;- Sword"). Extracted from the client's own config assets.</p>
+          <p>Note: the game runs on <strong>NetEase's proprietary Messiah engine</strong>, not Unreal — so the usual Unreal toolchain (FModel, UnrealPak) does not apply. This makes a from-scratch datamine non-trivial.</p>
+        </li>
+        <li>
+          <p class="lyr-label">Upstream B · Live account data</p>
+          <h3 class="serif">Proxied from NetEase's official API</h3>
+          <p>Player profiles, gear loadouts, guild membership, and leaderboards are pulled live from <code>sixhorse.game.163.com</code> — the same NetEase backend that powers the official Data Tool. Requests key on <code>roleId</code>&nbsp;+&nbsp;<code>hostnum</code> (a region/server number) and return current, per-account state.</p>
+          <p>I confirmed this end-to-end: a single lookup returned a player's level, weapon mastery, region, gear — and even their NetEase account email. wwmdb is effectively a cache/relay in front of this.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="sec serif"><span class="num">03</span> wwmdb's own API, concretely</h2>
+      <p>Every call is <code>POST /api/wwm.v1.WwmService/&lt;Method&gt;</code> (ConnectRPC/JSON), with an <code>X-Language</code> header for locale. The "auth" is client-side obfuscation over a token copied verbatim from the public bundle:</p>
+      <pre><code><span class="tok-c">// hardcoded in the site's own JavaScript</span>
+<span class="tok-k">const</span> token = <span class="tok-s">"ab964c45612bda768691108730d0c31c9b77116449fc99c3d4dc29d17db2cd77"</span>;
+nonce   = crypto.randomUUID();
+payload = <span class="tok-s">`${token}:${unixSeconds}`</span>;
+bearer  = base64(xor(payload, nonce));   <span class="tok-c">// repeating-key XOR</span>
+<span class="tok-c">// headers →</span>  Authorization: Bearer ${bearer}   X-Request-Id: ${nonce}</code></pre>
+      <p style="font-size:.9rem;color:var(--ink-faint);margin-bottom:0">Static methods (<code>EquipItems</code>, <code>InnerWays</code>, …) take <code>{}</code>. Live methods take keys: <code>SearchUser {"search":"…"}</code>, <code>Player {"id":"&lt;oid&gt;","hostnum":&lt;n&gt;}</code>, <code>Guild {"id":…}</code>, <code>Rank {"id":…}</code>. This is Route A, and it works — but it's their private relay, not yours.</p>
+    </section>
+
+    <section>
+      <h2 class="sec serif"><span class="num">04</span> Route B — the build plan</h2>
+      <p class="sec-lede">Own both data planes yourself. Mirror wwmdb's architecture but source from the origins directly, cache into your own store, and expose your own API to your frontend.</p>
+
+      <div class="flow" role="img" aria-label="Data flow: static and live sources feed an ingestion layer, then your database, then your API, then your frontend.">
+        <div class="node"><span class="nlabel">Static src</span><span class="nbody">wwm-data repo / client datamine</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nlabel">Live src</span><span class="nbody mono">sixhorse.game.163.com</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nlabel">Ingest</span><span class="nbody">sync jobs + normalize</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nlabel">Your store</span><span class="nbody">DB + icon CDN</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><span class="nlabel">Your API</span><span class="nbody">→ gamevn-wwm UI</span></div>
+      </div>
+
+      <h3 class="sub"><span class="dot">◆</span> 4.1 · Static game data</h3>
+      <p>This layer is nearly free. Two options, in order of effort:</p>
+      <div class="planes">
+        <div class="plane">
+          <p class="pl-tag">Primary — recommended</p>
+          <h4 class="serif">ejtechdev/wwm-data</h4>
+          <p>Open community repo of WWM game data (JSON) and icons, updated by PRs. Pull it as raw files or vendor it into your build; no auth, no scraping.</p>
+          <p class="who mono">raw.githubusercontent.com/ejtechdev/wwm-data</p>
+        </div>
+        <div class="plane">
+          <p class="pl-tag">Fallback — for gaps</p>
+          <h4 class="serif">Datamine the client</h4>
+          <p>For entities the repo lacks, extract from the Messiah-engine client yourself using NetEase/NeoX-family unpackers. Higher effort; proprietary format, no turnkey tool.</p>
+          <p class="who">Re-run per game patch</p>
+        </div>
+      </div>
+      <p style="font-size:.92rem;color:var(--ink-soft)">Coverage is the same catalogue wwmdb exposes: gear &amp; affixes, stuff/guise items, compound recipes, inner ways, suits, books, world levels, attribute translations, riddles.</p>
+
+      <h3 class="sub"><span class="dot">◆</span> 4.2 · Live data — the official NetEase API</h3>
+      <p>This is the real work, and the only source of player/guild/ranking data. The backend is <code>sixhorse.game.163.com</code> (mirror: <code>sixhorse.game.easebar.com</code>), fronted for the web by the official Data Tool. Access model:</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Concern</th><th>How it works</th></tr></thead>
+          <tbody>
+            <tr><td>Base host</td><td><span class="mono">sixhorse.game.163.com</span> — NetEase's "Six Horse" game-data service</td></tr>
+            <tr><td>Auth</td><td>NetEase <strong>MPay / UniSDK</strong> oversea login (the Data Tool loads <span class="mono">mpay-h5-sdk-oversea</span>). You log in with a real NetEase account and get a session bound to it.</td></tr>
+            <tr><td>Keys</td><td><span class="mono">roleId</span> (the player's oid) + <span class="mono">hostnum</span> (region/server) + region/oversea tag</td></tr>
+            <tr><td>Region</td><td>Global/oversea servers are a separate cluster from CN — match the tool your players use (this build targets oversea)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The Data Tool organizes it into planes that map directly onto what you asked for:</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>You want</th><th>Data Tool plane</th><th>What you get</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Player gear</strong></td><td class="mono">Combat Stats / Mine</td><td>Profile, level, weapon mastery, equipped gear + affixes, inner ways, mystic skills</td></tr>
+            <tr><td><strong>Guild &amp; ranking</strong></td><td class="mono">Ratings</td><td>Guild membership + leaderboards (e.g. sect election polls, healer rankings, speedrun boards)</td></tr>
+            <tr><td><strong>Match info</strong></td><td class="mono">Ratings / Rank</td><td>Competitive boards like <em class="q">Tempest Speedrun Qualifier</em>; see the honesty note below on true per-match history</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <p class="co-label">Honesty note on "match info"</p>
+        <p>The official surface exposes <strong>leaderboards and rating snapshots</strong>, not a per-match replay/history feed. wwmdb's <code>Rank</code>/<code>RankGroups</code> return board standings (Tempest Speedrun, election polls, etc.), and <code>Player</code> returns current loadout — but I found <strong>no evidence of a match-by-match history endpoint</strong>. If detailed match logs exist, they'd need to be discovered on <code>sixhorse.game.163.com</code> directly; assume for now that "match data" means ranked leaderboards + current standings.</p>
+      </div>
+
+      <h3 class="sub"><span class="dot">◆</span> 4.3 · Your stack</h3>
+      <div class="planes">
+        <div class="plane">
+          <p class="pl-tag">Ingestion</p>
+          <h4 class="serif">Two sync cadences</h4>
+          <p><strong>Static:</strong> re-sync from <code class="mono">wwm-data</code> on each game patch (rare). <strong>Live:</strong> fetch on-demand per lookup, then cache with a short TTL — never hammer the official API per page view.</p>
+        </div>
+        <div class="plane">
+          <p class="pl-tag">Serving</p>
+          <h4 class="serif">Your own API + store</h4>
+          <p>Normalize both planes into your DB, host icons on your own CDN, and expose <em>your</em> REST/GraphQL to the <code class="mono">gamevn-wwm</code> frontend. Your app never talks to an upstream directly at request time.</p>
+        </div>
+      </div>
+
+      <h3 class="sub"><span class="dot">◆</span> 4.4 · Suggested sequence</h3>
+      <ol class="phases">
+        <li><h4>Static layer <span class="tag">— low risk</span></h4><p>Vendor <code class="mono">ejtechdev/wwm-data</code>, normalize into your schema, self-host icons, ship a read-only game database. This alone is a usable product.</p></li>
+        <li><h4>Live read path <span class="tag">— prototype via Route A</span></h4><p>To validate UI shape fast, read live data through wwmdb's API while you build. Cache everything you fetch into your own store from day one.</p></li>
+        <li><h4>Official API integration <span class="tag">— the durable path</span></h4><p>Reverse the Data Tool's calls to <code class="mono">sixhorse.game.163.com</code>, implement NetEase MPay login, and replace the Route-A calls with first-party ones.</p></li>
+        <li><h4>Harden <span class="tag">— before public launch</span></h4><p>Rate-limit, cache TTLs, PII scrubbing (below), attribution, and a patch-day re-sync job.</p></li>
+      </ol>
+
+      <div class="callout">
+        <p class="co-label">Read before storing any player data</p>
+        <ul>
+          <li><strong>PII leak:</strong> the live API returns players' <strong>NetEase account emails</strong>. Do <em>not</em> store or display them — strip account/email fields at ingestion. Publishing them would be a serious privacy problem.</li>
+          <li><strong>Terms &amp; auth:</strong> the official API is NetEase's and gated behind their login/ToS. Automated access at scale may violate it — keep call volume modest, cache hard, and be ready to seek permission for anything public and commercial.</li>
+          <li><strong>IP:</strong> game data and assets remain Everstone/NetEase/Tencent IP. Attribute clearly; keep it non-commercial unless cleared.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="sec serif"><span class="num">05</span> A vs B, at a glance</h2>
+      <div class="routes">
+        <div class="route">
+          <span class="route-tag">Route A · fast</span>
+          <h3 class="serif">Ride wwmdb's API</h3>
+          <ul class="pc">
+            <li class="pro"><span class="mk">+</span><span>Zero extraction; static + live already merged</span></li>
+            <li class="con"><span class="mk">−</span><span>Their private relay — token/scheme can change anytime</span></li>
+            <li class="con"><span class="mk">−</span><span>Leans on their infra; ethically/ToS gray</span></li>
+          </ul>
+        </div>
+        <div class="route pick">
+          <span class="route-tag">Route B · durable</span>
+          <h3 class="serif">Own both planes</h3>
+          <ul class="pc">
+            <li class="pro"><span class="mk">+</span><span>Static from open repo; live from the true origin</span></li>
+            <li class="pro"><span class="mk">+</span><span>Your store, your cache, no third-party dependency</span></li>
+            <li class="con"><span class="mk">−</span><span>Must implement NetEase login + datamine gaps</span></li>
+          </ul>
+        </div>
+      </div>
+      <p><strong>My call:</strong> ship the static layer on Route B now, prototype the live layer through Route A, and migrate the live layer onto the official API before anything is public — with PII stripped and attribution in place.</p>
+    </section>
+
+    <footer>
+      <p>Full API map, method list, live-endpoint request shapes, and the auth recipe are saved to <code class="mono">gamevn-wwm</code> project memory.</p>
+      <div class="src">
+        <span style="color:var(--ink-faint)">Sources:</span>
+        <a href="https://wwmdb.vlt.fyi/">wwmdb.vlt.fyi</a>
+        <a href="https://github.com/ejtechdev/wwm-data">ejtechdev/wwm-data</a>
+        <a href="https://www.wherewindsmeetgame.com/m/2025h5sjgj/en/">Official Data Tool</a>
+        <a href="https://frvr.com/blog/news/where-winds-meet-devs-in-house-messiah-engine-over-ue5-performance-more-effective/">Messiah engine</a>
+        <a href="https://steamdb.info/app/3564740/">SteamDB</a>
+      </div>
+    </footer>
+
+  </div>
+</div>
