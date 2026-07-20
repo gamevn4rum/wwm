@@ -25,6 +25,13 @@ export interface GearSlot {
   affixes: GearAffix[];
 }
 
+/** A player's own inner way + their current tier (level) in it. */
+export interface PlayerInnerWay {
+  id: number | null;
+  name: string;
+  tier: number | null;
+}
+
 export interface PlayerDetail {
   name: string;
   numberId: string | null;
@@ -38,6 +45,7 @@ export interface PlayerDetail {
   language: string | null;
   createTime: number | null;
   gear: GearSlot[];
+  innerWays: PlayerInnerWay[];
 }
 
 export type UnmatchedReason =

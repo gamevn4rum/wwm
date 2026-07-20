@@ -4,6 +4,8 @@ import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats } from '../../../roster-stats/player-stats.model';
+import { InnerWayCatalogueService } from '../../../roster-stats/inner-way-catalogue.service';
+import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogue.model';
 
 // Schools get a fixed categorical palette (assigned by stable index, never a
 // cycled/generated hue). Colour is never the sole cue — the school name is always
@@ -29,9 +31,11 @@ const SCHOOL_PALETTE = [
 export class MemberGridComponent implements OnInit {
   private homeDataService = inject(HomeDataService);
   private playerStatsService = inject(PlayerStatsDataService);
+  private innerWayCatalogueService = inject(InnerWayCatalogueService);
 
   readonly players = signal<Player[]>([]);
   private readonly statsByIgn = signal<Map<string, MatchedPlayerStats>>(new Map());
+  private readonly innerWaysById = signal<Map<number, InnerWayCatalogueEntry>>(new Map());
   readonly expandedId = signal<string | null>(null);
 
   ngOnInit(): void {
@@ -42,6 +46,11 @@ export class MemberGridComponent implements OnInit {
       const map = new Map<string, MatchedPlayerStats>();
       for (const rec of list) map.set(rec.ign.toLowerCase(), rec);
       this.statsByIgn.set(map);
+    });
+    this.innerWayCatalogueService.getAll().subscribe((entries) => {
+      const map = new Map<number, InnerWayCatalogueEntry>();
+      for (const e of entries) if (e.id != null) map.set(e.id, e);
+      this.innerWaysById.set(map);
     });
   }
 
@@ -99,5 +108,11 @@ export class MemberGridComponent implements OnInit {
   /** Whole affix names that are really set-effect prose (long sentences). */
   isEffectAffix(name: string): boolean {
     return name.trim().length > 40 || name.includes('.');
+  }
+
+  /** Static catalogue entry (path/weapon/effect tags) for a player's inner way, if known. */
+  innerWayInfo(id: number | null): InnerWayCatalogueEntry | undefined {
+    if (id == null) return undefined;
+    return this.innerWaysById().get(id);
   }
 }

@@ -339,6 +339,107 @@
 .tile-region  { --tile-accent: var(--color-accent-blue); }
 /* tile-school accent is set inline from the school palette */
 
+/* ── Inner Ways ── */
+.inner-ways-section { margin-top: var(--space-2); margin-bottom: var(--space-5); }
+
+.inner-ways-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Reuses the same ordinal tier ramp as gear (--tier custom property, tier-0..5). */
+.inner-way-card {
+  --tier: var(--color-ink-faint);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--tier);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  padding: 0.3rem 0.7rem;
+  box-shadow: var(--shadow-sm);
+  cursor: default;
+
+  &:hover, &:focus-visible, &:focus-within {
+    box-shadow: var(--shadow-md);
+    outline: none;
+
+    .iw-tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+  }
+}
+
+.iw-name {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--tier);
+}
+
+.iw-tier {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--tier);
+  border-radius: var(--radius-sm);
+  padding: 0.05rem 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+.iw-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  min-width: 200px;
+  max-width: 280px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+  pointer-events: none;
+}
+
+.iw-tooltip-name {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: var(--space-2);
+}
+
+.iw-tooltip-row {
+  font-size: 0.76rem;
+  color: var(--color-ink-soft);
+  margin-bottom: 0.2rem;
+}
+.iw-tooltip-label {
+  color: var(--color-ink-faint);
+  margin-right: 0.3em;
+}
+.iw-tooltip-unknown { font-style: italic; color: var(--color-ink-faint); }
+
+.iw-tooltip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+.iw-tag {
+  font-size: 0.66rem;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-pill);
+  padding: 0.06rem 0.4rem;
+}
+
 /* ── Gear ── */
 .gear-section { margin-top: var(--space-2); }
 
