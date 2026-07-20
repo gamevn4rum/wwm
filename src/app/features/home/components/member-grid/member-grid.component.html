@@ -137,9 +137,43 @@
                         @if (info?.effect) {
                           <p class="iw-tooltip-desc">{{ info!.effect }}</p>
                         }
-                        @if (info?.maxEffect) {
-                          <div class="iw-tooltip-row iw-tooltip-max-label">Fully upgraded effect</div>
-                          <p class="iw-tooltip-desc iw-tooltip-max">{{ info!.maxEffect }}</p>
+
+                        @if (info?.upranks?.length) {
+                          @let activeIdx = activeUprankIndex(iw.id, info!, p.level);
+                          @let activeRank = info!.upranks[activeIdx];
+                          <div class="iw-rank-tabs">
+                            <div class="iw-rank-tabstrip">
+                              @for (u of info!.upranks; track u.id; let i = $index) {
+                                <button
+                                  type="button"
+                                  class="iw-rank-tabbtn"
+                                  [class.active]="activeIdx === i"
+                                  (click)="setActiveUprank(iw.id, i, $event)"
+                                >Tier {{ i + 1 }}</button>
+                              }
+                              <span
+                                class="iw-rank-indicator"
+                                [style.width.%]="100 / info!.upranks.length"
+                                [style.transform]="'translateX(' + (activeIdx * 100) + '%)'"
+                              ></span>
+                            </div>
+                            <div class="iw-rank-panel">
+                              <p class="iw-tooltip-desc">{{ activeRank.briefDesc }}</p>
+                              @if (activeRank.worldLevel) {
+                                <div class="iw-tooltip-row"><span class="iw-tooltip-label">Requires world level</span> {{ activeRank.worldLevel }}</div>
+                              }
+                              @if (activeRank.fixedAttributes.length || activeRank.dynamicAttributes.length) {
+                                <div class="iw-tooltip-tags">
+                                  @for (a of activeRank.fixedAttributes; track a.name) {
+                                    <span class="attr-chip">{{ a.name }} <b>{{ a.value | number:'1.0-2' }}</b></span>
+                                  }
+                                  @for (a of activeRank.dynamicAttributes; track a.name) {
+                                    <span class="attr-chip">{{ a.name }} <b>{{ a.value | number:'1.0-2' }}</b></span>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
                         }
                         @if (!info) {
                           <div class="iw-tooltip-row iw-tooltip-unknown">No catalogue data for this inner way yet.</div>

@@ -68,7 +68,6 @@ let saClientEmail = null;
 /** Pages mapped to their sheet/range names */
 const PAGES = [
   { file: 'members.json',       range: 'Members!A:Z' },
-  { file: 'formation.json',     range: 'Formation!A:Z' },
   { file: 'schedule.json',      range: 'Schedule!A:Z' },
   // Match History now also carries the per-uploader footage URL columns —
   // footages.json/Footages tab was retired and merged into this one.

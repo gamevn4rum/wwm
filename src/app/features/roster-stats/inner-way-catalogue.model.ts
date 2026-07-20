@@ -6,6 +6,24 @@ export interface InnerWayEffectType {
   name: string;
 }
 
+export interface InnerWayAttribute {
+  name: string;
+  value: number;
+}
+
+/** One of wwmdb's own "Tier 1..N" advancement tabs — further account-bound upgrades beyond the base tier. */
+export interface InnerWayUprank {
+  id: number | null;
+  worldLevel: number | null;
+  /** What's new at this rank specifically. */
+  desc: string;
+  /** Cumulative effect through this rank (reads as the full stacked effect, not a delta). */
+  briefDesc: string;
+  passiveSkill: { id: number | null; name: string; description: string } | null;
+  fixedAttributes: InnerWayAttribute[];
+  dynamicAttributes: InnerWayAttribute[];
+}
+
 export interface InnerWayCatalogueEntry {
   id: number | null;
   name: string;
@@ -18,6 +36,6 @@ export interface InnerWayCatalogueEntry {
   /** Base passive's mechanical effect, matching a player's live `tier`. */
   effect: string;
   maxAdvancedLevel: number | null;
-  /** Cumulative effect text at full advancement — NOT necessarily this player's current state (uprank progress isn't exposed by the live Player() call). */
-  maxEffect: string | null;
+  /** One entry per advancement rank — NOT necessarily reflecting this player's actual progress (that isn't exposed by the live Player() call). */
+  upranks: InnerWayUprank[];
 }

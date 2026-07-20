@@ -118,434 +118,85 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TIMELINE SECTION
+// SEASON — current (always expanded)
 // ─────────────────────────────────────────────────────────────────────────────
-// The library bakes `min-height: 300px` per col and `min-height: max(20rem,100%)`
-// on the row container. All overrides use ::ng-deep on the exact class names
-// from the compiled library template — structure is preserved, only colour changes.
-// ─────────────────────────────────────────────────────────────────────────────
-.timeline-section {
+.season-current {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.season-current-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.season-current-hint {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-secondary-dark);
+  font-weight: 700;
+}
+
+.season-badge {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink);
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  width: 100%;
-  height: 300px;
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  // Override the library's own CSS custom properties (default: orange) —
-  // simpler and more robust than fighting its selector specificity.
-  --ngx-timeline-icon: var(--color-border-strong);
-  --ngx-timeline-line-background: var(--color-border-strong);
-  --ngx-timeline-period-inner-container: var(--color-primary);
-
-  ::ng-deep ngx-timeline,
-  ::ng-deep ngx-timeline .main-container {
-    display: flex;
-    width: max-content;
-    min-width: 100%;
-    height: 100%;
-  }
-
-  ::ng-deep .items-container.horizontal {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    width: max-content;
-    min-width: 100%;
-    height: 100% !important;
-    min-height: unset !important;
-    padding: 0;
-  }
-
-  ::ng-deep .items-container.horizontal .row {
-    flex: 0 0 120px;
-    min-width: 120px;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  ::ng-deep .items-container.horizontal .col-left,
-  ::ng-deep .items-container.horizontal .col-right {
-    flex: 1 1 0;
-    min-height: unset !important;
-    height: 50%;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  ::ng-deep .items-container.horizontal .col-center {
-    flex: 0 0 auto;
-    min-height: unset !important;
-    height: auto;
-    padding: 0;
-  }
-  ::ng-deep .items-container.horizontal .center-inner {
-    flex-direction: row;
-    height: auto;
-  }
-  ::ng-deep .items-container.horizontal .center-inner .line {
-    height: 2px;
-    min-height: 2px;
-    max-height: 2px;
-  }
-
-  ::ng-deep .center-icon-container {
-    padding: 0 0.25rem;
-  }
-  ::ng-deep .center-icon-container .icon {
-    background: var(--color-border-strong);
-    height: 8px;
-    width: 8px;
-  }
-
-  ::ng-deep .period-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  ::ng-deep .period-inner-container {
-    background: transparent !important;
-    color: var(--color-ink) !important;
-    font-family: var(--font-body) !important;
-    font-size: 0.65rem !important;
-    font-weight: 600 !important;
-    letter-spacing: var(--tracking-wide) !important;
-    white-space: nowrap;
-    padding: 0 !important;
-  }
-
-  // The white card box the library wraps every event in — remove entirely
-  ::ng-deep .event-wrapper-container.horizontal {
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-  }
-  ::ng-deep .event-wrapper-container.horizontal .event {
-    background: none !important;
-    box-shadow: none !important;
-    border-radius: 0;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100%;
-  }
-
-  ::ng-deep .arrow {
-    display: none;
-  }
-
-  ::ng-deep .hour {
-    display: none !important;
-  }
-
-  ::ng-deep .line {
-    background: var(--color-border-strong) !important;
-  }
-  ::ng-deep .line.transparent {
-    background: transparent !important;
-  }
-}
-
-// ── Timeline Period Badge ─────────────────────────────────────────────────────
-.period-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.period-label {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-primary-dark);
-  white-space: nowrap;
-  background: var(--color-primary-tint);
-  border-radius: var(--radius-sm);
-  padding: 0.2rem 0.6rem;
-}
-
-// ── Individual Timeline Node ──────────────────────────────────────────────────
-.timeline-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  width: 100%;
-  height: 100%;
-  cursor: default;
-
-  &.active .node-circle {
-    box-shadow: 0 0 0 3px var(--color-primary-tint);
-    transform: scale(1.12);
-  }
-}
-
-.node-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-border-strong);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
-  background: var(--color-surface);
-
-  &.node-type-league  { border-color: var(--color-accent-blue); background: var(--color-accent-blue-tint); }
-  &.node-type-ranked  { border-color: var(--color-accent-plum); background: var(--color-accent-plum-tint); }
-  &.node-type-scrim   { border-color: var(--color-secondary);   background: var(--color-secondary-tint); }
-}
-
-.node-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.05rem;
-}
-
-.node-date {
-  font-family: var(--font-body);
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
-  color: var(--color-ink-faint);
-  font-weight: 600;
-}
-
-.node-opponent {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  color: var(--color-ink);
-  font-weight: 600;
-}
-
-.node-type-label {
-  font-family: var(--font-body);
-  font-size: 0.5rem;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-ink-faint);
-  text-transform: uppercase;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// HISTORY GRID SECTION
-// ─────────────────────────────────────────────────────────────────────────────
-.history-grid-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-// ── Row ───────────────────────────────────────────────────────────────────────
-.match-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.row-banner {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 1.1rem;
   border-radius: var(--radius-pill);
-  width: fit-content;
-
-  &.banner-league { background: var(--color-accent-blue-tint); }
-  &.banner-ranked { background: var(--color-accent-plum-tint); }
-  &.banner-scrim  { background: var(--color-secondary-tint); }
+  padding: 0.3rem 0.9rem;
+}
+.season-badge-current {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-tint);
+  color: var(--color-secondary-dark);
 }
 
-.row-title {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-ink);
-  text-transform: capitalize;
-}
-
-// ── Cards Grid ────────────────────────────────────────────────────────────────
-.match-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+// ─────────────────────────────────────────────────────────────────────────────
+// SEASON — archive (collapsed by default)
+// ─────────────────────────────────────────────────────────────────────────────
+.season-archive {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
-
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (max-width: 520px) {
-    grid-template-columns: 1fr;
-  }
 }
 
-// ── Individual Match Card ─────────────────────────────────────────────────────
-.match-card {
-  position: relative;
-  border-radius: var(--radius-md);
+.season-panel {
   border: 1px solid var(--color-border);
-  border-left: 3px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
-  overflow: hidden;
-  min-height: 112px;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  overflow: hidden;
 
-  &:hover {
-    border-color: var(--color-primary-light);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+  &[open] .season-panel-summary {
+    border-bottom: 1px solid var(--color-border);
   }
 }
 
-// Left accent bar colour-codes each card by its row category (League/Ranked/Scrim).
-.match-row:has(.banner-league) .match-card { border-left-color: var(--color-accent-blue); }
-.match-row:has(.banner-ranked) .match-card { border-left-color: var(--color-accent-plum); }
-.match-row:has(.banner-scrim) .match-card  { border-left-color: var(--color-secondary); }
-
-// Result wash colour-codes each card by outcome — readable at a glance,
-// independent of the category accent bar above.
-.match-card.card-status-victory {
-  background: linear-gradient(165deg, var(--color-secondary-tint) 0%, var(--color-surface) 60%);
-}
-.match-card.card-status-failure {
-  background: linear-gradient(165deg, var(--color-danger-tint) 0%, var(--color-surface) 60%);
-}
-.match-card.card-status-draw {
-  background: linear-gradient(165deg, var(--color-surface-alt) 0%, var(--color-surface) 60%);
-}
-
-// ── Card Content ──────────────────────────────────────────────────────────────
-.card-content {
-  position: relative;
-  z-index: 1;
+.season-panel-summary {
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  gap: 0.25rem;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker { display: none; }
+
+  &:hover .season-badge { border-color: var(--color-primary); }
 }
 
-.card-top {
-  display: flex;
-  align-items: flex-start;
-}
-
-.card-date {
+.season-panel-count {
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.76rem;
   color: var(--color-ink-faint);
-  letter-spacing: 0.02em;
 }
 
-.card-middle {
-  flex: 1;
-}
-
-.card-opponent {
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-ink);
-  letter-spacing: 0.01em;
-  line-height: 1.25;
-  display: block;
-  margin-top: 0.1rem;
-}
-
-.card-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-top: var(--space-2);
-}
-
-.card-result-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  flex-shrink: 0;
-
-  &.result-victory { background: var(--color-secondary-tint); }
-  &.result-failure { background: var(--color-danger-tint); }
-  &.result-draw    { background: var(--color-border-strong); }
-}
-
-.card-result {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.card-result-label {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  letter-spacing: var(--tracking-wide);
-  font-weight: 700;
-  align-self: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-pill);
-
-  &.label-victory { color: var(--color-secondary-dark); background: var(--color-secondary-tint); }
-  &.label-failure { color: var(--color-danger); background: var(--color-danger-tint); }
-  &.label-draw    { color: var(--color-ink-soft); background: var(--color-border-strong); }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ICON PLACEHOLDERS — rendered as <img> tags so base href applies on GitHub Pages
-// ─────────────────────────────────────────────────────────────────────────────
-.icon-placeholder {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  opacity: 1;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-}
-
-.icon-trophy { width: 26px; height: 26px; }
-.icon-cross  { width: 24px; height: 24px; }
-.icon-shield { width: 24px; height: 24px; }
-
-// Category icon (swords/mountain/target) gets a tinted circle matching its
-// row, reinforcing the League/Ranked/Scrim colour-coding at a glance.
-// (Direct-child selector so this doesn't also catch the nested result icon.)
-.card-bottom > .icon-placeholder {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  opacity: 1;
-  padding: 4px;
-
-  img {
-    opacity: 0.85;
-  }
-}
-
-.match-row:has(.banner-league) .card-bottom > .icon-placeholder { background: var(--color-accent-blue-tint); }
-.match-row:has(.banner-ranked) .card-bottom > .icon-placeholder { background: var(--color-accent-plum-tint); }
-.match-row:has(.banner-scrim)  .card-bottom > .icon-placeholder { background: var(--color-secondary-tint); }
-
-// ── Timeline node icons ───────────────────────────────────────────────────────
-.node-circle .icon-placeholder {
-  width: 20px;
-  height: 20px;
-  opacity: 1;
+.season-panel-body {
+  padding: var(--space-4);
 }

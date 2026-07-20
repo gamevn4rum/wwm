@@ -164,19 +164,55 @@ function shapeInnerWay(iw) {
 }
 
 /**
+ * Resolve a flat, per-worldLevel dynamicAttributes array (wwmdb's raw shape:
+ * one entry per attribute *per world level*, `value.value` only populated
+ * from the world level it actually kicks in) down to a single current value
+ * per attribute name, as of `atWorldLevel` — i.e. "what this attribute is
+ * worth once you've reached the world level this uprank requires."
+ */
+function resolveDynamicAttributes(dynamicAttributes, atWorldLevel) {
+  if (!Array.isArray(dynamicAttributes) || atWorldLevel == null) return [];
+  const byName = new Map();
+  for (const da of dynamicAttributes) {
+    const name = da.value?.name;
+    const value = da.value?.value;
+    if (!name || value == null || da.worldLevel == null || da.worldLevel > atWorldLevel) continue;
+    const prev = byName.get(name);
+    if (!prev || da.worldLevel >= prev.worldLevel) byName.set(name, { worldLevel: da.worldLevel, value });
+  }
+  return [...byName.entries()].map(([name, v]) => ({ name, value: v.value }));
+}
+
+function shapeUprank(u) {
+  return {
+    id: u.id ?? null,
+    worldLevel: u.worldLevel ?? null,
+    desc: u.desc ?? '',
+    briefDesc: u.briefDesc ?? '',
+    passiveSkill: u.passiveSkill
+      ? { id: u.passiveSkill.id ?? null, name: u.passiveSkill.name ?? '', description: u.passiveSkill.description ?? '' }
+      : null,
+    fixedAttributes: Array.isArray(u.fixedAttributes)
+      ? u.fixedAttributes
+          .filter((a) => a.value?.value != null)
+          .map((a) => ({ name: a.value.name ?? '', value: a.value.value }))
+      : [],
+    dynamicAttributes: resolveDynamicAttributes(u.dynamicAttributes, u.worldLevel),
+  };
+}
+
+/**
  * Shape the *detailed* InnerWay({id}) response (from wwmdb.vlt.fyi/inner-ways),
  * not the plain InnerWays({}) list — the list has no description text at all.
  * `effect` is the base passive's mechanical description (matches a player's
  * live `tier`, since that's the same passive rank the base tier represents).
- * `maxEffect` is the *cumulative* description at full advancement (the last
- * uprank's briefDesc already reads as the full stacked effect, not a delta) —
- * we don't know which uprank an individual player has actually bought (that
- * isn't exposed by the live Player() call), so this is deliberately framed as
- * "fully upgraded", not "this player's current effect".
+ * `upranks` mirrors wwmdb's own "Tier 1..N" tabs on the detail page — these
+ * are further account-bound advancement ranks *beyond* the base tier, and we
+ * don't know which one an individual player has actually bought (that isn't
+ * exposed by the live Player() call), so the frontend picks a best-effort
+ * default tab rather than claiming to know the player's exact state.
  */
 function shapeInnerWayDetail(item) {
-  const upranks = Array.isArray(item.upranks) ? item.upranks : [];
-  const lastUprank = upranks.length ? upranks[upranks.length - 1] : null;
   return {
     id: item.id ?? null,
     name: item.name ?? '',
@@ -189,7 +225,7 @@ function shapeInnerWayDetail(item) {
     lore: item.desc ?? '',
     effect: item.passiveSkill?.description ?? '',
     maxAdvancedLevel: item.maxAdvancedLevel ?? null,
-    maxEffect: lastUprank?.briefDesc ?? null,
+    upranks: Array.isArray(item.upranks) ? item.upranks.map(shapeUprank) : [],
   };
 }
 
