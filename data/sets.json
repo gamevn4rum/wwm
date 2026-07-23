@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Jadeware",
-    "shortName": "Combat",
+    "shortName": "Jadeware",
     "bonuses2": [
       {
         "attrId": 16,
@@ -78,7 +78,7 @@
   {
     "id": 2,
     "name": "Formbend",
-    "shortName": "Easy",
+    "shortName": "Formbend",
     "bonuses2": [
       {
         "attrId": 38,
@@ -154,7 +154,7 @@
   {
     "id": 3,
     "name": "Hawkwing",
-    "shortName": "Fly",
+    "shortName": "Hawkwing",
     "bonuses2": [
       {
         "attrId": 330,
@@ -230,7 +230,7 @@
   {
     "id": 4,
     "name": "Eaglerise",
-    "shortName": "Hawk",
+    "shortName": "Eaglerise",
     "bonuses2": [
       {
         "attrId": 38,
@@ -306,7 +306,7 @@
   {
     "id": 7,
     "name": "Rainwhisper",
-    "shortName": "Rain",
+    "shortName": "Rainwhisper",
     "bonuses2": [
       {
         "attrId": 328,
@@ -382,7 +382,7 @@
   {
     "id": 8,
     "name": "Moonflare",
-    "shortName": "Month",
+    "shortName": "Moonflare",
     "bonuses2": [
       {
         "attrId": 9,
@@ -458,7 +458,7 @@
   {
     "id": 9,
     "name": "Swift Gale",
-    "shortName": "Wind",
+    "shortName": "Gale",
     "bonuses2": [
       {
         "attrId": 16,
@@ -533,8 +533,8 @@
   },
   {
     "id": 10,
-    "name": "Agile Steps",
-    "shortName": "Stride",
+    "name": "Ripple Step",
+    "shortName": "Ripple",
     "bonuses2": [
       {
         "attrId": 9,
@@ -602,7 +602,7 @@
     "bonuses4": [
       {
         "id": 4010,
-        "name": "Agile Steps",
+        "name": "Ripple Step",
         "description": "Upon a successful deflection, reduces all damage taken within 2 seconds by 20%, stacking up to 3 times."
       }
     ]
@@ -610,7 +610,7 @@
   {
     "id": 11,
     "name": "Swaying Heights",
-    "shortName": "Mountain",
+    "shortName": "Heights",
     "bonuses2": [
       {
         "attrId": 15,
@@ -685,8 +685,8 @@
   },
   {
     "id": 12,
-    "name": "Flawless Defense",
-    "shortName": "Defense",
+    "name": "Flawless Guardian",
+    "shortName": "Guardian",
     "bonuses2": [
       {
         "attrId": 38,
@@ -754,7 +754,7 @@
     "bonuses4": [
       {
         "id": 4012,
-        "name": "Flawless Defense",
+        "name": "Flawless Guardian",
         "description": "Reduces damage taken by 5%. When HP falls below 60%, further reduces damage taken by 1% for every 10% HP lost, stacking up to 5 times."
       }
     ]
@@ -1462,7 +1462,7 @@
   {
     "id": 23,
     "name": "Swallowcall",
-    "shortName": "Return",
+    "shortName": "Swallowcall",
     "bonuses2": [
       {
         "attrId": 15,
@@ -1538,7 +1538,7 @@
   {
     "id": 24,
     "name": "Calmwaters",
-    "shortName": "River",
+    "shortName": "Calmwaters",
     "bonuses2": [
       {
         "attrId": 38,
@@ -1614,7 +1614,7 @@
   {
     "id": 25,
     "name": "Mistwillow",
-    "shortName": "Smoke",
+    "shortName": "Mistwillow",
     "bonuses2": [
       {
         "attrId": 328,
@@ -1683,7 +1683,7 @@
       {
         "id": 6001,
         "name": "Mistwillow",
-        "description": "Landing a Heavy Attack/Heavy Attack Pursuit Skill increases the Physical and Silkbind damage of Light Attacks and Projectile Skills by 10% for 15 seconds, and vice versa. When both damage bonuses exist at the same time, they will be upgraded to Veil of the Willow: increases the Physical and Silkbind damage of both Light Attack/Projectile Skills and Heavy Attack/Heavy Attack Pursuit Skills. Hitting the enemy with corresponding skills again can refresh the effect's duration.\nThe duration of the effects above can only be refreshed once every 2 seconds."
+        "description": "Landing a Heavy Attack/Heavy Attack Pursuit Skill increases the Physical and Silkbind damage of Light Attacks and Ballistic Skills by 10% for 15 seconds, and vice versa. When both damage bonuses exist at the same time, they will be upgraded to Mistwillow: increases the Physical and Silkbind damage of both Light Attack/Ballistic Skills and Heavy Attack/Heavy Attack Pursuit Skills. Hitting the enemy with corresponding skills again can refresh the effect's duration.\nThe duration of the effects above can only be refreshed once every 2 seconds."
       }
     ]
   },
@@ -1766,7 +1766,7 @@
   {
     "id": 27,
     "name": "Flower's Message",
-    "shortName": "Flower",
+    "shortName": "Ivorybloom",
     "bonuses2": [
       {
         "attrId": 16,
@@ -1906,7 +1906,7 @@
   {
     "id": 29,
     "name": "Ivorybloom",
-    "shortName": "Flower",
+    "shortName": "Ivorybloom",
     "bonuses2": [
       {
         "attrId": 329,
@@ -1982,7 +1982,7 @@
   {
     "id": 30,
     "name": "Whirlsnow",
-    "shortName": "Snow",
+    "shortName": "Whirlsnow",
     "bonuses2": [
       {
         "attrId": 38,
@@ -2267,8 +2267,8 @@
   },
   {
     "id": 34,
-    "name": "Stars Align",
-    "shortName": "Star",
+    "name": "Starweave",
+    "shortName": "Starweave",
     "bonuses2": [
       {
         "attrId": 15,
@@ -2336,15 +2336,15 @@
     "bonuses4": [
       {
         "id": 2022,
-        "name": "Stars Align",
-        "description": "When hitting at least 2 enemies simultaneously, or hitting a boss or player, you gain 1 stack of Stars Align: For 5 seconds, Martial Art Skills deal 3% increased damage and further bonus damage to enemies more than 4 meters away; the bonus increases with distance, up to 1% at 8 meters. Stars Align stacks up to 5 times, and 1 stack is removed each time you take damage. Up to 2 stacks of Stars Align can be gained per second."
+        "name": "Starweave",
+        "description": "When hitting at least 2 enemies simultaneously, or hitting a boss or player, you gain 1 stack of Starweave: For 5 seconds, Martial Art Skills deal 3% increased damage and further bonus damage to enemies more than 4 meters away; the bonus increases with distance, up to 1% at 8 meters. Starweave stacks up to 5 times, and 1 stack is removed each time you take damage. Up to 2 stacks of Starweave can be gained per second."
       }
     ]
   },
   {
     "id": 35,
-    "name": "Jade Embrace",
-    "shortName": "Jade",
+    "name": "Jadeclasp",
+    "shortName": "Jadeclasp",
     "bonuses2": [
       {
         "attrId": 9,
@@ -2412,8 +2412,8 @@
     "bonuses4": [
       {
         "id": 2023,
-        "name": "Jade Embrace",
-        "description": "When moving more than 6 meters within 1 second, gain the Jade Embrace effect: Reduces HP and Qi damage taken by 15% for 5 seconds. This effect can only trigger once every 20 seconds."
+        "name": "Jadeclasp",
+        "description": "When moving more than 6 meters within 1 second, gain the Jadeclasp effect: Reduces HP and Qi damage taken by 15% for 5 seconds. This effect can only trigger once every 20 seconds."
       }
     ]
   },
@@ -2980,7 +2980,7 @@
   {
     "id": 44,
     "name": "Fletchlodge",
-    "shortName": "Yu",
+    "shortName": "Fletchlodge",
     "bonuses2": [
       {
         "attrId": 328,
@@ -3050,7 +3050,7 @@
   {
     "id": 45,
     "name": "Stringshock",
-    "shortName": "String",
+    "shortName": "Stringshock",
     "bonuses2": [
       {
         "attrId": 329,
@@ -3120,7 +3120,7 @@
   {
     "id": 46,
     "name": "Shadowchase",
-    "shortName": "Shadow",
+    "shortName": "Shadowchase",
     "bonuses2": [
       {
         "attrId": 330,
@@ -3329,8 +3329,8 @@
   },
   {
     "id": 50,
-    "name": "Shattered Ridge",
-    "shortName": "Break",
+    "name": "Cleftpeak",
+    "shortName": "Cleftpeak",
     "bonuses2": [
       {
         "attrId": 15,
@@ -3398,15 +3398,15 @@
     "bonuses4": [
       {
         "id": 2025,
-        "name": "Shattered Ridge",
-        "description": "Hitting a boss or player grants Shattered Ridge for 5 seconds: Increases HP damage dealt by 1%, stacking up to 5 times. At 5 stacks, increases damage of Light/Heavy Attack Varied Combo, Assist Trigger Skill, and assist effects by a further 8%. A successful Deflect immediately grants 5 stacks of Shattered Ridge.\nThe extra DMG Boost applies to the following skills: Light/Heavy Attack Varied Combo of Snowparting Blade, Thundercry Blade, and Vernal Umbrella; Inkwell Fan - Moon Shatter Spring; Anxi Army Assist and its Trigger Skills of Snowparting Blade and Phalanxbane Blade."
+        "name": "Cleftpeak",
+        "description": "Hitting a boss or player grants Cleftpeak for 5 seconds: Increases HP damage dealt by 1%, stacking up to 5 times. At 5 stacks, increases damage of Light/Heavy Attack Varied Combo, Assist Trigger Skill, and assist effects by a further 8%. A successful Deflect immediately grants 5 stacks of Cleftpeak.\nThe extra DMG Boost applies to the following skills: Light/Heavy Attack Varied Combo of Snowparting Blade, Thundercry Blade, and Vernal Umbrella; Inkwell Fan - Moon Shatter Spring; Anxi Army Assist and its Trigger Skills of Snowparting Blade and Phalanxbane Blade."
       }
     ]
   },
   {
     "id": 51,
-    "name": "Obsidian Armor",
-    "shortName": "Dark",
+    "name": "Ebonward",
+    "shortName": "Ebonward",
     "bonuses2": [
       {
         "attrId": 38,
@@ -3474,8 +3474,8 @@
     "bonuses4": [
       {
         "id": 2026,
-        "name": "Obsidian Armor",
-        "description": "Tenacity reduces HP damage taken by 5%. Taking a hit under Tenacity grants Obsidian Armor for 5 seconds: Reduces the chance to receive Critical DMG by 2% and Affinity DMG by 1%, stacking up to 5 times."
+        "name": "Ebonward",
+        "description": "Tenacity reduces HP damage taken by 5%. Taking a hit under Tenacity grants Ebonward for 5 seconds: Reduces the chance to receive Critical DMG by 2% and Affinity DMG by 1%, stacking up to 5 times."
       }
     ]
   },
@@ -3762,7 +3762,7 @@
   {
     "id": 56,
     "name": "Etherwrath",
-    "shortName": "Impact",
+    "shortName": "Etherwrath",
     "bonuses2": [
       {
         "attrId": 15,
@@ -3831,14 +3831,14 @@
       {
         "id": 2027,
         "name": "Etherwrath",
-        "description": "Hitting a boss or player grants Etherwrath: Increases all types of Attack by 1% (including Physical Attack and all Attribute Attacks) for 8s, stacking up to 5 times. At 5 stacks of Etherwrath, grants 4 additional Attribute Attack Penetration for all types when Martial Trigger Effects deal damage. Triggering a Perfect Dodge instantly grants 5 stacks of Etherwrath.\nApplicable Martial Trigger Effects: Heavenwill Gauntlets' Falcon's Pursuit and Vile Condemned series, Mortal Rope Dart's Rodent, Everspring Umbrella's Resonance, Phalanxbane Blade's Anxi Army Assist."
+        "description": "Hitting a boss or player grants Etherwrath: Increases all types of Attack by 1% (including Physical Attack and all Attribute Attacks) for 8s, stacking up to 5 times. At 5 stacks of Etherwrath, grants 4 additional Attribute Attack Penetration for all types when Martial Art effects deal damage. Triggering a Perfect Dodge instantly grants 5 stacks of Etherwrath.\nApplicable Martial Art effects: Heavenwill Gauntlets' Falcon's Pursuit and Vile Condemned series, Mortal Rope Dart's Rodent, Everspring Umbrella's Resonance, Phalanxbane Blade's Anxi Army Assist."
       }
     ]
   },
   {
     "id": 57,
-    "name": "Exalted Righteousness",
-    "shortName": "Foster",
+    "name": "Honorbound",
+    "shortName": "Honorbound",
     "bonuses2": [
       {
         "attrId": 38,
@@ -3906,7 +3906,7 @@
     "bonuses4": [
       {
         "id": 2028,
-        "name": "Exalted Righteousness",
+        "name": "Honorbound",
         "description": "Triggering a perfect dodge grants Honorbound for 5 seconds: Reduces HP Damage taken by 10%, and further reduces Critical DMG and Affinity DMG taken by 12%. Honorbound can only be gained once every 10 seconds."
       }
     ]

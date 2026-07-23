@@ -821,8 +821,8 @@
       {
         "id": 606,
         "worldLevel": 9,
-        "desc": "In the Koi or Breeze form, there is a 30% chance to get double yields from gathering (Stacks with food effects).",
-        "briefDesc": "Koi Form: Sprinting and jumping no longer consume Endurance. Out of combat, HP and Vitality gradually recover over time. Gathering has a chance to trigger a critical success. Leaving this form grants a temporary HP shield. When in the Carp or Breeze form, there is a chance to get critical yields from gathering.",
+        "desc": "In the Brocade Carp or Breeze form, there is a 30% chance to get double yields from gathering (Stacks with food effects).",
+        "briefDesc": "Brocade Carp Form: Sprinting and jumping no longer consume Endurance. Out of combat, HP and Vitality gradually recover over time. Gathering has a chance to trigger a critical success. Leaving this form grants a temporary HP shield. When in the Brocade Carp or Breeze form, there is a chance to get critical yields from gathering.",
         "passiveSkill": {
           "id": 20065,
           "name": "Sandswirl Tail",
@@ -2176,7 +2176,7 @@
         "name": "DMG Boost"
       }
     ],
-    "lore": "No element reigns forever supreme. Seasons shift and their thrones lean.\nDays stretch thin, then shrink with light. The moon's pale cycle ends, then starts bright.\nWhen activated, this Inner Way briefly enhances power as if aided by seasonal spirits.\nCreated by a genius disciple of the Su family in Luan City a hundred years ago, even the most talented person can only be submerged in the waves of history, for seasons change, and nothing lasts forever.",
+    "lore": "No element reigns forever supreme. Seasons shift and their thrones lean.\nDays stretch thin, then shrink with light. The moon's pale cycle ends, then starts bright.\nWhen activated, this Inner Way briefly enhances power as if aided by seasonal spirits.\nCreated by a genius disciple of the Su family in Luancheng a hundred years ago, even the most talented person can only be submerged in the waves of history, for seasons change, and nothing lasts forever.",
     "effect": "When a Dual-Weapon Skill is released, randomly gain one of the following Seasonal Edge effects:\nSpring: Restores 30 Endurance immediately and recovers 1% HP per second.\nSummer: Increases All Martial Arts Enhancement by 10%, and by an additional 10% when HP is above 75%.\nAutumn: Increases Mystic Skill damage by 10% and restores 2 Vitality per second.\nWinter: Reduces damage taken by 20% and increases the Endurance cost of sprinting, dodging, and jumping by 200%.\nThis effect lasts up to 10 seconds, and triggers once every 30 seconds.",
     "maxAdvancedLevel": 6,
     "upranks": [
@@ -2240,8 +2240,8 @@
       {
         "id": 8204,
         "worldLevel": 7,
-        "desc": "Dealing damage or healing with a Dual-Weapon Skill also triggers a random Seasonal Edge effect, with the chance of gaining Spring or Winter greatly reduced.",
-        "briefDesc": "When a Dual-Weapon Skill is released, randomly gain one or two of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Dealing damage or healing with a Dual-Weapon Skill also triggers a random Seasonal Edge effect, with the chance of gaining Springor Winter greatly reduced.",
+        "desc": "Dealing damage or healing with a Dual-Weapon Skill and casting Control-breaking Mystic Skill Serene Breeze also trigger a random Seasonal Edge effect, with the chance of gaining Spring or Winter greatly reduced.",
+        "briefDesc": "When a Dual-Weapon Skill is released, randomly gain one or two of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Hitting with a Dual-Weapon Skill and casting Serene Breeze also trigger a random Seasonal Edge effect, with the chance of gaining Spring or Winter reduced.",
         "passiveSkill": {
           "id": 20824,
           "name": "Seasonal Edge",
@@ -2263,7 +2263,7 @@
         "id": 8205,
         "worldLevel": 8,
         "desc": "Physical Damage Bonus +2.8%.",
-        "briefDesc": "When a Dual-Weapon Skill is released, randomly gain one or two of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Dealing damage or healing with a Dual-Weapon Skill also triggers a random Seasonal Edge effect, with the chance of gaining Springor Winter greatly reduced.",
+        "briefDesc": "When a Dual-Weapon Skill is released, randomly gain one or two of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Hitting with a Dual-Weapon Skill and casting Serene Breeze also trigger a random Seasonal Edge effect, with the chance of gaining Spring or Winter reduced.",
         "passiveSkill": {
           "id": 20824,
           "name": "Seasonal Edge",
@@ -2289,8 +2289,8 @@
       {
         "id": 8206,
         "worldLevel": 10,
-        "desc": "There is a 15% chance to gain three effects, and a 5% chance to gain all four. When the Dual-Weapon Skill deals damage to a target within 5 meters, you won't gain Frost.",
-        "briefDesc": "When a Dual-Weapon Skill is released, randomly gain one to four of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Dealing damage or healing with a Dual-Weapon Skill also triggers a random Seasonal Edge effect, with the chance of gaining Springor Winter greatly reduced.",
+        "desc": "There is a 15% chance to gain three effects, and a 5% chance to gain all four. When the Dual-Weapon Skill deals damage to a target within 5 meters or Control-breaking Mystic Skill Serene Breeze is cast, you won't gain [Winter].",
+        "briefDesc": "When a Dual-Weapon Skill is released, randomly gain one to four of the following Seasonal Edge effects: Spring, Summer, Autumn, or Winter (CD: 30s). Hitting with a Dual-Weapon Skill and casting Serene Breeze also trigger a random Seasonal Edge effect, with the chance of gaining Spring or Winter reduced. When the Dual-Weapon Skill hits a nearby target or Control-breaking Mystic Skill Serene Breeze is cast, you won't gain Winter.",
         "passiveSkill": {
           "id": 20825,
           "name": "Seasonal Edge",
@@ -3037,7 +3037,7 @@
       {
         "id": 15106,
         "worldLevel": 10,
-        "desc": "When Sober Sorrow hits a target affected by Soul-Shaken, it applies another stack of Soul-Shaken; when it hits the same target 5 times within 3 seconds, it applies 15 seconds of Wine Gu: Increases all damage taken from the source of the effect by 5%.",
+        "desc": "When Sober Sorrow hits a unit, it applies another stack of Soul-Shaken; when it hits the same target 3 times within 3s, it applies 15s of Wine Gu: Increases all damage taken from the source of the effect by 5%.",
         "briefDesc": "Increases the damage of Martial Art Skill Sober Sorrow, reduces the required combo number to gain buff, and increases the duration of this buff. Hitting a boss with Bleeding effect from you has a chance to increase the combo count; when combo hit reaches 10, you gain Empowered River Flow. While casting this skill, you gain DMG Reduction and Tenacity. Hitting a target affected by Soul-Shaken will apply another stack of Soul-Shaken on the target. After hitting the same target at least 5 times in a row, increases the damage you deal against this target.",
         "passiveSkill": {
           "id": 21515,
@@ -3427,7 +3427,7 @@
       {
         "id": 15403,
         "worldLevel": 6,
-        "desc": "Each time you deal High Bleeding damage, you gain Sword's Zenith. Once it's maxed, your next High Bleeding damage is guaranteed to be an Affinity hit.",
+        "desc": "Each instance of High Bleeding damage builds Sword's Zenith. Once full, your next High Bleeding damage is guaranteed to be an Affinity hit. If it hits a non-player target, it also extends certain DoT effects applied by you by 10s, up to 16s remaining. (These source-specific effects include Bleeding from Strategic Sword, Smolder from Mystic Skill: Dragon's Breath, Qingyi's Poison from Inner Way: Bitter Seasons, and Weeping Blood from Fivefold Bleed.)",
         "briefDesc": "After casting Strategic Sword's Martial Art Skill, Special Skill, or Charged Skill, you can cast Crosswind Blade during the ending phase to unleash follow-up attacks and deal High Bleeding damage if the target has max stacks of Bleeding. You also gain Sword's Zenith; once it's maxed, your next High Bleeding damage is guaranteed to be an Affinity hit. Casting Crosswind Blade restores Endurance.",
         "passiveSkill": {
           "id": 21543,
@@ -4051,8 +4051,8 @@
       {
         "id": 30404,
         "worldLevel": 7,
-        "desc": "In non-Arena modes, when Spring Away hits a target with Combo effect from you, its damage is increased by 10% and the max number of targets increases from 3 to 5.",
-        "briefDesc": "Ninefold Umbrella's move, Spring Sorrow can store up to 2 charges and can be cast 30% faster. Hitting an enemy with this skill increases your Projectile Skill damage against them. Hitting a target that satisfies the condition deals increased damage and increases the max number of targets hit.",
+        "desc": "In non-Arena modes, when Light Attack Charged Skill Spring Away or Special Skill Unfading Flower hits a target affected by your Combo, damage dealt increases by 5%, or 10% if the target is Exhausted. Spring Away’s maximum scatter targets also increase from 3 to 5.",
+        "briefDesc": "Vernal Umbrella'smove - Spring Sorrow can store up to 2charges and can be cast 30% faster. Enemies hit take increased damage from your Projectile Skill. Light Attack Charged Skills and Special Skills deal increased damage to qualifying targets, and Light Attack Charged Skills can scatter to more targets.",
         "passiveSkill": {
           "id": 23044,
           "name": "Blossom Barrage",
@@ -4069,8 +4069,8 @@
       {
         "id": 30405,
         "worldLevel": 8,
-        "desc": "Increases Critical DMG Bonus by 4.4%.",
-        "briefDesc": "Vernal Umbrella's Spring Sorrow can store up to 2 charges and can be cast 30% faster. Hitting an enemy with this skill increases your Projectile skill damage against them. Hitting a target with a Light Attack Charged Skill increases damage dealt and the maximum number of scattered targets.",
+        "desc": "Increases Direct Critical Rate by 4.6%.",
+        "briefDesc": "Vernal Umbrella'smove - Spring Sorrow can store up to 2charges and can be cast 30% faster. Enemies hit take increased damage from your Projectile Skill. Light Attack Charged Skills and Special Skills deal increased damage to qualifying targets, and Light Attack Charged Skills can scatter to more targets.",
         "passiveSkill": {
           "id": 23044,
           "name": "Blossom Barrage",
@@ -4078,8 +4078,8 @@
         },
         "fixedAttributes": [
           {
-            "name": "Critical DMG Bonus",
-            "value": 0.044
+            "name": "Direct Critical Rate",
+            "value": 0.046
           }
         ],
         "dynamicAttributes": [
@@ -4101,8 +4101,8 @@
         },
         "fixedAttributes": [
           {
-            "name": "Critical DMG Bonus",
-            "value": 0.044
+            "name": "Direct Critical Rate",
+            "value": 0.046
           }
         ],
         "dynamicAttributes": [
@@ -4732,7 +4732,7 @@
       }
     ],
     "lore": "The wind stirs bells to soothe departed souls.\nSunrise and moonrise light unyielding goals.\nAfter the Verdant Wilds battle,\nthe Eight Talents of Hedong lay either dead or wounded,\nand those who survived scattered across the land. Brothers Sheng Wen and Sheng Wu choreographed a shadow play to mourn the past.\nWandering Qinghe's wilderness, you may chance upon their Exquisite Scenery.",
-    "effect": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will.",
+    "effect": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will.",
     "maxAdvancedLevel": 6,
     "upranks": [
       {
@@ -4743,7 +4743,7 @@
         "passiveSkill": {
           "id": 24012,
           "name": "Exquisite Scenery",
-          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
+          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
         },
         "fixedAttributes": [],
         "dynamicAttributes": []
@@ -4752,11 +4752,11 @@
         "id": 40102,
         "worldLevel": 5,
         "desc": "Increases Critical Rate based on Solo Mode Level.",
-        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will.",
+        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will.",
         "passiveSkill": {
           "id": 24012,
           "name": "Exquisite Scenery",
-          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
+          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -4770,11 +4770,11 @@
         "id": 40103,
         "worldLevel": 6,
         "desc": "Hitting a target with Light Attack Charged Varied Combo or Heavy Attack Charged Varied Combo refunds all consumed Battle Will (hitting multiple targets with a single skill still only refunds once).",
-        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 10s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in the Arena, defending also restores Endurance.",
+        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 10s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in Arena mode, defending also restores Endurance.",
         "passiveSkill": {
           "id": 24013,
           "name": "Exquisite Scenery",
-          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
+          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 10s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -4788,11 +4788,11 @@
         "id": 40104,
         "worldLevel": 7,
         "desc": "Reduces the trigger interval of the special Defensive Riposte after successful defense by 50% (to 5 seconds).",
-        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 5s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in the Arena, defending also restores Endurance.",
+        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 5s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in Arena mode, defending also restores Endurance.",
         "passiveSkill": {
           "id": 24014,
           "name": "Exquisite Scenery",
-          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 5s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
+          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 5s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -4806,11 +4806,11 @@
         "id": 40105,
         "worldLevel": 8,
         "desc": "Increases Critical DMG Bonus by 4.4%.",
-        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 5s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in the Arena, defending also restores Endurance.",
+        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 5s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in Arena mode, defending also restores Endurance.",
         "passiveSkill": {
           "id": 24014,
           "name": "Exquisite Scenery",
-          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 5s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
+          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 5s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
         },
         "fixedAttributes": [
           {
@@ -4829,11 +4829,11 @@
         "id": 40106,
         "worldLevel": 10,
         "desc": "When casting a third stage Charged Light or Heavy Attack and Light or Heavy Attack Charged Varied Combo, if there is sufficient Battle Will, you can additionally consume 1 bar of Battle Will to increase damage by 25% (up to 50% damage increase when 2 bars of Battle Will are consumed).",
-        "briefDesc": "After a successful defense with Thundercry Blade, you can perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Varied Combo). This can trigger once every 5s. Hitting a target with Light Charged Varied Combo or Heavy Charged Varied Combo refunds all Battle Will consumed. Successfully defending against an Online Mode Boss grants one stack of Cadence. When your special Defensive Riposte is off cooldown, you can consume a stack to instantly activate it and restore Battle Will. Successful defenses have a chance to restore Battle Will; in the Arena, defending also restores Endurance. While performing third stage Light/Heavy Attack Charged Skills and their Varied Combos, you can consume extra Battle Will to deal increased damage.",
+        "briefDesc": "Successfully defending with Thundercry Blade allows a 3rd-Stage Heavy Attack Charged Skill without charging for a short duration (can chain into a Varied Combo). This effect can trigger once every 5 seconds. Hitting a target with a Light Attack Charged Varied Combo or Heavy Attack Charged Varied Combo refunds all consumed Battle Will. After a successful Defense against a Boss in Online Mode, gains 1 stack of Exquisite Scenery. When Defensive Riposte finishes cooling down, consumes Exquisite Scenery to activate it immediately and restore Battle Will. Successfully defending has a chance to restore Battle Will, and further increases Natural Endurance Recovery Speed in Arena mode. When casting a 3rd-Stage Light/Heavy Attack Charged Skill and its Varied Combo, consumesadditional Battle Will to increase Damage Dealt.",
         "passiveSkill": {
           "id": 24015,
           "name": "Exquisite Scenery",
-          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 5s. Successfully defending against an Online Mode Boss also grants Cadence for 15s. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
+          "description": "After a successful defense with Thundercry Blade, you can activate a special Defensive Riposte. Press the Perception Skill or Heavy Attack to perform a third stage Heavy Attack Charged Skill without charging (can be followed by a Heavy Charged Varied Combo). This can trigger once every 5s. Successfully defending against an Online Mode Boss also grants Cadence for 20s, up to 2 stacks. When your special Defensive Riposte is off cooldown, you can consume a stack of Cadence to instantly activate it and restore 1 bar of Battle Will."
         },
         "fixedAttributes": [
           {
@@ -5358,7 +5358,7 @@
         "passiveSkill": {
           "id": 24513,
           "name": "Echoes of Oblivion",
-          "description": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively. Gain Samsara and increase HP damage dealt by 5% when attacking targets affected by both Sin and Karma or when triggering a Perfect Dodge."
+          "description": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively. When attacking targets affected by both Sin and Karma or when triggering a Perfect Dodge, gain Samsara and increase HP damage dealt by 5%."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -5376,7 +5376,7 @@
         "passiveSkill": {
           "id": 24514,
           "name": "Echoes of Oblivion",
-          "description": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively. Gain Samsara and increase HP damage dealt by 5% when attacking targets affected by both Sin and Karma or when triggering a Perfect Dodge."
+          "description": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively. When attacking targets affected by both Sin and Karma or when triggering a Perfect Dodge, gain Samsara and increase HP damage dealt by 5%."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -5394,7 +5394,7 @@
         "passiveSkill": {
           "id": 24514,
           "name": "Echoes of Oblivion",
-          "description": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively. Gain Samsara and increase HP damage dealt by 5% when attacking targets affected by both Sin and Karma or when triggering a Perfect Dodge."
+          "description": "Infernal Twinblades' normal Light Attacks apply Sin to enemies, while Light Attacks under Flamelash apply Karma. When attacking targets affected by Sin and Karma, Infernal Twinblades' Light Attacks ignore their 10% Physical Defense and 10 Bamboocut Resistance respectively. When attacking targets affected by both Sin and Karma or when triggering a Perfect Dodge, gain Samsara and increase HP damage dealt by 5%."
         },
         "fixedAttributes": [
           {
@@ -5886,8 +5886,8 @@
       {
         "id": 50101,
         "worldLevel": 4,
-        "desc": "Perfect Catch restores 10 Fading Crimson.",
-        "briefDesc": "The first umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch, all Phantom Umbrellas on the battlefield will resonate, dealing area damage.",
+        "desc": "Perfect Catch restores 10 Fading Crimson. Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
+        "briefDesc": "The first returning umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch and when summoning a Phantom Umbrella through Scarlet Spin and Dreamwrought Bubbles, all Phantom Umbrellas on the battlefield will resonate, and Phantom Umbrella resonance will deal AoE damage. Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
         "passiveSkill": {
           "id": 25012,
           "name": "Phantom Rally",
@@ -5900,7 +5900,7 @@
         "id": 50102,
         "worldLevel": 5,
         "desc": "Increases Critical Rate based on Solo Mode Level.",
-        "briefDesc": "The first umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch, all Phantom Umbrellas on the battlefield will resonate, dealing area damage.",
+        "briefDesc": "The first returning umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch and when summoning a Phantom Umbrella through Scarlet Spin and Dreamwrought Bubbles, all Phantom Umbrellas on the battlefield will resonate, and Phantom Umbrella resonance will deal AoE damage. Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
         "passiveSkill": {
           "id": 25012,
           "name": "Phantom Rally",
@@ -5918,7 +5918,7 @@
         "id": 50103,
         "worldLevel": 6,
         "desc": "Enemies damaged by resonance receive Phantom Chime for 5 seconds, reducing their Physical Resistance by 2, stacking up to 5 times.",
-        "briefDesc": "The first umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch, all Phantom Umbrellas on the battlefield will resonate, dealing area damage and reducing enemy's Physical Resistance.",
+        "briefDesc": "The first returning umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch and when summoning a Phantom Umbrella through Scarlet Spin and Dreamwrought Bubbles, all Phantom Umbrellas on the battlefield will resonate, and Phantom Umbrella resonance will deal AoE damage and reduce the Physical Resistance of enemies. Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
         "passiveSkill": {
           "id": 25013,
           "name": "Phantom Rally",
@@ -5936,7 +5936,7 @@
         "id": 50104,
         "worldLevel": 7,
         "desc": "Resonance deals 20% more damage and pulls in nearby enemies (ineffective against bosses). The pull-in effect can only trigger once on the same target every 20 seconds, regardless of the source of resonance.",
-        "briefDesc": "The first umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch, all Phantom Umbrellas on the battlefield will resonate, dealing area damage and reducing enemy's Physical Resistance. The pull-in effect can only trigger once every 20 seconds.",
+        "briefDesc": "The first returning umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch and when summoning a Phantom Umbrella through Scarlet Spin and Dreamwrought Bubbles, all Phantom Umbrellas on the battlefield will resonate, and Phantom Umbrella resonance will deal AoE damage and reduce the Physical Resistance of enemies. Upon resonance, nearby enemies are pulled in (Cooldown: 20s). Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
         "passiveSkill": {
           "id": 25014,
           "name": "Phantom Rally",
@@ -5954,7 +5954,7 @@
         "id": 50105,
         "worldLevel": 8,
         "desc": "Physical Damage Bonus +2.8%.",
-        "briefDesc": "The first umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch, all Phantom Umbrellas on the battlefield will resonate, dealing area damage and reducing enemy's Physical Resistance. The pull-in effect can only trigger once every 20 seconds.",
+        "briefDesc": "The first returning umbrella thrown by Scarlet Spin summons a Phantom Umbrella, and every 3rd throw afterward will summon another. During a Perfect Catch and when summoning a Phantom Umbrella through Scarlet Spin and Dreamwrought Bubbles, all Phantom Umbrellas on the battlefield will resonate, and Phantom Umbrella resonance will deal AoE damage and reduce the Physical Resistance of enemies. Upon resonance, nearby enemies are pulled in (Cooldown: 20s). Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
         "passiveSkill": {
           "id": 25014,
           "name": "Phantom Rally",
@@ -5977,7 +5977,7 @@
         "id": 50106,
         "worldLevel": 10,
         "desc": "Each returning umbrella thrown by Scarlet Spin summons a phantom umbrella and triggers resonance immediately.",
-        "briefDesc": "Each umbrella thrown by Scarlet Spin summons a Phantom Umbrella. During a Perfect Catch and when summoning a Phantom Umbrella, all Phantom Umbrellas on the battlefield will resonate, dealing area damage and reducing enemy's Physical Resistance. Resonance also pulls in nearby enemies. The pull-in effect can only trigger once every 20 seconds.",
+        "briefDesc": "Every returning umbrella thrown by Scarlet Spin summons a Phantom Umbrella. During a Perfect Catch and when summoning a Phantom Umbrella through Scarlet Spin and Dreamwrought Bubbles, all Phantom Umbrellas on the battlefield will resonate, and Phantom Umbrella resonance will deal AoE damage and reduce the Physical Resistance of enemies. Upon resonance, nearby enemies are pulled in (Cooldown: 20s). Each time the talent is triggered to gain Fragrant Song, you will additionally gain one stack of Fragrant Song - Delicate: The next Dreamwrought Bubbles requires no charging time. This effect can stack up to 4 times.",
         "passiveSkill": {
           "id": 25015,
           "name": "Phantom Rally",
@@ -6547,7 +6547,7 @@
       {
         "id": 55106,
         "worldLevel": 10,
-        "desc": "Snowbreak Spring deals 10% more damage and grants Forgetfulness: you can cast Grave Frost once without charging within 3s. This uncharged Grave Frost resets the trigger interval of Snowbreak Spring. Forgetfulness can be gained once every 6s. Hitting an Exhausted boss with Snowbreak Spring grants the Inner Passion damage bonus and resets the cooldown of Forgetfulness.",
+        "desc": "Snowbreak Spring deals 10% more damage and grants Forgetfulness: you can cast Grave Frost once without charging within 3s. This uncharged Grave Frost resets the trigger interval of Snowbreak Spring. Forgetfulness can be gained once every 6s. Hitting an exhausted boss with Snowbreak Spring grants the Inner Passion damage bonus, resets the cooldown of Forgetfulness, and extends Dread by 2s.",
         "briefDesc": "Successfully deflecting with Snowparting Blade or fully casting Light Attack Charged Skill and Heng Blade - Dual-Weapon Skill can activate Varied Combo Snowbreak Spring, quickly slashing the enemy once while granting Tenacity. This attack deals 36% bonus HP damage against non-player units. During the Iron Guards state, hitting an enemy with Snowbreak Spring summons a Heng Blade Anxi Soldier to deal additional follow-up damage.",
         "passiveSkill": {
           "id": 25515,
@@ -6633,7 +6633,7 @@
       {
         "id": 55203,
         "worldLevel": 6,
-        "desc": "During Inner Passion, hitting an enemy with Mo Blade Anxi Soldier grants Mountain Splitter for 10s: increases the Critical DMG of Burning Heart and Anxi Army Assist by 10%. These skills are guaranteed to be Critical if your final effective Critical Rate is at least 70%; otherwise, Critical Rate increases by 15%. Mountain Splitter can be gained once every 15s.",
+        "desc": "During Inner Passion, hitting an enemy with Mo Blade Anxi Soldier grants Mountain Splitter for 10s: increases the Critical DMG of Burning Heart and Anxi Army Assist by 10%. These skills are guaranteed to be Critical if your final effective Critical Rate is at least 75%; otherwise, Critical Rate increases by 15%. Mountain Splitter can be gained once every 15s.",
         "briefDesc": "Phalanxbane Blade's Heavy Attack Charged Skill Burning Heart can charge up to the 3rd stage, unleashing a charged leap attack that deals high damage. During the Iron Guards state, Mo Blade Anxi Soldier will appear during the 3rd stage charging and perform a leap attack toward the target.",
         "passiveSkill": {
           "id": 25523,
@@ -6692,7 +6692,7 @@
       {
         "id": 55206,
         "worldLevel": 10,
-        "desc": "Hitting an Exhausted enemy with Burning Heart grants the Mountain Splitter buff and 3s of Charge Enhancement: your next Burning Heart gains all Inner Passion bonuses (faster charge, no Blade Momentum cost, and bonus damage). Charge Enhancement can be gained up to 3 times every 30s.",
+        "desc": "Hitting an exhausted enemy with Burning Heart grants the Mountain Splitter buff, and 3 stacks of Charge Enhancement for up to 18s: consume 1 stack for your next Burning Heart to gain all Inner Passion bonuses (faster charge, no Blade Momentum cost, and bonus damage). Charge Enhancement can be gained up to 3 times every 30s.",
         "briefDesc": "Phalanxbane Blade's Heavy Attack Charged Skill Burning Heart can charge up to the 3rd stage, unleashing a charged leap attack that deals high damage. During the Iron Guards state, Mo Blade Anxi Soldier will appear during the 3rd stage charging and perform a leap attack toward the target.",
         "passiveSkill": {
           "id": 25525,
@@ -7044,7 +7044,7 @@
     "tier": 5,
     "path": {
       "id": 12,
-      "name": "BambooCut – Kite"
+      "name": "Bamboocut – Kite"
     },
     "weapon": {
       "id": 20901,
@@ -7107,7 +7107,7 @@
         "passiveSkill": {
           "id": 26013,
           "name": "Soaring High",
-          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
+          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -7120,12 +7120,12 @@
       {
         "id": 60104,
         "worldLevel": 7,
-        "desc": "Damaging an enemy with Vile Condemned: End restores 1 bar of Heaven's Will. Cooldown: 18 seconds.",
+        "desc": "When Vile Condemned: End damages an enemy, it refunds 1 bar of Heaven's Will, up to once every 18s. When damage from Vile Condemned Skills is calculated, the final effective Affinity Rate is converted at an equal rate into Direct Critical Rate up to 12%.",
         "briefDesc": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Charged Heavy Attack evolves into Vile Condemned: End, consuming all 3 bars to unleash devastating damage over a larger area and grant invincibility during execution (18-second cooldown). Deals an additional 20% max HP damage to non-player units. Hitting enemies with Vile Condemned: End refunds 1 bar of Heaven's Will.",
         "passiveSkill": {
           "id": 26014,
           "name": "Soaring High",
-          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
+          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Its final effective Affinity Rate is converted at an equal rate into Direct Critical Rate, up to 12%. Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -7143,7 +7143,7 @@
         "passiveSkill": {
           "id": 26014,
           "name": "Soaring High",
-          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
+          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Its final effective Affinity Rate is converted at an equal rate into Direct Critical Rate, up to 12%. Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
         },
         "fixedAttributes": [
           {
@@ -7166,7 +7166,7 @@
         "passiveSkill": {
           "id": 26015,
           "name": "Soaring High",
-          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
+          "description": "When Heaven's Will reaches 3 bars, Heavenwill Gauntlets' Heavy Attack Charged Skill evolves into Vile Condemned: End, consuming 3 bars of Heaven's Will to deal massive damage in a larger area and granting Invincibility while casting (Cooldown: 18 seconds). Damaging an enemy with Vile Condemned: End refunds 1 bar of Heaven's Will (triggers up to once every 18 seconds). Its final effective Affinity Rate is converted at an equal rate into Direct Critical Rate, up to 12%. Hitting a non-player unit with Falcon's Pursuit and Vile Condemned series skills deals 20% bonus HP damage."
         },
         "fixedAttributes": [
           {
@@ -7189,7 +7189,7 @@
     "tier": 4,
     "path": {
       "id": 12,
-      "name": "BambooCut – Kite"
+      "name": "Bamboocut – Kite"
     },
     "weapon": {
       "id": 20703,
@@ -7247,7 +7247,7 @@
       {
         "id": 60203,
         "worldLevel": 6,
-        "desc": "When Heavenwill Gauntlets is also equipped, hitting an enemy with Sky Grasped triggers Falcon's Pursuit to launch AoE damage once, restoring 0.25 bars of Heaven's Will for each enemy hit (up to 1 bar in total). Falcon's Pursuit and Vile Condemned series skills deal 30% increased Qi damage to Boss units.",
+        "desc": "When Heavenwill Gauntlets is also equipped, hitting an enemy with Sky Grasped triggers Falcon's Pursuit to launch AOE damage once, restoring 0.25 bars of Heaven's Will for each enemy hit (up to 1 bar in total). Falcon's Pursuit and Vile Condemned Skills deal 30% increased Qi damage to Boss units.",
         "briefDesc": "When Skygrasp Rope Dart's Martial Art Skill - Snaring Lash damages an enemy, it inflicts Heaven's Might for up to 24 seconds: Falcon's Pursuit and Vile Condemned series skills deal 10% bonus HP damage to targets affected by Heaven's Might from you. If Heavenwill Gauntlets is also equipped, casting Snaring Lash triggers Falcon's Pursuit once.",
         "passiveSkill": {
           "id": 26023,
@@ -7334,7 +7334,7 @@
     "tier": 4,
     "path": {
       "id": 12,
-      "name": "BambooCut – Kite"
+      "name": "Bamboocut – Kite"
     },
     "weapon": null,
     "effectTypes": [
@@ -7352,18 +7352,18 @@
       }
     ],
     "lore": "When Mozi renounced Confucianism to found Mohism, he established the Three Standards, upon which he devised the Three Inquiries.\nTo trace the root is to inquire into antiquity; to verify the source is to inquire into reality; to apply the use is to inquire into benefit. These are the Three Inquiries. \n\n Mozi said: He who masters these may comprehend heaven, earth, and all laws of existence.",
-    "effect": "When Martial Art Triggered Effects deal damage, gains Cognition for 5 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist.",
+    "effect": "When Martial Art effects deal damage, gain Cognition for 5 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist.",
     "maxAdvancedLevel": 6,
     "upranks": [
       {
         "id": 60301,
         "worldLevel": 4,
         "desc": "Increases the duration of Cognition to 8 seconds.",
-        "briefDesc": "After dealing damage with Martial Art Triggered Effects, gain Cognition, stacking up to 3 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
+        "briefDesc": "When Martial Art effects deal damage, gain Cognition, stacking up to 3 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
         "passiveSkill": {
           "id": 26032,
           "name": "Empirical Edge",
-          "description": "When Martial Art Triggered Effects deal damage, gains Cognition for 8 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
+          "description": "When Martial Art effects deal damage, gain Cognition for 8 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
         },
         "fixedAttributes": [],
         "dynamicAttributes": []
@@ -7372,11 +7372,11 @@
         "id": 60302,
         "worldLevel": 5,
         "desc": "Increases Physical Attack based on Solo Mode Level.",
-        "briefDesc": "After dealing damage with Martial Art Triggered Effects, gain Cognition, stacking up to 3 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
+        "briefDesc": "When Martial Art effects deal damage, gain Cognition, stacking up to 3 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
         "passiveSkill": {
           "id": 26032,
           "name": "Empirical Edge",
-          "description": "When Martial Art Triggered Effects deal damage, gains Cognition for 8 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
+          "description": "When Martial Art effects deal damage, gain Cognition for 8 seconds, stacking up to 3 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -7394,11 +7394,11 @@
         "id": 60303,
         "worldLevel": 6,
         "desc": "Cognition stacks up to 5 times.",
-        "briefDesc": "After dealing damage with Martial Art Triggered Effects, gain Cognition, stacking up to 5 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
+        "briefDesc": "When Martial Art effects deal damage, gain Cognition, stacking up to 5 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
         "passiveSkill": {
           "id": 26033,
           "name": "Empirical Edge",
-          "description": "When Martial Art Triggered Effects deal damage, gains Cognition for 8 seconds, stacking up to 5 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
+          "description": "When Martial Art effects deal damage, gain Cognition for 8 seconds, stacking up to 5 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuitand Heavy Attack Charged Skill - Vile Condemned series skills. Up to 1 Cognition stack can be gained per second.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -7416,11 +7416,11 @@
         "id": 60304,
         "worldLevel": 7,
         "desc": "Removes the cooldown between Cognition stack gains.",
-        "briefDesc": "After dealing damage with Martial Art Triggered Effects, gain Cognition, stacking up to 5 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
+        "briefDesc": "When Martial Art effects deal damage, gain Cognition, stacking up to 5 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
         "passiveSkill": {
           "id": 26034,
           "name": "Empirical Edge",
-          "description": "When Martial Art Triggered Effects deal damage, gains Cognition for 8 seconds, stacking up to 5 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
+          "description": "When Martial Art effects deal damage, gain Cognition for 8 seconds, stacking up to 5 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
         },
         "fixedAttributes": [],
         "dynamicAttributes": [
@@ -7438,11 +7438,11 @@
         "id": 60305,
         "worldLevel": 8,
         "desc": "Increases Physical DMG Bonus by 2.5%.",
-        "briefDesc": "After dealing damage with Martial Art Triggered Effects, gain Cognition, stacking up to 5 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
+        "briefDesc": "When Martial Art effects deal damage, gain Cognition, stacking up to 5 times: Increases all types of Attribute Attack Penetration when calculating the damage of Martial Art effects, with additional increases for Falcon's Pursuit and Vile Condemned series skills.",
         "passiveSkill": {
           "id": 26034,
           "name": "Empirical Edge",
-          "description": "When Martial Art Triggered Effects deal damage, gains Cognition for 8 seconds, stacking up to 5 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
+          "description": "When Martial Art effects deal damage, gain Cognition for 8 seconds, stacking up to 5 times: Increases all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
         },
         "fixedAttributes": [
           {
@@ -7464,12 +7464,12 @@
       {
         "id": 60306,
         "worldLevel": 10,
-        "desc": "Enhances Cognition: Increases Physical Penetration and all types of Attribute Penetration by 2 when your Martial Trigger Effects deal damage, with an additional 2 Penetration for Heavenwill Gauntlets Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill: Vile Condemned series.",
-        "briefDesc": "When Martial Art Triggered Effects deal damage, gains Cognition (stacking up to 5 times): Increases Physical Penetration and all types of Attribute Attack Penetration when calculating the damage of Martial Art Triggered Effects. This increase is further enhanced for Falcon's Pursuit and Vile Condemned series skills.",
+        "desc": "Enhances Cognition: Increases Physical Penetration and all types of Attribute Penetration by 2 when your Martial Art effects deal damage, with an additional 2 Penetration for Heavenwill Gauntlets Martial Art - Falcon's Pursuit and Charged Heavy Attack: Vile Condemned series.",
+        "briefDesc": "When Martial Art effects deal damage, gain Cognition, stacking up to 5 times: Increases Physical Penetration and all types of Attribute Attack Penetration when calculating the damage of Martial Art effects. This increase is further enhanced for Falcon's Pursuit and Vile Condemned series skills.",
         "passiveSkill": {
           "id": 26035,
           "name": "Empirical Edge",
-          "description": "When Martial Art Triggered Effects deal damage, gains Cognition for 8 seconds, stacking up to 5 times: Increases the Physical Penetration and all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art Triggered Effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills.\nApplicable Martial Art Triggered Effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
+          "description": "When Martial Art effects deal damage, gain Cognition for 8 seconds, stacking up to 5 times: Increases the Physical Penetration and all types of Attribute Attack Penetration by 2 when calculating the damage of Martial Art effects, with an additional increase of 2 for Heavenwill Gauntlets' Martial Art - Falcon's Pursuit and Heavy Attack Charged Skill - Vile Condemned series skills.\nApplicable Martial Art effects include: Heavenwill Gauntlets - Falcon's Pursuit/Heavy Attack Charged Skill - Vile Condemned series skills, Mortal Rope Dart - Rodent, Everspring Umbrella - Resonance, Phalanxbane Blade - Anxi Army Assist."
         },
         "fixedAttributes": [
           {
@@ -7496,7 +7496,7 @@
     "tier": 4,
     "path": {
       "id": 12,
-      "name": "BambooCut – Kite"
+      "name": "Bamboocut – Kite"
     },
     "weapon": null,
     "effectTypes": [
@@ -7647,61 +7647,6 @@
           {
             "name": "Max Void Attack",
             "value": 14.9
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": 651,
-    "name": "Song of Harmony",
-    "tier": 5,
-    "path": {
-      "id": 13,
-      "name": "#13"
-    },
-    "weapon": {
-      "id": 21001,
-      "name": "#21001"
-    },
-    "effectTypes": [
-      {
-        "id": 1,
-        "name": "Attack"
-      },
-      {
-        "id": 7,
-        "name": "DMG Boost"
-      },
-      {
-        "id": 4,
-        "name": "Support"
-      }
-    ],
-    "lore": "",
-    "effect": "",
-    "maxAdvancedLevel": 6,
-    "upranks": [
-      {
-        "id": 65106,
-        "worldLevel": 10,
-        "desc": "Radiant Drum increases all Attack types by 12% and enhances Rippling Dew's empowered soundwaves. With Ripple: Jadebreaker, trigger 2 consecutive drumbeats and gain 10% Critical DMG. With Ripple: Dawnsun, grant nearby allies a Shield equal to 15% of their Max HP for 4s and 10% DMG Reduction; if you have Tailwind or Radiant Drum, also grant Radiant Drum for 4s. With Ripple: Flourishing Notes, create a sound field for 3s that slows enemies and deals DoT.",
-        "briefDesc": "While in Wind-riding State, releasing Flowing Silks's special skill Rippling Dew grants the Blazing Drum state to you and nearby allies: increases all types of attack (including Physical Attack and all Attribute Attacks) and also increases movement speed. Rippling Dew is enhanced when used while under the Blazing Drum state.",
-        "passiveSkill": {
-          "id": 26515,
-          "name": "#26515",
-          "description": ""
-        },
-        "fixedAttributes": [
-          {
-            "name": "Direct Critical Rate",
-            "value": 0.046
-          }
-        ],
-        "dynamicAttributes": [
-          {
-            "name": "Min Physical Attack",
-            "value": 39.6
           }
         ]
       }
@@ -8681,7 +8626,7 @@
     "tier": 5,
     "path": {
       "id": 12,
-      "name": "BambooCut – Kite"
+      "name": "Bamboocut – Kite"
     },
     "weapon": null,
     "effectTypes": [
@@ -8709,7 +8654,7 @@
     "tier": 5,
     "path": {
       "id": 12,
-      "name": "BambooCut – Kite"
+      "name": "Bamboocut – Kite"
     },
     "weapon": null,
     "effectTypes": [
