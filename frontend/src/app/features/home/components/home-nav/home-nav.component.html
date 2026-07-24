@@ -1,0 +1,89 @@
+<nav class="home-nav">
+  <div class="nav-actions">
+    @if (config.isOn('page.schedule')) {
+      <a class="nav-btn nav-btn--blue" routerLink="/schedule" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <span class="nav-icon">
+          <img src="icons/icon-schedule.png" alt="Schedule" class="nav-icon-img" />
+        </span>
+        <span class="nav-text">
+          <span class="nav-main">SCHEDULE</span>
+          <span class="nav-sub">UPCOMING EVENTS</span>
+        </span>
+      </a>
+    }
+
+    @if (authResolved$ | async) {
+      @if (currentUser$ | async; as user) {
+        @if (user.fp && config.isOn('page.formation')) {
+          <a class="nav-btn nav-btn--plum" routerLink="/formation" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-formation.png" alt="Formation" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">FORMATION</span>
+              <span class="nav-sub">VIEW OUR LINEUPS</span>
+            </span>
+          </a>
+        }
+
+        @if (config.isOn('page.match-history')) {
+          <a class="nav-btn nav-btn--sage" routerLink="/match-history" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-match-history.png" alt="Match History" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">MATCH HISTORY</span>
+              <span class="nav-sub">PAST BATTLES</span>
+            </span>
+          </a>
+        }
+
+        @if (user.ftp && config.isOn('page.footages')) {
+          <a class="nav-btn nav-btn--bronze" routerLink="/footages" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-footages.png" alt="Footages" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">FOOTAGES</span>
+              <span class="nav-sub">HIGHLIGHTS &amp; CLIPS</span>
+            </span>
+          </a>
+        }
+
+        @if (useBackend && isCommander(user)) {
+          <a class="nav-btn nav-btn--plum" routerLink="/manage/members" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-formation.png" alt="Manage" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">MANAGE</span>
+              <span class="nav-sub">MEMBER PERMISSIONS</span>
+            </span>
+          </a>
+
+          <a class="nav-btn nav-btn--bronze" routerLink="/manage/registrations" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-events.png" alt="Registrations" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">REGISTRATIONS</span>
+              <span class="nav-sub">REVIEW REQUESTS</span>
+            </span>
+          </a>
+        }
+
+        @if (useBackend && isAdmin(user)) {
+          <a class="nav-btn nav-btn--sage" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-schedule.png" alt="Admin" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">ADMIN</span>
+              <span class="nav-sub">FEATURE FLAGS</span>
+            </span>
+          </a>
+        }
+      }
+    }
+  </div>
+</nav>

@@ -35,7 +35,10 @@ jobs:
           cache: npm
 
       # ── 3. Dependencies ──────────────────────────────────────────────────
+      # The Angular app now lives under frontend/ (the repo is a frontend/ +
+      # backend/ monorepo); all Node steps run there.
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
       # ── 4. Secrets → environment file ───────────────────────────────────
@@ -46,6 +49,7 @@ jobs:
       # NOTE: this key necessarily ships to the browser — see SECURITY.md.
       #
       - name: Inject secrets into environment.prod.ts
+        working-directory: frontend
         env:
           DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
         run: |
@@ -58,6 +62,7 @@ jobs:
       # `ng build` is enough.
       #
       - name: Build (production)
+        working-directory: frontend
         run: npx ng build
 
       # ── 6. Post-build: Jekyll bypass ──────────────────────────────────────
@@ -70,7 +75,7 @@ jobs:
       # src/index.html — no extra copy step needed here.
       #
       - name: Post-build extras
-        run: touch docs/.nojekyll
+        run: touch frontend/docs/.nojekyll
 
       # ── 7. Push docs/ to gh-pages branch ─────────────────────────────────
       #
@@ -87,8 +92,8 @@ jobs:
       - name: Deploy to gh-pages branch
         run: |
           # Save built output before switching branches
-          # (docs/.nojekyll already exists from the "Post-build extras" step)
-          cp -r docs /tmp/angular-docs
+          # (frontend/docs/.nojekyll already exists from the "Post-build extras" step)
+          cp -r frontend/docs /tmp/angular-docs
 
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
