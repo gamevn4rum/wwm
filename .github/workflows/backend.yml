@@ -1,0 +1,79 @@
+name: Backend — build & deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & publish artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore & build (Release)
+        working-directory: backend
+        run: dotnet build WwmBackend.slnx -c Release --nologo
+
+      - name: Publish API
+        working-directory: backend
+        run: dotnet publish src/Wwm.Api/Wwm.Api.csproj -c Release -o ${{ github.workspace }}/publish/api
+
+      - name: Publish Functions
+        working-directory: backend
+        run: dotnet publish src/Wwm.Sync/Wwm.Sync.csproj -c Release -o ${{ github.workspace }}/publish/sync
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api
+          path: publish/api
+
+      - name: Upload Functions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync
+          path: publish/sync
+
+  deploy-api:
+    name: Deploy API → App Service
+    needs: build
+    if: ${{ vars.DEPLOY_BACKEND == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: api
+          path: api
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: api
+
+  deploy-sync:
+    name: Deploy Functions → Function App
+    needs: build
+    if: ${{ vars.DEPLOY_BACKEND == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: sync
+          path: sync
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          package: sync

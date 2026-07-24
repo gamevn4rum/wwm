@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Wwm.Api/Wwm.Api.csproj" />
+    <Project Path="src/Wwm.Core/Wwm.Core.csproj" />
+    <Project Path="src/Wwm.Data/Wwm.Data.csproj" />
+    <Project Path="src/Wwm.Sync/Wwm.Sync.csproj" />
+  </Folder>
+</Solution>

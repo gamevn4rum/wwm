@@ -30,9 +30,11 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
       - name: Fetch sheet data
+        working-directory: frontend
         env:
           # Service account auth — the sheet is private and shared only with
           # the service account's client_email (Viewer).
@@ -41,6 +43,7 @@ jobs:
         run: node scripts/fetch-data.js
 
       - name: Encrypt sensitive data files
+        working-directory: frontend
         env:
           DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
         run: node scripts/encrypt-data.js
@@ -50,9 +53,9 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git rm --cached data/match-history.json --ignore-unmatch
-          git rm --cached data/members.json --ignore-unmatch
-          git add data/
+          git rm --cached frontend/data/match-history.json --ignore-unmatch
+          git rm --cached frontend/data/members.json --ignore-unmatch
+          git add frontend/data/
           if git diff --cached --quiet; then
             echo "No changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"

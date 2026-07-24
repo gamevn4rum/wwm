@@ -1,18 +1,40 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# ── Frontend (Angular, under frontend/) ─────────────────────────────────
 # Compiled output
-/dist
-/docs
-/tmp
-/out-tsc
-/bazel-out
+/frontend/dist
+/frontend/docs
+/frontend/tmp
+/frontend/out-tsc
+/frontend/bazel-out
 
 # Node
-/node_modules
+/frontend/node_modules
 npm-debug.log
 yarn-error.log
 
-# IDEs and editors
+# Angular cache
+/frontend/.angular/cache
+
+# Plaintext form of encrypted data files — served only in encrypted form (.enc)
+frontend/data/match-history.json
+frontend/docs/data/match-history.json
+frontend/data/members.json
+frontend/docs/data/members.json
+frontend/data/player-stats.json
+frontend/docs/data/player-stats.json
+
+# ── Backend (.NET, under backend/) ──────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+*.user
+# Azure Functions local settings (contains secrets / connection strings)
+backend/**/local.settings.json
+# EF/ASP.NET local secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+
+# ── IDEs and editors ────────────────────────────────────────────────────
 .idea/
 .project
 .classpath
@@ -32,7 +54,6 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
@@ -44,11 +65,3 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
-
-# Plaintext form of encrypted data files — served only in encrypted form (.enc)
-data/match-history.json
-docs/data/match-history.json
-data/members.json
-docs/data/members.json
-data/player-stats.json
-docs/data/player-stats.json
