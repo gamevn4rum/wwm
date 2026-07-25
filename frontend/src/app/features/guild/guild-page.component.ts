@@ -38,13 +38,16 @@ export class GuildPageComponent implements OnInit {
       .map((m) => m.player.weaponMasteryMax)
       .filter((v): v is number => v != null);
     const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+    // Weapon mastery is a large points total (tens of thousands) — abbreviate it
+    // (e.g. 31740 → "31.7k") so the tile stays readable.
+    const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(Math.round(n)));
     const avgLevel = mean(levels);
     const avgMastery = mean(masteries);
     return {
       members: g?.memberCount ?? 0,
       avgLevel: avgLevel != null ? String(Math.round(avgLevel)) : '—',
       maxLevel: levels.length ? String(Math.max(...levels)) : '—',
-      avgMastery: avgMastery != null ? avgMastery.toFixed(1) : '—',
+      avgMastery: avgMastery != null ? compact(avgMastery) : '—',
     };
   });
 
