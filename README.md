@@ -184,6 +184,22 @@ There is no separate Footages tab — the Match History sheet carries one column
 
 Both the Match History and Footages pages let you filter by opponent (Footages via single-select dropdowns; Match History via a multi-select chip group).
 
+### Non-sheet data (wwmdb relay)
+
+Two data files come from the community relay [wwmdb.vlt.fyi](https://wwmdb.vlt.fyi)
+instead of the Google Sheet, produced by the `sync-player-stats.yml` workflow:
+
+- **`data/guild.enc`** — our guild's identity + member roster, rendered by the
+  **Guild** page (`/guild`). Fetched by `frontend/scripts/fetch-guild.js` via the
+  relay's `Guild {id, hostnum}` call; GameVN's guild id + serverId are baked into
+  the script (the pair in the site URL `wwmdb.vlt.fyi/guilds/<id>/<hostnum>`), so
+  no secret is needed. See [`backend/GUILD-API.md`](backend/GUILD-API.md).
+- **`data/player-stats.enc`** — per-member in-game stats/gear, rendered by the
+  Roster Stats view. `fetch-player-stats.js` looks each member up by their guild
+  **pId** (from `guild.json`) — wwmdb removed its IGN search, so the guild roster
+  is now the source of the ids. Members on the Google-Sheet roster but not in the
+  in-game guild simply show no stats.
+
 ---
 
 ## Content-Security-Policy
@@ -243,7 +259,7 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 | Workflow | Trigger | Does |
 |---|---|---|
 | `sync-sheets.yml` | Hourly cron, manual | Fetches/encrypts sheet data (in `frontend/`), commits `frontend/data/*.json`, triggers `deploy.yml` if changed |
-| `sync-player-stats.yml` | Daily cron, manual | Enriches the roster with wwmdb stats + catalogues, commits, triggers deploy |
+| `sync-player-stats.yml` | Daily cron, manual | Pulls our guild (`fetch-guild.js` → `guild.enc`), enriches each guild member with wwmdb stats + catalogues (resolved by their guild **pId**, since wwmdb dropped IGN search), encrypts, commits, triggers deploy |
 | `deploy.yml` | Push to `main`, manual, or triggered by a sync | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
 | `backend.yml` | Push to `main` under `backend/**`, manual | Builds the .NET solution; **deploys** API + Functions only when the repo variable `DEPLOY_BACKEND=true` |
 

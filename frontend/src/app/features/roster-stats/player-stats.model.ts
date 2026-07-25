@@ -1,6 +1,6 @@
 // Shape of data/player-stats.json, produced by scripts/fetch-player-stats.js.
-// One record per roster IGN. The upstream account email is stripped at
-// ingestion and never reaches this model.
+// One record per guild member (resolved by pId from data/guild.json). The
+// upstream account email is stripped at ingestion and never reaches this model.
 
 export interface GearAttribute {
   name: string;

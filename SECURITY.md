@@ -82,3 +82,12 @@ decryption fails, the app renders empty data instead of silently calling Google.
   the token in `localStorage`. This is acceptable for a public client with the
   `identify` scope, but the token is readable by any XSS (see above). Closing
   the XSS is what makes this safe.
+- The Guild page publishes `data/guild.enc` (guild identity + member IGN/join
+  date roster), pulled from the wwmdb relay by `scripts/fetch-guild.js`. Same
+  public-data caveat as the roster: `.enc` is a UI convenience, not
+  confidentiality. Player stats (`scripts/fetch-player-stats.js`) now resolve
+  each member via their guild **pId** rather than an IGN search. Both scripts
+  strip anything account/email-shaped at ingestion (a recursive deny-list in
+  fetch-guild.js, a strict allow-list in fetch-player-stats.js), so the upstream
+  NetEase account email is never written to `data/` — honouring the "filter it
+  out before the JSON is written" rule above.

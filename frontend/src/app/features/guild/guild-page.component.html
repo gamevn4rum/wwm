@@ -1,0 +1,106 @@
+<div class="guild-page page-fade">
+
+  <!-- ══ PAGE HEADER ══ -->
+  <header class="guild-header">
+    <span class="accent-line"></span>
+    <h1 class="guild-title">GUILD</h1>
+    <span class="accent-line"></span>
+  </header>
+
+  @if (loading()) {
+    <p class="guild-loading">Loading guild…</p>
+  } @else if (!guild()) {
+    <p class="guild-loading">Guild data isn’t available yet — check back after the next sync.</p>
+  } @else {
+
+    <!-- ══ STATS OVERVIEW ══ -->
+    <section class="guild-overview">
+      <div class="overview-tile">
+        <span class="overview-value">{{ overview().members }}</span>
+        <span class="overview-label">Members</span>
+      </div>
+      <div class="overview-tile">
+        <span class="overview-value">{{ overview().avgLevel }}</span>
+        <span class="overview-label">Avg Level</span>
+      </div>
+      <div class="overview-tile">
+        <span class="overview-value">{{ overview().maxLevel }}</span>
+        <span class="overview-label">Max Level</span>
+      </div>
+      <div class="overview-tile">
+        <span class="overview-value">{{ overview().avgMastery }}</span>
+        <span class="overview-label">Avg Mastery</span>
+      </div>
+    </section>
+
+    <!-- ══ IDENTITY CARD ══ -->
+    <section class="guild-identity">
+      <div class="identity-crest">
+        <img src="icons/icon-shield.png" alt="" />
+      </div>
+      <div class="identity-body">
+        <div class="identity-name-row">
+          <h2 class="guild-name">{{ guild()!.name }}</h2>
+          @if (guild()!.numberId) {
+            <span class="guild-number">#{{ guild()!.numberId }}</span>
+          }
+        </div>
+        <div class="identity-stats">
+          <div class="stat">
+            <span class="stat-value">{{ guild()!.level ?? '—' }}</span>
+            <span class="stat-label">Level</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ guild()!.memberCount }}</span>
+            <span class="stat-label">Members</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ guild()!.hostnum ?? '—' }}</span>
+            <span class="stat-label">Server</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ formatDate(guild()!.createTime) }}</span>
+            <span class="stat-label">Founded</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ ROSTER ══ -->
+    <section class="guild-section">
+      <div class="section-banner">
+        <h2 class="section-title">ROSTER</h2>
+        <p class="section-sub">{{ members().length }} of {{ guild()!.memberCount }} members</p>
+      </div>
+
+      <div class="roster-toolbar">
+        <input
+          class="roster-search"
+          type="search"
+          placeholder="Search members…"
+          [value]="query()"
+          (input)="onSearch($event)"
+          aria-label="Search members"
+        />
+      </div>
+
+      @if (members().length === 0) {
+        <p class="section-empty">No members match “{{ query() }}”.</p>
+      } @else {
+        <div class="roster-grid">
+          @for (m of members(); track m.uid) {
+            <div class="roster-card">
+              <span class="member-avatar">{{ initial(m.ign) }}</span>
+              <div class="member-info">
+                <span class="member-ign">{{ m.ign }}</span>
+                <span class="member-join">Joined {{ formatDate(m.joinTime) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+  }
+
+</div>

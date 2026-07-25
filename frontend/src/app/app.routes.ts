@@ -29,6 +29,13 @@ export const routes: Routes = [
           import('./features/schedule/schedule-page.component').then((m) => m.SchedulePageComponent),
       },
       {
+        // Our guild's identity + roster (public, like the homepage member grid).
+        path: 'guild',
+        canActivate: [featureGuard('page.guild')],
+        loadComponent: () =>
+          import('./features/guild/guild-page.component').then((m) => m.GuildPageComponent),
+      },
+      {
         // Match history is member-only (never public) — enforced server-side and
         // gated here once the backend is live (no-op in static mode).
         path: 'match-history',

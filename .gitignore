@@ -23,6 +23,8 @@ frontend/data/members.json
 frontend/docs/data/members.json
 frontend/data/player-stats.json
 frontend/docs/data/player-stats.json
+frontend/data/guild.json
+frontend/docs/data/guild.json
 
 # ── Backend (.NET, under backend/) ──────────────────────────────────────
 [Bb]in/
@@ -65,3 +67,4 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+/node_modules
