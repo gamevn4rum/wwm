@@ -1,0 +1,15 @@
+<!-- Prosperity / Guild War tiles are appended only when the leaderboard lists us
+     (see tiles()). Nothing renders until the guild file resolves. -->
+@if (guild()) {
+  <div class="guild-overview">
+    @for (tile of tiles(); track tile.key) {
+      <div class="overview-tile">
+        <span class="overview-value" [class.overview-value-sm]="tile.small">{{ tile.value }}</span>
+        <span class="overview-label">{{ tile.label }}</span>
+        @if (tile.sub) {
+          <span class="overview-sub">{{ tile.sub }}</span>
+        }
+      </div>
+    }
+  </div>
+}

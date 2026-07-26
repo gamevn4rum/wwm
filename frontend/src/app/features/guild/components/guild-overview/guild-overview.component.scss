@@ -1,0 +1,86 @@
+// Moved verbatim from the Guild page so the tiles keep their exact styling and
+// formatting in their new home (the site header, under .header-center).
+:host {
+  display: block;
+  width: 100%;
+}
+
+.guild-overview {
+  display: grid;
+  // Tile count varies (4–7): the Prosperity / Guild War tiles only exist when those
+  // boards list us, so the track count can't be fixed. 88px is the largest minimum
+  // that still fits all six on one row inside the header's centre column (~655px)
+  // without any value clipping — a wider track wrapped the last tile onto its own
+  // row and left the card looking lopsided.
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.overview-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  text-align: center;
+  position: relative;
+
+  // Thin divider between tiles.
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: calc(var(--space-3) / -2);
+    top: 12%;
+    height: 76%;
+    width: 1px;
+    background: var(--color-border);
+  }
+}
+
+.overview-value {
+  font-family: var(--font-heading);
+  font-size: 1.65rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  line-height: 1;
+}
+
+// Dates ("21 Jan 2026") don't fit the numeric tile size — step them down and
+// keep the baseline aligned with the numeric tiles beside them.
+.overview-value-sm {
+  font-size: 1.05rem;
+  white-space: nowrap;
+  padding-bottom: 0.18rem;
+}
+
+.overview-label {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+// Secondary line under a tile, e.g. "#41 of 200" beneath a Prosperity score.
+.overview-sub {
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .guild-overview {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  // No vertical dividers once tiles wrap to a grid.
+  .overview-tile::after { display: none; }
+}

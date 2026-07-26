@@ -26,6 +26,12 @@ frontend/docs/data/player-stats.json
 frontend/data/guild.json
 frontend/docs/data/guild.json
 
+# Newcomers report (guild members not yet on the Members sheet). Carries UID/PID,
+# which are identity keys the Register flow trusts — never commit or publish them;
+# this repo and its Actions logs are public. See SECURITY.md.
+frontend/data/new-members.json
+frontend/docs/data/new-members.json
+
 # ── Backend (.NET, under backend/) ──────────────────────────────────────
 [Bb]in/
 [Oo]bj/

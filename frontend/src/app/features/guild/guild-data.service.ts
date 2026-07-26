@@ -5,7 +5,7 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { apiUrl } from '../../core/api';
 import { EncryptedPayload, decryptJson } from '../../core/utils/crypto.utils';
-import { Guild } from './guild.model';
+import { Guild, GuildRank } from './guild.model';
 
 const EMPTY_GUILD: Guild = {
   id: '', numberId: null, name: '', level: null, createTime: null,
@@ -18,8 +18,22 @@ export class GuildDataService {
 
   private readonly guild$: Observable<Guild> = this.load().pipe(shareReplay(1));
 
+  /**
+   * Leaderboard standing. Always the static file — unlike the roster this is public
+   * data (our own rank/score only), so it needs no key and no gating; there is no
+   * backend endpoint for it yet, and it can move behind one later without changing
+   * callers. Fails closed to null so the tiles simply don't render.
+   */
+  private readonly rank$: Observable<GuildRank | null> = this.http
+    .get<GuildRank>(`data/guild-rank.json?t=${Date.now()}`)
+    .pipe(catchError(() => of(null)), shareReplay(1));
+
   getGuild(): Observable<Guild> {
     return this.guild$;
+  }
+
+  getRank(): Observable<GuildRank | null> {
+    return this.rank$;
   }
 
   /** Fill in defaults + a member-count fallback so the template can trust the shape. */

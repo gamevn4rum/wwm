@@ -35,6 +35,14 @@
       Discord: https://discord.gg/gamevn
       <span class="divider-line short"></span>
     </div>
+
+    <!-- Guild headline numbers (members / founded / server / avg mastery, plus
+         Prosperity + Guild War rank when the boards list us). Lives here, in the
+         page header, rather than on the Guild page. Stop the click so the tiles
+         don't trigger the header's routerLink to "/". -->
+    <div class="header-overview" (click)="$event.stopPropagation()">
+      <app-guild-overview></app-guild-overview>
+    </div>
   </div>
 
   <div class="header-right">

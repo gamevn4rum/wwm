@@ -13,7 +13,8 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PAGE HEADER — decorative title row, with the aggregate stats row beneath it
+// PAGE HEADER — decorative title row. The aggregate stats tiles moved to the
+// site header (see guild-overview.component.scss).
 // ─────────────────────────────────────────────────────────────────────────────
 .guild-header {
   display: flex;
@@ -73,66 +74,6 @@
   color: var(--color-ink-soft);
   text-align: center;
   padding: var(--space-5) 0;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// STATS OVERVIEW — aggregate metrics row, inside the header under the title
-// ─────────────────────────────────────────────────────────────────────────────
-.guild-overview {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-}
-
-.overview-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  text-align: center;
-  position: relative;
-
-  // Thin divider between tiles.
-  &:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    right: calc(var(--space-3) / -2);
-    top: 12%;
-    height: 76%;
-    width: 1px;
-    background: var(--color-border);
-  }
-}
-
-.overview-value {
-  font-family: var(--font-heading);
-  font-size: 1.65rem;
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  line-height: 1;
-}
-
-// Dates ("21 Jan 2026") don't fit the numeric tile size — step them down and
-// keep the baseline aligned with the numeric tiles beside them.
-.overview-value-sm {
-  font-size: 1.05rem;
-  white-space: nowrap;
-  padding-bottom: 0.18rem;
-}
-
-.overview-label {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-ink-faint);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -493,14 +434,6 @@
     padding: var(--space-4) var(--space-3) var(--space-6);
     gap: var(--space-5);
   }
-
-  .guild-overview {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  // No vertical dividers once tiles wrap to a 2×2 grid.
-  .overview-tile::after { display: none; }
 
   .guild-identity {
     flex-direction: column;

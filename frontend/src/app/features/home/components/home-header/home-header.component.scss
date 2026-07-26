@@ -114,6 +114,19 @@
   }
 }
 
+// Guild overview tiles, sat under the title. The header centre column is narrower
+// than the page, so cap the width and centre it rather than letting six tiles
+// stretch edge to edge; the tiles keep their own styling untouched.
+.header-overview {
+  width: 100%;
+  max-width: 680px;
+  margin-top: var(--space-2);
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+}
+
 .guild-label {
   display: flex;
   align-items: center;

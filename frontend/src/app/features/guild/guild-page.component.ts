@@ -3,13 +3,8 @@ import { GuildDataService } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
 import { Guild, GuildMember } from './guild.model';
+import { compactNumber, formatUnixDate } from './guild-format';
 
-interface GuildOverview {
-  members: number;
-  founded: string;
-  server: string;
-  avgMastery: string;
-}
 
 /** A roster member joined with their in-game profile (absent until stats load,
  *  or permanently for a member the relay couldn't resolve). */
@@ -59,25 +54,6 @@ export class GuildPageComponent implements OnInit {
     return map;
   });
 
-  /** Header tiles. Member count comes from the guild (authoritative); founded and
-   *  server are guild identity; avg mastery is aggregated over whichever members
-   *  we have in-game stats for and reads "—" until those load.
-   *  No Prosperity tile: the upstream guild record doesn't expose it. */
-  readonly overview = computed<GuildOverview>(() => {
-    const g = this.guild();
-    const masteries = this.stats()
-      .map((m) => m.player.weaponMasteryMax)
-      .filter((v): v is number => v != null);
-    const avgMastery = masteries.length
-      ? masteries.reduce((a, b) => a + b, 0) / masteries.length
-      : null;
-    return {
-      members: g?.memberCount ?? 0,
-      founded: this.formatDate(g?.createTime),
-      server: g?.hostnum != null ? String(g.hostnum) : '—',
-      avgMastery: avgMastery != null ? this.compact(avgMastery) : '—',
-    };
-  });
 
   /** How many members are online right now (null until stats load). */
   readonly onlineCount = computed<number | null>(() => {
@@ -188,18 +164,13 @@ export class GuildPageComponent implements OnInit {
     return `${Math.round(hours).toLocaleString('en-GB')}h`;
   }
 
-  /** Large point totals → "31.7k" so they fit a tile / roster row. */
+  /** Template hooks for the shared formatters (see guild-format.ts). */
   compact(value: number | null | undefined): string {
-    if (value == null) return '—';
-    return value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(Math.round(value));
+    return compactNumber(value);
   }
 
-  /** Unix seconds → "05 Sep 2024" (— when absent). */
   formatDate(unixSeconds: number | null | undefined): string {
-    if (!unixSeconds) return '—';
-    return new Date(unixSeconds * 1000).toLocaleDateString('en-GB', {
-      day: '2-digit', month: 'short', year: 'numeric',
-    });
+    return formatUnixDate(unixSeconds);
   }
 
   initial(ign: string): string {

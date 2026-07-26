@@ -11,6 +11,32 @@ export interface GuildMember {
   joinTime?: number | null;
 }
 
+/** Our placement on one in-game leaderboard (data/guild-rank.json). */
+export interface GuildRankEntry {
+  /** Season-scoped board id — informational only; never used as a lookup key. */
+  boardId: number | null;
+  board: string | null;
+  group: string | null;
+  rank: number | null;
+  score: number | null;
+  /** Entries on the board, so a rank can be shown as "#41 of 200". */
+  total: number | null;
+  /** When the board itself was last recomputed upstream, unix seconds. */
+  updated: number | null;
+}
+
+/**
+ * Shape of data/guild-rank.json, produced by scripts/fetch-guild-rank.js.
+ * Public data (no encryption): only our own standing, no UID/PID, no other guild.
+ * `league` is null whenever the Guild War league table isn't published.
+ */
+export interface GuildRank {
+  guildId: string;
+  hostnum: number | null;
+  prosperity: GuildRankEntry | null;
+  guildWar: { ranked: GuildRankEntry | null; league: GuildRankEntry | null } | null;
+}
+
 export interface Guild {
   /** Opaque wwmdb guild id (e.g. "aXDXseODlazen7BW"). */
   id: string;

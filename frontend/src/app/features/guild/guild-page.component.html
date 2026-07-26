@@ -1,35 +1,15 @@
 <div class="guild-page page-fade">
 
-  <!-- ══ PAGE HEADER — title + aggregate stats row ══ -->
+  <!-- ══ PAGE HEADER ══ -->
+  <!-- The aggregate tiles that used to sit here now live in the site header
+       (app-guild-overview, under .header-center) — they're guild-level identity,
+       so they show on every route rather than only this page. -->
   <header class="guild-header">
     <div class="guild-title-row">
       <span class="accent-line"></span>
       <h1 class="guild-title">GUILD</h1>
       <span class="accent-line"></span>
     </div>
-
-    <!-- Aggregate tiles live in the header, under the title. No Prosperity tile:
-         the upstream guild record doesn't expose it (see backend/GUILD-API.md). -->
-    @if (guild()) {
-      <div class="guild-overview">
-        <div class="overview-tile">
-          <span class="overview-value">{{ overview().members }}</span>
-          <span class="overview-label">Members</span>
-        </div>
-        <div class="overview-tile">
-          <span class="overview-value overview-value-sm">{{ overview().founded }}</span>
-          <span class="overview-label">Founded</span>
-        </div>
-        <div class="overview-tile">
-          <span class="overview-value">{{ overview().server }}</span>
-          <span class="overview-label">Server</span>
-        </div>
-        <div class="overview-tile">
-          <span class="overview-value">{{ overview().avgMastery }}</span>
-          <span class="overview-label">Avg Mastery</span>
-        </div>
-      </div>
-    }
   </header>
 
   @if (loading()) {

@@ -110,6 +110,19 @@ pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
   zero-padded). An unauthenticated route that loaded every member per request is a
   cheap way to hammer a serverless DB that bills for being woken.
 
+**Data files added since (2026-07-26, leaderboards + newcomer detection):**
+
+- `data/guild-rank.json` — **public by design, unencrypted.** Carries only our own
+  standing on public leaderboards (board name, rank, score, entry count, timestamp).
+  No UID/PID, and no other guild's rows.
+- `data/new-members.json` — guild members not yet on the Members sheet, **with their
+  UID and PID**. Gitignored and never encrypted/published, and the sync logs only
+  their IGNs (already public via `guild.enc`). This repo is public, so its Actions
+  logs, job summaries and artifacts are world-readable — an IGN+UID pair is what the
+  Register flow accepts as proof of identity, so it must not appear in any of them.
+  Closing the loop properly (writing newcomers straight into the private sheet) needs
+  the sync service account promoted from Viewer to Editor.
+
 **Accepted / still true — not fixed, know these:**
 
 - **The static site still cannot enforce the registration gate.** The in-app check is

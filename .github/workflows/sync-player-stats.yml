@@ -56,6 +56,16 @@ jobs:
           WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
         run: node scripts/fetch-guild.js
 
+      - name: Fetch guild leaderboard standing from wwmdb
+        working-directory: frontend
+        # Guild War (matchmaking ladder + league when published) and Guild Prosperity.
+        # Boards are resolved by group name at run time — their ids are season-scoped.
+        # continue-on-error: a leaderboard hiccup must not cost us the stats run.
+        continue-on-error: true
+        env:
+          WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
+        run: node scripts/fetch-guild-rank.js
+
       - name: Fetch player stats from wwmdb
         working-directory: frontend
         # Resolves each guild member's pId (from data/guild.json) → Player {id}.
