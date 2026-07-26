@@ -2,6 +2,24 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { GuildDataService } from '../../guild-data.service';
 import { HallOfFame, HallOfFameEntry } from '../../guild.model';
 
+/** Glow tier for a member's achievement count. Thresholds are exclusive. */
+export type TallyTier = 'blue' | 'green' | 'red' | 'gold' | null;
+
+export interface MemberTally {
+  name: string;
+  count: number;
+  tier: TallyTier;
+}
+
+/** >30 gold, >20 red, >10 green, >5 blue, otherwise no glow. */
+function tierOf(count: number): TallyTier {
+  if (count > 30) return 'gold';
+  if (count > 20) return 'red';
+  if (count > 10) return 'green';
+  if (count > 5) return 'blue';
+  return null;
+}
+
 /**
  * Leaderboard placements earned by guild members — the Hall of Fame. Lives on the
  * homepage; renders nothing at all when no member places on any board, so it can be
@@ -63,6 +81,21 @@ export class HallOfFameComponent implements OnInit {
         || a.anchor.name.localeCompare(b.anchor.name)       // keep a member's rows together
         || (a.row.rank ?? Infinity) - (b.row.rank ?? Infinity))
       .map((x) => x.row);
+  });
+
+  /**
+   * Per-member achievement count for the tally table: how many placements each
+   * member appears on, party rows included (a raid row is an achievement for every
+   * member on it, so these sum to more than the number of rows).
+   */
+  readonly tally = computed<MemberTally[]>(() => {
+    const counts = new Map<string, number>();
+    for (const row of this.hallOfFame()?.entries ?? []) {
+      for (const member of row.members) counts.set(member, (counts.get(member) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .map(([name, count]) => ({ name, count, tier: tierOf(count) }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
   });
 
   ngOnInit(): void {
