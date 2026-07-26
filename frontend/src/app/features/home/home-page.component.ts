@@ -1,16 +1,13 @@
-import { Component, inject } from '@angular/core';
-import { EventsListComponent } from './components/events-list/events-list.component';
-import { ConfigService } from '../../core/services/config.service';
+import { Component } from '@angular/core';
+import { HallOfFameComponent } from '../guild/components/hall-of-fame/hall-of-fame.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
   imports: [
-    EventsListComponent,
+    HallOfFameComponent,
   ],
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss'],
 })
-export class HomePageComponent {
-  readonly config = inject(ConfigService);
-}
+export class HomePageComponent {}

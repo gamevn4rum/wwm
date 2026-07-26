@@ -2,17 +2,21 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScheduleDataService } from './schedule-data.service';
 import { ScheduleRecord } from './schedule-record.model';
+import { EventsListComponent } from '../home/components/events-list/events-list.component';
+import { ConfigService } from '../../core/services/config.service';
 
 @Component({
   selector: 'app-schedule-page',
   standalone: true,
-  imports: [],
+  imports: [EventsListComponent],
   templateUrl: './schedule-page.component.html',
   styleUrls: ['./schedule-page.component.scss'],
 })
 export class SchedulePageComponent implements OnInit {
   private readonly dataService = inject(ScheduleDataService);
   private readonly router = inject(Router);
+  /** Gates the Events section, same flag it had on the homepage. */
+  readonly config = inject(ConfigService);
 
   readonly allRows  = signal<ScheduleRecord[]>([]);
   readonly loading  = signal(true);

@@ -352,3 +352,12 @@ $row-col-gap: 1rem;
   .schedule-page { padding: var(--space-3) var(--space-2) var(--space-5); }
   .row-activity  { font-size: 0.8rem; }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENTS — the events list was built as a standalone page, so it carries its own
+// outer padding. Inside a schedule section that reads as an indent against the
+// rows above it; drop the horizontal padding so both align to the same edge.
+// ─────────────────────────────────────────────────────────────────────────────
+app-events-list ::ng-deep .events-list-wrapper {
+  padding: var(--space-4) 0 0;
+}

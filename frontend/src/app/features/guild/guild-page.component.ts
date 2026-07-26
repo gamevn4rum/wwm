@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { GuildDataService } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
-import { Guild, GuildMember, HallOfFame, HallOfFameEntry } from './guild.model';
+import { Guild, GuildMember } from './guild.model';
 import { compactNumber, formatUnixDate } from './guild-format';
 
 
@@ -30,7 +30,6 @@ export class GuildPageComponent implements OnInit {
   private readonly statsService = inject(PlayerStatsDataService);
 
   readonly guild = signal<Guild | null>(null);
-  readonly hallOfFame = signal<HallOfFame | null>(null);
   readonly stats = signal<MatchedPlayerStats[]>([]);
   readonly loading = signal(true);
   readonly query = signal('');
@@ -119,47 +118,6 @@ export class GuildPageComponent implements OnInit {
       next: (s) => this.stats.set(s),
       error: () => this.stats.set([]),
     });
-    this.dataService.getHallOfFame().subscribe({
-      next: (h) => this.hallOfFame.set(h),
-      error: () => this.hallOfFame.set(null),
-    });
-  }
-
-  /**
-   * Hall of Fame rows, best rank first (already sorted upstream, re-sorted here so
-   * the view doesn't depend on file order). Only entries that actually named a
-   * member survive the sync, so no filtering is needed.
-   */
-  readonly hallOfFameEntries = computed<HallOfFameEntry[]>(() => {
-    const entries = this.hallOfFame()?.entries ?? [];
-    return [...entries].sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
-  });
-
-  /**
-   * The board's group name, when it adds anything. Upstream leaves some groups
-   * unnamed and returns a placeholder ("Group #0"), and others just repeat the
-   * board's own name — neither is worth showing.
-   */
-  groupLabel(entry: HallOfFameEntry): string | null {
-    const group = entry.group?.trim();
-    if (!group || group === entry.board?.trim()) return null;
-    return /^Group #\d+$/.test(group) ? null : group;
-  }
-
-  /** "#4 of 200" → also a percentile, which makes small boards comparable. */
-  percentile(entry: HallOfFameEntry): string | null {
-    if (entry.rank == null || !entry.of) return null;
-    const top = Math.max(1, Math.round((entry.rank / entry.of) * 100));
-    return `top ${top}%`;
-  }
-
-  /** Board scores are occasionally negative (time-based raid boards) — keep the
-   *  sign but shorten the magnitude. */
-  score(value: number | null): string {
-    if (value == null) return '—';
-    const abs = Math.abs(value);
-    const shown = abs >= 1000 ? `${(abs / 1000).toFixed(1)}k` : String(Math.round(abs * 10) / 10);
-    return value < 0 ? `−${shown}` : shown;
   }
 
   onSearch(event: Event): void {
