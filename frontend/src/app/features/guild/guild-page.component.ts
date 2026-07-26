@@ -21,7 +21,7 @@ interface RosterEntry {
   online: boolean;
 }
 
-type SortKey = 'ign' | 'level' | 'mastery' | 'lastSeen' | 'joined';
+type SortKey = 'ign' | 'level' | 'mastery' | 'elegance' | 'playtime' | 'lastSeen' | 'joined';
 
 @Component({
   selector: 'app-guild-page',
@@ -44,7 +44,9 @@ export class GuildPageComponent implements OnInit {
     { key: 'ign', label: 'Name' },
     { key: 'level', label: 'Level' },
     { key: 'mastery', label: 'Mastery' },
-    { key: 'lastSeen', label: 'Last seen' },
+    { key: 'elegance', label: 'Elegance' },
+    { key: 'playtime', label: 'Playtime' },
+    { key: 'lastSeen', label: 'Last online' },
     { key: 'joined', label: 'Join date' },
   ];
 
@@ -115,6 +117,11 @@ export class GuildPageComponent implements OnInit {
         return entries.sort(desc((e) => e.player?.level ?? -1));
       case 'mastery':
         return entries.sort(desc((e) => e.player?.weaponMasteryMax ?? -1));
+      case 'elegance':
+        return entries.sort(desc((e) => e.player?.eleganceScore ?? -1));
+      case 'playtime':
+        // Cumulative seconds played; -1 so members with no stats sink to the end.
+        return entries.sort(desc((e) => e.player?.onlineTime ?? -1));
       case 'lastSeen':
         // Online first, then most-recently-seen.
         return entries.sort(desc((e) => (e.online ? Number.MAX_SAFE_INTEGER : e.lastSeen)));
