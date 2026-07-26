@@ -13,11 +13,17 @@ export interface FeatureFlag {
 export interface CommanderMember {
   id: number;
   ign: string;
+  /** Numeric in-game UID — the stable identity the sheet sync keys on. */
+  uid: string | null;
+  /** Opaque wwmdb pId, used by the stats sync. Officer-only. */
+  pid: string | null;
   discord: string | null;
   role: UserRole;
   canLogin: boolean;
   fp: boolean;
   ftp: boolean;
+  /** Derived: has a Discord handle. False = "Unregistered". */
+  registered: boolean;
 }
 
 export interface MemberPatch {

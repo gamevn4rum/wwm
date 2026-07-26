@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { MembersDataService } from './members-data.service';
 import { SheetRow } from '../models/sheet.model';
+import { isRegisteredRow } from '../utils/sheet.utils';
 import { environment } from '../../../environments/environment';
 import { apiUrl } from '../api';
 
@@ -219,7 +220,12 @@ export class DiscordAuthService {
       ),
       map(({ profile, members }: { profile: DiscordApiUser; members: SheetRow[] }) => {
         const fetchedUsername = profile.username;
-        const memberRecord = members.find((m) => m['Discord'] === fetchedUsername);
+        // Only *registered* rows can authenticate. Roster rows seeded from the game
+        // guild carry an empty Discord cell, and an empty cell must never match —
+        // otherwise a blank/absent username would log in as the first such member.
+        const memberRecord = fetchedUsername
+          ? members.find((m) => isRegisteredRow(m) && m['Discord'] === fetchedUsername)
+          : undefined;
 
         if (!memberRecord) {
           alert('You are not a registered member of GameVN');

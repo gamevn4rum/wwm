@@ -5,8 +5,36 @@
     <span class="accent-line"></span>
   </header>
 
+  <!-- Inner-way path filter (Formation page). Options are the catalogue's tier-5
+       paths; a member matches only on a tier-5 inner way of the chosen path. -->
+  @if (innerWayFilter()) {
+    <div class="iw-filter">
+      <label class="iw-filter-label" for="iw-path-filter">INNER WAY PATH</label>
+      <select
+        id="iw-path-filter"
+        class="iw-filter-select"
+        [value]="pathFilter()"
+        (change)="onPathFilter($event)"
+      >
+        <option value="">All paths</option>
+        @for (path of pathOptions(); track path) {
+          <option [value]="path">{{ path }}</option>
+        }
+      </select>
+      @if (pathFilter()) {
+        <span class="iw-filter-count">
+          {{ visiblePlayers().length }} of {{ players().length }} with a Tier 5 inner way
+        </span>
+      }
+    </div>
+  }
+
+  @if (innerWayFilter() && pathFilter() && visiblePlayers().length === 0) {
+    <p class="iw-filter-empty">No member has a Tier 5 inner way on “{{ pathFilter() }}”.</p>
+  }
+
   <div class="member-grid" [class.has-expanded]="expandedId() !== null">
-    @for (player of players(); track player.id) {
+    @for (player of visiblePlayers(); track player.id) {
       @let stats = statsFor(player);
       <div
         class="member-badge"
@@ -32,6 +60,12 @@
           <div class="badge-info">
             <span class="badge-name">{{ player.name }}</span>
             <span class="badge-rank">{{ player.rank.toUpperCase() }}</span>
+            <!-- On the roster (seeded from the in-game guild) but no Discord handle
+                 linked yet — they can't sign in until they register. Its own line:
+                 .badge-rank truncates with an ellipsis and would swallow it. -->
+            @if (!player.registered) {
+              <span class="badge-unregistered" title="Has not registered with the app">UNREGISTERED</span>
+            }
           </div>
 
           @if (stats && !isExpanded(player)) {

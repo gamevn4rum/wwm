@@ -13,14 +13,19 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PAGE HEADER — decorative title row with flanking accent lines
+// PAGE HEADER — decorative title row, with the aggregate stats row beneath it
 // ─────────────────────────────────────────────────────────────────────────────
 .guild-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.guild-title-row {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
-  margin-bottom: var(--space-1);
 }
 
 .guild-title {
@@ -71,7 +76,7 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STATS OVERVIEW — aggregate roster metrics row, directly under the header
+// STATS OVERVIEW — aggregate metrics row, inside the header under the title
 // ─────────────────────────────────────────────────────────────────────────────
 .guild-overview {
   display: grid;
@@ -88,6 +93,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.25rem;
   text-align: center;
   position: relative;
@@ -112,6 +118,14 @@
   line-height: 1;
 }
 
+// Dates ("21 Jan 2026") don't fit the numeric tile size — step them down and
+// keep the baseline aligned with the numeric tiles beside them.
+.overview-value-sm {
+  font-size: 1.05rem;
+  white-space: nowrap;
+  padding-bottom: 0.18rem;
+}
+
 .overview-label {
   font-family: var(--font-body);
   font-size: 0.68rem;
@@ -122,7 +136,7 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// IDENTITY CARD — crest + name + stat tiles
+// IDENTITY CARD — crest + name + guild level + live member count
 // ─────────────────────────────────────────────────────────────────────────────
 .guild-identity {
   display: flex;
@@ -157,7 +171,7 @@
 .identity-body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   min-width: 0;
   flex: 1;
 }
@@ -185,34 +199,42 @@
   letter-spacing: 0.02em;
 }
 
-// ─── Stat tiles ────────────────────────────────────────────────────────────────
-.identity-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-5);
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.stat-value {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  line-height: 1.1;
-}
-
-.stat-label {
+.guild-level {
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--color-ink-faint);
+  color: var(--color-primary-dark);
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.6rem;
+}
+
+// ─── Live member count ───────────────────────────────────────────────────────
+.identity-live {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+  margin: 0;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  box-shadow: 0 0 0 3px var(--color-secondary-tint);
+  flex-shrink: 0;
+
+  // Nobody online — same dot, drained of colour.
+  &.live-dot-idle {
+    background: var(--color-border-strong);
+    box-shadow: none;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -250,10 +272,45 @@
   line-height: 1.3;
 }
 
-// ─── Search toolbar ──────────────────────────────────────────────────────────
+// ─── Toolbar: sort + search ──────────────────────────────────────────────────
 .roster-toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.roster-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .roster-sort-label {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  select {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary-light);
+    }
+  }
 }
 
 .roster-search {
@@ -280,15 +337,15 @@
 // ─── Roster grid ─────────────────────────────────────────────────────────────
 .roster-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
   gap: var(--space-3);
 }
 
 .roster-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-border-strong);
@@ -301,9 +358,22 @@
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
   }
+
+  // Currently in-game — mark the card's spine, not the whole surface.
+  &.is-online {
+    border-left-color: var(--color-secondary);
+  }
+}
+
+// ─── Card head: avatar + name/school + level ──────────────────────────────────
+.member-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .member-avatar {
+  position: relative;
   flex-shrink: 0;
   width: 38px;
   height: 38px;
@@ -318,11 +388,23 @@
   justify-content: center;
 }
 
-.member-info {
+.member-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  border: 2px solid var(--color-surface);
+}
+
+.member-id {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
   min-width: 0;
+  flex: 1;
 }
 
 .member-ign {
@@ -336,11 +418,71 @@
   text-overflow: ellipsis;
 }
 
-.member-join {
+.member-school {
   font-family: var(--font-body);
   font-size: 0.72rem;
   color: var(--color-ink-faint);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-level {
+  flex-shrink: 0;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.55rem;
+  white-space: nowrap;
+}
+
+// ─── Card body: per-member stat rows ─────────────────────────────────────────
+.member-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem var(--space-4);
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.member-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+
+  // "Joined" gets the full width on its own row — dates are the widest value.
+  &.member-stat-wide {
+    grid-column: 1 / -1;
+  }
+
+  dt {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+  }
+
+  dd {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 0;
+    white-space: nowrap;
+
+    &.dd-online {
+      color: var(--color-secondary-dark);
+    }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -363,10 +505,6 @@
   .guild-identity {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-4);
-  }
-
-  .identity-stats {
     gap: var(--space-4);
   }
 

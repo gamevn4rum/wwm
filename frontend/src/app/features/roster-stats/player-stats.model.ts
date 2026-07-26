@@ -44,6 +44,15 @@ export interface PlayerDetail {
   gender: number | null;
   language: string | null;
   createTime: number | null;
+  /** Online right now. Absent on records synced before activity was captured. */
+  isOnline?: boolean;
+  /** Last login, unix seconds. */
+  loginTime?: number | null;
+  /** Last logout, unix seconds — can be *newer* than loginTime. */
+  logoutTime?: number | null;
+  /** Cumulative seconds played (not a timestamp). */
+  onlineTime?: number | null;
+  eleganceScore?: number | null;
   gear: GearSlot[];
   innerWays: PlayerInnerWay[];
 }
@@ -53,6 +62,9 @@ export type UnmatchedReason =
   | 'name_mismatch'
   | 'region_mismatch'
   | 'no_detail'
+  /** Backend sync only: the roster row has no PID, so it can't be looked up at all
+   *  (wwmdb's IGN resolver is gone — see backend/GUILD-API.md §7). */
+  | 'no_pid'
   | 'error';
 
 export interface MatchedPlayerStats {

@@ -5,8 +5,10 @@
   <!--
     Content-Security-Policy: defense-in-depth to limit the blast radius of any
     HTML injection (e.g. via the Events description). Test the live app after
-    changing this — youtube-player, Discord CDN avatars and Google Fonts all
-    depend on the allow-lists below. 'unsafe-inline' for script is required by
+    changing this — youtube-player, Discord CDN avatars, Google Fonts and the
+    static-mode Register form (which POSTs to docs.google.com; connect-src applies
+    even to mode:'no-cors') all depend on the allow-lists below. 'unsafe-inline'
+    for script is required by
     the inline SPA-restore script and Angular's runtime; tighten with hashes if
     you later remove inline scripts.
   -->
@@ -16,7 +18,7 @@
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
     img-src 'self' data: https://cdn.discordapp.com https://*.discordapp.com https://i.ytimg.com https://i.ibb.co;
-    connect-src 'self' https://discord.com;
+    connect-src 'self' https://discord.com https://docs.google.com;
     frame-src https://www.youtube.com https://www.youtube-nocookie.com;
     object-src 'none';
     base-uri 'self';

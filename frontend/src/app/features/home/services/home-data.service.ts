@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { Player } from '../models/player.model';
 import { MembersDataService } from '../../../core/services/members-data.service';
-import { findVal } from '../../../core/utils/sheet.utils';
+import { findVal, isRegisteredRow } from '../../../core/utils/sheet.utils';
 
 function rankIconKey(rank: string): string {
   const afterDash = rank.includes(' ') ? rank.substring(rank.lastIndexOf(' ') + 1) : rank;
@@ -33,6 +33,8 @@ export class HomeDataService {
             rank: findVal(row, 'role'),
             rankIconKey: rankIconKey(findVal(row, 'role')),
             notes: findVal(row, 'notes'),
+            uid: findVal(row, 'uid'),
+            registered: isRegisteredRow(row),
           }))
           .filter((p) => p.name !== '');
 

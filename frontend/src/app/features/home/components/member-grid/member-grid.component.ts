@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, input, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
@@ -22,6 +22,9 @@ export interface ActiveSetEffect {
 // Schools get a fixed categorical palette (assigned by stable index, never a
 // cycled/generated hue). Colour is never the sole cue — the school name is always
 // shown beside it — so unknown schools safely fall back to a neutral slot.
+/** Only fully-upgraded inner ways count for the Formation filter. */
+const TIER_FILTERED = 5;
+
 const SCHOOL_PALETTE = [
   '#ad7a4c', // bronze  (--color-primary)
   '#7c9473', // sage    (--color-secondary)
@@ -46,6 +49,9 @@ export class MemberGridComponent implements OnInit {
   private innerWayCatalogueService = inject(InnerWayCatalogueService);
   private setCatalogueService = inject(SetCatalogueService);
 
+  /** Show the inner-way path filter above the grid (Formation page). */
+  readonly innerWayFilter = input(false);
+
   readonly players = signal<Player[]>([]);
   private readonly statsByIgn = signal<Map<string, MatchedPlayerStats>>(new Map());
   private readonly innerWaysById = signal<Map<number, InnerWayCatalogueEntry>>(new Map());
@@ -56,6 +62,58 @@ export class MemberGridComponent implements OnInit {
   private readonly activeUprankTab = signal<Map<number, number>>(new Map());
   /** Which inner way's detail card is open (click-to-open, not hover). */
   readonly openInnerWayId = signal<number | null>(null);
+
+  // ── Inner-way path filter ───────────────────────────────────────────────
+  /** Selected path.name; '' = no filter. */
+  readonly pathFilter = signal('');
+
+  /**
+   * Filter options: every distinct `path.name` in the catalogue that has at least
+   * one **tier-5** inner way (e.g. "Bamboocut – Kite", "General"). Derived from the
+   * data rather than hard-coded, so a catalogue update can't leave a stale list.
+   */
+  readonly pathOptions = computed<string[]>(() => {
+    const names = new Set<string>();
+    for (const entry of this.innerWaysById().values()) {
+      if (entry.tier !== TIER_FILTERED) continue;
+      const name = entry.path?.name?.trim();
+      if (name) names.add(name);
+    }
+    return [...names].sort((a, b) => a.localeCompare(b));
+  });
+
+  /**
+   * Players shown in the grid. With a path selected, only those with a **tier-5**
+   * inner way equipped on that path — a member whose only inner way on it is tier 4
+   * does not match. Members with no resolved stats can't be checked, so they drop
+   * out of a filtered view.
+   */
+  readonly visiblePlayers = computed<Player[]>(() => {
+    const path = this.pathFilter();
+    if (!path) return this.players();
+    return this.players().filter((p) => this.tier5Paths(p).has(path));
+  });
+
+  /** The distinct paths a player has a tier-5 inner way on. */
+  private tier5Paths(player: Player): Set<string> {
+    const paths = new Set<string>();
+    const detail = this.statsFor(player)?.player;
+    if (!detail) return paths;
+    for (const iw of detail.innerWays) {
+      // The player's own tier and the catalogue's agree across the whole roster;
+      // the player's is used because it's what they actually have equipped.
+      if (iw.tier !== TIER_FILTERED) continue;
+      const name = this.innerWayInfo(iw.id)?.path?.name?.trim();
+      if (name) paths.add(name);
+    }
+    return paths;
+  }
+
+  onPathFilter(event: Event): void {
+    this.pathFilter.set((event.target as HTMLSelectElement).value);
+    this.expandedId.set(null);      // a collapsed card may have just been filtered out
+    this.openInnerWayId.set(null);
+  }
 
   ngOnInit(): void {
     this.homeDataService.getPlayers().subscribe((data: Player[]) => {

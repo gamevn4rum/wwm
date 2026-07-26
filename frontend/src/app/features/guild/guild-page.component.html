@@ -1,10 +1,35 @@
 <div class="guild-page page-fade">
 
-  <!-- ══ PAGE HEADER ══ -->
+  <!-- ══ PAGE HEADER — title + aggregate stats row ══ -->
   <header class="guild-header">
-    <span class="accent-line"></span>
-    <h1 class="guild-title">GUILD</h1>
-    <span class="accent-line"></span>
+    <div class="guild-title-row">
+      <span class="accent-line"></span>
+      <h1 class="guild-title">GUILD</h1>
+      <span class="accent-line"></span>
+    </div>
+
+    <!-- Aggregate tiles live in the header, under the title. No Prosperity tile:
+         the upstream guild record doesn't expose it (see backend/GUILD-API.md). -->
+    @if (guild()) {
+      <div class="guild-overview">
+        <div class="overview-tile">
+          <span class="overview-value">{{ overview().members }}</span>
+          <span class="overview-label">Members</span>
+        </div>
+        <div class="overview-tile">
+          <span class="overview-value overview-value-sm">{{ overview().founded }}</span>
+          <span class="overview-label">Founded</span>
+        </div>
+        <div class="overview-tile">
+          <span class="overview-value">{{ overview().server }}</span>
+          <span class="overview-label">Server</span>
+        </div>
+        <div class="overview-tile">
+          <span class="overview-value">{{ overview().avgMastery }}</span>
+          <span class="overview-label">Avg Mastery</span>
+        </div>
+      </div>
+    }
   </header>
 
   @if (loading()) {
@@ -13,27 +38,9 @@
     <p class="guild-loading">Guild data isn’t available yet — check back after the next sync.</p>
   } @else {
 
-    <!-- ══ STATS OVERVIEW ══ -->
-    <section class="guild-overview">
-      <div class="overview-tile">
-        <span class="overview-value">{{ overview().members }}</span>
-        <span class="overview-label">Members</span>
-      </div>
-      <div class="overview-tile">
-        <span class="overview-value">{{ overview().avgLevel }}</span>
-        <span class="overview-label">Avg Level</span>
-      </div>
-      <div class="overview-tile">
-        <span class="overview-value">{{ overview().maxLevel }}</span>
-        <span class="overview-label">Max Level</span>
-      </div>
-      <div class="overview-tile">
-        <span class="overview-value">{{ overview().avgMastery }}</span>
-        <span class="overview-label">Avg Mastery</span>
-      </div>
-    </section>
-
     <!-- ══ IDENTITY CARD ══ -->
+    <!-- Members / Founded / Server now live in the header tiles above, so this
+         card carries only what they don't: crest, name, guild level, live state. -->
     <section class="guild-identity">
       <div class="identity-crest">
         <img src="icons/icon-shield.png" alt="" />
@@ -44,25 +51,16 @@
           @if (guild()!.numberId) {
             <span class="guild-number">#{{ guild()!.numberId }}</span>
           }
+          @if (guild()!.level != null) {
+            <span class="guild-level">Lv {{ guild()!.level }}</span>
+          }
         </div>
-        <div class="identity-stats">
-          <div class="stat">
-            <span class="stat-value">{{ guild()!.level ?? '—' }}</span>
-            <span class="stat-label">Level</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{{ guild()!.memberCount }}</span>
-            <span class="stat-label">Members</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{{ guild()!.hostnum ?? '—' }}</span>
-            <span class="stat-label">Server</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{{ formatDate(guild()!.createTime) }}</span>
-            <span class="stat-label">Founded</span>
-          </div>
-        </div>
+        @if (onlineCount() !== null) {
+          <p class="identity-live">
+            <span class="live-dot" [class.live-dot-idle]="onlineCount() === 0"></span>
+            {{ onlineCount() }} online now
+          </p>
+        }
       </div>
     </section>
 
@@ -70,10 +68,18 @@
     <section class="guild-section">
       <div class="section-banner">
         <h2 class="section-title">ROSTER</h2>
-        <p class="section-sub">{{ members().length }} of {{ guild()!.memberCount }} members</p>
+        <p class="section-sub">{{ roster().length }} of {{ guild()!.memberCount }} members</p>
       </div>
 
       <div class="roster-toolbar">
+        <label class="roster-sort">
+          <span class="roster-sort-label">Sort</span>
+          <select [value]="sort()" (change)="onSort($event)" aria-label="Sort members">
+            @for (opt of sortOptions; track opt.key) {
+              <option [value]="opt.key">{{ opt.label }}</option>
+            }
+          </select>
+        </label>
         <input
           class="roster-search"
           type="search"
@@ -84,18 +90,51 @@
         />
       </div>
 
-      @if (members().length === 0) {
+      @if (roster().length === 0) {
         <p class="section-empty">No members match “{{ query() }}”.</p>
       } @else {
         <div class="roster-grid">
-          @for (m of members(); track m.uid) {
-            <div class="roster-card">
-              <span class="member-avatar">{{ initial(m.ign) }}</span>
-              <div class="member-info">
-                <span class="member-ign">{{ m.ign }}</span>
-                <span class="member-join">Joined {{ formatDate(m.joinTime) }}</span>
+          @for (entry of roster(); track entry.member.uid || entry.member.ign) {
+            <article class="roster-card" [class.is-online]="entry.online">
+              <div class="member-head">
+                <span class="member-avatar">
+                  {{ initial(entry.member.ign) }}
+                  @if (entry.online) {
+                    <span class="member-dot" aria-hidden="true"></span>
+                  }
+                </span>
+                <div class="member-id">
+                  <span class="member-ign">{{ entry.member.ign }}</span>
+                  <span class="member-school">{{ entry.player?.school || '—' }}</span>
+                </div>
+                <span class="member-level">
+                  {{ entry.player?.level != null ? 'Lv ' + entry.player!.level : '—' }}
+                </span>
               </div>
-            </div>
+
+              <dl class="member-stats">
+                <div class="member-stat">
+                  <dt>Mastery</dt>
+                  <dd>{{ compact(entry.player?.weaponMasteryMax) }}</dd>
+                </div>
+                <div class="member-stat">
+                  <dt>Elegance</dt>
+                  <dd>{{ compact(entry.player?.eleganceScore) }}</dd>
+                </div>
+                <div class="member-stat">
+                  <dt>Playtime</dt>
+                  <dd>{{ playtime(entry.player?.onlineTime) }}</dd>
+                </div>
+                <div class="member-stat">
+                  <dt>Last seen</dt>
+                  <dd [class.dd-online]="entry.online">{{ lastSeenLabel(entry) }}</dd>
+                </div>
+                <div class="member-stat member-stat-wide">
+                  <dt>Joined</dt>
+                  <dd>{{ formatDate(entry.member.joinTime) }}</dd>
+                </div>
+              </dl>
+            </article>
           }
         </div>
       }

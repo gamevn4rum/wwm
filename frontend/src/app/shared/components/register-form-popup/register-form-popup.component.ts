@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { RegisterPopupService } from '../../../core/services/register-popup.service';
+import { MembersDataService } from '../../../core/services/members-data.service';
+import { findVal, ignMatches, isRegisteredRow, normalizeUid } from '../../../core/utils/sheet.utils';
 import { environment } from '../../../../environments/environment';
 import { apiUrl } from '../../../core/api';
 
@@ -41,6 +43,7 @@ const ENTRY_SUNDAY = 'entry.184418147';
 export class RegisterFormPopupComponent {
   private readonly popupService = inject(RegisterPopupService);
   private readonly http = inject(HttpClient);
+  private readonly membersData = inject(MembersDataService);
 
   readonly weaponsMain      = WEAPONS_MAIN;
   readonly weaponsSecondary = WEAPONS_SECONDARY;
@@ -76,6 +79,17 @@ export class RegisterFormPopupComponent {
     this.error.set(null);
     const v = this.form.getRawValue();
 
+    // Roster gate: you can only claim a Members-sheet row that is still
+    // Unregistered (no Discord) and whose IGN + UID both match. Checked here so the
+    // applicant gets a useful message instead of a silent officer-side rejection;
+    // in backend mode the API enforces the same rule authoritatively.
+    const rosterError = await this.checkRoster(v.ign, v.uid);
+    if (rosterError) {
+      this.error.set(rosterError);
+      this.submitting.set(false);
+      return;
+    }
+
     try {
       if (environment.useBackend) {
         // Backend mode: creates a pending Registration for officers to review.
@@ -106,12 +120,68 @@ export class RegisterFormPopupComponent {
       }
       this.submitted.set(true);
     } catch (err: unknown) {
-      const status = (err as { status?: number })?.status;
-      this.error.set(status === 409
-        ? 'You already have a pending registration.'
-        : 'Submission failed. Please try again.');
+      this.error.set(this.describeError(err));
     } finally {
       this.submitting.set(false);
+    }
+  }
+
+  /**
+   * Validate IGN + UID against the roster. Returns an error message, or null to
+   * proceed. Fails *open* when the roster can't be read or carries no UIDs.
+   *
+   * In **static mode that is the normal case**: `UID`/`PID` are deliberately not
+   * exported to `data/` (fetch-data.js OMITTED_COLUMNS), because published data is
+   * readable by anyone and the IGN+UID pair is what the gate accepts as proof of
+   * identity — shipping it would let a visitor claim any unregistered row. So this
+   * check only really bites in backend mode, where the API enforces the same rule
+   * authoritatively against SQL. Static submissions stay officer-reviewed.
+   */
+  private async checkRoster(ign: string, uid: string): Promise<string | null> {
+    let rows;
+    try {
+      rows = await firstValueFrom(this.membersData.getRows());
+    } catch {
+      return null;
+    }
+    const withUid = rows.filter((r) => findVal(r, 'uid') !== '');
+    if (withUid.length === 0) return null;
+
+    const wanted = normalizeUid(uid);
+    const row = withUid.find((r) => normalizeUid(findVal(r, 'uid')) === wanted);
+    if (!row) {
+      return 'That UID isn’t on the GameVN roster yet. Ask an officer to add you first.';
+    }
+    if (!ignMatches(findVal(row, 'ign'), ign)) {
+      // Deliberately doesn't echo back the IGN that UID belongs to.
+      return 'That IGN and UID don’t match the same roster entry. Check both and try again.';
+    }
+    if (isRegisteredRow(row)) {
+      return 'That member is already registered. Contact an officer if this isn’t you.';
+    }
+    return null;
+  }
+
+  private describeError(err: unknown): string {
+    const status = (err as { status?: number })?.status;
+    const code = (err as { error?: { error?: string } })?.error?.error;
+    switch (code) {
+      case 'not_on_roster':
+        return 'That UID isn’t on the GameVN roster yet. Ask an officer to add you first.';
+      case 'ign_uid_mismatch':
+        return 'That IGN and UID don’t match the same roster entry. Check both and try again.';
+      case 'already_registered':
+        return 'That member is already registered. Contact an officer if this isn’t you.';
+      case 'uid_already_pending':
+        return 'A registration for that UID is already awaiting review.';
+      case 'already_pending':
+        return 'You already have a pending registration.';
+      case 'uid_required':
+        return 'Your in-game UID is required.';
+      default:
+        return status === 409
+          ? 'You already have a pending registration.'
+          : 'Submission failed. Please try again.';
     }
   }
 }

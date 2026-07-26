@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 import { apiUrl } from '../api';
 import { EncryptedPayload, decryptJson } from '../utils/crypto.utils';
 
-interface PublicMemberDto { ign: string; role: string; notes: string; }
+interface PublicMemberDto { ign: string; role: string; notes: string; registered: boolean; }
 
 @Injectable({ providedIn: 'root' })
 export class MembersDataService {
@@ -22,9 +22,13 @@ export class MembersDataService {
   private loadRows(): Observable<SheetRow[]> {
     // Backend mode: the safe public roster projection, adapted back to the
     // SheetRow shape so downstream consumers (HomeDataService) stay unchanged.
+    // `Registered` is carried explicitly because this projection withholds Discord,
+    // so registration state can't be inferred the way it is from the raw sheet.
     if (environment.useBackend) {
       return this.http.get<PublicMemberDto[]>(apiUrl('/public/roster')).pipe(
-        map((rows) => rows.map((r) => ({ IGN: r.ign, Role: r.role, Notes: r.notes }) as SheetRow)),
+        map((rows) => rows.map((r) => ({
+          IGN: r.ign, Role: r.role, Notes: r.notes, Registered: r.registered,
+        }) as SheetRow)),
         catchError(() => of<SheetRow[]>([])),
       );
     }

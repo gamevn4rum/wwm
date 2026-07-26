@@ -76,6 +76,63 @@ verified against the live services:
 Failure behaviour is now **fail-closed**: if a data file is missing or a
 decryption fails, the app renders empty data instead of silently calling Google.
 
+## Review 2026-07-26 (UID/PID adoption + Guild page)
+
+Re-checked after the Members sheet gained `UID`/`PID` columns and the roster/stats
+pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
+
+- No secret in the deployed bundle beyond the (known, unavoidable) data key — no
+  `AIzaSy…`, `service_account`, `private_key`, `client_secret`, sheet id.
+- No plaintext data on the published branch: `docs/data/` carries only the `.enc`
+  files plus the intentionally-public `events/schedule/inner-ways/sets` JSON. No
+  `members.json` / `player-stats.json` / `guild.json` ever reaches it.
+- The only `innerHTML` sink (Events description) still routes through
+  `sanitizer.sanitize(SecurityContext.HTML, …)`; no `bypassSecurityTrust*` anywhere.
+- No client-side Sheets API path: no `sheets.googleapis.com`, `googleApiKey` or
+  `spreadsheetId` in `src/`. Data services still fail closed to empty.
+- Workflows interpolate no `github.event.*` into `run:` blocks, echo no secrets, and
+  use no `pull_request_target`.
+- Backend go-live guards intact (unchanged): prod refuses to start without a ≥32-char
+  `JWT_SIGNING_KEY` or `CORS_ALLOWED_ORIGINS`; global 120/min + register 5/min rate
+  limits; `RESTRICT_TO_FRONTEND` on by default.
+
+**Closed in this review:**
+
+- **`UID`/`PID` are no longer exported.** `fetch-data.js` now drops them from
+  `members.json` (`OMITTED_COLUMNS`) before anything is written, so they never reach
+  `members.enc`. This matters more than the other columns: the Register flow treats a
+  matching **IGN + UID as proof you are that member**, and published data is readable
+  by everyone — shipping the pair would have let any visitor claim any not-yet-
+  registered roster row. The backend still gets both columns; it reads the sheet
+  directly with the service account.
+- **`POST /api/public/register` no longer scans the Members table.** The roster gate
+  now matches the UID with indexed equality on its two spellings (bare and
+  zero-padded). An unauthenticated route that loaded every member per request is a
+  cheap way to hammer a serverless DB that bills for being woken.
+
+**Accepted / still true — not fixed, know these:**
+
+- **The static site still cannot enforce the registration gate.** The in-app check is
+  UX only; the Google Form endpoint accepts unauthenticated POSTs from anywhere, and
+  it has no Discord field, so anyone can submit any IGN/UID and an officer must
+  verify. There is no rate limit available on a static host — if registration spam
+  becomes a problem, use the Google Form's own "limit to 1 response / require
+  sign-in" settings, or wait for the backend (5/min limiter already written).
+- **`guild.enc` still publishes every member's pId**, so PID is only withheld from
+  `members.enc`, not globally. `fetch-player-stats.js` needs the pIds in the local
+  `guild.json`, but the *published* copy does not — stripping them in
+  `encrypt-data.js` (and re-keying the Guild page's `@for` off IGN) would close it.
+- **`player-stats.enc` now carries activity data** — `isOnline`, `loginTime`,
+  `logoutTime`, `onlineTime`, `eleganceScore` — so when each member last played, and
+  their total playtime, are publicly readable. This is the same data wwmdb already
+  shows publicly, and it drives the Guild page's "last seen"/online state, but it is a
+  deliberate publication of per-member activity: drop the fields from `shapePlayer`
+  if that is not wanted.
+- **CSP `connect-src` now also allows `https://docs.google.com`** — required for the
+  static Register form, whose POST was silently CSP-blocked in production. It widens
+  the exfiltration channel a hypothetical XSS could use; `form-action 'self'` and the
+  sanitizer are the compensating controls.
+
 ## Minor notes
 
 - The Discord OAuth uses the implicit grant (`response_type=token`) and stores

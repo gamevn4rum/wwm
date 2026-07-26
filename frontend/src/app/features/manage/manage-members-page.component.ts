@@ -17,13 +17,22 @@ import { UserRole } from '../../core/services/discord-auth.service';
       } @else {
         <table class="grid">
           <thead>
-            <tr><th>IGN</th><th>Discord</th><th>Role</th><th>Login</th><th>FP</th><th>FTP</th></tr>
+            <tr><th>IGN</th><th>UID</th><th>PID</th><th>Discord</th><th>Status</th><th>Role</th><th>Login</th><th>FP</th><th>FTP</th></tr>
           </thead>
           <tbody>
             @for (m of members(); track m.id) {
               <tr [class.saving]="busy() === m.id">
                 <td>{{ m.ign }}</td>
+                <td class="mono">{{ m.uid || '—' }}</td>
+                <td class="mono pid">{{ m.pid || '—' }}</td>
                 <td class="mono">{{ m.discord || '—' }}</td>
+                <td>
+                  @if (m.registered) {
+                    <span class="tag tag-on">Registered</span>
+                  } @else {
+                    <span class="tag">Unregistered</span>
+                  }
+                </td>
                 <td>
                   <select [value]="m.role" (change)="patch(m, { role: roleOf($event) })">
                     <option value="Warrior">Warrior</option>
@@ -43,12 +52,15 @@ import { UserRole } from '../../core/services/discord-auth.service';
     </section>
   `,
   styles: [`
-    .backoffice { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+    .backoffice { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
     h1 { margin-bottom: .25rem; }
     .hint { opacity: .7; margin-bottom: 1rem; }
     .grid { width: 100%; border-collapse: collapse; }
     .grid th, .grid td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); }
     .mono { font-family: monospace; opacity: .8; }
+    .pid { font-size: .8em; max-width: 12ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tag { font-size: .72rem; padding: .1rem .4rem; border: 1px solid rgba(128,128,128,.45); border-radius: 999px; opacity: .75; }
+    .tag-on { border-color: rgba(124,148,115,.75); color: #5f7757; opacity: 1; }
     tr.saving { opacity: .5; }
     .error { color: #dc3545; }
     .notice { margin-top: .75rem; opacity: .8; }
