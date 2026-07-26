@@ -88,14 +88,34 @@ jobs:
           git commit -m "chore: sync player stats [skip ci]"
 
           # Tolerate main advancing between checkout and push (e.g. the hourly
-          # sheet sync landing meanwhile): rebase and retry on non-fast-forward.
+          # sheet sync landing meanwhile). NOT a rebase/merge: .enc bytes differ on
+          # every run (fresh AES-GCM IV), so git can never auto-resolve them — keep
+          # the generated files, reset onto the newest main, rebuild the commit.
           for attempt in 1 2 3 4 5; do
             if git push; then
               echo "changed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "Push rejected (attempt $attempt/5) — rebasing onto latest main and retrying…"
-            git pull --rebase origin main
+            echo "Push rejected (attempt $attempt/5) — replaying data onto latest main…"
+
+            staged=$(mktemp -d)
+            cp -R frontend/data/. "$staged/"
+            git fetch origin main
+            git reset --hard origin/main
+            cp -R "$staged/." frontend/data/
+            rm -rf "$staged"
+
+            git rm --cached frontend/data/match-history.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/members.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/player-stats.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/guild.json --ignore-unmatch --quiet
+            git add frontend/data/
+            if git diff --cached --quiet; then
+              echo "Latest main already carries this data — nothing left to push."
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git commit -m "chore: sync player stats [skip ci]"
           done
           echo "::error::Failed to push updated data after 5 attempts"
           exit 1
