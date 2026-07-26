@@ -115,6 +115,9 @@ pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
 - `data/guild-rank.json` — **public by design, unencrypted.** Carries only our own
   standing on public leaderboards (board name, rank, score, entry count, timestamp).
   No UID/PID, and no other guild's rows.
+- `data/hall-of-fame.json` — **public by design, unencrypted.** Member IGNs (already
+  public via `guild.enc`) plus their public leaderboard placements: board, rank,
+  score, field size. No UID/PID, nothing account-shaped.
 - `data/new-members.json` — guild members not yet on the Members sheet, **with their
   UID and PID**. Gitignored and never encrypted/published, and the sync logs only
   their IGNs (already public via `guild.enc`). This repo is public, so its Actions

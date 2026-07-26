@@ -1,17 +1,20 @@
-name: Sync Player Stats
+name: Sync Guild, Player Stats & Leaderboards
 
-# Enriches the roster with in-game stats/gear pulled from wwmdb.vlt.fyi, matched
-# by IGN. Runs daily (stats change slowly, and this hits a third party's relay —
-# see scripts/fetch-player-stats.js for the Route-A / PII caveats). Self-contained:
-# re-fetches the roster, looks up each member, encrypts, commits, triggers deploy.
+# Pulls everything that comes from wwmdb.vlt.fyi: the guild roster, per-member
+# stats/gear, our leaderboard standing, and the Hall of Fame (every board our
+# members place on). See scripts/fetch-player-stats.js for the Route-A / PII caveats.
+# Self-contained: fetches, encrypts, commits, triggers deploy.
+#
+# Cadence: hourly at :30 (offset from sync-sheets.yml's :00 so the two don't fight
+# over the shared data-sync concurrency group). The InnerWays/Suits catalogues are
+# static game data, so only the daily 20:59 UTC run refreshes them —
+# SKIP_CATALOGUES below is what makes the hourly run cheap enough to repeat.
 
 on:
   schedule:
-    # Once a day at 03:59 ICT (UTC+7) = 20:59 UTC. Deliberately not hourly —
-    # be gentle on wwmdb (this run also syncs the InnerWays and Suits/Sets
-    # catalogues, ~160 extra detail calls on top of the per-member lookups).
-    - cron: '59 20 * * *'
-  workflow_dispatch:        # manual trigger
+    - cron: '30 * * * *'    # hourly — guild, stats, rank, hall of fame
+    - cron: '59 20 * * *'   # daily 03:59 ICT — the above PLUS the static catalogues
+  workflow_dispatch:        # manual trigger (includes catalogues)
 
 permissions:
   contents: write
@@ -66,12 +69,24 @@ jobs:
           WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
         run: node scripts/fetch-guild-rank.js
 
+      - name: Fetch leaderboard Hall of Fame from wwmdb
+        working-directory: frontend
+        # Every board our members place on, with rank + score. ~244 Rank calls (~90s),
+        # the most expensive step here. continue-on-error so a partial/hiccuping
+        # sweep keeps last-good instead of failing the run.
+        continue-on-error: true
+        env:
+          WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
+        run: node scripts/fetch-hall-of-fame.js
+
       - name: Fetch player stats from wwmdb
         working-directory: frontend
         # Resolves each guild member's pId (from data/guild.json) → Player {id}.
         env:
           # Optional override if wwmdb rotates the token embedded in their bundle.
           WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
+          # Static catalogues only on the daily run / a manual dispatch.
+          SKIP_CATALOGUES: ${{ github.event.schedule == '30 * * * *' }}
         run: node scripts/fetch-player-stats.js
 
       - name: Encrypt sensitive data files

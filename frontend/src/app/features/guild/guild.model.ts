@@ -37,6 +37,32 @@ export interface GuildRank {
   guildWar: { ranked: GuildRankEntry | null; league: GuildRankEntry | null } | null;
 }
 
+/** One leaderboard row that credits at least one guild member. */
+export interface HallOfFameEntry {
+  boardId: number;
+  board: string | null;
+  group: string | null;
+  rank: number | null;
+  score: number | null;
+  /** Entries on the board, for "#4 of 200" context. */
+  of: number | null;
+  updated: number | null;
+  /**
+   * Members on this row. Usually one, but raid/Endless boards rank a whole party,
+   * so a single placement can legitimately credit several members at once.
+   */
+  members: string[];
+}
+
+/** Shape of data/hall-of-fame.json, produced by scripts/fetch-hall-of-fame.js. */
+export interface HallOfFame {
+  boardsScanned: number;
+  boardsWithData: number;
+  placements: number;
+  membersPlacing: number;
+  entries: HallOfFameEntry[];
+}
+
 export interface Guild {
   /** Opaque wwmdb guild id (e.g. "aXDXseODlazen7BW"). */
   id: string;

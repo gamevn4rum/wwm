@@ -120,6 +120,46 @@
       }
     </section>
 
+    <!-- ══ HALL OF FAME ══ -->
+    <!-- Leaderboards our members appear on. A single row can credit a whole party
+         (raid / Endless boards rank the team), hence the member chips. -->
+    @if (hallOfFameEntries().length) {
+      <section class="guild-section">
+        <div class="section-banner">
+          <h2 class="section-title">HALL OF FAME</h2>
+          <p class="section-sub">
+            {{ hallOfFame()!.placements }} placement{{ hallOfFame()!.placements === 1 ? '' : 's' }}
+            by {{ hallOfFame()!.membersPlacing }} member{{ hallOfFame()!.membersPlacing === 1 ? '' : 's' }}
+            across {{ hallOfFame()!.boardsWithData }} active leaderboards
+          </p>
+        </div>
+
+        <div class="hof-list">
+          @for (entry of hallOfFameEntries(); track entry.boardId + '-' + entry.rank) {
+            <article class="hof-row">
+              <span class="hof-rank">
+                #{{ entry.rank }}
+                @if (entry.of) { <span class="hof-of">/ {{ entry.of }}</span> }
+              </span>
+              <div class="hof-body">
+                <span class="hof-board">{{ entry.board }}</span>
+                <span class="hof-meta">
+                  @if (groupLabel(entry)) { {{ groupLabel(entry) }} · }
+                  {{ score(entry.score) }} pts
+                  @if (percentile(entry)) { · {{ percentile(entry) }} }
+                </span>
+              </div>
+              <div class="hof-members">
+                @for (name of entry.members; track name) {
+                  <span class="hof-member">{{ name }}</span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
   }
 
 </div>

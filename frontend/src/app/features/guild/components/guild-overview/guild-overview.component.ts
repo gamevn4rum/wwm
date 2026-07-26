@@ -57,10 +57,22 @@ export class GuildOverviewComponent implements OnInit {
       ? masteries.reduce((a, b) => a + b, 0) / masteries.length
       : null;
 
+    // Average lifetime playtime across the members we have stats for. Cumulative
+    // seconds upstream, shown in whole hours.
+    const playtimes = this.stats()
+      .map((m) => m.player.onlineTime)
+      .filter((v): v is number => v != null);
+    const avgPlaytimeHours = playtimes.length
+      ? Math.round(playtimes.reduce((a, b) => a + b, 0) / playtimes.length / 3600)
+      : null;
+
     const tiles: OverviewTile[] = [
       { key: 'members', label: 'Members', value: String(g?.memberCount ?? 0) },
       { key: 'founded', label: 'Founded', value: formatUnixDate(g?.createTime), small: true },
-      { key: 'server', label: 'Server', value: g?.hostnum != null ? String(g.hostnum) : '—' },
+      {
+        key: 'playtime', label: 'Avg Playtime',
+        value: avgPlaytimeHours != null ? `${avgPlaytimeHours.toLocaleString('en-GB')}h` : '—',
+      },
       { key: 'mastery', label: 'Avg Mastery', value: avgMastery != null ? compactNumber(avgMastery) : '—' },
     ];
 
@@ -78,10 +90,16 @@ export class GuildOverviewComponent implements OnInit {
       ['gw-league', 'GW League', r?.guildWar?.league],
     ] as const) {
       if (entry?.rank == null) continue;
+      // Rank is the headline; the board's own metric (war points) rides the sub-line
+      // next to the field size, so the tile carries both.
+      const parts = [
+        entry.score != null ? `${compactNumber(entry.score)} pts` : null,
+        entry.total != null ? `of ${entry.total}` : null,
+      ].filter(Boolean);
       tiles.push({
         key, label,
         value: `#${entry.rank}`,
-        sub: entry.total != null ? `of ${entry.total}` : undefined,
+        sub: parts.length ? parts.join(' · ') : undefined,
       });
     }
     return tiles;

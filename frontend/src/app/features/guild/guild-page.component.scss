@@ -451,3 +451,94 @@
     grid-template-columns: 1fr;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HALL OF FAME — leaderboard placements, best rank first
+// ─────────────────────────────────────────────────────────────────────────────
+.hof-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hof-row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary-light);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (max-width: 720px) {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+  }
+}
+
+.hof-rank {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.hof-of {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--color-ink-faint);
+}
+
+.hof-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.hof-board {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  // Board names run long ("Bloodstained Sands: Supreme Top 500 - Phase 1").
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hof-meta {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-ink-faint);
+}
+
+.hof-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: flex-end;
+
+  @media (max-width: 720px) {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+.hof-member {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-pill);
+  padding: 0.1rem 0.5rem;
+  white-space: nowrap;
+}

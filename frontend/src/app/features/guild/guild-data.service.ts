@@ -5,7 +5,7 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { apiUrl } from '../../core/api';
 import { EncryptedPayload, decryptJson } from '../../core/utils/crypto.utils';
-import { Guild, GuildRank } from './guild.model';
+import { Guild, GuildRank, HallOfFame } from './guild.model';
 
 const EMPTY_GUILD: Guild = {
   id: '', numberId: null, name: '', level: null, createTime: null,
@@ -34,6 +34,15 @@ export class GuildDataService {
 
   getRank(): Observable<GuildRank | null> {
     return this.rank$;
+  }
+
+  /** Leaderboard placements for our members. Public data, same as the rank file. */
+  private readonly hallOfFame$: Observable<HallOfFame | null> = this.http
+    .get<HallOfFame>(`data/hall-of-fame.json?t=${Date.now()}`)
+    .pipe(catchError(() => of(null)), shareReplay(1));
+
+  getHallOfFame(): Observable<HallOfFame | null> {
+    return this.hallOfFame$;
   }
 
   /** Fill in defaults + a member-count fallback so the template can trust the shape. */
