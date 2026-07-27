@@ -4,6 +4,7 @@ import { formationGuard } from './core/guards/formation.guard';
 import { footageGuard } from './core/guards/footage.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard, commanderGuard } from './core/guards/admin.guard';
+import { memberGuard } from './core/guards/member.guard';
 import { featureGuard } from './core/guards/feature.guard';
 
 export const routes: Routes = [
@@ -29,9 +30,10 @@ export const routes: Routes = [
           import('./features/schedule/schedule-page.component').then((m) => m.SchedulePageComponent),
       },
       {
-        // Our guild's identity + roster (public, like the homepage member grid).
+        // Our guild's identity + roster — member-only (requires login in both
+        // static and backend modes; not public even though the data is baked in).
         path: 'guild',
-        canActivate: [featureGuard('page.guild')],
+        canActivate: [memberGuard, featureGuard('page.guild')],
         loadComponent: () =>
           import('./features/guild/guild-page.component').then((m) => m.GuildPageComponent),
       },

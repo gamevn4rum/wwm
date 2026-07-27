@@ -14,20 +14,20 @@
       </a>
     }
 
-    @if (config.isOn('page.guild')) {
-      <a class="nav-btn nav-btn--sage" routerLink="/guild" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
-        <span class="nav-icon">
-          <img src="icons/icon-shield.png" alt="Guild" class="nav-icon-img" />
-        </span>
-        <span class="nav-text">
-          <span class="nav-main">GUILD</span>
-          <span class="nav-sub">ROSTER &amp; INFO</span>
-        </span>
-      </a>
-    }
-
     @if (authResolved$ | async) {
       @if (currentUser$ | async; as user) {
+        @if (config.isOn('page.guild')) {
+          <a class="nav-btn nav-btn--sage" routerLink="/guild" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-shield.png" alt="Guild" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">GUILD</span>
+              <span class="nav-sub">ROSTER &amp; INFO</span>
+            </span>
+          </a>
+        }
+
         @if (user.fp && config.isOn('page.formation')) {
           <a class="nav-btn nav-btn--plum" routerLink="/formation" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
             <span class="nav-icon">
