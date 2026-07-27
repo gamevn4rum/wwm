@@ -46,7 +46,24 @@
                 <dt>Founded</dt>
                 <dd>{{ formatUnix(g.createTime) }}</dd>
               </div>
+              <div class="mp-fact">
+                <dt>Prosperity</dt>
+                @if (g.prosperity; as p) {
+                  <dd>
+                    <span class="mp-fact-rank">#{{ p.rank }}</span>
+                    <span class="mp-fact-of">of {{ p.total }}</span>
+                  </dd>
+                } @else {
+                  <dd class="mp-fact-muted">Unranked</dd>
+                }
+              </div>
             </dl>
+
+            @if (g.prosperity; as p) {
+              <p class="mp-guild-board">
+                {{ p.board }} · {{ formatScore(p.score) }} pts
+              </p>
+            }
           </div>
         </section>
       } @else {
@@ -68,17 +85,40 @@
             <span class="mp-group-chevron" aria-hidden="true"></span>
           </summary>
           <div class="mp-group-body">
-            @if (members().length === 0) {
+            @if (g.members.length === 0) {
               <p class="mp-group-empty">No roster recorded for this guild.</p>
             } @else {
-              <ul class="mp-member-grid">
-                @for (member of members(); track member.id || member.name) {
-                  <li class="mp-member">
-                    <span class="mp-member-name">{{ member.name }}</span>
-                    <span class="mp-member-joined">Joined {{ formatUnix(member.joinTime) }}</span>
-                  </li>
-                }
-              </ul>
+              <div class="mp-roster-toolbar">
+                <label class="mp-roster-sort">
+                  <span class="mp-roster-sort-label">Sort</span>
+                  <select [value]="memberSort()" (change)="onMemberSort($event)" aria-label="Sort members">
+                    @for (opt of memberSortOptions; track opt.key) {
+                      <option [value]="opt.key">{{ opt.label }}</option>
+                    }
+                  </select>
+                </label>
+                <input
+                  class="mp-roster-search"
+                  type="search"
+                  placeholder="Search members…"
+                  [value]="memberQuery()"
+                  (input)="onMemberSearch($event)"
+                  aria-label="Search members"
+                />
+              </div>
+
+              @if (members().length === 0) {
+                <p class="mp-group-empty">No members match “{{ memberQuery() }}”.</p>
+              } @else {
+                <ul class="mp-member-grid">
+                  @for (member of members(); track member.id || member.name) {
+                    <li class="mp-member">
+                      <span class="mp-member-name">{{ member.name }}</span>
+                      <span class="mp-member-joined">Joined {{ formatUnix(member.joinTime) }}</span>
+                    </li>
+                  }
+                </ul>
+              }
             }
           </div>
         </details>

@@ -101,6 +101,28 @@
   }
 }
 
+.mp-fact-rank {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.mp-fact-of {
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  margin-left: 0.2rem;
+}
+
+.mp-fact-muted {
+  color: var(--color-ink-faint);
+}
+
+.mp-guild-board {
+  margin-top: var(--space-2);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink-soft);
+}
+
 .mp-no-guild {
   font-size: 0.9rem;
   color: var(--color-ink-soft);
@@ -185,6 +207,60 @@
 }
 
 /* ── Member roster ────────────────────────────────────────────────────────── */
+/* Same controls as the Guild page's .roster-toolbar, scoped to the dialog. */
+.mp-roster-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.mp-roster-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .mp-roster-sort-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  select {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+
+    &:hover { border-color: var(--color-primary-light); }
+  }
+}
+
+.mp-roster-search {
+  width: 100%;
+  max-width: 260px;
+  padding: 0.45rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition-fast);
+
+  &::placeholder { color: var(--color-ink-faint); }
+  &:focus { border-color: var(--color-primary-light); }
+}
+
 .mp-member-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -226,5 +302,13 @@
 
   .mp-guild-facts {
     gap: var(--space-4);
+  }
+
+  .mp-roster-toolbar {
+    justify-content: stretch;
+  }
+
+  .mp-roster-search {
+    max-width: 100%;
   }
 }

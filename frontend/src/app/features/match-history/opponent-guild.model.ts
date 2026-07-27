@@ -2,6 +2,8 @@
 // from the wwmdb relay's `Guild {id, hostnum}` response — one record per opponent
 // guild we have faced. Public data (unencrypted), see SECURITY.md.
 
+import { GuildRankEntry } from '../guild/guild.model';
+
 export interface OpponentGuildMember {
   /** Opaque wwmdb player id (pId). */
   id: string;
@@ -29,6 +31,12 @@ export interface OpponentGuild {
    * orphan old matches.
    */
   aliases: string[];
+  /**
+   * Standing on the live Guild Prosperity board — the same boards and the same
+   * `GuildRankEntry` shape `data/guild-rank.json` uses for us, so the two can be
+   * read side by side. Null when the guild doesn't place (each board is top-200).
+   */
+  prosperity: GuildRankEntry | null;
   memberCount: number;
   members: OpponentGuildMember[];
 }

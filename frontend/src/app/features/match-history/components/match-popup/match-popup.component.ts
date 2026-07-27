@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { FootagePopupService } from '../../../../core/services/footage-popup.service';
@@ -8,6 +8,13 @@ import { FootageVideoCardComponent } from '../../../footages/components/footage-
 import { OpponentGuildMember } from '../../opponent-guild.model';
 
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/**
+ * Roster sort keys. Deliberately a subset of the Guild page's — an opponent's
+ * members come from the guild endpoint alone (name + join date), with no
+ * per-player stats behind them, so Level/Mastery/Playtime have nothing to sort on.
+ */
+type MemberSortKey = 'name' | 'joined';
 
 /**
  * The dialog behind a Match History card. Was footage-only; now it leads with the
@@ -55,13 +62,44 @@ export class MatchPopupComponent {
     return (guild.aliases ?? []).filter((alias) => normalize(alias) !== current);
   });
 
-  /** Roster, oldest member first — the sync already sorts it, this just guards the shape. */
+  // ── Roster controls (mirrors the Guild page's roster toolbar) ──────────────
+  readonly memberSort = signal<MemberSortKey>('name');
+  readonly memberQuery = signal('');
+
+  readonly memberSortOptions: ReadonlyArray<{ key: MemberSortKey; label: string }> = [
+    { key: 'name', label: 'Name' },
+    { key: 'joined', label: 'Join date' },
+  ];
+
+  /** Roster after search + sort. Name ascending; join date newest first — same
+   *  direction convention as the Guild page. */
   readonly members = computed<OpponentGuildMember[]>(() => {
-    const members = this.guild()?.members ?? [];
-    return [...members].sort((a, b) => (a.joinTime ?? 0) - (b.joinTime ?? 0));
+    const q = this.memberQuery().trim().toLowerCase();
+    const list = (this.guild()?.members ?? [])
+      .filter((m) => !q || (m.name ?? '').toLowerCase().includes(q));
+
+    const byName = (a: OpponentGuildMember, b: OpponentGuildMember) =>
+      (a.name ?? '').localeCompare(b.name ?? '');
+
+    return this.memberSort() === 'joined'
+      ? [...list].sort((a, b) => (b.joinTime ?? 0) - (a.joinTime ?? 0) || byName(a, b))
+      : [...list].sort(byName);
   });
 
   readonly footages = this.popup.popupFootages;
+
+  onMemberSort(event: Event): void {
+    this.memberSort.set((event.target as HTMLSelectElement).value as MemberSortKey);
+  }
+
+  onMemberSearch(event: Event): void {
+    this.memberQuery.set((event.target as HTMLInputElement).value);
+  }
+
+  /** 269829 → "269,829". Em dash for anything missing. */
+  formatScore(score: number | null | undefined): string {
+    return score == null ? '—' : score.toLocaleString('en-US');
+  }
 
   /** Unix seconds → "19/May/2026". Blank for missing/zero timestamps. */
   formatUnix(seconds: number | null | undefined): string {
