@@ -1,0 +1,99 @@
+name: Sync Opponent Guilds
+
+# Pulls every opponent guild we have faced (identity + member roster) from the
+# wwmdb relay into frontend/data/guild-opponents.json. See
+# frontend/scripts/fetch-opponent-guilds.js for the id-map, PII and size notes.
+#
+# Cadence: twice a day at :45, offset from sync-sheets.yml (:00) and
+# sync-player-stats.yml (:30) so the three never queue behind each other for
+# long on the shared data-sync concurrency group.
+#   03:45 UTC = 10:45 ICT · 15:45 UTC = 22:45 ICT
+#
+# Rosters move slowly and the script writes deterministically sorted, minified
+# JSON, so an unchanged roster produces byte-identical output and this workflow
+# commits — and redeploys — nothing at all. Most runs are expected to be no-ops.
+
+on:
+  schedule:
+    - cron: '45 3 * * *'
+    - cron: '45 15 * * *'
+  workflow_dispatch:        # manual trigger
+
+permissions:
+  contents: write
+  actions: write            # needed to trigger deploy.yml below
+
+# Never overlap with the sheet / player-stats syncs' commit-and-push.
+concurrency:
+  group: data-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-opponent-guilds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      # No npm ci: fetch-opponent-guilds.js uses only Node builtins (fetch,
+      # crypto), unlike the scripts that need @msgpack/msgpack or googleapis.
+
+      - name: Fetch opponent guilds from wwmdb
+        working-directory: frontend
+        # Guild ids come from the committed data/opponent-guild-ids.json — no
+        # secret needed beyond the optional token override.
+        env:
+          WWMDB_TOKEN: ${{ secrets.WWMDB_TOKEN }}
+        run: node scripts/fetch-opponent-guilds.js
+
+      - name: Commit and push updated data
+        id: commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/data/guild-opponents.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "chore: sync opponent guilds [skip ci]"
+
+          # Tolerate main advancing between checkout and push (e.g. the hourly
+          # sheet sync landing meanwhile). This file is generated wholesale, so
+          # replay it onto the newest main rather than merging.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt/5) — replaying data onto latest main…"
+
+            staged=$(mktemp -d)
+            cp frontend/data/guild-opponents.json "$staged/"
+            git fetch origin main
+            git reset --hard origin/main
+            cp "$staged/guild-opponents.json" frontend/data/
+            rm -rf "$staged"
+
+            git add frontend/data/guild-opponents.json
+            if git diff --cached --quiet; then
+              echo "Latest main already carries this data — nothing left to push."
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git commit -m "chore: sync opponent guilds [skip ci]"
+          done
+          echo "::error::Failed to push updated data after 5 attempts"
+          exit 1
+
+      - name: Trigger deploy workflow
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main

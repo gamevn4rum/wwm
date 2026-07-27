@@ -126,6 +126,20 @@ pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
   Closing the loop properly (writing newcomers straight into the private sheet) needs
   the sync service account promoted from Viewer to Editor.
 
+**Data files added since (2026-07-27, opponent guilds):**
+
+- `data/opponent-guild-ids.json` — the hand-maintained `Match History Opponent name
+  → {id, hostnum}` map driving the sync below. Public ids only, no PII.
+- `data/guild-opponents.json` — **public by design, unencrypted.** Identity + member
+  roster (pId, IGN, join date) for every opponent guild we have faced, refreshed
+  twice a day. It carries **other guilds' member pIds**, which `guild.enc` already
+  does for our own roster — and unlike ours these cannot be turned against the
+  Register flow, which matches IGN+UID against the *Members sheet*. Nothing here is
+  about our members, and it is the same data wwmdb serves publicly on its own guild
+  pages. `fetch-opponent-guilds.js` builds it from a strict allow-list (only
+  `{id, numberId, name, hostnum, level, createTime, members[{id,name,joinTime}]}`),
+  so an upstream field the relay adds later cannot leak in unnoticed.
+
 **Accepted / still true — not fixed, know these:**
 
 - **The static site still cannot enforce the registration gate.** The in-app check is

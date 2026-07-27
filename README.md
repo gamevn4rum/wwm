@@ -186,8 +186,9 @@ Both the Match History and Footages pages let you filter by opponent (Footages v
 
 ### Non-sheet data (wwmdb relay)
 
-Two data files come from the community relay [wwmdb.vlt.fyi](https://wwmdb.vlt.fyi)
-instead of the Google Sheet, produced by the `sync-player-stats.yml` workflow:
+Several data files come from the community relay [wwmdb.vlt.fyi](https://wwmdb.vlt.fyi)
+instead of the Google Sheet. These two are produced by the `sync-player-stats.yml`
+workflow:
 
 - **`data/guild.enc`** — our guild's identity + member roster, rendered by the
   **Guild** page (`/guild`). Fetched by `frontend/scripts/fetch-guild.js` via the
@@ -199,6 +200,25 @@ instead of the Google Sheet, produced by the `sync-player-stats.yml` workflow:
   **pId** (from `guild.json`) — wwmdb removed its IGN search, so the guild roster
   is now the source of the ids. Members on the Google-Sheet roster but not in the
   in-game guild simply show no stats.
+
+And this one by the `sync-opponent-guilds.yml` workflow (twice a day):
+
+- **`data/guild-opponents.json`** — identity + member roster for every opponent
+  guild in Match History, **public and unencrypted** (no UI yet). Which guilds are
+  fetched comes from `data/opponent-guild-ids.json`, a hand-maintained
+  `Opponent name → {id, hostnum}` map: wwmdb has no name-search method, so the map
+  was built once by sweeping every leaderboard (`RankGroups` → `Rank {id}`, whose
+  rows carry `units[].guild`) and matching on name. Opponents with no entry are
+  absent, never guessed at — add them by hand as they are identified. Guilds
+  rename, so each record keeps an `aliases` list of the Match History spellings
+  that point at it; that is what the future UI joins on.
+
+  ~310 KB / ~125 KB gzipped for ~57 guilds and ~4.7k members. Output is minified
+  and deterministically sorted (guilds by name, members by join date), and carries
+  no timestamp, so an unchanged roster produces a byte-identical file and the sync
+  commits nothing — that, not the file size, is what keeps the repo and the Pages
+  payload from growing twice a day. `fetch-opponent-guilds.js` warns past 1.5 MB;
+  if it gets there, split per-guild or drop the member lists.
 
 ---
 
@@ -260,6 +280,7 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 |---|---|---|
 | `sync-sheets.yml` | Hourly cron, manual | Fetches/encrypts sheet data (in `frontend/`), commits `frontend/data/*.json`, triggers `deploy.yml` if changed |
 | `sync-player-stats.yml` | Daily cron, manual | Pulls our guild (`fetch-guild.js` → `guild.enc`), enriches each guild member with wwmdb stats + catalogues (resolved by their guild **pId**, since wwmdb dropped IGN search), encrypts, commits, triggers deploy |
+| `sync-opponent-guilds.yml` | Twice-daily cron (03:45 / 15:45 UTC), manual | Pulls every opponent guild in `data/opponent-guild-ids.json` (identity + member roster) into `data/guild-opponents.json`, commits, triggers deploy — only when the rosters actually changed |
 | `deploy.yml` | Push to `main`, manual, or triggered by a sync | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
 | `backend.yml` | Push to `main` under `backend/**`, manual | Builds the .NET solution; **deploys** API + Functions only when the repo variable `DEPLOY_BACKEND=true` |
 
