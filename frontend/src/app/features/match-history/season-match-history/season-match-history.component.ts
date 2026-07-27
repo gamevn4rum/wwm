@@ -1,10 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { NgxTimelineComponent, NgxTimelineEventGroup, NgxTimelineOrientation } from '@frxjs/ngx-timeline';
-import { map } from 'rxjs/operators';
 import { MatchRecord, MatchType, TimelineNode } from '../match-record.model';
 import { FootagePopupService } from '../../../core/services/footage-popup.service';
-import { DiscordAuthService } from '../../../core/services/discord-auth.service';
 
 const MONTH_LABELS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
@@ -35,7 +32,6 @@ function slugId(date: string, opponent: string): string {
 })
 export class SeasonMatchHistoryComponent {
   private readonly popup = inject(FootagePopupService);
-  private readonly authService = inject(DiscordAuthService);
 
   readonly matches = input<MatchRecord[]>([]);
   /**
@@ -45,12 +41,6 @@ export class SeasonMatchHistoryComponent {
    * always shows exactly two month columns even when quiet.
    */
   readonly historical = input(false);
-
-  /** True when the logged-in user has Footage Permission (FTP). */
-  readonly ftpPermission = toSignal(
-    this.authService.currentUser$.pipe(map((user) => user?.ftp ?? false)),
-    { initialValue: false }
-  );
 
   readonly horizontalOrientation = NgxTimelineOrientation.HORIZONTAL;
   readonly monthYearGroup = NgxTimelineEventGroup.MONTH_YEAR;

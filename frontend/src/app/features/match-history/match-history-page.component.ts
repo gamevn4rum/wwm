@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { MatchRecord, seasonSortValue } from './match-record.model';
 import { MatchHistoryDataService } from './match-history-data.service';
+import { OpponentGuildsService } from '../../core/services/opponent-guilds.service';
 import { SeasonMatchHistoryComponent } from './season-match-history/season-match-history.component';
 
 export interface SeasonGroup {
@@ -17,6 +18,14 @@ export interface SeasonGroup {
 })
 export class MatchHistoryPageComponent implements OnInit, OnDestroy {
   private readonly matchDataService = inject(MatchHistoryDataService);
+
+  /**
+   * Injected for its side effect: constructing the service kicks off the
+   * opponent-guild directory download (~125 kB gzipped) while the user is still
+   * reading the cards, so the match popup has it in hand on first open instead
+   * of showing "Loading guild details…".
+   */
+  private readonly opponentGuilds = inject(OpponentGuildsService);
 
   // ── Loaded from service ───────────────────────────────────────────────────
   readonly allMatches = signal<MatchRecord[]>([]);

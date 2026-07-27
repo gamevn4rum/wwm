@@ -1,0 +1,111 @@
+<div class="footage-popup-overlay" (click)="close()">
+  <div class="footage-popup-panel" (click)="$event.stopPropagation()">
+
+    <div class="footage-popup-header">
+      <span class="footage-popup-title">{{ popup.popupHeader() }}</span>
+      <button class="footage-popup-close" (click)="close()" aria-label="Close">
+        <img src="icons/icon-cross.png" alt="Close" />
+      </button>
+    </div>
+
+    <div class="footage-popup-body">
+
+      <!-- ══ GUILD INFO ══ -->
+      @if (guild(); as g) {
+        <section class="mp-guild">
+          <div class="mp-guild-crest">
+            <img src="icons/icon-shield.png" alt="" />
+          </div>
+          <div class="mp-guild-body">
+            <div class="mp-guild-name-row">
+              <h3 class="mp-guild-name">{{ g.name }}</h3>
+              @if (g.numberId) {
+                <span class="mp-guild-number">#{{ g.numberId }}</span>
+              }
+              @if (g.level != null) {
+                <span class="mp-guild-level">Lv {{ g.level }}</span>
+              }
+            </div>
+
+            @if (formerNames().length) {
+              <p class="mp-guild-aliases">
+                Also recorded as {{ formerNames().join(', ') }}
+              </p>
+            }
+
+            <dl class="mp-guild-facts">
+              <div class="mp-fact">
+                <dt>Members</dt>
+                <dd>{{ g.memberCount }}</dd>
+              </div>
+              <div class="mp-fact">
+                <dt>Server</dt>
+                <dd>{{ g.hostnum ?? '—' }}</dd>
+              </div>
+              <div class="mp-fact">
+                <dt>Founded</dt>
+                <dd>{{ formatUnix(g.createTime) }}</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+      } @else {
+        <p class="mp-no-guild">
+          @if (directoryLoaded()) {
+            No guild details for this opponent yet.
+          } @else {
+            Loading guild details…
+          }
+        </p>
+      }
+
+      <!-- ══ MEMBERS (collapsible) ══ -->
+      @if (guild(); as g) {
+        <details class="mp-group">
+          <summary class="mp-group-summary">
+            <span class="mp-group-title">Members</span>
+            <span class="mp-group-count">{{ g.memberCount }}</span>
+            <span class="mp-group-chevron" aria-hidden="true"></span>
+          </summary>
+          <div class="mp-group-body">
+            @if (members().length === 0) {
+              <p class="mp-group-empty">No roster recorded for this guild.</p>
+            } @else {
+              <ul class="mp-member-grid">
+                @for (member of members(); track member.id || member.name) {
+                  <li class="mp-member">
+                    <span class="mp-member-name">{{ member.name }}</span>
+                    <span class="mp-member-joined">Joined {{ formatUnix(member.joinTime) }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </details>
+      }
+
+      <!-- ══ FOOTAGES (collapsible) — Footage Permission only ══ -->
+      @if (ftpPermission()) {
+        <details class="mp-group" open>
+          <summary class="mp-group-summary">
+            <span class="mp-group-title">Footages</span>
+            <span class="mp-group-count">{{ footages().length }}</span>
+            <span class="mp-group-chevron" aria-hidden="true"></span>
+          </summary>
+          <div class="mp-group-body">
+            @if (footages().length === 0) {
+              <p class="mp-group-empty">No footage found for this match.</p>
+            } @else {
+              <div class="footage-popup-grid">
+                @for (footage of footages(); track footage.videoId + footage.date + footage.uploader) {
+                  <app-footage-video-card [footage]="footage" [eager]="true"></app-footage-video-card>
+                }
+              </div>
+            }
+          </div>
+        </details>
+      }
+
+    </div>
+  </div>
+</div>
