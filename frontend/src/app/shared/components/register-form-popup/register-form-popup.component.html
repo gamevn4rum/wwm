@@ -30,23 +30,21 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <p class="reg-required-note">* Required</p>
 
-          <!-- Discord (backend mode only — links the approved account for login) -->
-          @if (useBackend) {
-            <div class="reg-field">
-              <label class="reg-label" for="reg-discord">Discord Username <span class="req">*</span></label>
-              <input
-                id="reg-discord"
-                class="reg-input"
-                type="text"
-                formControlName="discord"
-                placeholder="Your Discord username"
-                autocomplete="off"
-              />
-              @if (form.controls.discord.invalid && form.controls.discord.touched) {
-                <span class="reg-error">Discord username is required.</span>
-              }
-            </div>
-          }
+          <!-- Discord — links the approved account for login -->
+          <div class="reg-field">
+            <label class="reg-label" for="reg-discord">Discord Username <span class="req">*</span></label>
+            <input
+              id="reg-discord"
+              class="reg-input"
+              type="text"
+              formControlName="discord"
+              placeholder="Your Discord username"
+              autocomplete="off"
+            />
+            @if (form.controls.discord.invalid && form.controls.discord.touched) {
+              <span class="reg-error">Discord username is required.</span>
+            }
+          </div>
 
           <!-- UID -->
           <div class="reg-field">

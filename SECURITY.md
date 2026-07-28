@@ -144,8 +144,9 @@ pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
 
 - **The static site still cannot enforce the registration gate.** The in-app check is
   UX only; the Google Form endpoint accepts unauthenticated POSTs from anywhere, and
-  it has no Discord field, so anyone can submit any IGN/UID and an officer must
-  verify. There is no rate limit available on a static host — if registration spam
+  its Discord field is self-declared and unverified (nothing proves the submitter owns
+  that handle), so anyone can submit any Discord/IGN/UID and an officer must verify.
+  There is no rate limit available on a static host — if registration spam
   becomes a problem, use the Google Form's own "limit to 1 response / require
   sign-in" settings, or wait for the backend (5/min limiter already written).
 - **`guild.enc` still publishes every member's pId**, so PID is only withheld from

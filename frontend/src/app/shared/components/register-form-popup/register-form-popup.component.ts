@@ -26,6 +26,7 @@ const AVAILABILITY = ['7h30+', '8h30+', '9h30+', '🚫'] as const;
 // To find entry IDs: open the Google Form, right-click → View Page Source,
 // then search for "entry." to locate each field's entry ID.
 const FORM_ID         = '1FAIpQLSd6Yy9XG3ctcA76MXiL7FAMxBAjfnrMX6aflpcon4dnVTqgng';
+const ENTRY_DISCORD = 'entry.495718859';
 const ENTRY_UID = 'entry.1358790419';
 const ENTRY_IGN = 'entry.1196526175';
 const ENTRY_MAIN = 'entry.1309785826';
@@ -51,12 +52,11 @@ export class RegisterFormPopupComponent {
   readonly submitted        = signal(false);
   readonly submitting       = signal(false);
   readonly error            = signal<string | null>(null);
-  // The Discord field only exists in backend mode (the Google Form has no entry
-  // for it), so it's only required there.
-  readonly useBackend       = environment.useBackend;
 
   readonly form = new FormGroup({
-    discord:   new FormControl('', { validators: environment.useBackend ? [Validators.required, Validators.minLength(2)] : [], nonNullable: true }),
+    // Required in both modes: the backend stores it on the Registration and the
+    // Google Form now carries a matching field.
+    discord:   new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
     uid:       new FormControl('', { validators: Validators.required, nonNullable: true }),
     ign:       new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
     main:      new FormControl('', { validators: Validators.required, nonNullable: true }),
@@ -103,8 +103,10 @@ export class RegisterFormPopupComponent {
           sunday: v.sunday,
         }));
       } else {
-        // Static mode: post to the Google Form (no Discord entry there).
+        // Static mode: post to the Google Form. Officers transcribe the response
+        // row onto the Members sheet, where Discord is the login key.
         const body = new URLSearchParams({
+          [ENTRY_DISCORD]:   v.discord,
           [ENTRY_UID]:       v.uid,
           [ENTRY_IGN]:       v.ign,
           [ENTRY_MAIN]:      v.main,
@@ -178,6 +180,10 @@ export class RegisterFormPopupComponent {
         return 'You already have a pending registration.';
       case 'uid_required':
         return 'Your in-game UID is required.';
+      case 'discord_and_ign_required':
+        return 'Your Discord username and in-game name are both required.';
+      case 'field_too_long':
+        return 'One of the fields is too long. Shorten it and try again.';
       default:
         return status === 409
           ? 'You already have a pending registration.'
