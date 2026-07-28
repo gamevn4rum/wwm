@@ -20,6 +20,7 @@
     "@angular/router": "^21.2.0",
     "@angular/youtube-player": "^21.2.14",
     "@frxjs/ngx-timeline": "^21.0.2",
+    "html-to-image": "^1.11.13",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

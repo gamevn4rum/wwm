@@ -3,7 +3,7 @@ import { GuildDataService } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
 import { Guild, GuildMember } from './guild.model';
-import { compactNumber, formatUnixDate } from './guild-format';
+import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from './guild-format';
 
 
 /** A roster member joined with their in-game profile (absent until stats load,
@@ -142,29 +142,10 @@ export class GuildPageComponent implements OnInit {
     return this.relativeTime(entry.lastSeen);
   }
 
-  /** Unix seconds → a coarse "5m / 4h / 3d / 2w ago"; falls back to the date
-   *  once it's older than ~4 weeks. */
-  relativeTime(unixSeconds: number): string {
-    const seconds = Date.now() / 1000 - unixSeconds;
-    if (seconds < 60) return 'just now';
-    const minutes = seconds / 60;
-    if (minutes < 60) return `${Math.floor(minutes)}m ago`;
-    const hours = minutes / 60;
-    if (hours < 24) return `${Math.floor(hours)}h ago`;
-    const days = hours / 24;
-    if (days < 28) return `${Math.floor(days)}d ago`;
-    return this.formatDate(unixSeconds);
-  }
-
-  /** Cumulative play seconds → "1,051h" (or "42m" under an hour). */
-  playtime(seconds: number | null | undefined): string {
-    if (!seconds) return '—';
-    const hours = seconds / 3600;
-    if (hours < 1) return `${Math.round(seconds / 60)}m`;
-    return `${Math.round(hours).toLocaleString('en-GB')}h`;
-  }
-
   /** Template hooks for the shared formatters (see guild-format.ts). */
+  readonly relativeTime = relativeTime;
+  readonly playtime = playtimeLabel;
+
   compact(value: number | null | undefined): string {
     return compactNumber(value);
   }

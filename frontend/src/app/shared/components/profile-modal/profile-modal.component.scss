@@ -1,0 +1,619 @@
+// Profile modal. Shares the register popup's overlay/panel language; the card
+// inside is what the screenshot button rasterizes, so it has to look complete
+// on its own (hence the watermark and the self-contained header).
+
+// ── Overlay & panel ────────────────────────────────────────────────────────────
+.pm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(58, 48, 34, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: pm-overlay-fade var(--transition-base);
+}
+
+.pm-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100dvh - 3rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: pm-panel-rise var(--transition-base);
+}
+
+@keyframes pm-overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pm-panel-rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// ── Toolbar (outside the capture) ──────────────────────────────────────────────
+.pm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.pm-toolbar-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
+}
+
+.pm-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pm-shot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink-soft);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-tint);
+    border-color: var(--color-primary-light);
+    color: var(--color-ink);
+  }
+
+  &:disabled { opacity: 0.6; cursor: default; }
+
+  &.is-done { color: var(--color-secondary-dark); border-color: var(--color-secondary); }
+  &.is-failed { color: var(--color-danger); border-color: var(--color-danger); }
+}
+
+.pm-shot-icon { font-size: 0.85rem; line-height: 1; }
+
+.pm-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-primary-tint);
+    border-color: var(--color-primary-light);
+  }
+
+  img { width: 16px; height: 16px; object-fit: contain; display: block; opacity: 0.7; }
+}
+
+// ── Card (the captured surface) ────────────────────────────────────────────────
+.pm-card {
+  background: var(--color-surface);
+  padding: 1.35rem 1.5rem 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+// ── Identity ───────────────────────────────────────────────────────────────────
+.pm-identity {
+  --accent: var(--color-primary);
+  --accent-tint: var(--color-primary-tint);
+
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--color-border);
+
+  &.rank-commander { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
+  &.rank-creator,
+  &.rank-admin { --accent: var(--color-secondary); --accent-tint: var(--color-secondary-tint); }
+}
+
+.pm-avatar {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--accent);
+  background: var(--accent-tint);
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.pm-identity-text { min-width: 0; flex: 1; }
+
+.pm-ign {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.pm-handle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  margin-top: 0.2rem;
+}
+
+.pm-role {
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.pm-dot { opacity: 0.5; }
+
+.pm-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-secondary-dark);
+}
+
+.pm-online-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+}
+
+.pm-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+}
+
+.pm-level-num {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-ink);
+}
+
+.pm-level-label {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-ink-faint);
+}
+
+// ── Sections ───────────────────────────────────────────────────────────────────
+.pm-section { padding-top: 1.15rem; }
+
+.pm-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-ink-faint);
+  margin-bottom: 0.75rem;
+}
+
+.pm-subheading {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink-soft);
+  margin: 0.9rem 0 0.5rem;
+
+  &:first-of-type { margin-top: 0; }
+}
+
+.pm-count {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--color-ink-faint);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.3rem;
+}
+
+.pm-note,
+.pm-placeholder {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  line-height: 1.6;
+}
+
+.pm-placeholder {
+  padding: 2rem 0.5rem;
+  text-align: center;
+}
+
+.pm-placeholder-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: 0.4rem;
+}
+
+// ── Stat grid ──────────────────────────────────────────────────────────────────
+.pm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.pm-stat {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+
+  dt {
+    font-family: var(--font-body);
+    font-size: 0.62rem;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  dd {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-top: 0.15rem;
+    overflow-wrap: anywhere;
+
+    &.is-online { color: var(--color-secondary-dark); }
+    &.mono { font-variant-numeric: tabular-nums; font-size: 0.82rem; }
+  }
+}
+
+// ── Achievements ───────────────────────────────────────────────────────────────
+.pm-achievements {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6rem;
+  list-style: none;
+}
+
+.pm-achievement {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+
+  &.is-rare { border-left-color: var(--color-primary); }
+  &.is-locked { opacity: 0.72; }
+}
+
+.pm-ach-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pm-ach-name {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.pm-ach-points {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.pm-ach-desc {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+  margin-top: 0.2rem;
+}
+
+.pm-ach-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  color: var(--color-ink-faint);
+}
+
+.pm-ach-cat {
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.pm-ach-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-ach-bar {
+  display: block;
+  width: 54px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.pm-ach-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+
+// ── Build: inner ways ──────────────────────────────────────────────────────────
+.pm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+}
+
+.pm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-ink);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--tier-color, var(--color-border));
+  border-radius: var(--radius-pill);
+  padding: 0.3rem 0.7rem;
+
+  // Same rarity ramp as the gear cards.
+  &.tier-1 { --tier-color: #9c8f79; }
+  &.tier-2 { --tier-color: #7c9473; }
+  &.tier-3 { --tier-color: #6e88a8; }
+  &.tier-4 { --tier-color: #8b6f94; }
+  &.tier-5 { --tier-color: #a9822f; }
+}
+
+.pm-chip-tier {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--tier-color, var(--color-ink-faint));
+}
+
+// ── Build: set effects ─────────────────────────────────────────────────────────
+.pm-sets {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.pm-set {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+}
+
+.pm-set-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pm-set-name {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.pm-set-count {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-ink-faint);
+}
+
+.pm-set-bonus {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+  margin-top: 0.3rem;
+
+  &.is-inactive { opacity: 0.5; }
+}
+
+.pm-set-tag {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-on-dark);
+  background: var(--color-primary);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.4rem;
+}
+
+// ── Build: gear ────────────────────────────────────────────────────────────────
+.pm-gear {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.pm-gear-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--tier-color, var(--color-border-strong));
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+
+  // Gear rarity ramp — grey → green → blue → plum → gold.
+  &.tier-1 { --tier-color: #9c8f79; }
+  &.tier-2 { --tier-color: #7c9473; }
+  &.tier-3 { --tier-color: #6e88a8; }
+  &.tier-4 { --tier-color: #8b6f94; }
+  &.tier-5 { --tier-color: #a9822f; }
+}
+
+.pm-gear-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.pm-gear-slot {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.pm-gear-tier {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--tier-color, var(--color-ink-faint));
+}
+
+.pm-gear-name {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-top: 0.1rem;
+}
+
+.pm-gear-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+}
+
+.pm-gear-set { color: var(--color-primary-dark); }
+.pm-gear-ilvl { color: var(--color-ink-faint); }
+
+.pm-gear-attrs {
+  list-style: none;
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--color-ink-soft);
+  line-height: 1.6;
+
+  b { color: var(--color-ink); font-variant-numeric: tabular-nums; }
+}
+
+.pm-gear-affixes {
+  list-style: none;
+  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pm-affix {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+  padding-left: 0.55rem;
+  border-left: 2px solid var(--tier-color, var(--color-border));
+
+  b { color: var(--color-ink); margin-left: 0.2rem; font-variant-numeric: tabular-nums; }
+
+  &.effect { color: var(--color-ink-faint); font-style: italic; }
+  &.tier-1 { --tier-color: #9c8f79; }
+  &.tier-2 { --tier-color: #7c9473; }
+  &.tier-3 { --tier-color: #6e88a8; }
+  &.tier-4 { --tier-color: #8b6f94; }
+  &.tier-5 { --tier-color: #a9822f; }
+}
+
+// ── Watermark (only meaningful once the card is shared as an image) ────────────
+.pm-watermark {
+  margin-top: 1.25rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-ink-faint);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .pm-overlay { padding: 0.75rem; }
+  .pm-card { padding: 1rem 1rem 0.75rem; }
+  .pm-ign { font-size: 1.25rem; }
+  .pm-toolbar-title { display: none; }
+}

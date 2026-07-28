@@ -163,6 +163,14 @@ pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
   static Register form, whose POST was silently CSP-blocked in production. It widens
   the exfiltration channel a hypothetical XSS could use; `form-action 'self'` and the
   sanitizer are the compensating controls.
+- **CSP `connect-src` also allows the Discord CDN and Google Fonts** — the profile
+  modal's screenshot button rasterizes the card with `html-to-image`, which *fetches*
+  the avatar and the font files to inline them into the PNG. Both origins were already
+  trusted for loading (`img-src` / `font-src` / `style-src`); this lets the page read
+  them, which is the same widening trade-off as the bullet above. `font-src` also
+  allows `data:`, because inlined fonts arrive as data URIs — fonts are inert content,
+  not script. Removing any of this doesn't break the modal — only the screenshot's
+  avatar and typography.
 
 ## Minor notes
 

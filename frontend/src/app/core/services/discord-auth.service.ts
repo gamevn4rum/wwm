@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { MembersDataService } from './members-data.service';
 import { SheetRow } from '../models/sheet.model';
-import { isRegisteredRow } from '../utils/sheet.utils';
+import { findVal, isRegisteredRow } from '../utils/sheet.utils';
 import { environment } from '../../../environments/environment';
 import { apiUrl } from '../api';
 
@@ -20,6 +20,9 @@ export interface DiscordUserSession {
   username: string;
   avatarUrl: string;
   isAuthorized: boolean;
+  /** Roster IGN of the Members row this session resolved to — the key the
+   *  profile modal looks the member's in-game data up by. */
+  ign?: string;
   role: UserRole;
   /** Formation Permission */
   fp: boolean;
@@ -66,6 +69,7 @@ export class DiscordAuthService {
     username: 'Shinigamae',
     avatarUrl: 'https://cdn.discordapp.com/embed/avatars/0.png',
     isAuthorized: true,
+    ign: 'Shinigamae',
     role: 'Creator',
     fp: true,
     ftp: true,
@@ -240,6 +244,7 @@ export class DiscordAuthService {
           username: fetchedUsername,
           avatarUrl: this.buildAvatarUrl(profile),
           isAuthorized: true,
+          ign: findVal(memberRecord, 'ign') || undefined,
           role: this.resolveRole(fetchedUsername, memberRecord),
           fp,
           ftp,

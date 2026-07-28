@@ -1,0 +1,246 @@
+<div class="pm-overlay" (click)="close()">
+  <div class="pm-panel" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="My profile">
+
+    <!-- Toolbar: never part of the screenshot (it sits outside the capture target). -->
+    <div class="pm-toolbar pm-noshot">
+      <span class="pm-toolbar-title">MY PROFILE</span>
+      <div class="pm-toolbar-actions">
+        <button
+          type="button"
+          class="pm-shot-btn"
+          [class.is-done]="shot() === 'copied' || shot() === 'downloaded'"
+          [class.is-failed]="shot() === 'failed'"
+          [disabled]="shot() === 'working'"
+          (click)="screenshot()"
+        >
+          <span class="pm-shot-icon" aria-hidden="true">⎘</span>
+          {{ shotLabel() }}
+        </button>
+        <button class="pm-close" type="button" (click)="close()" aria-label="Close">
+          <img src="icons/icon-cross.png" alt="" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Everything below is what the screenshot captures. -->
+    <div class="pm-card" #shotTarget>
+
+      @let user = session();
+      @let prof = profile();
+      @let p = prof?.detail;
+
+      <!-- Identity -->
+      <header class="pm-identity" [class]="'pm-identity ' + rankClass()">
+        <div class="pm-avatar">
+          <img [src]="user?.avatarUrl" [alt]="user?.username || ''" crossorigin="anonymous" />
+        </div>
+        <div class="pm-identity-text">
+          <h2 class="pm-ign">{{ prof?.ign || user?.username }}</h2>
+          <p class="pm-handle">
+            <span class="pm-role">{{ user?.role }}</span>
+            <span class="pm-dot">·</span>
+            <span>&#64;{{ user?.username }}</span>
+            @if (p?.isOnline) {
+              <span class="pm-online"><span class="pm-online-dot"></span>ONLINE</span>
+            }
+          </p>
+        </div>
+        @if (p?.level) {
+          <div class="pm-level">
+            <span class="pm-level-num">{{ p!.level }}</span>
+            <span class="pm-level-label">LEVEL</span>
+          </div>
+        }
+      </header>
+
+      @if (loading()) {
+        <div class="pm-placeholder">Loading your profile…</div>
+      } @else if (!p) {
+        <div class="pm-placeholder">
+          <p class="pm-placeholder-title">No in-game profile linked</p>
+          <p>
+            Your roster row has no resolved game character yet, so there is nothing to
+            show here. An officer can link your UID on the Members sheet.
+          </p>
+        </div>
+      } @else {
+
+        <!-- In-game data -->
+        <section class="pm-section">
+          <h3 class="pm-heading">IN-GAME</h3>
+          <dl class="pm-stats">
+            <div class="pm-stat">
+              <dt>School</dt>
+              <dd [style.color]="schoolColor(p.school)">{{ p.school || '—' }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Weapon Mastery</dt>
+              <dd>{{ compact(p.weaponMasteryMax) }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Elegance</dt>
+              <dd>{{ compact(p.eleganceScore) }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Playtime</dt>
+              <dd>{{ playtime(p.onlineTime) }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Last online</dt>
+              <dd [class.is-online]="p.isOnline">{{ lastSeenLabel(p) }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Region</dt>
+              <dd>{{ p.region || '—' }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Server</dt>
+              <dd class="mono">{{ p.server ?? '—' }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Language</dt>
+              <dd>{{ languageLabel(p.language) }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>Joined</dt>
+              <dd>{{ formatDate(p.createTime) }}</dd>
+            </div>
+            <div class="pm-stat">
+              <dt>UID</dt>
+              <dd class="mono">{{ p.numberId || '—' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Achievements -->
+        <section class="pm-section">
+          <h3 class="pm-heading">
+            ACHIEVEMENTS
+            @if (prof!.achievements.length) {
+              <span class="pm-count">{{ prof!.achievements.length }}</span>
+            }
+          </h3>
+
+          @if (prof!.achievementsUnavailable) {
+            <p class="pm-note">Achievements aren’t wired to a data source yet.</p>
+          } @else if (!prof!.achievements.length) {
+            <p class="pm-note">No achievements earned yet.</p>
+          } @else {
+            <ul class="pm-achievements">
+              @for (a of prof!.achievements; track a.id) {
+                <li class="pm-achievement" [class.is-rare]="a.rare" [class.is-locked]="!a.earnedAt">
+                  <div class="pm-ach-top">
+                    <span class="pm-ach-name">{{ a.name }}</span>
+                    @if (a.points) { <span class="pm-ach-points">{{ a.points }} pts</span> }
+                  </div>
+                  @if (a.description) {
+                    <p class="pm-ach-desc">{{ a.description }}</p>
+                  }
+                  <div class="pm-ach-foot">
+                    @if (a.category) { <span class="pm-ach-cat">{{ a.category }}</span> }
+                    @if (a.earnedAt) {
+                      <span class="pm-ach-date">{{ formatDate(a.earnedAt) }}</span>
+                    } @else if (a.progress) {
+                      <span class="pm-ach-progress">
+                        <span class="pm-ach-bar">
+                          <span
+                            class="pm-ach-bar-fill"
+                            [style.width.%]="(a.progress.current / a.progress.target) * 100"
+                          ></span>
+                        </span>
+                        {{ a.progress.current | number }} / {{ a.progress.target | number }}
+                      </span>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <!-- Build: inner ways, set effects, gear -->
+        <section class="pm-section">
+          <h3 class="pm-heading">BUILD</h3>
+
+          @if (p.innerWays.length) {
+            <h4 class="pm-subheading">Inner Ways <span class="pm-count">{{ p.innerWays.length }}</span></h4>
+            <ul class="pm-chips">
+              @for (iw of p.innerWays; track iw.id) {
+                <li class="pm-chip" [class]="'pm-chip ' + tierClass(iw.tier)">
+                  <span class="pm-chip-name">{{ innerWayLabel(iw) }}</span>
+                  @if (iw.tier) { <span class="pm-chip-tier">T{{ iw.tier }}</span> }
+                </li>
+              }
+            </ul>
+          }
+
+          @let activeSets = activeSetEffects(p);
+          @if (activeSets.length) {
+            <h4 class="pm-subheading">Set Effects <span class="pm-count">{{ activeSets.length }}</span></h4>
+            <ul class="pm-sets">
+              @for (s of activeSets; track s.set.id) {
+                <li class="pm-set">
+                  <div class="pm-set-top">
+                    <span class="pm-set-name">◈ {{ s.set.name }}</span>
+                    <span class="pm-set-count">{{ s.count }} pc</span>
+                  </div>
+                  @if (s.bonus2Active && s.resolvedBonus2.length) {
+                    <p class="pm-set-bonus">
+                      <span class="pm-set-tag">2</span>
+                      @for (b of s.resolvedBonus2; track b.attrName) {
+                        <span class="pm-set-attr">{{ b.attrName }} +{{ b.value | number }}</span>
+                      }
+                    </p>
+                  }
+                  @for (b4 of s.set.bonuses4; track b4.id) {
+                    <p class="pm-set-bonus" [class.is-inactive]="!s.bonus4Active">
+                      <span class="pm-set-tag">4</span>
+                      <span class="pm-set-attr">{{ b4.name }} — {{ b4.description }}</span>
+                    </p>
+                  }
+                </li>
+              }
+            </ul>
+          }
+
+          @if (p.gear.length) {
+            <h4 class="pm-subheading">Gear <span class="pm-count">{{ p.gear.length }}</span></h4>
+            <div class="pm-gear">
+              @for (slot of p.gear; track slot.slot) {
+                <div class="pm-gear-card" [class]="'pm-gear-card ' + tierClass(slot.tier)">
+                  <div class="pm-gear-top">
+                    <span class="pm-gear-slot">{{ slot.slotName || 'Slot ' + slot.slot }}</span>
+                    @if (slot.tier) { <span class="pm-gear-tier">T{{ slot.tier }}</span> }
+                  </div>
+                  <span class="pm-gear-name">{{ slot.name }}</span>
+                  <div class="pm-gear-tags">
+                    @if (slot.set?.name) { <span class="pm-gear-set">◈ {{ slot.set!.name }}</span> }
+                    @if (slot.level) { <span class="pm-gear-ilvl">iLv {{ slot.level }}</span> }
+                  </div>
+                  @if (slot.attributes.length) {
+                    <ul class="pm-gear-attrs">
+                      @for (at of slot.attributes; track at.name) {
+                        <li>{{ at.name }} <b>{{ at.value | number }}</b></li>
+                      }
+                    </ul>
+                  }
+                  @if (slot.affixes.length) {
+                    <ul class="pm-gear-affixes">
+                      @for (af of slot.affixes; track af.name) {
+                        <li [class]="isEffectAffix(af.name) ? 'pm-affix effect ' + tierClass(af.tier) : 'pm-affix ' + tierClass(af.tier)">
+                          {{ af.name }}@if (af.value != null) { <b>{{ af.value | number }}</b> }
+                        </li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <footer class="pm-watermark">GameVN・Where Winds Meet</footer>
+    </div>
+  </div>
+</div>

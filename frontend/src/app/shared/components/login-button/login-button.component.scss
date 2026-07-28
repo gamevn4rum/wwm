@@ -35,18 +35,78 @@
   --accent-tint: var(--color-secondary-tint);
 }
 
-.member-badge:hover {
+.member-badge:hover,
+.member-badge.is-open {
   box-shadow: var(--shadow-md);
   border-color: var(--accent);
-  transform: translateY(-1px);
+}
 
-  .badge-avatar,
-  .badge-info {
-    opacity: 0;
+.member-badge:hover {
+  transform: translateY(-1px);
+}
+
+/* The badge is a menu trigger, so it keeps its identity on hover — the caret is
+   the affordance, and the destructive action lives behind the menu rather than
+   firing on a stray click. */
+.login-badge-wrapper {
+  position: relative;
+}
+
+.badge-caret {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--color-ink-faint);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+
+  .member-badge.is-open & {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+}
+
+.badge-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  left: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  animation: badge-menu-drop var(--transition-fast);
+}
+
+@keyframes badge-menu-drop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.badge-menu-item {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--color-ink);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-surface-alt);
   }
 
-  .logout-overlay {
-    opacity: 1;
+  &.is-danger {
+    color: var(--color-danger);
+
+    &:hover { background: var(--color-danger-tint); }
   }
 }
 
@@ -112,23 +172,6 @@
 
 .login-only-text {
   align-items: center;
-}
-
-.logout-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-danger);
-  border-radius: var(--radius-md);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-  pointer-events: none;
 }
 
 /* ── Loading skeleton — shown while the session is being verified against
