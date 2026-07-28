@@ -231,3 +231,19 @@ html, body {
   background-clip: text;
   color: transparent;
 }
+
+/* ── Item rarity ramp ───────────────────────────────────────────────────────
+   The game's ordinal tier colours: 1 grey → 2 green → 3 blue → 4 purple →
+   5 gold. Global rather than per-component so gear cards, inner ways and the
+   profile card can never drift apart. Consumers read --tier (a line, a label)
+   and --tier-fill (a background tint that stays legible on parchment). */
+.tier-0 { --tier: var(--color-ink-faint); }
+.tier-1 { --tier: #9c8f79; }
+.tier-2 { --tier: #7c9473; }
+.tier-3 { --tier: #6e88a8; }
+.tier-4 { --tier: #8b6f94; }
+.tier-5 { --tier: #c8912f; }
+
+.tier-0, .tier-1, .tier-2, .tier-3, .tier-4, .tier-5 {
+  --tier-fill: color-mix(in srgb, var(--tier) 20%, var(--color-surface));
+}

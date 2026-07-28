@@ -176,18 +176,19 @@
                     <span class="pm-set-name">◈ {{ s.set.name }}</span>
                     <span class="pm-set-count">{{ s.count }} pieces</span>
                   </div>
+                  <!-- The 2/4 badge trails the effect inline, so it never takes
+                       a line of its own. -->
                   @if (s.bonus2Active && s.resolvedBonus2.length) {
                     <p class="pm-set-bonus">
-                      <span class="pm-set-tag">2</span>
                       @for (b of s.resolvedBonus2; track b.attrName) {
                         <span class="pm-set-attr">{{ b.attrName }} +{{ b.value | number }}</span>
-                      }
+                      }<span class="pm-set-tag">2</span>
                     </p>
                   }
                   @for (b4 of s.set.bonuses4; track b4.id) {
                     <p class="pm-set-bonus" [class.is-inactive]="!s.bonus4Active">
-                      <span class="pm-set-tag">4</span>
-                      <span class="pm-set-attr">{{ b4.name }} — {{ b4.description }}</span>
+                      <span class="pm-set-attr">{{ b4.name }} — {{ b4.description }}</span
+                      ><span class="pm-set-tag">4</span>
                     </p>
                   }
                 </li>

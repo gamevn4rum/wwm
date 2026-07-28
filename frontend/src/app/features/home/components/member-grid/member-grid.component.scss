@@ -407,23 +407,30 @@
 /* ── Inner Ways ── */
 .inner-ways-section { margin-top: var(--space-2); margin-bottom: var(--space-5); }
 
+/* A member equips four inner ways, so they line up as four boxes in one row. */
 .inner-ways-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-/* Reuses the same ordinal tier ramp as gear (--tier custom property, tier-0..5). */
+/* Tier is carried by the fill, not just a rule: gold T5, purple T4, blue T3.
+   Ramp and --tier-fill come from styles.css. */
 .inner-way-card {
   --tier: var(--color-ink-faint);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
-  border: 1px solid var(--color-border);
-  border-left: 3px solid var(--tier);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  padding: 0.3rem 0.7rem;
+  text-align: left;
+  border: 1px solid var(--tier);
+  border-radius: var(--radius-sm);
+  background: var(--tier-fill, var(--color-surface));
+  padding: 0.4rem 0.7rem;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   font: inherit;
@@ -443,7 +450,9 @@
   font-family: var(--font-heading);
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--tier);
+  // Ink, not --tier: the tier now shows as the card's fill, and tier-on-tint
+  // would not hold contrast.
+  color: var(--color-ink);
 }
 
 .iw-tier {
@@ -694,12 +703,7 @@
   flex-direction: column;
   gap: var(--space-2);
 }
-.tier-0 { --tier: var(--color-ink-faint); }
-.tier-1 { --tier: #9c8f79; }
-.tier-2 { --tier: #7c9473; }
-.tier-3 { --tier: #6e88a8; }
-.tier-4 { --tier: #8b6f94; }
-.tier-5 { --tier: #c8912f; }
+/* The tier ramp itself now lives in styles.css so every surface shares it. */
 
 .gear-card-top {
   display: flex;
