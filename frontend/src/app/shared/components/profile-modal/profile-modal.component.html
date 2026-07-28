@@ -24,6 +24,29 @@
       </div>
     </div>
 
+    <!-- Capture options. Also outside the target, and they hide sections from the
+         card itself rather than only from the PNG — so the modal is a live preview
+         of what you are about to share. All off by default. -->
+    <div class="pm-shot-opts pm-noshot">
+      <span class="pm-shot-opts-label">HIDE</span>
+      <label class="pm-opt">
+        <input type="checkbox" [checked]="hideInfo()" (change)="hideInfo.set(!hideInfo())" />
+        <span>Player info</span>
+      </label>
+      <label class="pm-opt">
+        <input type="checkbox" [checked]="hideStanding()" (change)="hideStanding.set(!hideStanding())" />
+        <span>Standing</span>
+      </label>
+      <label class="pm-opt">
+        <input type="checkbox" [checked]="hideInnerWays()" (change)="hideInnerWays.set(!hideInnerWays())" />
+        <span>Inner Ways</span>
+      </label>
+      <label class="pm-opt">
+        <input type="checkbox" [checked]="hideBuild()" (change)="hideBuild.set(!hideBuild())" />
+        <span>Set Effects + Gear</span>
+      </label>
+    </div>
+
     <!-- Everything below is what the screenshot captures. -->
     <div class="pm-card" #shotTarget>
 
@@ -33,27 +56,34 @@
 
       <!-- Identity ---------------------------------------------------------->
       <header class="pm-identity" [class]="'pm-identity ' + rankClass()">
-        <div class="pm-avatar">
-          <img [src]="user?.avatarUrl" [alt]="user?.username || ''" crossorigin="anonymous" />
-        </div>
+        <!-- "Hide player info" strips everything that identifies the person behind
+             the character — avatar, Discord handle, role, region/server/language —
+             and keeps only the IGN and level. -->
+        @if (!hideInfo()) {
+          <div class="pm-avatar">
+            <img [src]="user?.avatarUrl" [alt]="user?.username || ''" crossorigin="anonymous" />
+          </div>
+        }
 
         <div class="pm-identity-text">
           <h2 class="pm-ign">{{ prof?.ign || user?.username }}</h2>
-          <p class="pm-handle">
-            <span class="pm-role">{{ user?.role }}</span>
-            <span class="pm-sep">·</span>
-            <span>&#64;{{ user?.username }}</span>
-            @if (p?.isOnline) {
-              <span class="pm-online"><span class="pm-online-dot"></span>ONLINE</span>
-            }
-          </p>
-          @if (p) {
-            <p class="pm-origin">
-              @if (p.region) { <span>{{ p.region }}</span> }
-              @if (p.server) { <span class="pm-sep">·</span><span>Server {{ p.server }}</span> }
-              @if (p.language) { <span class="pm-sep">·</span><span>{{ languageLabel(p.language) }}</span> }
-              @if (p.school) { <span class="pm-sep">·</span><span [style.color]="schoolColor(p.school)">{{ p.school }}</span> }
+          @if (!hideInfo()) {
+            <p class="pm-handle">
+              <span class="pm-role">{{ user?.role }}</span>
+              <span class="pm-sep">·</span>
+              <span>&#64;{{ user?.username }}</span>
+              @if (p?.isOnline) {
+                <span class="pm-online"><span class="pm-online-dot"></span>ONLINE</span>
+              }
             </p>
+            @if (p) {
+              <p class="pm-origin">
+                @if (p.region) { <span>{{ p.region }}</span> }
+                @if (p.server) { <span class="pm-sep">·</span><span>Server {{ p.server }}</span> }
+                @if (p.language) { <span class="pm-sep">·</span><span>{{ languageLabel(p.language) }}</span> }
+                @if (p.school) { <span class="pm-sep">·</span><span [style.color]="schoolColor(p.school)">{{ p.school }}</span> }
+              </p>
+            }
           }
         </div>
 
@@ -78,6 +108,7 @@
       } @else {
 
         <!-- Standing --------------------------------------------------------->
+        @if (!hideStanding()) {
         <section class="pm-section">
           <h3 class="pm-heading"><span>STANDING</span></h3>
           <dl class="pm-stats">
@@ -103,6 +134,7 @@
             </div>
           </dl>
         </section>
+        }
 
         <!-- Achievements — the whole section stays hidden until there is data. -->
         @if (prof!.achievements.length) {
@@ -144,7 +176,7 @@
         }
 
         <!-- Inner ways ------------------------------------------------------->
-        @if (p.innerWays.length) {
+        @if (p.innerWays.length && !hideInnerWays()) {
           <section class="pm-section">
             <h3 class="pm-heading">
               <span>INNER WAYS</span>
@@ -163,7 +195,7 @@
 
         <!-- Set effects ------------------------------------------------------>
         @let activeSets = activeSetEffects(p);
-        @if (activeSets.length) {
+        @if (activeSets.length && !hideBuild()) {
           <section class="pm-section">
             <h3 class="pm-heading">
               <span>SET EFFECTS</span>
@@ -198,7 +230,8 @@
         }
 
         <!-- Gear ------------------------------------------------------------->
-        @if (p.gear.length) {
+        <!-- Same checkbox as Set Effects: the two read as one "build" block. -->
+        @if (p.gear.length && !hideBuild()) {
           <section class="pm-section">
             <h3 class="pm-heading">
               <span>GEAR</span>

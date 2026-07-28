@@ -88,19 +88,36 @@
                 <span class="detail-sub">
                   <span class="detail-rank rank-chip">{{ player.rank.toUpperCase() }}</span>
                   @if (p.numberId) { <span class="detail-uid">#{{ p.numberId }}</span> }
-                  @if (joinedLabel(p.createTime); as joined) { <span class="detail-joined">{{ joined }}</span> }
+                  <!-- `.mg-noshot` = kept on screen, dropped from the shared PNG.
+                       The share card is name + UID + rank only (see share()). -->
+                  @if (joinedLabel(p.createTime); as joined) { <span class="detail-joined mg-noshot">{{ joined }}</span> }
                 </span>
-                @if (player.notes) { <span class="detail-notes">{{ player.notes }}</span> }
+                @if (player.notes) { <span class="detail-notes mg-noshot">{{ player.notes }}</span> }
               </div>
-              <button type="button" class="detail-close" aria-label="Collapse" (click)="toggle(player, $event)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                </svg>
-              </button>
+
+              <div class="detail-actions mg-noshot">
+                <button
+                  type="button"
+                  class="detail-share"
+                  [class.is-done]="shotPlayerId() === player.id && (shotState() === 'copied' || shotState() === 'downloaded')"
+                  [class.is-failed]="shotPlayerId() === player.id && shotState() === 'failed'"
+                  [disabled]="shotPlayerId() === player.id && shotState() === 'working'"
+                  [title]="'Copy ' + p.name + '\'s build as an image'"
+                  (click)="share(player, $event)"
+                >
+                  <span class="detail-share-icon" aria-hidden="true">⎘</span>
+                  {{ shotLabel(player) }}
+                </button>
+                <button type="button" class="detail-close" aria-label="Collapse" (click)="toggle(player, $event)">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <!-- Stat tiles -->
-            <div class="stat-tiles">
+            <div class="stat-tiles mg-noshot">
               <div class="stat-tile tile-level">
                 <svg class="tile-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 22l-5.3-2.8 1-5.8-4.2-4.1 5.9-.9z"
@@ -170,7 +187,7 @@
                   @let openIw = findInnerWay(p, openInnerWayId());
                   @if (openIw) {
                     @let info = innerWayInfo(openIw.id);
-                    <div class="iw-detail-panel" [class]="'iw-detail-panel ' + tierClass(openIw.tier)" (click)="$event.stopPropagation()">
+                    <div class="iw-detail-panel mg-noshot" [class]="'iw-detail-panel mg-noshot ' + tierClass(openIw.tier)" (click)="$event.stopPropagation()">
                       <div class="iw-detail-header">
                         <span class="iw-detail-name">{{ openIw.name }}</span>
                         @if (openIw.tier) { <span class="iw-tier">T{{ openIw.tier }}</span> }
@@ -241,7 +258,7 @@
             <!-- Set Effects (active 2pc/4pc bonuses) -->
             @let activeSets = activeSetEffects(p);
             @if (activeSets.length) {
-              <div class="set-effects-section">
+              <div class="set-effects-section mg-noshot">
                 <h3 class="gear-heading">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 2l9 5v10l-9 5-9-5V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />

@@ -1,5 +1,7 @@
 import { Component, HostListener, computed, inject, input, OnInit, signal } from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { toBlob } from 'html-to-image';
+import { cardFontCss } from '../../../../core/utils/card-fonts';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
@@ -16,6 +18,10 @@ export type { ActiveSetEffect };
 
 /** Only fully-upgraded inner ways count for the Formation filter. */
 const TIER_FILTERED = 5;
+
+/** Where a share ended up. Clipboard first, download for browsers that refuse
+ *  image writes (Firefox, older Safari) — same ladder as the profile modal. */
+type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
 
 @Component({
   selector: 'app-member-grid',
@@ -221,5 +227,108 @@ export class MemberGridComponent implements OnInit {
 
   activeSetEffects(p: PlayerDetail): ActiveSetEffect[] {
     return computeActiveSetEffects(p, this.setsById());
+  }
+
+  // ── Share (one card → clipboard) ──────────────────────────────────────────
+  // Only one card is expanded at a time, so a single state pair is enough; the
+  // id is here purely so the label only changes on the card you clicked.
+  readonly shotState = signal<ShotState>('idle');
+  readonly shotPlayerId = signal<string | null>(null);
+
+  shotLabel(player: Player): string {
+    if (this.shotPlayerId() !== player.id) return 'SHARE';
+    switch (this.shotState()) {
+      case 'working':    return 'CAPTURING…';
+      case 'copied':     return 'COPIED';
+      case 'downloaded': return 'SAVED';
+      case 'failed':     return 'FAILED';
+      default:           return 'SHARE';
+    }
+  }
+
+  /**
+   * Rasterize just this member's card and put the PNG on the clipboard.
+   *
+   * A deliberately leaner card than the profile modal's: identity (name, UID,
+   * rank), inner ways and gear, and nothing else. Everything else is marked
+   * `.mg-noshot` in the template — stat tiles, set effects, the share and close
+   * buttons, the "since" date, the roster note, an open inner-way panel.
+   *
+   * Those are *removed from an off-screen clone*, not filtered during capture.
+   * html-to-image sizes its output from the live element's height, so filtering
+   * nodes out of a 1490px card left ~600px of blank space under the gear. A
+   * clone re-lays out at its own trimmed height and, being a copy, leaves the
+   * card on screen untouched — no flicker while the fonts embed.
+   */
+  async share(player: Player, event: Event): Promise<void> {
+    event.stopPropagation();
+    if (this.shotState() === 'working') return;
+
+    // The whole badge, not just `.badge-detail`: the rank class lives here and
+    // carries --accent, which the chips and gear borders are coloured from.
+    const badge = (event.currentTarget as HTMLElement)?.closest('.member-badge') as HTMLElement | null;
+    if (!badge) return;
+
+    this.shotPlayerId.set(player.id);
+    this.shotState.set('working');
+
+    const host = document.createElement('div');
+    try {
+      const clone = badge.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll('.mg-noshot').forEach((n) => n.remove());
+      // The collapsed summary is the click target, not part of the build.
+      clone.querySelector('.badge-summary')?.remove();
+      // A view-transition-name must be unique in the document, and this one is
+      // already claimed by the card we cloned.
+      clone.style.removeProperty('view-transition-name');
+      // `.badge-detail` has no top padding — on screen the summary above it
+      // provides that space, and it has just been removed.
+      const detail = clone.querySelector('.badge-detail') as HTMLElement | null;
+      if (detail) detail.style.paddingTop = 'var(--space-5)';
+
+      // Off-screen but laid out: display:none would give every child zero size.
+      // Pinned to the original's width so the gear grid wraps identically.
+      host.style.cssText =
+        `position: fixed; left: -10000px; top: 0; width: ${badge.offsetWidth}px; pointer-events: none;`;
+      host.appendChild(clone);
+      document.body.appendChild(host);
+
+      const blob = await toBlob(clone, {
+        pixelRatio: 2,
+        backgroundColor: getComputedStyle(document.documentElement)
+          .getPropertyValue('--color-surface').trim() || '#ffffff',
+        // Curated font set — see card-fonts.ts for why we don't let the library
+        // discover them itself.
+        fontEmbedCSS: await cardFontCss(),
+      });
+      if (!blob) { this.shotState.set('failed'); return; }
+
+      // Clipboard image writes must stay in the click's task; a rejection falls
+      // back to downloading the same blob.
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this.shotState.set('copied');
+      } catch {
+        this.download(blob, player.name);
+        this.shotState.set('downloaded');
+      }
+    } catch {
+      this.shotState.set('failed');
+    } finally {
+      host.remove();
+      setTimeout(() => {
+        this.shotState.set('idle');
+        this.shotPlayerId.set(null);
+      }, 3200);
+    }
+  }
+
+  private download(blob: Blob, name: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(name || 'member').replace(/[^\w.-]+/g, '-')}-build.png`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

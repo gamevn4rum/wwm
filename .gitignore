@@ -25,6 +25,8 @@ frontend/data/player-stats.json
 frontend/docs/data/player-stats.json
 frontend/data/guild.json
 frontend/docs/data/guild.json
+frontend/data/live-stats.json
+frontend/docs/data/live-stats.json
 
 # Newcomers report (guild members not yet on the Members sheet). Carries UID/PID,
 # which are identity keys the Register flow trusts — never commit or publish them;

@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener, OnInit, inject, signal, viewChild 
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
 import { toBlob } from 'html-to-image';
-import { cardFontCss } from './card-fonts';
+import { cardFontCss } from '../../../core/utils/card-fonts';
 import { ProfilePopupService } from '../../../core/services/profile-popup.service';
 import { DiscordAuthService, DiscordUserSession } from '../../../core/services/discord-auth.service';
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
@@ -50,6 +50,17 @@ export class ProfileModalComponent implements OnInit {
   readonly profile = signal<PlayerProfile | null>(null);
   readonly loading = signal(true);
   readonly shot = signal<ShotState>('idle');
+
+  // ── Capture options ───────────────────────────────────────────────────────
+  // These hide sections from the card itself, not just from the PNG, so the
+  // modal doubles as a preview of what you are about to share. All off by
+  // default: the full card is the normal thing to post.
+  /** Everything identifying the person rather than the character. IGN + level stay. */
+  readonly hideInfo = signal(false);
+  readonly hideStanding = signal(false);
+  readonly hideInnerWays = signal(false);
+  /** Set effects and gear together — they're one build block to a reader. */
+  readonly hideBuild = signal(false);
 
   private readonly innerWaysById = signal<Map<number, InnerWayCatalogueEntry>>(new Map());
   private readonly setsById = signal<Map<number, SetCatalogueEntry>>(new Map());

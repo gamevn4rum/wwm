@@ -201,6 +201,28 @@ workflow:
   is now the source of the ids. Members on the Google-Sheet roster but not in the
   in-game guild simply show no stats.
 
+### Non-sheet data (official game API)
+
+- **`data/live-stats.enc`** — the same per-member gear and volatile stats, but
+  read straight from NetEase's own game API every 30 minutes by the
+  `sync-live-stats.yml` workflow (`frontend/scripts/fetch-live-stats.js`). No
+  token: the API needs only a self-generated `h72-ms-uid` header.
+
+  It is an **overlay**, not a replacement. That API answers in raw ids (item
+  `1101578`, affix `9293004`, attribute key `MIN_W_ATK`) and carries no elegance
+  score, school name or inner ways, so `player-stats.enc` above stays the source
+  for all of those — including every name on a gear card, resolved from
+  `data/gear-catalogue.json` (id→name pairs harvested hourly from wwmdb's
+  already-resolved copy of the same payload). An item too new to be in the
+  catalogue ships with its id and no name until the next hourly pass.
+
+  Precedence, applied in `player-stats-data.service.ts`: **gear is always the
+  live answer** when there is one, volatile stats (level, weapon mastery, online
+  state, playtime) win per field when the API returned them, and everything else
+  stays wwmdb's. Measured on one member in the same minute, wwmdb said level 99 /
+  mastery 33542 / offline where the game API said 100 / 33950 / online — that gap
+  is what this job closes.
+
 And this one by the `sync-opponent-guilds.yml` workflow (twice a day):
 
 - **`data/guild-opponents.json`** — identity, Guild Prosperity standing and member
@@ -285,7 +307,8 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 | Workflow | Trigger | Does |
 |---|---|---|
 | `sync-sheets.yml` | Hourly cron, manual | Fetches/encrypts sheet data (in `frontend/`), commits `frontend/data/*.json`, triggers `deploy.yml` if changed |
-| `sync-player-stats.yml` | Daily cron, manual | Pulls our guild (`fetch-guild.js` → `guild.enc`), enriches each guild member with wwmdb stats + catalogues (resolved by their guild **pId**, since wwmdb dropped IGN search), encrypts, commits, triggers deploy |
+| `sync-player-stats.yml` | Hourly cron (:30, catalogues daily), manual | Pulls our guild (`fetch-guild.js` → `guild.enc`), enriches each guild member with wwmdb stats + catalogues (resolved by their guild **pId**, since wwmdb dropped IGN search), harvests `gear-catalogue.json`, encrypts, commits, triggers deploy |
+| `sync-live-stats.yml` | Every 30 min (:05 / :35), manual | Re-reads gear + volatile stats from the official game API into `live-stats.enc` — the overlay described above. Decrypts `guild`/`player-stats` for the pIds, numberIds and last-known affix tiers it needs, then encrypts, commits, triggers deploy |
 | `sync-opponent-guilds.yml` | Twice-daily cron (03:45 / 15:45 UTC), manual | Pulls every opponent guild in `data/opponent-guild-ids.json` (identity + member roster) into `data/guild-opponents.json`, commits, triggers deploy — only when the rosters actually changed |
 | `deploy.yml` | Push to `main`, manual, or triggered by a sync | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
 | `backend.yml` | Push to `main` under `backend/**`, manual | Builds the .NET solution; **deploys** API + Functions only when the repo variable `DEPLOY_BACKEND=true` |

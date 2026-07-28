@@ -1,4 +1,5 @@
-// Fonts for the profile screenshot.
+// Fonts for the card screenshots — the profile modal's, and the Formation
+// member card's share button.
 //
 // html-to-image renders into an SVG <foreignObject>, which is an isolated
 // context: web fonts only apply if their @font-face rules travel with it. Left

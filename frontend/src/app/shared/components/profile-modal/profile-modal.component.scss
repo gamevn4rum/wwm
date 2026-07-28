@@ -150,6 +150,52 @@
   img { width: 15px; height: 15px; object-fit: contain; display: block; opacity: 0.65; }
 }
 
+// ── Capture options (outside the capture) ──────────────────────────────────────
+// A quiet strip under the toolbar: this is a pre-flight control, not part of the
+// profile. Wraps rather than scrolls, so a narrow panel stacks the boxes.
+.pm-shot-opts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  flex-shrink: 0;
+}
+
+.pm-shot-opts-label {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-ink-faint);
+}
+
+.pm-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+
+  &:hover { color: var(--color-ink); }
+
+  input {
+    // accent-color keeps the native box (free a11y + focus ring) on brand.
+    accent-color: var(--color-primary);
+    width: 13px;
+    height: 13px;
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
 // ── Card (the captured surface) ────────────────────────────────────────────────
 .pm-card {
   background:

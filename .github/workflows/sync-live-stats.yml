@@ -1,0 +1,133 @@
+name: Sync Live Stats & Gear
+
+# The fast half of the player-stats pipeline: gear and the volatile stats
+# (level, weapon mastery, online state, playtime) straight from NetEase's own
+# game API, every 30 minutes. See scripts/fetch-live-stats.js for the protocol
+# and the privacy allow-list.
+#
+# Split out from sync-player-stats.yml because the two have different clocks and
+# different jobs. That workflow does the hourly wwmdb pass — the names, the
+# elegance score, the school, the inner ways, and the gear-name catalogue this
+# one reads. This one only refreshes what goes stale fastest, and defers to
+# wwmdb for everything the game API answers in raw ids or doesn't carry at all.
+# Gear is the exception in the other direction: when this job gets an answer, it
+# is the answer, and the frontend prefers it over the hourly snapshot.
+#
+# Cadence: :05 and :35, i.e. every 30 minutes, deliberately five minutes after
+# sync-sheets.yml (:00) and sync-player-stats.yml (:30). All three share the
+# data-sync concurrency group, so the offset means this one queues behind a
+# fresh guild roster and catalogue rather than racing them.
+#
+# Cost per run: two calls per member (~95 members, 500ms apart) ≈ 100s against a
+# third party's production servers. Keep the spacing.
+
+on:
+  schedule:
+    - cron: '5,35 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write            # needed to trigger deploy.yml below
+
+# Never overlap with the other data syncs' commit-and-push.
+concurrency:
+  group: data-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-live-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Restore encrypted inputs
+        working-directory: frontend
+        # Only the .enc form is committed, so a fresh checkout has no plaintext.
+        # This job reads rather than refetches: guild.json for each member's pId,
+        # player-stats.json for their numberId, hostnum and last-known affix
+        # tiers, and live-stats.json to keep last-good for anyone who fails.
+        env:
+          DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
+        run: node scripts/decrypt-data.js guild player-stats live-stats
+
+      - name: Fetch live gear and stats from the game API
+        working-directory: frontend
+        # No secret: the game API needs no token, just a self-generated
+        # h72-ms-uid header. Names come from data/gear-catalogue.json, committed
+        # by sync-player-stats.yml.
+        run: node scripts/fetch-live-stats.js
+
+      - name: Encrypt sensitive data files
+        working-directory: frontend
+        env:
+          DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
+        run: node scripts/encrypt-data.js
+
+      - name: Commit and push updated data
+        id: commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm --cached frontend/data/match-history.json --ignore-unmatch
+          git rm --cached frontend/data/members.json --ignore-unmatch
+          git rm --cached frontend/data/player-stats.json --ignore-unmatch
+          git rm --cached frontend/data/guild.json --ignore-unmatch
+          git rm --cached frontend/data/live-stats.json --ignore-unmatch
+          git add frontend/data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "chore: sync live stats [skip ci]"
+
+          # Same replay loop as sync-player-stats.yml, for the same reason: .enc
+          # bytes differ on every run (fresh AES-GCM IV), so git can never
+          # auto-resolve them. Keep the generated files, reset onto the newest
+          # main, rebuild the commit.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt/5) — replaying data onto latest main…"
+
+            staged=$(mktemp -d)
+            cp -R frontend/data/. "$staged/"
+            git fetch origin main
+            git reset --hard origin/main
+            cp -R "$staged/." frontend/data/
+            rm -rf "$staged"
+
+            git rm --cached frontend/data/match-history.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/members.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/player-stats.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/guild.json --ignore-unmatch --quiet
+            git rm --cached frontend/data/live-stats.json --ignore-unmatch --quiet
+            git add frontend/data/
+            if git diff --cached --quiet; then
+              echo "Latest main already carries this data — nothing left to push."
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git commit -m "chore: sync live stats [skip ci]"
+          done
+          echo "::error::Failed to push updated data after 5 attempts"
+          exit 1
+
+      - name: Trigger deploy workflow
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main

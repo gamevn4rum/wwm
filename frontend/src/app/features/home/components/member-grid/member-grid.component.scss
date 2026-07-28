@@ -336,6 +336,40 @@
   color: var(--color-ink-soft);
 }
 
+/* Share + collapse, kept together at the top-right of the expanded card. */
+.detail-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.detail-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  white-space: nowrap;
+  color: var(--color-ink-soft);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover:not(:disabled) { background: var(--accent-tint); border-color: var(--accent); color: var(--accent); }
+  &:disabled { opacity: 0.6; cursor: default; }
+  &.is-done { color: var(--color-secondary-dark); border-color: var(--color-secondary); }
+  &.is-failed { color: var(--color-danger); border-color: var(--color-danger); }
+}
+
+.detail-share-icon { font-size: 0.72rem; line-height: 1; }
+
 .detail-close {
   flex-shrink: 0;
   display: inline-flex;
