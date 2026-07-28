@@ -153,15 +153,26 @@ export class ProfileModalComponent implements OnInit {
    * are excluded from the capture (`.pm-noshot`) so the shared image is just the
    * profile. Clipboard image writes are Chromium/Safari-only and must stay in the
    * click's task, so a rejected write falls back to downloading the same blob.
+   *
+   * The card is also the modal's scroll container, and the library sizes its
+   * output from `clientHeight` while copying the computed `overflow` onto the
+   * clone — so a tall profile would be cut at the fold. Capturing at
+   * `scrollHeight` with overflow released gives the whole card in one image.
    */
   async screenshot(): Promise<void> {
     if (this.shot() === 'working') return;
     this.shot.set('working');
     try {
-      const blob = await toBlob(this.card().nativeElement, {
+      const card = this.card().nativeElement;
+      const fullHeight = card.scrollHeight;
+      const blob = await toBlob(card, {
         pixelRatio: 2,
+        // Width stays at the on-screen value (clientWidth, i.e. scrollbar
+        // already discounted) so nothing reflows in the clone.
+        height: fullHeight,
         backgroundColor: getComputedStyle(document.documentElement)
           .getPropertyValue('--color-surface').trim() || '#ffffff',
+        style: { maxHeight: 'none', height: `${fullHeight}px`, overflow: 'visible' },
         // Curated font set — see card-fonts.ts for why we don't let the library
         // discover them itself.
         fontEmbedCSS: await cardFontCss(),
