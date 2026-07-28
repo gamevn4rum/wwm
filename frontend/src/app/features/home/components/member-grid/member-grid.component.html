@@ -257,29 +257,28 @@
                         <span class="set-effect-count">{{ active.count }}/4</span>
                       </div>
 
+                      <!-- The 2pc/4pc badge trails the effect inline, so it never
+                           takes a line of its own. -->
                       @if (active.bonus2Active && active.resolvedBonus2.length) {
-                        <div class="set-bonus-row">
-                          <span class="set-bonus-pc">2pc</span>
-                          <span class="set-bonus-body">
-                            @for (b of active.resolvedBonus2; track b.attrName) {
-                              <span class="attr-chip">{{ b.attrName }} <b>{{ b.value | number:'1.0-2' }}</b></span>
-                            }
-                          </span>
-                        </div>
+                        <p class="set-bonus-row">
+                          @for (b of active.resolvedBonus2; track b.attrName) {
+                            <span class="set-bonus-body">{{ b.attrName }} <b>{{ b.value | number:'1.0-2' }}</b></span>
+                          }<span class="set-bonus-pc">2</span>
+                        </p>
                       }
 
                       @if (active.bonus4Active) {
                         @for (b of active.set.bonuses4; track b.id) {
-                          <div class="set-bonus-row">
-                            <span class="set-bonus-pc">4pc</span>
-                            <span class="set-bonus-body set-bonus-desc">{{ b.description }}</span>
-                          </div>
+                          <p class="set-bonus-row">
+                            <span class="set-bonus-body set-bonus-desc">{{ b.description }}</span
+                            ><span class="set-bonus-pc">4</span>
+                          </p>
                         }
                       } @else if (active.count === 2 || active.count === 3) {
-                        <div class="set-bonus-row set-bonus-locked">
-                          <span class="set-bonus-pc">4pc</span>
-                          <span class="set-bonus-body">Locked — needs {{ 4 - active.count }} more piece(s)</span>
-                        </div>
+                        <p class="set-bonus-row set-bonus-locked">
+                          <span class="set-bonus-body">Locked — needs {{ 4 - active.count }} more piece(s)</span
+                          ><span class="set-bonus-pc">4</span>
+                        </p>
                       }
                     </div>
                   }
@@ -297,43 +296,23 @@
                   </svg>
                   Gear <span class="gear-count">{{ p.gear.length }}</span>
                 </h3>
-                <div class="gear-grid">
-                  @for (slot of p.gear; track slot.slot) {
-                    <div class="gear-card" [class]="'gear-card ' + tierClass(slot.tier)">
-                      <div class="gear-card-top">
-                        <span class="gear-slotname">{{ slot.slotName || 'Slot ' + slot.slot }}</span>
-                        @if (slot.tier) { <span class="gear-tier">T{{ slot.tier }}</span> }
+                <!-- Two rows in the game's grouping: the four slots that can share
+                     a set, a hairline, then the piece that stands outside it. -->
+                <div class="gear-rows">
+                  @for (row of gearRows(p); track $index) {
+                    <div class="gear-row">
+                      <div class="gear-group">
+                        @for (slot of row.main; track slot.slot) {
+                          <ng-container *ngTemplateOutlet="gearCard; context: { $implicit: slot }" />
+                        }
                       </div>
-                      <span class="gear-name">{{ slot.name }}</span>
-                      <div class="gear-tags">
-                        @if (slot.set?.name) { <span class="gear-set">◈ {{ slot.set!.name }}</span> }
-                        @if (slot.level) { <span class="gear-ilvl">iLv {{ slot.level }}</span> }
-                      </div>
-
-                      @if (slot.attributes.length) {
-                        <div class="gear-attrs">
-                          @for (a of slot.attributes; track a.name) {
-                            <span class="attr-chip">{{ a.name }} <b>{{ a.value | number:'1.0-2' }}</b></span>
+                      @if (row.tail.length) {
+                        <span class="gear-sep" aria-hidden="true"></span>
+                        <div class="gear-group gear-group--tail">
+                          @for (slot of row.tail; track slot.slot) {
+                            <ng-container *ngTemplateOutlet="gearCard; context: { $implicit: slot }" />
                           }
                         </div>
-                      }
-
-                      @if (slot.affixes.length) {
-                        <ul class="gear-affixes">
-                          @for (af of slot.affixes; track $index) {
-                            @if (isEffectAffix(af.name)) {
-                              <li class="affix effect" [class]="'affix effect ' + tierClass(af.tier)">
-                                <span class="affix-dot"></span>{{ af.name }}
-                              </li>
-                            } @else {
-                              <li class="affix" [class]="'affix ' + tierClass(af.tier)">
-                                <span class="affix-dot"></span>
-                                <span class="affix-name">{{ af.name }}</span>
-                                <span class="affix-val">{{ af.value | number:'1.0-2' }}</span>
-                              </li>
-                            }
-                          }
-                        </ul>
                       }
                     </div>
                   }
@@ -346,3 +325,44 @@
     }
   </div>
 </section>
+
+<!-- One gear card, used by both groups in a gear row. -->
+<ng-template #gearCard let-slot>
+  <div class="gear-card" [class]="'gear-card ' + tierClass(slot.tier)">
+    <div class="gear-card-top">
+      <span class="gear-slotname">{{ slot.slotName || 'Slot ' + slot.slot }}</span>
+      @if (slot.tier) { <span class="gear-tier">T{{ slot.tier }}</span> }
+    </div>
+    <span class="gear-name">{{ slot.name }}</span>
+    <div class="gear-tags">
+      @if (slot.set?.name) { <span class="gear-set">◈ {{ slot.set!.name }}</span> }
+      @if (slot.level) { <span class="gear-ilvl">iLv {{ slot.level }}</span> }
+    </div>
+
+    @if (slot.attributes.length) {
+      <div class="gear-attrs">
+        @for (a of slot.attributes; track a.name) {
+          <span class="attr-chip">{{ a.name }} <b>{{ a.value | number:'1.0-2' }}</b></span>
+        }
+      </div>
+    }
+
+    @if (slot.affixes.length) {
+      <ul class="gear-affixes">
+        @for (af of slot.affixes; track $index) {
+          @if (isEffectAffix(af.name)) {
+            <li class="affix effect" [class]="'affix effect ' + tierClass(af.tier)">
+              <span class="affix-dot"></span>{{ af.name }}
+            </li>
+          } @else {
+            <li class="affix" [class]="'affix ' + tierClass(af.tier)">
+              <span class="affix-dot"></span>
+              <span class="affix-name">{{ af.name }}</span>
+              <span class="affix-val">{{ af.value | number:'1.0-2' }}</span>
+            </li>
+          }
+        }
+      </ul>
+    }
+  </div>
+</ng-template>

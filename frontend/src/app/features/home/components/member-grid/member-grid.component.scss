@@ -421,7 +421,6 @@
 /* Tier is carried by the fill, not just a rule: gold T5, purple T4, blue T3.
    Ramp and --tier-fill come from styles.css. */
 .inner-way-card {
-  --tier: var(--color-ink-faint);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -467,7 +466,6 @@
 
 /* ── Inner-way detail card — click-to-open, appears below the whole grid ── */
 .iw-detail-panel {
-  --tier: var(--color-ink-faint);
   margin-top: var(--space-3);
   max-height: 420px;
   overflow-y: auto;
@@ -631,27 +629,31 @@
   letter-spacing: 0.02em;
 }
 
+/* Normal inline flow (not flex) so the trailing badge sits at the end of the
+   last line of text rather than being pushed onto its own row. */
 .set-bonus-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
   font-size: 0.78rem;
+  line-height: 1.6;
 }
 .set-bonus-pc {
-  flex-shrink: 0;
+  display: inline-block;
+  margin-left: var(--space-2);
   font-size: 0.62rem;
   font-weight: 800;
   color: #fff;
   background: var(--color-primary);
   border-radius: var(--radius-sm);
   padding: 0.05rem 0.35rem;
-  align-self: flex-start;
+  vertical-align: 1px;
 }
 .set-bonus-body {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-2);
+  display: inline;
   color: var(--color-ink-soft);
+
+  & + &::before {
+    content: ' · ';
+    color: var(--color-ink-faint);
+  }
 }
 .set-bonus-desc { line-height: 1.4; }
 .set-bonus-locked { color: var(--color-ink-faint); font-style: italic; }
@@ -683,16 +685,70 @@
   padding: 0.05rem 0.45rem;
 }
 
-.gear-grid {
+/* Two rows of five: four slots that can share a set, a hairline, then the piece
+   that stands outside it. Same layout the profile card uses. */
+.gear-rows {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--space-3);
+}
+
+.gear-row {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+.gear-group {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+
+  &--tail { grid-template-columns: minmax(0, 1fr); }
+}
+
+.gear-sep {
+  position: relative;
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(180deg, transparent, var(--color-primary-light) 15%,
+    var(--color-primary-light) 85%, transparent);
+
+  &::after {
+    content: '◈';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    line-height: 1;
+    color: var(--color-primary);
+    background: var(--color-bg-alt);
+    padding: 0.3rem 0.15rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .gear-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gear-group,
+  .gear-group--tail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gear-sep {
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-primary-light) 15%,
+      var(--color-primary-light) 85%, transparent);
+  }
 }
 
 /* Ordinal gear-rarity ramp — grey → sage → blue → plum → gold (game convention).
    Colour is paired with the "T{n}" label, never the sole cue. */
 .gear-card {
-  --tier: var(--color-ink-faint);
   border: 1px solid var(--color-border);
   border-top: 3px solid var(--tier);
   border-radius: var(--radius-sm);

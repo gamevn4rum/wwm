@@ -247,3 +247,11 @@ html, body {
 .tier-0, .tier-1, .tier-2, .tier-3, .tier-4, .tier-5 {
   --tier-fill: color-mix(in srgb, var(--tier) 20%, var(--color-surface));
 }
+
+/* Untiered default. It lives here rather than on the components, because
+   Angular scopes component selectors with an attribute — which outranks the
+   plain .tier-N classes above and would pin everything to the neutral. */
+:root {
+  --tier: var(--color-ink-faint);
+  --tier-fill: var(--color-surface);
+}

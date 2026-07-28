@@ -13,7 +13,7 @@ import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../features/roster-stats/set-catalogue.model';
 import {
-  ActiveSetEffect, computeActiveSetEffects, isEffectAffix, schoolColor, tierClass,
+  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, schoolColor, tierClass,
 } from '../../../features/roster-stats/build.utils';
 import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from '../../../features/guild/guild-format';
 
@@ -27,21 +27,6 @@ const LANGUAGES: Record<string, string> = {
   ja: '日本語', th: 'ไทย', id: 'Bahasa Indonesia',
 };
 
-/**
- * How the gear grid is laid out, in the game's own grouping: four slots that can
- * share a set bonus, then the odd one out. The separator between them is
- * structural — a member's four armour pieces are typically one set (so the 2pc/4pc
- * bonuses above apply to them), while the bow and the ring stand alone.
- */
-const GEAR_ROWS: { main: string[]; tail: string[] }[] = [
-  { main: ['1', '2', '10', '11'], tail: ['21'] },
-  { main: ['3', '4', '5', '8'],   tail: ['9'] },
-];
-
-export interface GearRow {
-  main: GearSlot[];
-  tail: GearSlot[];
-}
 
 @Component({
   selector: 'app-profile-modal',
@@ -73,6 +58,7 @@ export class ProfileModalComponent implements OnInit {
   readonly tierClass = tierClass;
   readonly isEffectAffix = isEffectAffix;
   readonly schoolColor = schoolColor;
+  readonly gearRows = gearRows;
   readonly compact = compactNumber;
   readonly formatDate = formatUnixDate;
   readonly playtime = playtimeLabel;
@@ -154,26 +140,6 @@ export class ProfileModalComponent implements OnInit {
   innerWayLabel(iw: PlayerInnerWay): string {
     const path = this.innerWayInfo(iw.id)?.path?.name?.trim();
     return path ? `${iw.name} · ${path}` : iw.name;
-  }
-
-  /**
-   * Gear arranged per GEAR_ROWS. Slots the player hasn't filled are skipped, and
-   * anything outside the known layout (a fishing rod, a slot added by a patch)
-   * lands in a final row of its own rather than vanishing from the card.
-   */
-  gearRows(p: PlayerDetail): GearRow[] {
-    const bySlot = new Map(p.gear.map((g) => [String(g.slot), g]));
-    const pick = (slots: string[]) =>
-      slots.map((s) => bySlot.get(s)).filter((g): g is GearSlot => !!g);
-
-    const rows = GEAR_ROWS
-      .map((row) => ({ main: pick(row.main), tail: pick(row.tail) }))
-      .filter((row) => row.main.length || row.tail.length);
-
-    const placed = new Set(GEAR_ROWS.flatMap((r) => [...r.main, ...r.tail]));
-    const leftover = p.gear.filter((g) => !placed.has(String(g.slot)));
-    if (leftover.length) rows.push({ main: leftover, tail: [] });
-    return rows;
   }
 
   /** Today's date on the card, so a shared screenshot carries its own as-of. */

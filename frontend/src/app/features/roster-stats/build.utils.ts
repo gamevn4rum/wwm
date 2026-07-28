@@ -2,8 +2,44 @@
 // roster's member cards and the profile modal so the two can never disagree on
 // what counts as an active set or how a tier is coloured.
 
-import { PlayerDetail } from './player-stats.model';
+import { GearSlot, PlayerDetail } from './player-stats.model';
 import { SetCatalogueEntry } from './set-catalogue.model';
+
+/**
+ * How gear is laid out wherever a build is shown: four slots that can share a
+ * set bonus, then the odd one out. The separator between them is structural —
+ * the four armour pieces are typically one set, while the bow and the ring
+ * stand alone. Weapons read primary-first.
+ */
+const GEAR_ROWS: { main: string[]; tail: string[] }[] = [
+  { main: ['2', '1', '10', '11'], tail: ['21'] },
+  { main: ['3', '4', '5', '8'],   tail: ['9'] },
+];
+
+export interface GearRow {
+  main: GearSlot[];
+  tail: GearSlot[];
+}
+
+/**
+ * Gear arranged per GEAR_ROWS. Slots the player hasn't filled are skipped, and
+ * anything outside the known layout (a fishing rod, a slot added by a patch)
+ * lands in a final row of its own rather than vanishing.
+ */
+export function gearRows(p: PlayerDetail): GearRow[] {
+  const bySlot = new Map(p.gear.map((g) => [String(g.slot), g]));
+  const pick = (slots: string[]) =>
+    slots.map((s) => bySlot.get(s)).filter((g): g is GearSlot => !!g);
+
+  const rows = GEAR_ROWS
+    .map((row) => ({ main: pick(row.main), tail: pick(row.tail) }))
+    .filter((row) => row.main.length || row.tail.length);
+
+  const placed = new Set(GEAR_ROWS.flatMap((r) => [...r.main, ...r.tail]));
+  const leftover = p.gear.filter((g) => !placed.has(String(g.slot)));
+  if (leftover.length) rows.push({ main: leftover, tail: [] });
+  return rows;
+}
 
 /** A gear set with enough matching pieces equipped to have an active bonus. */
 export interface ActiveSetEffect {

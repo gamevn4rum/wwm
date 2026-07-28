@@ -1,5 +1,5 @@
 import { Component, HostListener, computed, inject, input, OnInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
@@ -9,7 +9,7 @@ import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogu
 import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
 import {
-  ActiveSetEffect, computeActiveSetEffects, isEffectAffix, schoolColor, tierClass,
+  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, schoolColor, tierClass,
 } from '../../../roster-stats/build.utils';
 
 export type { ActiveSetEffect };
@@ -20,7 +20,7 @@ const TIER_FILTERED = 5;
 @Component({
   selector: 'app-member-grid',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, NgTemplateOutlet],
   templateUrl: './member-grid.component.html',
   styleUrls: ['./member-grid.component.scss'],
 })
@@ -152,6 +152,7 @@ export class MemberGridComponent implements OnInit {
   readonly tierClass = tierClass;
   readonly isEffectAffix = isEffectAffix;
   readonly schoolColor = schoolColor;
+  readonly gearRows = gearRows;
 
   /** Account creation → "Since Dec 2025". */
   joinedLabel(createTime: number | null): string {
