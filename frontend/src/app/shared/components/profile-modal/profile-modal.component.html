@@ -5,6 +5,8 @@
     <div class="pm-toolbar pm-noshot">
       <span class="pm-toolbar-title">MY PROFILE</span>
       <div class="pm-toolbar-actions">
+        <button type="button" class="pm-logout" (click)="logout()">Log out</button>
+        <span class="pm-toolbar-divider" aria-hidden="true"></span>
         <button
           type="button"
           class="pm-shot-btn"
@@ -29,24 +31,34 @@
       @let prof = profile();
       @let p = prof?.detail;
 
-      <!-- Identity -->
+      <!-- Identity ---------------------------------------------------------->
       <header class="pm-identity" [class]="'pm-identity ' + rankClass()">
         <div class="pm-avatar">
           <img [src]="user?.avatarUrl" [alt]="user?.username || ''" crossorigin="anonymous" />
         </div>
+
         <div class="pm-identity-text">
           <h2 class="pm-ign">{{ prof?.ign || user?.username }}</h2>
           <p class="pm-handle">
             <span class="pm-role">{{ user?.role }}</span>
-            <span class="pm-dot">·</span>
+            <span class="pm-sep">·</span>
             <span>&#64;{{ user?.username }}</span>
             @if (p?.isOnline) {
               <span class="pm-online"><span class="pm-online-dot"></span>ONLINE</span>
             }
           </p>
+          @if (p) {
+            <p class="pm-origin">
+              @if (p.region) { <span>{{ p.region }}</span> }
+              @if (p.server) { <span class="pm-sep">·</span><span>Server {{ p.server }}</span> }
+              @if (p.language) { <span class="pm-sep">·</span><span>{{ languageLabel(p.language) }}</span> }
+              @if (p.school) { <span class="pm-sep">·</span><span [style.color]="schoolColor(p.school)">{{ p.school }}</span> }
+            </p>
+          }
         </div>
+
         @if (p?.level) {
-          <div class="pm-level">
+          <div class="pm-level" [attr.aria-label]="'Level ' + p!.level">
             <span class="pm-level-num">{{ p!.level }}</span>
             <span class="pm-level-label">LEVEL</span>
           </div>
@@ -65,67 +77,40 @@
         </div>
       } @else {
 
-        <!-- In-game data -->
+        <!-- Standing --------------------------------------------------------->
         <section class="pm-section">
-          <h3 class="pm-heading">IN-GAME</h3>
+          <h3 class="pm-heading"><span>STANDING</span></h3>
           <dl class="pm-stats">
             <div class="pm-stat">
-              <dt>School</dt>
-              <dd [style.color]="schoolColor(p.school)">{{ p.school || '—' }}</dd>
-            </div>
-            <div class="pm-stat">
               <dt>Weapon Mastery</dt>
-              <dd>{{ compact(p.weaponMasteryMax) }}</dd>
+              <dd class="pm-figure">{{ compact(p.weaponMasteryMax) }}</dd>
             </div>
             <div class="pm-stat">
               <dt>Elegance</dt>
-              <dd>{{ compact(p.eleganceScore) }}</dd>
+              <dd class="pm-figure">{{ compact(p.eleganceScore) }}</dd>
             </div>
             <div class="pm-stat">
               <dt>Playtime</dt>
-              <dd>{{ playtime(p.onlineTime) }}</dd>
+              <dd class="pm-figure">{{ playtime(p.onlineTime) }}</dd>
             </div>
             <div class="pm-stat">
               <dt>Last online</dt>
               <dd [class.is-online]="p.isOnline">{{ lastSeenLabel(p) }}</dd>
             </div>
             <div class="pm-stat">
-              <dt>Region</dt>
-              <dd>{{ p.region || '—' }}</dd>
-            </div>
-            <div class="pm-stat">
-              <dt>Server</dt>
-              <dd class="mono">{{ p.server ?? '—' }}</dd>
-            </div>
-            <div class="pm-stat">
-              <dt>Language</dt>
-              <dd>{{ languageLabel(p.language) }}</dd>
-            </div>
-            <div class="pm-stat">
-              <dt>Joined</dt>
+              <dt>Wandering since</dt>
               <dd>{{ formatDate(p.createTime) }}</dd>
-            </div>
-            <div class="pm-stat">
-              <dt>UID</dt>
-              <dd class="mono">{{ p.numberId || '—' }}</dd>
             </div>
           </dl>
         </section>
 
-        <!-- Achievements -->
-        <section class="pm-section">
-          <h3 class="pm-heading">
-            ACHIEVEMENTS
-            @if (prof!.achievements.length) {
+        <!-- Achievements — the whole section stays hidden until there is data. -->
+        @if (prof!.achievements.length) {
+          <section class="pm-section">
+            <h3 class="pm-heading">
+              <span>ACHIEVEMENTS</span>
               <span class="pm-count">{{ prof!.achievements.length }}</span>
-            }
-          </h3>
-
-          @if (prof!.achievementsUnavailable) {
-            <p class="pm-note">Achievements aren’t wired to a data source yet.</p>
-          } @else if (!prof!.achievements.length) {
-            <p class="pm-note">No achievements earned yet.</p>
-          } @else {
+            </h3>
             <ul class="pm-achievements">
               @for (a of prof!.achievements; track a.id) {
                 <li class="pm-achievement" [class.is-rare]="a.rare" [class.is-locked]="!a.earnedAt">
@@ -155,15 +140,16 @@
                 </li>
               }
             </ul>
-          }
-        </section>
+          </section>
+        }
 
-        <!-- Build: inner ways, set effects, gear -->
-        <section class="pm-section">
-          <h3 class="pm-heading">BUILD</h3>
-
-          @if (p.innerWays.length) {
-            <h4 class="pm-subheading">Inner Ways <span class="pm-count">{{ p.innerWays.length }}</span></h4>
+        <!-- Inner ways ------------------------------------------------------->
+        @if (p.innerWays.length) {
+          <section class="pm-section">
+            <h3 class="pm-heading">
+              <span>INNER WAYS</span>
+              <span class="pm-count">{{ p.innerWays.length }}</span>
+            </h3>
             <ul class="pm-chips">
               @for (iw of p.innerWays; track iw.id) {
                 <li class="pm-chip" [class]="'pm-chip ' + tierClass(iw.tier)">
@@ -172,17 +158,23 @@
                 </li>
               }
             </ul>
-          }
+          </section>
+        }
 
-          @let activeSets = activeSetEffects(p);
-          @if (activeSets.length) {
-            <h4 class="pm-subheading">Set Effects <span class="pm-count">{{ activeSets.length }}</span></h4>
+        <!-- Set effects ------------------------------------------------------>
+        @let activeSets = activeSetEffects(p);
+        @if (activeSets.length) {
+          <section class="pm-section">
+            <h3 class="pm-heading">
+              <span>SET EFFECTS</span>
+              <span class="pm-count">{{ activeSets.length }}</span>
+            </h3>
             <ul class="pm-sets">
               @for (s of activeSets; track s.set.id) {
                 <li class="pm-set">
                   <div class="pm-set-top">
                     <span class="pm-set-name">◈ {{ s.set.name }}</span>
-                    <span class="pm-set-count">{{ s.count }} pc</span>
+                    <span class="pm-set-count">{{ s.count }} pieces</span>
                   </div>
                   @if (s.bonus2Active && s.resolvedBonus2.length) {
                     <p class="pm-set-bonus">
@@ -201,46 +193,81 @@
                 </li>
               }
             </ul>
-          }
+          </section>
+        }
 
-          @if (p.gear.length) {
-            <h4 class="pm-subheading">Gear <span class="pm-count">{{ p.gear.length }}</span></h4>
-            <div class="pm-gear">
-              @for (slot of p.gear; track slot.slot) {
-                <div class="pm-gear-card" [class]="'pm-gear-card ' + tierClass(slot.tier)">
-                  <div class="pm-gear-top">
-                    <span class="pm-gear-slot">{{ slot.slotName || 'Slot ' + slot.slot }}</span>
-                    @if (slot.tier) { <span class="pm-gear-tier">T{{ slot.tier }}</span> }
+        <!-- Gear ------------------------------------------------------------->
+        @if (p.gear.length) {
+          <section class="pm-section">
+            <h3 class="pm-heading">
+              <span>GEAR</span>
+              <span class="pm-count">{{ p.gear.length }}</span>
+            </h3>
+
+            <div class="pm-gear-rows">
+              @for (row of gearRows(p); track $index) {
+                <div class="pm-gear-row">
+                  <div class="pm-gear-group">
+                    @for (slot of row.main; track slot.slot) {
+                      <ng-container *ngTemplateOutlet="gearCard; context: { $implicit: slot }" />
+                    }
                   </div>
-                  <span class="pm-gear-name">{{ slot.name }}</span>
-                  <div class="pm-gear-tags">
-                    @if (slot.set?.name) { <span class="pm-gear-set">◈ {{ slot.set!.name }}</span> }
-                    @if (slot.level) { <span class="pm-gear-ilvl">iLv {{ slot.level }}</span> }
-                  </div>
-                  @if (slot.attributes.length) {
-                    <ul class="pm-gear-attrs">
-                      @for (at of slot.attributes; track at.name) {
-                        <li>{{ at.name }} <b>{{ at.value | number }}</b></li>
+                  @if (row.tail.length) {
+                    <span class="pm-gear-sep" aria-hidden="true"></span>
+                    <div class="pm-gear-group pm-gear-group--tail">
+                      @for (slot of row.tail; track slot.slot) {
+                        <ng-container *ngTemplateOutlet="gearCard; context: { $implicit: slot }" />
                       }
-                    </ul>
-                  }
-                  @if (slot.affixes.length) {
-                    <ul class="pm-gear-affixes">
-                      @for (af of slot.affixes; track af.name) {
-                        <li [class]="isEffectAffix(af.name) ? 'pm-affix effect ' + tierClass(af.tier) : 'pm-affix ' + tierClass(af.tier)">
-                          {{ af.name }}@if (af.value != null) { <b>{{ af.value | number }}</b> }
-                        </li>
-                      }
-                    </ul>
+                    </div>
                   }
                 </div>
               }
             </div>
-          }
-        </section>
+          </section>
+        }
       }
 
-      <footer class="pm-watermark">GameVN・Where Winds Meet</footer>
+      <!-- Footer: mirrors the site footer, so a shared card is unmistakably ours. -->
+      <footer class="pm-footer">
+        <span class="pm-footer-rule"></span>
+        <span class="pm-footer-text">GameVN・Where Winds Meet</span>
+        <!-- seal-sm.png, not the full-size seal: the screenshot inlines every
+             image as base64, and the 3.4 MB original made capture take ~20s. -->
+        <img src="icons/seal-sm.png" alt="" class="pm-footer-seal" />
+        <span class="pm-footer-rule"></span>
+      </footer>
+      <p class="pm-asof">as of {{ capturedOn }}</p>
     </div>
   </div>
 </div>
+
+<!-- One gear card, used by both groups in a row. -->
+<ng-template #gearCard let-slot>
+  <div class="pm-gear-card" [class]="'pm-gear-card ' + tierClass(slot.tier)">
+    <div class="pm-gear-top">
+      <span class="pm-gear-slot">{{ slot.slotName || 'Slot ' + slot.slot }}</span>
+      @if (slot.tier) { <span class="pm-gear-tier">T{{ slot.tier }}</span> }
+    </div>
+    <span class="pm-gear-name">{{ slot.name }}</span>
+    <div class="pm-gear-tags">
+      @if (slot.set?.name) { <span class="pm-gear-set">◈ {{ slot.set!.name }}</span> }
+      @if (slot.level) { <span class="pm-gear-ilvl">iLv {{ slot.level }}</span> }
+    </div>
+    @if (slot.attributes.length) {
+      <ul class="pm-gear-attrs">
+        @for (at of slot.attributes; track at.name) {
+          <li>{{ at.name }} <b>{{ at.value | number }}</b></li>
+        }
+      </ul>
+    }
+    @if (slot.affixes.length) {
+      <ul class="pm-gear-affixes">
+        @for (af of slot.affixes; track af.name) {
+          <li [class]="isEffectAffix(af.name) ? 'pm-affix effect ' + tierClass(af.tier) : 'pm-affix ' + tierClass(af.tier)">
+            {{ af.name }}@if (af.value != null) { <b>{{ af.value | number }}</b> }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</ng-template>

@@ -65,11 +65,13 @@ export class DiscordAuthService {
   private readonly authResolvedSubject = new BehaviorSubject<boolean>(false);
   readonly authResolved$ = this.authResolvedSubject.asObservable();
 
+  /** Localhost bypass. `ign` is the roster IGN behind the Discord handle, so the
+   *  profile modal resolves real stats in dev instead of the unlinked state. */
   private readonly devSession: DiscordUserSession = {
     username: 'Shinigamae',
     avatarUrl: 'https://cdn.discordapp.com/embed/avatars/0.png',
     isAuthorized: true,
-    ign: 'Shinigamae',
+    ign: 'Yuenshin',
     role: 'Creator',
     fp: true,
     ftp: true,

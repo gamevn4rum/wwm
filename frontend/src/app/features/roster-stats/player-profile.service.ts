@@ -21,12 +21,7 @@ export class PlayerProfileService {
 
   getProfile(ign: string): Observable<PlayerProfile> {
     return combineLatest([this.loadDetail(ign), this.loadAchievements(ign)]).pipe(
-      map(([detail, achievements]) => ({
-        ign,
-        detail,
-        achievements,
-        achievementsUnavailable: achievements.length === 0 && !ACHIEVEMENTS_WIRED,
-      })),
+      map(([detail, achievements]) => ({ ign, detail, achievements })),
     );
   }
 
@@ -52,7 +47,3 @@ export class PlayerProfileService {
     return of<PlayerAchievement[]>([]);
   }
 }
-
-/** Flip to true with the loadAchievements implementation above, so an empty list
- *  starts reading as "none earned" rather than "no source yet". */
-const ACHIEVEMENTS_WIRED = false;

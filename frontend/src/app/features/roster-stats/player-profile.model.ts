@@ -27,8 +27,7 @@ export interface PlayerProfile {
   ign: string;
   /** In-game data + build. Null when the member has no resolved game profile. */
   detail: PlayerDetail | null;
+  /** Empty hides the section outright — the card never advertises a section
+   *  with nothing in it, whether that's "none earned" or "no source yet". */
   achievements: PlayerAchievement[];
-  /** True when no achievements source is wired up yet — the section then says
-   *  so instead of claiming the member has earned none. */
-  achievementsUnavailable: boolean;
 }

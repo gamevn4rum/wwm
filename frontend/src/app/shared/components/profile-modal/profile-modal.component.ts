@@ -1,11 +1,13 @@
 import { Component, ElementRef, HostListener, OnInit, inject, signal, viewChild } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { Router } from '@angular/router';
 import { toBlob } from 'html-to-image';
+import { cardFontCss } from './card-fonts';
 import { ProfilePopupService } from '../../../core/services/profile-popup.service';
 import { DiscordAuthService, DiscordUserSession } from '../../../core/services/discord-auth.service';
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
 import { PlayerProfile } from '../../../features/roster-stats/player-profile.model';
-import { PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
+import { GearSlot, PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
 import { InnerWayCatalogueService } from '../../../features/roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';
@@ -25,16 +27,33 @@ const LANGUAGES: Record<string, string> = {
   ja: '日本語', th: 'ไทย', id: 'Bahasa Indonesia',
 };
 
+/**
+ * How the gear grid is laid out, in the game's own grouping: four slots that can
+ * share a set bonus, then the odd one out. The separator between them is
+ * structural — a member's four armour pieces are typically one set (so the 2pc/4pc
+ * bonuses above apply to them), while the bow and the ring stand alone.
+ */
+const GEAR_ROWS: { main: string[]; tail: string[] }[] = [
+  { main: ['1', '2', '10', '11'], tail: ['21'] },
+  { main: ['3', '4', '5', '8'],   tail: ['9'] },
+];
+
+export interface GearRow {
+  main: GearSlot[];
+  tail: GearSlot[];
+}
+
 @Component({
   selector: 'app-profile-modal',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, NgTemplateOutlet],
   templateUrl: './profile-modal.component.html',
   styleUrls: ['./profile-modal.component.scss'],
 })
 export class ProfileModalComponent implements OnInit {
   private readonly popupService = inject(ProfilePopupService);
   private readonly authService = inject(DiscordAuthService);
+  private readonly router = inject(Router);
   private readonly profileService = inject(PlayerProfileService);
   private readonly innerWayCatalogue = inject(InnerWayCatalogueService);
   private readonly setCatalogue = inject(SetCatalogueService);
@@ -90,6 +109,14 @@ export class ProfileModalComponent implements OnInit {
     this.popupService.hide();
   }
 
+  /** Logging out lives here because the login badge now opens this modal
+   *  directly — this is the only place the action is reachable. */
+  logout(): void {
+    this.popupService.hide();
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.close();
@@ -129,6 +156,31 @@ export class ProfileModalComponent implements OnInit {
     return path ? `${iw.name} · ${path}` : iw.name;
   }
 
+  /**
+   * Gear arranged per GEAR_ROWS. Slots the player hasn't filled are skipped, and
+   * anything outside the known layout (a fishing rod, a slot added by a patch)
+   * lands in a final row of its own rather than vanishing from the card.
+   */
+  gearRows(p: PlayerDetail): GearRow[] {
+    const bySlot = new Map(p.gear.map((g) => [String(g.slot), g]));
+    const pick = (slots: string[]) =>
+      slots.map((s) => bySlot.get(s)).filter((g): g is GearSlot => !!g);
+
+    const rows = GEAR_ROWS
+      .map((row) => ({ main: pick(row.main), tail: pick(row.tail) }))
+      .filter((row) => row.main.length || row.tail.length);
+
+    const placed = new Set(GEAR_ROWS.flatMap((r) => [...r.main, ...r.tail]));
+    const leftover = p.gear.filter((g) => !placed.has(String(g.slot)));
+    if (leftover.length) rows.push({ main: leftover, tail: [] });
+    return rows;
+  }
+
+  /** Today's date on the card, so a shared screenshot carries its own as-of. */
+  readonly capturedOn = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+
   // ── Screenshot ────────────────────────────────────────────────────────────
   /**
    * Rasterize the card and put the PNG on the clipboard. The buttons themselves
@@ -144,6 +196,9 @@ export class ProfileModalComponent implements OnInit {
         pixelRatio: 2,
         backgroundColor: getComputedStyle(document.documentElement)
           .getPropertyValue('--color-surface').trim() || '#ffffff',
+        // Curated font set — see card-fonts.ts for why we don't let the library
+        // discover them itself.
+        fontEmbedCSS: await cardFontCss(),
         filter: (node) =>
           !(node instanceof HTMLElement && node.classList.contains('pm-noshot')),
       });

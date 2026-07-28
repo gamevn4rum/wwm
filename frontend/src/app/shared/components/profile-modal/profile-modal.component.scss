@@ -1,13 +1,20 @@
-// Profile modal. Shares the register popup's overlay/panel language; the card
-// inside is what the screenshot button rasterizes, so it has to look complete
-// on its own (hence the watermark and the self-contained header).
+// Profile modal. The panel follows the register popup's overlay language, but the
+// card inside is designed as a *shareable artifact* rather than a settings screen:
+// it gets rasterized to PNG and pasted into Discord, so it carries its own
+// identity band, seal and as-of date, and has to read well with no app around it.
+//
+// Two constraints the styling has to respect:
+//   • html-to-image rasterizes this subtree — avoid backdrop-filter and CSS masks
+//     inside .pm-card; gradients, transforms and borders reproduce faithfully.
+//   • Numerals are display type here (Cormorant), which is what makes the card
+//     feel stamped rather than tabular.
 
 // ── Overlay & panel ────────────────────────────────────────────────────────────
 .pm-overlay {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgba(58, 48, 34, 0.45);
+  background: rgba(58, 48, 34, 0.5);
   backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
@@ -21,7 +28,9 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 720px;
+  // Wide enough that a gear row fits five cards without the attribute labels
+  // wrapping — the card is a share artifact first, a dialog second.
+  max-width: 880px;
   max-height: calc(100dvh - 3rem);
   display: flex;
   flex-direction: column;
@@ -36,7 +45,7 @@
 }
 
 @keyframes pm-panel-rise {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -46,17 +55,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.9rem 1.25rem;
+  padding: 0.85rem 1.25rem;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
 .pm-toolbar-title {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-ink-faint);
 }
 
 .pm-toolbar-actions {
@@ -68,16 +77,16 @@
 .pm-shot-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: var(--tracking-wide);
   color: var(--color-ink-soft);
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-pill);
+  padding: 0.5rem 0.95rem;
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast),
     color var(--transition-fast);
@@ -94,7 +103,30 @@
   &.is-failed { color: var(--color-danger); border-color: var(--color-danger); }
 }
 
-.pm-shot-icon { font-size: 0.85rem; line-height: 1; }
+.pm-shot-icon { font-size: 0.82rem; line-height: 1; }
+
+/* Quiet until hovered, and fenced off from Screenshot by a divider — it is the
+   one destructive control on the card. */
+.pm-logout {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink-faint);
+  background: none;
+  border: none;
+  padding: 0.5rem 0.3rem;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+
+  &:hover { color: var(--color-danger); }
+}
+
+.pm-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--color-border);
+}
 
 .pm-close {
   display: inline-flex;
@@ -115,27 +147,39 @@
     border-color: var(--color-primary-light);
   }
 
-  img { width: 16px; height: 16px; object-fit: contain; display: block; opacity: 0.7; }
+  img { width: 15px; height: 15px; object-fit: contain; display: block; opacity: 0.65; }
 }
 
 // ── Card (the captured surface) ────────────────────────────────────────────────
 .pm-card {
-  background: var(--color-surface);
-  padding: 1.35rem 1.5rem 1rem;
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--color-surface-alt) 0%, transparent 62%),
+    var(--color-surface);
+  padding: 1.5rem 1.6rem 1.15rem;
   overflow-y: auto;
   flex: 1;
 }
 
-// ── Identity ───────────────────────────────────────────────────────────────────
+// ── Identity band ──────────────────────────────────────────────────────────────
 .pm-identity {
   --accent: var(--color-primary);
   --accent-tint: var(--color-primary-tint);
 
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  padding-bottom: 1.1rem;
-  border-bottom: 1px solid var(--color-border);
+  gap: 1rem;
+  padding-bottom: 1.15rem;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--color-border) 45%, transparent);
+  }
 
   &.rank-commander { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
   &.rank-creator,
@@ -143,12 +187,14 @@
 }
 
 .pm-avatar {
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 62px;
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid var(--accent);
+  border: 1px solid var(--accent);
+  outline: 3px solid var(--accent-tint);
+  outline-offset: -5px;
   background: var(--accent-tint);
 
   img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -158,38 +204,43 @@
 
 .pm-ign {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--color-ink);
-  line-height: 1.15;
+  line-height: 1.05;
   overflow-wrap: anywhere;
 }
 
-.pm-handle {
+.pm-handle,
+.pm-origin {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--color-ink-faint);
-  margin-top: 0.2rem;
 }
+
+.pm-handle { margin-top: 0.3rem; }
+.pm-origin { margin-top: 0.2rem; }
 
 .pm-role {
   font-weight: 700;
-  letter-spacing: var(--tracking-wide);
+  font-size: 0.64rem;
+  letter-spacing: var(--tracking-wider);
   color: var(--accent);
   text-transform: uppercase;
 }
 
-.pm-dot { opacity: 0.5; }
+.pm-sep { opacity: 0.45; }
 
 .pm-online {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.65rem;
+  margin-left: 0.15rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: var(--tracking-wide);
   color: var(--color-secondary-dark);
@@ -200,108 +251,113 @@
   height: 6px;
   border-radius: 50%;
   background: var(--color-secondary);
+  box-shadow: 0 0 0 3px var(--color-secondary-tint);
 }
 
+/* Level as a stamped medallion — the card's one loud moment. */
 .pm-level {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--radius-sm);
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
   background: var(--accent-tint);
   border: 1px solid var(--accent);
+  box-shadow: inset 0 0 0 4px var(--color-surface);
 }
 
 .pm-level-num {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 1.85rem;
   font-weight: 700;
   line-height: 1;
   color: var(--color-ink);
+  font-variant-numeric: lining-nums;
 }
 
 .pm-level-label {
   font-family: var(--font-body);
-  font-size: 0.55rem;
+  font-size: 0.5rem;
+  font-weight: 700;
   letter-spacing: var(--tracking-wider);
   color: var(--color-ink-faint);
+  margin-top: 0.15rem;
 }
 
 // ── Sections ───────────────────────────────────────────────────────────────────
-.pm-section { padding-top: 1.15rem; }
+.pm-section { padding-top: 1.3rem; }
 
+/* Heading + hairline: the rule runs to the edge, so sections read as bands. */
 .pm-heading {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: var(--tracking-wider);
   color: var(--color-ink-faint);
-  margin-bottom: 0.75rem;
-}
+  margin-bottom: 0.7rem;
 
-.pm-subheading {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-ink-soft);
-  margin: 0.9rem 0 0.5rem;
-
-  &:first-of-type { margin-top: 0; }
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--color-border), transparent);
+  }
 }
 
 .pm-count {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  color: var(--color-ink-faint);
+  color: var(--color-ink-soft);
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   padding: 0.05rem 0.4rem;
-  margin-left: 0.3rem;
 }
 
 .pm-note,
 .pm-placeholder {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--color-ink-faint);
   line-height: 1.6;
 }
 
 .pm-placeholder {
-  padding: 2rem 0.5rem;
+  padding: 2.5rem 0.5rem;
   text-align: center;
 }
 
 .pm-placeholder-title {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--color-ink);
   margin-bottom: 0.4rem;
 }
 
-// ── Stat grid ──────────────────────────────────────────────────────────────────
+// ── Standing ───────────────────────────────────────────────────────────────────
 .pm-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 0.5rem;
 }
 
 .pm-stat {
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 0.7rem;
+  padding: 0.6rem 0.75rem;
 
   dt {
     font-family: var(--font-body);
-    font-size: 0.62rem;
+    font-size: 0.56rem;
+    font-weight: 600;
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
     color: var(--color-ink-faint);
@@ -309,22 +365,30 @@
 
   dd {
     font-family: var(--font-body);
-    font-size: 0.92rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--color-ink);
-    margin-top: 0.15rem;
+    margin-top: 0.2rem;
     overflow-wrap: anywhere;
 
     &.is-online { color: var(--color-secondary-dark); }
-    &.mono { font-variant-numeric: tabular-nums; font-size: 0.82rem; }
   }
+}
+
+/* Figures that carry the brag get the display face, at a size worth reading. */
+.pm-figure {
+  font-family: var(--font-heading) !important;
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 // ── Achievements ───────────────────────────────────────────────────────────────
 .pm-achievements {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.55rem;
   list-style: none;
 }
 
@@ -348,13 +412,13 @@
 
 .pm-ach-name {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: var(--color-ink);
 }
 
 .pm-ach-points {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--color-primary);
   white-space: nowrap;
@@ -362,7 +426,7 @@
 
 .pm-ach-desc {
   font-family: var(--font-body);
-  font-size: 0.74rem;
+  font-size: 0.73rem;
   color: var(--color-ink-soft);
   line-height: 1.5;
   margin-top: 0.2rem;
@@ -375,7 +439,7 @@
   gap: 0.5rem;
   margin-top: 0.4rem;
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   color: var(--color-ink-faint);
 }
 
@@ -406,7 +470,7 @@
   background: var(--color-primary);
 }
 
-// ── Build: inner ways ──────────────────────────────────────────────────────────
+// ── Inner ways ─────────────────────────────────────────────────────────────────
 .pm-chips {
   display: flex;
   flex-wrap: wrap;
@@ -417,16 +481,26 @@
 .pm-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   font-family: var(--font-body);
   font-size: 0.72rem;
   color: var(--color-ink);
   background: var(--color-surface-alt);
   border: 1px solid var(--tier-color, var(--color-border));
   border-radius: var(--radius-pill);
-  padding: 0.3rem 0.7rem;
+  padding: 0.32rem 0.75rem;
+}
 
-  // Same rarity ramp as the gear cards.
+.pm-chip-tier {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--tier-color, var(--color-ink-faint));
+}
+
+// Rarity ramp — grey → green → blue → plum → gold, shared by chips, gear, affixes.
+.pm-chip,
+.pm-gear-card,
+.pm-affix {
   &.tier-1 { --tier-color: #9c8f79; }
   &.tier-2 { --tier-color: #7c9473; }
   &.tier-3 { --tier-color: #6e88a8; }
@@ -434,13 +508,7 @@
   &.tier-5 { --tier-color: #a9822f; }
 }
 
-.pm-chip-tier {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--tier-color, var(--color-ink-faint));
-}
-
-// ── Build: set effects ─────────────────────────────────────────────────────────
+// ── Set effects ────────────────────────────────────────────────────────────────
 .pm-sets {
   display: grid;
   gap: 0.5rem;
@@ -451,7 +519,7 @@
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 0.75rem;
+  padding: 0.6rem 0.8rem;
 }
 
 .pm-set-top {
@@ -469,8 +537,9 @@
 }
 
 .pm-set-count {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
+  letter-spacing: var(--tracking-wide);
   color: var(--color-ink-faint);
 }
 
@@ -483,60 +552,104 @@
   font-size: 0.72rem;
   color: var(--color-ink-soft);
   line-height: 1.5;
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
 
-  &.is-inactive { opacity: 0.5; }
+  &.is-inactive { opacity: 0.45; }
 }
 
 .pm-set-tag {
   flex-shrink: 0;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   color: var(--color-on-dark);
   background: var(--color-primary);
   border-radius: var(--radius-pill);
-  padding: 0.05rem 0.4rem;
+  padding: 0.08rem 0.42rem;
 }
 
-// ── Build: gear ────────────────────────────────────────────────────────────────
-.pm-gear {
+// ── Gear ───────────────────────────────────────────────────────────────────────
+// Two rows in the game's own grouping: the four slots that can share a set, a
+// hairline, then the slot that stands outside it (bow, ring).
+.pm-gear-rows {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.6rem;
 }
 
-.pm-gear-card {
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  border-top: 3px solid var(--tier-color, var(--color-border-strong));
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 0.7rem;
+.pm-gear-row {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.6rem;
+}
 
-  // Gear rarity ramp — grey → green → blue → plum → gold.
-  &.tier-1 { --tier-color: #9c8f79; }
-  &.tier-2 { --tier-color: #7c9473; }
-  &.tier-3 { --tier-color: #6e88a8; }
-  &.tier-4 { --tier-color: #8b6f94; }
-  &.tier-5 { --tier-color: #a9822f; }
+.pm-gear-group {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+
+  &--tail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The separator marks a real boundary: set bonuses apply to the four on its
+   left, not to the piece on its right. */
+.pm-gear-sep {
+  position: relative;
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(180deg, transparent, var(--color-primary-light) 15%,
+    var(--color-primary-light) 85%, transparent);
+
+  // A mark at the midpoint so the boundary reads as intentional at a glance.
+  &::after {
+    content: '◈';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    line-height: 1;
+    color: var(--color-primary);
+    background: var(--color-surface);
+    padding: 0.3rem 0.15rem;
+  }
+}
+
+.pm-gear-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 2px solid var(--tier-color, var(--color-border-strong));
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.65rem 0.6rem;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+
+  &:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
 }
 
 .pm-gear-top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .pm-gear-slot {
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.54rem;
+  font-weight: 600;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--color-ink-faint);
 }
 
 .pm-gear-tier {
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   font-weight: 700;
   color: var(--tier-color, var(--color-ink-faint));
 }
@@ -544,33 +657,49 @@
 .pm-gear-name {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.79rem;
   font-weight: 600;
+  line-height: 1.25;
   color: var(--color-ink);
-  margin-top: 0.1rem;
+  margin-top: 0.15rem;
 }
 
 .pm-gear-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.25rem;
+  gap: 0.3rem 0.45rem;
+  margin-top: 0.28rem;
   font-family: var(--font-body);
-  font-size: 0.62rem;
+  font-size: 0.6rem;
 }
 
 .pm-gear-set { color: var(--color-primary-dark); }
 .pm-gear-ilvl { color: var(--color-ink-faint); }
 
+// Stat rows read label-left / value-right so a long attribute name never pushes
+// its number onto its own line.
 .pm-gear-attrs {
   list-style: none;
   margin-top: 0.4rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed var(--color-border);
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   color: var(--color-ink-soft);
-  line-height: 1.6;
+  line-height: 1.4;
 
-  b { color: var(--color-ink); font-variant-numeric: tabular-nums; }
+  li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  b {
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
 }
 
 .pm-gear-affixes {
@@ -578,42 +707,112 @@
   margin-top: 0.35rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.18rem;
 }
 
 .pm-affix {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   color: var(--color-ink-soft);
-  line-height: 1.5;
-  padding-left: 0.55rem;
+  line-height: 1.4;
+  padding-left: 0.45rem;
   border-left: 2px solid var(--tier-color, var(--color-border));
 
-  b { color: var(--color-ink); margin-left: 0.2rem; font-variant-numeric: tabular-nums; }
+  b {
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
 
-  &.effect { color: var(--color-ink-faint); font-style: italic; }
-  &.tier-1 { --tier-color: #9c8f79; }
-  &.tier-2 { --tier-color: #7c9473; }
-  &.tier-3 { --tier-color: #6e88a8; }
-  &.tier-4 { --tier-color: #8b6f94; }
-  &.tier-5 { --tier-color: #a9822f; }
+  // Set-effect prose is a sentence, not a stat — let it run full width.
+  &.effect {
+    display: block;
+    color: var(--color-ink-faint);
+    font-style: italic;
+  }
 }
 
-// ── Watermark (only meaningful once the card is shared as an image) ────────────
-.pm-watermark {
-  margin-top: 1.25rem;
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--color-border);
+// ── Footer ─────────────────────────────────────────────────────────────────────
+.pm-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+}
+
+.pm-footer-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.pm-footer-text {
   font-family: var(--font-heading);
-  font-size: 0.7rem;
-  letter-spacing: var(--tracking-wider);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink-soft);
+}
+
+.pm-footer-seal {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.7;
+}
+
+.pm-asof {
+  margin-top: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  letter-spacing: var(--tracking-wide);
   color: var(--color-ink-faint);
   text-align: center;
 }
 
+// ── Narrow screens ─────────────────────────────────────────────────────────────
+@media (max-width: 720px) {
+  .pm-gear-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .pm-gear-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    &--tail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  // The boundary still matters, so it becomes a horizontal rule.
+  .pm-gear-sep {
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border-strong) 22%,
+      var(--color-border-strong) 78%, transparent);
+  }
+}
+
 @media (max-width: 480px) {
-  .pm-overlay { padding: 0.75rem; }
-  .pm-card { padding: 1rem 1rem 0.75rem; }
-  .pm-ign { font-size: 1.25rem; }
+  .pm-overlay { padding: 0.6rem; }
+  .pm-card { padding: 1.1rem 1rem 0.8rem; }
+  .pm-ign { font-size: 1.5rem; }
+  .pm-avatar { width: 52px; height: 52px; }
+  .pm-level { width: 62px; height: 62px; }
+  .pm-level-num { font-size: 1.5rem; }
   .pm-toolbar-title { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-overlay,
+  .pm-panel { animation: none; }
+
+  .pm-gear-card {
+    transition: none;
+
+    &:hover { transform: none; }
+  }
 }
