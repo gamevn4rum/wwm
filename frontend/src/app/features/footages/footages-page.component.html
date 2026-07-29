@@ -29,7 +29,7 @@
       <span>Uploader</span>
       <select [ngModel]="selectedUploader()" (ngModelChange)="onUploaderChange($event)">
         <option value="All">All</option>
-        @for (uploader of uploaderOptions; track uploader) {
+        @for (uploader of uploaderOptions(); track uploader) {
           <option [value]="uploader">{{ uploader }}</option>
         }
       </select>

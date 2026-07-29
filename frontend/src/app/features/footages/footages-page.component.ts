@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FootagesDataService } from './footages-data.service';
 import { FootageRecord, MatchType, UploaderKey } from './footages.model';
-import { UPLOADERS } from '../match-history/match-record.model';
 import { FootageVideoCardComponent } from './components/footage-video-card.component';
 
 @Component({
@@ -25,10 +24,19 @@ export class FootagesPageComponent implements OnInit {
   readonly selectedUploader = signal<'All' | UploaderKey>('All');
 
   readonly matchTypeOptions: MatchType[] = ['League', 'Ranked', 'Scrim'];
-  readonly uploaderOptions: UploaderKey[] = UPLOADERS;
 
   readonly opponentOptions = computed(() =>
     Array.from(new Set(this.allFootages().map((f) => f.opponent))).sort((a, b) => a.localeCompare(b))
+  );
+
+  /**
+   * IGNs of uploaders who actually have footage, derived from the data like
+   * `opponentOptions` above. Previously a fixed roster list, which offered filter options
+   * that matched nothing; the uploader set now comes from the sheet's columns and is not
+   * known at compile time.
+   */
+  readonly uploaderOptions = computed(() =>
+    Array.from(new Set(this.allFootages().map((f) => f.uploader))).sort((a, b) => a.localeCompare(b))
   );
 
   readonly filteredFootages = computed(() => {

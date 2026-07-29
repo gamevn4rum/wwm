@@ -8,7 +8,7 @@ import { extractYouTubeVideoId } from '../../core/utils/youtube.utils';
 import { environment } from '../../../environments/environment';
 import { apiUrl } from '../../core/api';
 import { EncryptedPayload, decryptJson } from '../../core/utils/crypto.utils';
-import { FootageEntry, MatchRecord, MatchType, UPLOADERS } from './match-record.model';
+import { FootageEntry, MatchRecord, MatchType, isUploaderColumn } from './match-record.model';
 
 const MONTH_MAP: Record<string, number> = {
   jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
@@ -36,11 +36,17 @@ function parseDate(raw: string): string {
   return raw;
 }
 
+/**
+ * Every non-metadata column on the row is an uploader whose cell may hold a YouTube URL.
+ * Driven by the row's own keys rather than a fixed roster list, so a new uploader column on
+ * the sheet appears here without a code change.
+ */
 function rowToFootages(row: SheetRow): FootageEntry[] {
-  return UPLOADERS
-    .map((uploader) => {
-      const videoId = extractYouTubeVideoId(findVal(row, uploader));
-      return videoId ? ({ uploader, videoId } satisfies FootageEntry) : null;
+  return Object.keys(row)
+    .filter(isUploaderColumn)
+    .map((column) => {
+      const videoId = extractYouTubeVideoId(findVal(row, column));
+      return videoId ? ({ uploader: column.trim(), videoId } satisfies FootageEntry) : null;
     })
     .filter((entry): entry is FootageEntry => entry !== null);
 }
