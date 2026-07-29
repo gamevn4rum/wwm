@@ -34,15 +34,7 @@ frontend/docs/data/live-stats.json
 frontend/data/new-members.json
 frontend/docs/data/new-members.json
 
-# ── Backend (.NET, under backend/) ──────────────────────────────────────
-[Bb]in/
-[Oo]bj/
-*.user
-# Azure Functions local settings (contains secrets / connection strings)
-backend/**/local.settings.json
-# EF/ASP.NET local secrets
-**/appsettings.Development.json
-**/appsettings.Local.json
+# The .NET backend moved to its own private repository — nothing here builds it.
 
 # ── IDEs and editors ────────────────────────────────────────────────────
 .idea/

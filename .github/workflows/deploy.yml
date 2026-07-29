@@ -40,7 +40,7 @@ jobs:
 
       # ── 3. Dependencies ──────────────────────────────────────────────────
       # The Angular app now lives under frontend/ (the repo is a frontend/ +
-      # backend/ monorepo); all Node steps run there.
+      # frontend/ subdirectory); all Node steps run there.
       - name: Install dependencies
         working-directory: frontend
         run: npm ci

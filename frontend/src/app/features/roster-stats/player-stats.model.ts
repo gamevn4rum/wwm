@@ -63,7 +63,7 @@ export type UnmatchedReason =
   | 'region_mismatch'
   | 'no_detail'
   /** Backend sync only: the roster row has no PID, so it can't be looked up at all
-   *  (wwmdb's IGN resolver is gone — see backend/GUILD-API.md §7). */
+   *  (wwmdb's IGN resolver is gone — see GUILD-API.md (private backend repo) §7). */
   | 'no_pid'
   | 'error';
 

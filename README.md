@@ -7,27 +7,40 @@ A guild roster and information page for **GameVN**, deployed as a static site on
 > **Status:** the app is transitioning from a **static-only** site (data shipped as
 > encrypted `*.enc` files, decrypted in the browser) to a **real backend** that adds
 > a server-side auth boundary. The backend is **code-complete but not yet deployed**;
-> the live site still runs the static path until you flip `useBackend` (see the
-> [go-live checklist](#-go-live-todo-backend) below).
+> the live site still runs the static path until you flip `useBackend`.
 
 ---
 
 ## Repository layout
 
-This repo is a monorepo:
+**This repo is the frontend only, and it is public** — GitHub Pages serves it, so
+everything here is world-readable by design.
 
 - **`frontend/`** — the Angular 21 app. **All Node commands run from `frontend/`**
   (`cd frontend && npm install`); the GitHub workflows set `working-directory: frontend`.
-- **`backend/`** — a **.NET 10** backend (Azure SQL + ASP.NET Core Minimal API +
-  Azure Functions sync) that implements the server-side trust boundary described in
-  [`SECURITY.md`](SECURITY.md). See [`backend/README.md`](backend/README.md) (runbook)
-  and [`backend/PLAN.md`](backend/PLAN.md) (design).
+- **`scripts/`** — occasional manual tooling (guild-data pulls, UID resolution). Not
+  part of any workflow.
+
+The **.NET 10 backend lives in a separate private repository** (Azure SQL +
+ASP.NET Core Minimal API + Azure Functions sync). It implements the server-side trust
+boundary this repo's [`SECURITY.md`](SECURITY.md) documents as missing, and it is
+private because it holds that boundary's schema, the gated member data model, and
+reverse-engineered notes on NetEase's API. Its `README.md` is the deployment runbook and
+its `PLAN.md` is the design spec; ask an officer for access.
+
+Nothing in this repo builds, references or needs the backend — the only coupling is the
+`apiBaseUrl` the SPA points at once `useBackend` is on.
+
+> ⚠ The backend was split out *after* being committed here, so every backend file is
+> still readable in this repo's git history. Making it private only applies going
+> forward. [`HISTORY-SCRUB.md`](HISTORY-SCRUB.md) has the purge procedure and, more
+> importantly, the credential-rotation checklist that matters either way.
 
 ---
 
-## What's new (full-stack backend)
+## What the backend adds
 
-The backend replaces the "AES key ships to the browser" model (`SECURITY.md`'s core
+It replaces the "AES key ships to the browser" model (`SECURITY.md`'s core
 limitation) with a proper server boundary, and adds back-office management:
 
 - **Server-side auth** — Discord **Authorization Code** flow: the server holds the
@@ -57,56 +70,28 @@ site is unaffected until you deploy the backend and flip the flag.
 
 ---
 
-## ✅ Go-live TODO (backend)
+## ✅ Go-live TODO (this repo's part)
 
-What **you** need to do to move off the static path onto the backend. (I can't do
-these — they need your Azure subscription and Discord app.) The full step-by-step is in
-[`backend/README.md`](backend/README.md); this is the checklist.
+Provisioning Azure, configuring the App Service / Function App, the Discord client
+secret and deploying the API all happen **in the private backend repo** — its
+`README.md` carries that runbook and its CI does the deploying. Only the steps below
+are changes here.
 
-### 1. Provision Azure (free tier)
-- [ ] Resource group in a region with the SQL free offer (near SEA players).
-- [ ] **Azure SQL Database** — free GP **serverless**; auto-pause delay **1 hour**, min vCore. Capture the connection string.
-- [ ] **App Service** — Linux **F1 (free)** + plan (hosts `Wwm.Api`).
-- [ ] **Function App** (Consumption) + its **Storage Account** (hosts `Wwm.Sync`).
-
-### 2. App Service settings (the API)
-- [ ] `SQL_CONNECTION_STRING`
-- [ ] `JWT_SIGNING_KEY` — a strong random secret **≥32 chars** (the app refuses to start on the dev default).
-- [ ] `DISCORD_CLIENT_ID` (`1512670533093949570`) and `DISCORD_CLIENT_SECRET`
-- [ ] `CORS_ALLOWED_ORIGINS` — your GitHub Pages origin (e.g. `https://shinigamae.github.io`). **Required in prod.**
-- [ ] `ADMIN_KEY` and `FUNCTION_SYNC_URL` (`https://<funcapp>.azurewebsites.net/api/sync`)
-- [ ] `AUTO_MIGRATE=true` for the first boot (creates the schema + seeds feature flags).
-- [ ] Leave `DEV_AUTH_ENABLED` **unset**. (`RESTRICT_TO_FRONTEND` defaults to `true`.)
-
-### 3. Function App settings (the sync)
-- [ ] `SQL_CONNECTION_STRING`, `GOOGLE_SERVICE_ACCOUNT_JSON`, `GOOGLE_SHEET_ID`
-- [ ] `WWMDB_TOKEN` (optional; rotates), `WWMDB_ALLOWED_REGIONS` (default `SEA`)
-- [ ] `ADMIN_KEY` (same value as the API), `AzureWebJobsStorage`
-- [ ] `SYNC_CRON_SHEET` / `SYNC_CRON_STATS` (defaults: every 6 h / daily)
-
-### 4. Discord app
-- [ ] Add your SPA origin(s) as **redirect URIs** (prod + `http://localhost:4200/` for dev).
-- [ ] Copy the **client secret** into the App Service (`DISCORD_CLIENT_SECRET`).
-
-### 5. Deploy the backend (CI)
-- [ ] Repo **variables**: `DEPLOY_BACKEND=true`, `AZURE_WEBAPP_NAME`, `AZURE_FUNCTIONAPP_NAME`.
-- [ ] Repo **secrets**: `AZURE_WEBAPP_PUBLISH_PROFILE`, `AZURE_FUNCTIONAPP_PUBLISH_PROFILE`.
-- [ ] Push (or run `backend.yml` manually) → builds + deploys API and Functions.
-
-### 6. First data load & verify
-- [ ] Trigger the initial sync: `POST https://<funcapp>.azurewebsites.net/api/sync/all` with header `X-Admin-Key: <ADMIN_KEY>` (or wait for the timers).
-- [ ] Confirm the roster/matches populate and `shinigamae` is seeded as **Admin**.
-- [ ] Log in and check `/admin`, `/manage/members`, `/manage/registrations`.
-
-### 7. Flip the frontend to the backend
+### 1. Flip the frontend to the backend
 - [ ] In `frontend/src/environments/environment.prod.ts` set `useBackend: true` and `apiBaseUrl` to `https://<appservice-host>/api`.
 - [ ] Add a build-time injection for `apiBaseUrl` in `deploy.yml` (mirror the existing `DATA_ENCRYPTION_KEY` sed step) if you keep it as a secret/variable.
+- [ ] Add the App Service origin to `connect-src` in `frontend/src/index.html`'s CSP, or the browser silently blocks every API call.
 - [ ] Deploy the frontend and smoke-test login + gated pages.
 
-### 8. Decommission the static path (after confirming the backend works)
+### 2. Decommission the static path (after confirming the backend works)
 - [ ] Remove the client AES path (`crypto.utils.ts` usage, `DATA_ENCRYPTION_KEY`, `*.enc` publishing).
-- [ ] Retire/repoint `sync-sheets.yml` / `sync-player-stats.yml` (the sync now lives in Functions).
+- [ ] Retire `sync-sheets.yml`, `sync-player-stats.yml`, `sync-live-stats.yml` and `sync-opponent-guilds.yml` — the sync now lives in Azure Functions.
+- [ ] Before deleting `frontend/scripts/fetch-*.js`, note the backend repo keeps frozen copies under `reference/scripts/` precisely so those protocol notes survive this step.
 - [ ] Update `SECURITY.md` to describe the new trust boundary.
+
+> On the backend side you'll also need its repo variables (`DEPLOY_BACKEND=true`,
+> `AZURE_WEBAPP_NAME`, `AZURE_FUNCTIONAPP_NAME`) and publish-profile secrets. They are
+> set on the **private** repo, not this one — moving the backend out moved its CI too.
 
 ---
 
@@ -133,8 +118,9 @@ ng build (in frontend/)  →  frontend/docs/  →  pushed to gh-pages branch
 
 ```
 Google Sheet ─┐                    Azure Functions (timer)
-wwmdb relay ──┤  change-detect →   • SheetSyncFn  • StatsSyncFn  • ManualSyncHttpFn
-              └──────────────┬────────────────────────────────
+wwmdb relay ──┤  change-detect →   • SheetSyncFn      • StatsSyncFn
+game API ─────┤                    • GuildSyncFn      • LiveStatsSyncFn
+              └──────────────┬───  • ManualSyncHttpFn (admin "sync now")
                              ▼  (upsert only when changed)
 Angular SPA ───REST+JWT──▶ Azure SQL ◀── EF Core ── ASP.NET Core Minimal API (App Service)
 (GitHub Pages)                              • /api/public/*   anon, cached
@@ -145,8 +131,8 @@ Angular SPA ───REST+JWT──▶ Azure SQL ◀── EF Core ── ASP.NE
 ```
 
 Same Angular app — the data services just swap their fetch target, and auth stores an
-app JWT instead of recomputing permissions from the (public) members file. Details in
-[`backend/README.md`](backend/README.md).
+app JWT instead of recomputing permissions from the (public) members file. Details are
+in the private backend repo's `README.md` and `PLAN.md`.
 
 ---
 
@@ -194,7 +180,8 @@ workflow:
   **Guild** page (`/guild`). Fetched by `frontend/scripts/fetch-guild.js` via the
   relay's `Guild {id, hostnum}` call; GameVN's guild id + serverId are baked into
   the script (the pair in the site URL `wwmdb.vlt.fyi/guilds/<id>/<hostnum>`), so
-  no secret is needed. See [`backend/GUILD-API.md`](backend/GUILD-API.md).
+  no secret is needed. The relay's protocol is documented in `GUILD-API.md` in the
+  private backend repo.
 - **`data/player-stats.enc`** — per-member in-game stats/gear, rendered by the
   Roster Stats view. `fetch-player-stats.js` looks each member up by their guild
   **pId** (from `guild.json`) — wwmdb removed its IGN search, so the guild roster
@@ -282,12 +269,9 @@ npx ng build
 On Windows PowerShell, set env vars with `$env:NAME="value"; node scripts/fetch-data.js`.
 
 ### Backend (optional — only for `useBackend: true`)
-See [`backend/README.md`](backend/README.md). In short:
-```bash
-cd backend
-dotnet ef database update --project src/Wwm.Data --startup-project src/Wwm.Data
-DEV_AUTH_ENABLED=true JWT_SIGNING_KEY=<32+ chars> dotnet run --project src/Wwm.Api
-```
+Clone the private backend repo separately and follow its `README.md`; it runs on
+.NET 10 and needs a local SQL Server/LocalDB. Point this app at it with
+`environment.ts` → `useBackend: true`, `apiBaseUrl: 'http://localhost:5xxx/api'`.
 Then set `useBackend: true` in `frontend/src/environments/environment.ts` and `npx ng serve`. The `localhost` dev bypass gets an Admin session from `POST /api/auth/dev`.
 
 ---
@@ -311,7 +295,6 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 | `sync-live-stats.yml` | Every 30 min (:05 / :35), manual | Re-reads gear + volatile stats from the official game API into `live-stats.enc` — the overlay described above. Decrypts `guild`/`player-stats` for the pIds, numberIds and last-known affix tiers it needs, then encrypts, commits, triggers deploy |
 | `sync-opponent-guilds.yml` | Twice-daily cron (03:45 / 15:45 UTC), manual | Pulls every opponent guild in `data/opponent-guild-ids.json` (identity + member roster) into `data/guild-opponents.json`, commits, triggers deploy — only when the rosters actually changed |
 | `deploy.yml` | Push to `main`, manual, or triggered by a sync | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
-| `backend.yml` | Push to `main` under `backend/**`, manual | Builds the .NET solution; **deploys** API + Functions only when the repo variable `DEPLOY_BACKEND=true` |
 
 ---
 
