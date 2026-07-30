@@ -1,4 +1,29 @@
-# Purging the backend from this repo's git history
+# Purging data and the backend from this repo's git history
+
+> ## ✅ Done — 2026-07-30
+>
+> This was run. `main` was rewritten and force-pushed: **293 → 52 commits, 60 MB → 13 MB**.
+> Verified from a fresh clone of the remote afterwards, all zero: `data/` objects (either
+> era), `.enc` blobs, `backend/` objects, the AES key value, the wwmdb token value,
+> committed `docs/` build output, and the sync scripts. All 176 files at HEAD are
+> byte-for-byte what they were, and all 41 commits touching app source survive — the 241
+> dropped commits were purely data and build output.
+>
+> **Three things a naive run would have got wrong:**
+>
+> 1. **The repo was reorganised into `frontend/` partway through its life.** Purging only
+>    `frontend/data` leaves the pre-reorg `data/`, `scripts/` and `docs/` paths holding
+>    everything. The first attempt here did exactly that and verification caught it.
+> 2. **The AES key value survives only in committed `docs/` bundles** — the built output
+>    that used to be committed on `main`. Purging the data files alone does not remove the
+>    key.
+> 3. **Do not push the rewritten `gh-pages`.** ⚠ That branch *serves from a `docs/` folder*,
+>    so purging the path `docs` reduces it to a single `.nojekyll` file — pushing it takes
+>    the live site down. Push `main` only (`git push --force origin main:main`, never
+>    `--all` or `--mirror`). `deploy.yml` then rebuilds `gh-pages` as a fresh orphan commit
+>    on its own, which is also what already cleared the key out of the published bundle.
+>
+> The sections below are the procedure as written before the run; they remain accurate.
 
 The backend now lives in its own private repository, and `backend/` has been deleted
 from the working tree. **That does not make it private.** This repo is public and every
@@ -151,10 +176,10 @@ git push --force --tags origin
 Rewriting history does not un-leak anything already fetched. Credentials that have sat
 in a public repo are burned:
 
-- [ ] **`WWMDB_TOKEN`** — hardcoded as a default in `frontend/scripts/*.js` (still live
-      in this repo) and in the backend's `Wwm.Sync/Program.cs`. Rotate it and set the new
-      value as a Function App application setting; leave the default as an obviously-dead
-      placeholder.
+- [x] **`WWMDB_TOKEN`** — was hardcoded as a default in the fetch scripts and in the
+      backend's `Wwm.Sync/Program.cs`. **Moot now:** `wwmdb.vlt.fyi` stopped resolving on
+      2026-07-30, so the token authenticates against nothing. It is out of this repo's
+      history as of the purge above. Nothing to rotate *to*.
 - [ ] **`GOOGLE_SERVICE_ACCOUNT_JSON`** — an Actions secret, so not exposed by this, but
       if it was ever pasted into a file or a log, rotate the key in Google Cloud.
 - [ ] **`DATA_ENCRYPTION_KEY`** — the AES key the static path shipped to the browser. Public
