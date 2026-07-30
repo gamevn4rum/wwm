@@ -1,30 +1,40 @@
 # Security Notes
 
-This is a **static site** (Angular on GitHub Pages) with a Google Sheet as its
-data source. There is no server the site controls. That single fact drives
-every item below.
+This is an Angular SPA on GitHub Pages, but it is **no longer a static site in the
+sense that mattered here**: since 2026-07-30 it holds no data of its own and reads
+everything from the .NET backend's API, which is where the trust boundary now lives.
 
-## The core limitation: a static site cannot keep data secret from its viewers
+## The core limitation — fixed 2026-07-30
 
-Anything the browser needs in order to work — API keys, the AES decryption key,
-the data itself — is downloaded to every visitor and can be read from DevTools.
-Encrypting `data/*.enc` and gating routes with a Discord login are **UI
-conveniences, not confidentiality controls**. A visitor who never logs in can:
+**Historical, kept because it explains why the backend exists and why some
+credentials must be treated as burned.**
+
+A static site cannot keep data secret from its viewers. Anything the browser needs in
+order to work — API keys, the AES decryption key, the data itself — is downloaded to
+every visitor and readable from DevTools. Encrypting `data/*.enc` and gating routes with
+a Discord login were **UI conveniences, not confidentiality controls**. A visitor who
+never logged in could:
 
 1. Open the JS bundle and copy `dataEncryptionKey`.
 2. `fetch('data/members.enc')` and decrypt it locally with that key.
 
-This was verified against the live site: the key in the bundle decrypts
-`members.enc` into the full 42-row roster (Discord handles, IGNs, weapons,
-availability). The Discord login and the `formationGuard` / `footageGuard`
-route guards do **not** protect this data — they only decide what the SPA
-renders, which the user's own browser controls anyway.
+That was verified against the live site: the key in the bundle decrypted `members.enc`
+into the full roster (Discord handles, IGNs, weapons, availability). The route guards
+never protected it — they only decided what the SPA rendered, which the user's own
+browser controls anyway.
 
-**Implication:** treat everything published to `data/` (encrypted or not) as
-public. If a column must stay private, do not export it — filter it out in
-`scripts/fetch-data.js` before the JSON is ever written. The only way to serve
-data to *some* viewers and not others is to put a real server-side trust
-boundary in front of it (see "If you need real access control").
+**What replaced it.** The gated data now sits behind the API: the server holds the
+Discord client secret, mints a short-lived app JWT, and re-checks it on every request.
+The public projection is deliberately thin — IGN, role, notes and a derived `registered`
+flag; no Discord handles, no UIDs, no PIDs — so the "treat everything published as
+public" rule still holds, it just applies to a much smaller surface. `frontend/data/`,
+the `.enc` files and `dataEncryptionKey` are gone from the app entirely.
+
+**What that does not undo.** Anything ever published stays published. The AES key was
+public by design, the roster it decrypted was readable for as long as it shipped, and
+both remain in this repo's git history until it is rewritten — see
+[`HISTORY-SCRUB.md`](HISTORY-SCRUB.md), which also carries the rotation checklist that
+matters whether or not you rewrite.
 
 ## Owner actions — completed (verified 2026-07-09)
 

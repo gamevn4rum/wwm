@@ -1,4 +1,4 @@
-// Shape of data/guild.json, produced by scripts/fetch-guild.js from the wwmdb
+// Shape served by GET /api/member/guild. Originally from the wwmdb
 // relay's `Guild {id, hostnum}` response. Guild-level identity plus the member
 // roster; any account/email-looking field is stripped at ingestion.
 
@@ -11,7 +11,7 @@ export interface GuildMember {
   joinTime?: number | null;
 }
 
-/** Our placement on one in-game leaderboard (data/guild-rank.json). */
+/** Our placement on one in-game leaderboard (GET /api/public/guild/rank). */
 export interface GuildRankEntry {
   /** Season-scoped board id — informational only; never used as a lookup key. */
   boardId: number | null;
@@ -26,7 +26,7 @@ export interface GuildRankEntry {
 }
 
 /**
- * Shape of data/guild-rank.json, produced by scripts/fetch-guild-rank.js.
+ * Shape served by GET /api/public/guild/rank.
  * Public data (no encryption): only our own standing, no UID/PID, no other guild.
  * `league` is null whenever the Guild War league table isn't published.
  */
@@ -54,7 +54,7 @@ export interface HallOfFameEntry {
   members: string[];
 }
 
-/** Shape of data/hall-of-fame.json, produced by scripts/fetch-hall-of-fame.js. */
+/** Shape served by GET /api/public/guild/hall-of-fame. */
 export interface HallOfFame {
   boardsScanned: number;
   boardsWithData: number;

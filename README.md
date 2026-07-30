@@ -1,13 +1,18 @@
 # GameVN・Where Winds Meet
 
-A guild roster and information page for **GameVN**, deployed as a static site on GitHub Pages. Member data is sourced from a Google Sheet and synced automatically via GitHub Actions.
+A guild roster and information page for **GameVN**, deployed as a static site on GitHub Pages. It is a pure SPA: every read goes to the .NET backend's API, and this repo ships no data of its own.
 
-**Live site:** https://shinigamae.github.io/wwm-google-sheet/
+**Live site:** https://gamevn4rum.github.io/wwm/
 
-> **Status:** the app is transitioning from a **static-only** site (data shipped as
-> encrypted `*.enc` files, decrypted in the browser) to a **real backend** that adds
-> a server-side auth boundary. The backend is **code-complete but not yet deployed**;
-> the live site still runs the static path until you flip `useBackend`.
+> **Status:** on the backend as of 2026-07-30. The old static path — data shipped as
+> encrypted `*.enc` files with the AES key in the bundle, plus the Google Sheet sync
+> workflows — has been **removed entirely**, along with `frontend/data/`, the fetch and
+> encrypt/decrypt scripts, and the `DATA_ENCRYPTION_KEY` build-time injection. There is no
+> `useBackend` flag any more; there is only the backend.
+>
+> Those payloads were the last surviving copy of the wwmdb-derived data (wwmdb's hostname
+> stopped resolving on 2026-07-30 and it is not coming back), so they were archived into
+> the backend repo's `backfill-data/` and imported into SQL *before* being deleted here.
 
 ---
 
@@ -16,10 +21,12 @@ A guild roster and information page for **GameVN**, deployed as a static site on
 **This repo is the frontend only, and it is public** — GitHub Pages serves it, so
 everything here is world-readable by design.
 
-- **`frontend/`** — the Angular 21 app. **All Node commands run from `frontend/`**
-  (`cd frontend && npm install`); the GitHub workflows set `working-directory: frontend`.
-- **`scripts/`** — occasional manual tooling (guild-data pulls, UID resolution). Not
-  part of any workflow.
+- **`frontend/`** — the Angular 21 app, and the whole of this repo's build. **All Node
+  commands run from `frontend/`** (`cd frontend && npm install`); the deploy workflow sets
+  `working-directory: frontend`.
+
+There is no `frontend/data/` and no data-sync tooling any more — the API is the only
+source. `frontend/scripts/` keeps just `generate-dummy-assets.py`, which touches no data.
 
 The **.NET 10 backend lives in a separate private repository** (Azure SQL +
 ASP.NET Core Minimal API + Azure Functions sync). It implements the server-side trust
@@ -28,8 +35,9 @@ private because it holds that boundary's schema, the gated member data model, an
 reverse-engineered notes on NetEase's API. Its `README.md` is the deployment runbook and
 its `PLAN.md` is the design spec; ask an officer for access.
 
-Nothing in this repo builds, references or needs the backend — the only coupling is the
-`apiBaseUrl` the SPA points at once `useBackend` is on.
+This repo does not build or vendor the backend; the coupling is the `apiBaseUrl` in
+`environment.prod.ts` plus the matching `connect-src` entry in `index.html`. Miss the
+second and the browser blocks every call, which looks exactly like a backend outage.
 
 > ⚠ The backend was split out *after* being committed here, so every backend file is
 > still readable in this repo's git history. Making it private only applies going
@@ -59,189 +67,90 @@ limitation) with a proper server boundary, and adds back-office management:
   `ftp` / role, audited, with a role-grant escalation guard.
 - **`/manage/registrations`** — review the public Register form submissions and grant
   access (creates/updates the member so they can log in immediately).
-- **Sync** — Azure Functions pull the Google Sheet + wwmdb relay into SQL on a timer,
-  waking the DB only when data actually changed (cost-minimised).
+- **Sync** — Azure Functions pull the Google Sheet into SQL on a timer, waking the DB only
+  when data actually changed (cost-minimised).
 - **Security hardening** — refuses to start in prod without a strong `JWT_SIGNING_KEY`
   and `CORS_ALLOWED_ORIGINS`; per-IP rate limiting; a `RESTRICT_TO_FRONTEND` origin
   filter (defense-in-depth). See [Security](#security).
 
-Everything above is behind `environment.useBackend` (default **false**), so the static
-site is unaffected until you deploy the backend and flip the flag.
-
 ---
 
-## ✅ Go-live TODO (this repo's part)
-
-Provisioning Azure, configuring the App Service / Function App, the Discord client
-secret and deploying the API all happen **in the private backend repo** — its
-`README.md` carries that runbook and its CI does the deploying. Only the steps below
-are changes here.
-
-### 1. Flip the frontend to the backend
-- [ ] In `frontend/src/environments/environment.prod.ts` set `useBackend: true` and `apiBaseUrl` to `https://<appservice-host>/api`.
-- [ ] Add a build-time injection for `apiBaseUrl` in `deploy.yml` (mirror the existing `DATA_ENCRYPTION_KEY` sed step) if you keep it as a secret/variable.
-- [ ] Add the App Service origin to `connect-src` in `frontend/src/index.html`'s CSP, or the browser silently blocks every API call.
-- [ ] Deploy the frontend and smoke-test login + gated pages.
-
-### 2. Decommission the static path (after confirming the backend works)
-- [ ] Remove the client AES path (`crypto.utils.ts` usage, `DATA_ENCRYPTION_KEY`, `*.enc` publishing).
-- [ ] Retire `sync-sheets.yml`, `sync-player-stats.yml`, `sync-live-stats.yml` and `sync-opponent-guilds.yml` — the sync now lives in Azure Functions.
-- [ ] Before deleting `frontend/scripts/fetch-*.js`, note the backend repo keeps frozen copies under `reference/scripts/` precisely so those protocol notes survive this step.
-- [ ] Update `SECURITY.md` to describe the new trust boundary.
-
-> On the backend side you'll also need its repo variables (`DEPLOY_BACKEND=true`,
-> `AZURE_WEBAPP_NAME`, `AZURE_FUNCTIONAPP_NAME`) and publish-profile secrets. They are
-> set on the **private** repo, not this one — moving the backend out moved its CI too.
-
----
-
-## Architecture — static path (current, `useBackend: false`)
-
-```
-Google Sheet
-     │  (sync-sheets.yml — hourly)
-     ▼
-frontend/scripts/fetch-data.js  →  frontend/data/*.json  (committed to main)
-     │
-     │  triggers deploy.yml (workflow_dispatch)
-     ▼
-ng build (in frontend/)  →  frontend/docs/  →  pushed to gh-pages branch
-```
-
-- The **Angular app** fetches pre-built static files (`data/*.json`, or encrypted `data/*.enc` in prod) at runtime — no API calls from the browser.
-- **`sync-sheets.yml`** runs hourly: fetches from the Google Sheet, encrypts sensitive files, commits `frontend/data/*.json` back to `main`, and triggers `deploy.yml` if data changed.
-- **`deploy.yml`** builds the app (in `frontend/`) and force-pushes `frontend/docs/` to the `gh-pages` branch.
-- **GitHub Pages** serves the `gh-pages` branch's `docs/` folder.
-- **SPA deep-link routing**: GitHub Pages 404s on any path other than `/`. `frontend/public/404.html` encodes the path into a `?p=` param and redirects to root; `frontend/src/index.html` restores the real URL via `history.replaceState` before the router runs — so deep links (e.g. `/wwm/schedule`) work on refresh.
-
-## Architecture — backend path (`useBackend: true`)
+## Architecture
 
 ```
 Google Sheet ─┐                    Azure Functions (timer)
-wwmdb relay ──┤  change-detect →   • SheetSyncFn      • StatsSyncFn
-game API ─────┤                    • GuildSyncFn      • LiveStatsSyncFn
+game API ─────┤  change-detect →   • SheetSyncFn      • StatsSyncFn
+              │                    • GuildSyncFn      • LiveStatsSyncFn
               └──────────────┬───  • ManualSyncHttpFn (admin "sync now")
                              ▼  (upsert only when changed)
 Angular SPA ───REST+JWT──▶ Azure SQL ◀── EF Core ── ASP.NET Core Minimal API (App Service)
-(GitHub Pages)                              • /api/public/*   anon, cached
-                                            • /api/auth/*     Discord code → app JWT
-                                            • /api/member/*   JWT (+ fp/ftp)
+(GitHub Pages)                              • /api/public/*    anon, cached
+                                            • /api/auth/*      Discord code → app JWT
+                                            • /api/member/*    JWT (+ fp/ftp)
                                             • /api/commander/* Commander+
-                                            • /api/admin/*    Admin
+                                            • /api/admin/*     Admin
 ```
 
-Same Angular app — the data services just swap their fetch target, and auth stores an
-app JWT instead of recomputing permissions from the (public) members file. Details are
-in the private backend repo's `README.md` and `PLAN.md`.
+This repo builds only the SPA:
 
----
-
-## Repository Secrets (static path)
-
-Set in **Settings → Secrets and variables → Actions**. Used by the sync/deploy workflows:
-
-| Secret | Description |
-|---|---|
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | Service-account key JSON; the sheet is shared with its `client_email` as Viewer (keeps the sheet private) |
-| `GOOGLE_SHEET_ID` | The spreadsheet ID from its URL |
-| `DATA_ENCRYPTION_KEY` | AES key injected into the prod bundle to decrypt `data/*.enc` (⚠ ships to the browser — see `SECURITY.md`) |
-| `WWMDB_TOKEN` | *(optional)* override if wwmdb rotates the token embedded in their bundle |
-
-> Backend secrets live in App Service / Function App configuration, **not** here — see the [go-live checklist](#-go-live-todo-backend).
-
----
-
-## Data Configuration
-
-Edit [`frontend/scripts/fetch-data.js`](frontend/scripts/fetch-data.js) to map files to sheet tab ranges:
-
-```js
-const PAGES = [
-  { file: 'members.json',       range: 'Members!A:Z' },
-  { file: 'schedule.json',      range: 'Schedule!A:Z' },
-  { file: 'match-history.json', range: 'Match History!A:Z' },
-  { file: 'events.json',        range: 'Events!A:J' },
-];
+```
+ng build (in frontend/)  →  frontend/docs/  →  force-pushed to gh-pages branch
 ```
 
-Each `range` must match a **sheet tab** in your Google Spreadsheet. The first row is treated as column headers; subsequent rows become JSON objects keyed by those headers.
+- **`deploy.yml`** builds the app and force-pushes `frontend/docs/` to `gh-pages` as a
+  fresh orphan commit. No secret injection, and no data — the bundle is code and assets.
+- **GitHub Pages** serves the `gh-pages` branch's `docs/` folder.
+- **SPA deep-link routing**: GitHub Pages 404s on any path other than `/`.
+  `frontend/public/404.html` encodes the path into a `?p=` param and redirects to root;
+  `frontend/src/index.html` restores the real URL via `history.replaceState` before the
+  router runs — so deep links (e.g. `/wwm/schedule`) survive a refresh.
 
-There is no separate Footages tab — the Match History sheet carries one column per uploader (`Kam`, `Necro`, `Ruby`, `VK`, `Yuenshin`, `canoc`, `Sniper`, `LVH`, `choxu`, …) holding that uploader's YouTube link. Both the frontend parser and the backend derive each match's `footages` array from those columns.
-
-Both the Match History and Footages pages let you filter by opponent (Footages via single-select dropdowns; Match History via a multi-select chip group).
-
-### Non-sheet data (wwmdb relay)
-
-Several data files come from the community relay [wwmdb.vlt.fyi](https://wwmdb.vlt.fyi)
-instead of the Google Sheet. These two are produced by the `sync-player-stats.yml`
-workflow:
-
-- **`data/guild.enc`** — our guild's identity + member roster, rendered by the
-  **Guild** page (`/guild`). Fetched by `frontend/scripts/fetch-guild.js` via the
-  relay's `Guild {id, hostnum}` call; GameVN's guild id + serverId are baked into
-  the script (the pair in the site URL `wwmdb.vlt.fyi/guilds/<id>/<hostnum>`), so
-  no secret is needed. The relay's protocol is documented in `GUILD-API.md` in the
-  private backend repo.
-- **`data/player-stats.enc`** — per-member in-game stats/gear, rendered by the
-  Roster Stats view. `fetch-player-stats.js` looks each member up by their guild
-  **pId** (from `guild.json`) — wwmdb removed its IGN search, so the guild roster
-  is now the source of the ids. Members on the Google-Sheet roster but not in the
-  in-game guild simply show no stats.
-
-### Non-sheet data (official game API)
-
-- **`data/live-stats.enc`** — the same per-member gear and volatile stats, but
-  read straight from NetEase's own game API every 30 minutes by the
-  `sync-live-stats.yml` workflow (`frontend/scripts/fetch-live-stats.js`). No
-  token: the API needs only a self-generated `h72-ms-uid` header.
-
-  It is an **overlay**, not a replacement. That API answers in raw ids (item
-  `1101578`, affix `9293004`, attribute key `MIN_W_ATK`) and carries no elegance
-  score, school name or inner ways, so `player-stats.enc` above stays the source
-  for all of those — including every name on a gear card, resolved from
-  `data/gear-catalogue.json` (id→name pairs harvested hourly from wwmdb's
-  already-resolved copy of the same payload). An item too new to be in the
-  catalogue ships with its id and no name until the next hourly pass.
-
-  Precedence, applied in `player-stats-data.service.ts`: **gear is always the
-  live answer** when there is one, volatile stats (level, weapon mastery, online
-  state, playtime) win per field when the API returned them, and everything else
-  stays wwmdb's. Measured on one member in the same minute, wwmdb said level 99 /
-  mastery 33542 / offline where the game API said 100 / 33950 / online — that gap
-  is what this job closes.
-
-And this one by the `sync-opponent-guilds.yml` workflow (twice a day):
-
-- **`data/guild-opponents.json`** — identity, Guild Prosperity standing and member
-  roster for every opponent guild in Match History, **public and unencrypted**,
-  rendered by the Match History match popup. Which guilds are
-  fetched comes from `data/opponent-guild-ids.json`, a hand-maintained
-  `Opponent name → {id, hostnum}` map: wwmdb has no name-search method, so the map
-  was built once by sweeping every leaderboard (`RankGroups` → `Rank {id}`, whose
-  rows carry `units[].guild`) and matching on name. Opponents with no entry are
-  absent, never guessed at — add them by hand as they are identified. Guilds
-  rename, so each record keeps an `aliases` list of the Match History spellings
-  that point at it; that is what the popup joins on.
-
-  `prosperity` is the guild's place on the live Guild Prosperity board, in the same
-  `GuildRankEntry` shape `guild-rank.json` uses for us — swept in three `Rank` calls
-  for the whole set, with the boards resolved by *group name* (their ids are
-  season-scoped). Null for the ~1/3 of opponents that don't make a top-200 board.
-
-  ~317 KB / ~125 KB gzipped for ~57 guilds and ~4.7k members. Output is minified
-  and deterministically sorted (guilds by name, members by join date), and carries
-  no timestamp, so an unchanged roster produces a byte-identical file and the sync
-  commits nothing — that, not the file size, is what keeps the repo and the Pages
-  payload from growing twice a day. `fetch-opponent-guilds.js` warns past 1.5 MB;
-  if it gets there, split per-guild or drop the member lists.
+> **wwmdb is gone.** `wwmdb.vlt.fyi` stopped resolving on 2026-07-30. It was the only
+> source for player stats, the inner-way and gear-set catalogues, guild rosters, rankings
+> and the Hall of Fame, so none of that can ever be re-fetched. What the site serves for
+> those pages was imported into SQL from this repo's final published payloads, which are
+> archived in the backend repo's `backfill-data/`. The live-stats overlay still works —
+> it reads NetEase's own game API, which is unaffected.
 
 ---
+
+## Repository Secrets
+
+**None.** This repo's only workflow builds and publishes a static bundle, and the bundle
+carries nothing sensitive: `apiBaseUrl` is committed in `environment.prod.ts` because a
+URL is not a secret.
+
+The `GOOGLE_SERVICE_ACCOUNT_JSON`, `GOOGLE_SHEET_ID`, `DATA_ENCRYPTION_KEY` and
+`WWMDB_TOKEN` secrets the old sync workflows used are no longer read by anything here and
+can be deleted. `DATA_ENCRYPTION_KEY` in particular was *published by design* — it shipped
+in the browser bundle so the client could decrypt `data/*.enc`, which is the single
+limitation the backend exists to remove. Treat any value that ever lived in those secrets
+as burned; see [`HISTORY-SCRUB.md`](HISTORY-SCRUB.md) for the rotation checklist.
+
+Backend configuration lives in App Service / Function App application settings, in the
+private repo's remit — never here.
+
+---
+
+## Where the data comes from
+
+Nothing is configured in this repo. The API decides what the SPA can see, and the sheet is
+read by the backend's `SheetSyncFn`, not from the browser. Two consequences worth knowing:
+
+- **The public projection is deliberately thin.** `/api/public/roster` sends IGN, role,
+  notes and a derived `registered` flag — no Discord handles, no UIDs, no PIDs. The
+  IGN+UID pair is what the Register gate accepts as proof of identity, so publishing it
+  would let a visitor claim any unregistered roster row.
+- **Footage uploaders arrive as IGNs.** The Match History sheet names one column per
+  uploader by Discord handle; `UpsertMatchesAsync` resolves each to a `Member.Ign` before
+  storing. A handle matching nobody on the roster is passed through as-is rather than
+  dropped, so an uploader label is *usually* an IGN and occasionally a raw handle.
 
 ## Content-Security-Policy
 
 A `Content-Security-Policy` meta tag in [`frontend/src/index.html`](frontend/src/index.html) allow-lists the external origins the app depends on — YouTube (footage player), the Discord CDN (avatars), Google Fonts, and image hosts.
 
-**Gotcha:** event banners (`events.json`) are hosted on [ImgBB](https://ibb.co) (`https://i.ibb.co`). If you add images from a new host, add that origin to `img-src` in `frontend/src/index.html` or the browser will silently block them. When you enable the backend, also ensure `connect-src` allows the App Service origin (`apiBaseUrl`).
+**Two gotchas.** `connect-src` must list the App Service origin (`apiBaseUrl`) — without it the browser blocks every API call, which presents exactly like a backend outage rather than a CSP problem. And event banners are hosted on [ImgBB](https://ibb.co) (`https://i.ibb.co`); images from a new host need that origin in `img-src`, or they are silently blocked.
 
 ---
 
@@ -256,9 +165,6 @@ A `Content-Security-Policy` meta tag in [`frontend/src/index.html`](frontend/src
 cd frontend
 npm install
 
-# fetch data locally (service account)
-GOOGLE_SERVICE_ACCOUNT_JSON='<json>' GOOGLE_SHEET_ID='<id>' node scripts/fetch-data.js
-
 # dev server → http://localhost:4200/
 npx ng serve
 
@@ -266,13 +172,17 @@ npx ng serve
 npx ng build
 ```
 
-On Windows PowerShell, set env vars with `$env:NAME="value"; node scripts/fetch-data.js`.
+There is no data-fetching step: the app needs a reachable API, not local files.
 
-### Backend (optional — only for `useBackend: true`)
-Clone the private backend repo separately and follow its `README.md`; it runs on
-.NET 10 and needs a local SQL Server/LocalDB. Point this app at it with
-`environment.ts` → `useBackend: true`, `apiBaseUrl: 'http://localhost:5xxx/api'`.
-Then set `useBackend: true` in `frontend/src/environments/environment.ts` and `npx ng serve`. The `localhost` dev bypass gets an Admin session from `POST /api/auth/dev`.
+### Pointing at an API
+`environment.ts` (dev) defaults to `http://localhost:5080/api`. Run the backend from its
+private repo — .NET 10 plus a local SQL Server/LocalDB — or set `apiBaseUrl` to the
+deployed App Service if you only need real data.
+
+On `localhost` the app asks for an Admin session via `POST /api/auth/dev`, which the
+backend only answers when `DEV_AUTH_ENABLED=true` **and** it is not running as Production.
+Against the deployed API that endpoint is a 404, so a local build pointed at production is
+logged out until you complete a real Discord login.
 
 ---
 
@@ -290,17 +200,17 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 
 | Workflow | Trigger | Does |
 |---|---|---|
-| `sync-sheets.yml` | Hourly cron, manual | Fetches/encrypts sheet data (in `frontend/`), commits `frontend/data/*.json`, triggers `deploy.yml` if changed |
-| `sync-player-stats.yml` | Hourly cron (:30, catalogues daily), manual | Pulls our guild (`fetch-guild.js` → `guild.enc`), enriches each guild member with wwmdb stats + catalogues (resolved by their guild **pId**, since wwmdb dropped IGN search), harvests `gear-catalogue.json`, encrypts, commits, triggers deploy |
-| `sync-live-stats.yml` | Every 30 min (:05 / :35), manual | Re-reads gear + volatile stats from the official game API into `live-stats.enc` — the overlay described above. Decrypts `guild`/`player-stats` for the pIds, numberIds and last-known affix tiers it needs, then encrypts, commits, triggers deploy |
-| `sync-opponent-guilds.yml` | Twice-daily cron (03:45 / 15:45 UTC), manual | Pulls every opponent guild in `data/opponent-guild-ids.json` (identity + member roster) into `data/guild-opponents.json`, commits, triggers deploy — only when the rosters actually changed |
-| `deploy.yml` | Push to `main`, manual, or triggered by a sync | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
+| `deploy.yml` | Push to `main`, manual | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
+
+That is the only workflow. The four `sync-*` jobs that used to fetch the sheet, wwmdb and
+the game API were removed — that work now runs in the backend's Azure Functions, on the
+same schedules, writing to SQL instead of committing files here.
 
 ---
 
 ## Adding a New Page
 
-1. Add an entry to `PAGES` in `frontend/scripts/fetch-data.js` (static path) and/or an endpoint in the backend.
-2. Create the Angular component; fetch via the relevant data service.
+1. Add an endpoint in the backend and, if it needs one, a mapper + DTO.
+2. Create the Angular component; fetch via a data service that calls `apiUrl('/...')`.
 3. Add the route in `frontend/src/app/app.routes.ts` (guard it if gated).
 4. If it's a toggleable page, add its flag key to `FeatureKeys.Seed` in the backend and gate the nav/route with `featureGuard('page.<name>')`.

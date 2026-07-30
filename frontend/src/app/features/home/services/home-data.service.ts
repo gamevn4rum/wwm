@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { Player } from '../models/player.model';
 import { MembersDataService } from '../../../core/services/members-data.service';
-import { findVal, isRegisteredRow } from '../../../core/utils/sheet.utils';
 
 function rankIconKey(rank: string): string {
   const afterDash = rank.includes(' ') ? rank.substring(rank.lastIndexOf(' ') + 1) : rank;
@@ -23,18 +22,17 @@ function sortPlayers(players: Player[]): Player[] {
 export class HomeDataService {
   private readonly membersData = inject(MembersDataService);
 
-  private readonly players$: Observable<Player[]> = this.membersData.getRows()
+  private readonly players$: Observable<Player[]> = this.membersData.getMembers()
     .pipe(
-      map((rows) => {
-        const players: Player[] = rows
-          .map((row, i) => ({
+      map((members) => {
+        const players: Player[] = members
+          .map((m, i) => ({
             id: `player-${String(i + 1).padStart(2, '0')}`,
-            name: findVal(row, 'ign'),
-            rank: findVal(row, 'role'),
-            rankIconKey: rankIconKey(findVal(row, 'role')),
-            notes: findVal(row, 'notes'),
-            uid: findVal(row, 'uid'),
-            registered: isRegisteredRow(row),
+            name: m.ign,
+            rank: m.role,
+            rankIconKey: rankIconKey(m.role),
+            notes: m.notes,
+            registered: m.registered,
           }))
           .filter((p) => p.name !== '');
 

@@ -76,15 +76,41 @@ cd wwm-rewrite
 git filter-repo --invert-paths \
   --path backend \
   --path data-migration.html \
-  --path .github/workflows/backend.yml
+  --path .github/workflows/backend.yml \
+  --path frontend/data \
+  --path frontend/scripts/fetch-data.js \
+  --path frontend/scripts/encrypt-data.js \
+  --path frontend/scripts/decrypt-data.js \
+  --path frontend/scripts/fetch-guild.js \
+  --path frontend/scripts/fetch-guild-rank.js \
+  --path frontend/scripts/fetch-hall-of-fame.js \
+  --path frontend/scripts/fetch-live-stats.js \
+  --path frontend/scripts/fetch-opponent-guilds.js \
+  --path frontend/scripts/fetch-player-stats.js \
+  --path frontend/scripts/backfill-match-ids.js \
+  --path frontend/scripts/apps-script-gateway.gs
 ```
+
+The `frontend/` paths were added when the static data path was removed (2026-07-30).
+`frontend/data/` held the roster, match history and player stats — the `.enc` files plus
+the plaintext JSON — and the scripts held the `WWMDB_TOKEN` default and the sheet/relay
+protocol details.
+
+> **Archive before you purge.** Those payloads were the *only* surviving copy of the
+> wwmdb-derived data once wwmdb stopped resolving. They are archived in the backend repo's
+> `backfill-data/` (including `player-stats.raw-2026-07-30.json`, which is the sole record
+> of three departed members' stats). Confirm that is committed there before rewriting, or
+> the data is gone for good.
 
 Verify the history is clean before pushing anything:
 
 ```bash
-git log --oneline --all -- backend/            # must print nothing
-git rev-list --all --count                     # sanity: still ~252 commits
-git log --oneline -5                           # sanity: recent frontend work intact
+git log --oneline --all -- backend/ frontend/data/   # must print nothing
+git rev-list --all --count                           # sanity: commit count barely moves
+git log --oneline -5                                 # sanity: recent frontend work intact
+
+# and prove the payloads are unreachable, not merely unlisted:
+git rev-list --all --objects | grep -E 'frontend/data/|\.enc$'   # must print nothing
 ```
 
 `filter-repo` drops the `origin` remote on purpose. Re-add and force-push all refs:
@@ -100,8 +126,18 @@ git push --force --tags origin
 - **Every collaborator must re-clone.** A `git pull` on an old clone will try to merge
   the pre-rewrite history straight back in, undoing the whole exercise. Say this
   explicitly; do not assume they'll rebase correctly.
-- **`gh-pages` is rewritten too** and Pages will redeploy. Confirm the live site still
-  loads. (`gh-pages` is force-pushed by `deploy.yml` anyway, so this is low risk.)
+- **`gh-pages` needs no rewrite, but it does need a redeploy.** `deploy.yml` rebuilds it as
+  a fresh *orphan* commit and force-pushes, so it is always a one-commit snapshot with no
+  shared history — there is nothing to filter. What matters is that the **currently
+  published** commit still contains the old bundle, and that bundle carries both the
+  `data/*.enc` payloads and the real `DATA_ENCRYPTION_KEY` baked in. Any deploy after the
+  static path was removed replaces it wholesale. Confirm with:
+
+  ```bash
+  git fetch origin gh-pages
+  git grep -c 'dataEncryptionKey:"' origin/gh-pages -- '*.js'   # expect no match
+  git ls-tree -r --name-only origin/gh-pages | grep -c '\.enc$'  # expect 0
+  ```
 - **Ask GitHub Support to garbage-collect unreachable objects.** Until they do, the old
   commits stay reachable by SHA through the API — a force-push alone does not remove
   them. This is the step people forget.
@@ -121,9 +157,11 @@ in a public repo are burned:
       placeholder.
 - [ ] **`GOOGLE_SERVICE_ACCOUNT_JSON`** — an Actions secret, so not exposed by this, but
       if it was ever pasted into a file or a log, rotate the key in Google Cloud.
-- [ ] **`DATA_ENCRYPTION_KEY`** — the AES key the static path ships to the browser. Public
-      by design (that's `SECURITY.md`'s core limitation); the backend is the fix, not a
-      rotation.
+- [ ] **`DATA_ENCRYPTION_KEY`** — the AES key the static path shipped to the browser. Public
+      by design (that was `SECURITY.md`'s core limitation) and there is nothing to rotate
+      *to*: the static path is gone, so no code reads it. **Delete the Actions secret** —
+      it now only creates the impression of a protection that no longer exists. Anything it
+      ever encrypted must be treated as having been public the whole time.
 - [ ] **`ADMIN_KEY` / `JWT_SIGNING_KEY`** — never committed; generate fresh values when
       you provision Azure and keep them in App Service configuration only.
 

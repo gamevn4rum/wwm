@@ -1,4 +1,4 @@
-// Shape of data/inner-ways.json, produced by scripts/fetch-player-stats.js
+// Shape served by GET /api/member/inner-ways
 // (static game-data catalogue, not player-specific).
 
 export interface InnerWayEffectType {

@@ -1,5 +1,5 @@
-// Shape of data/player-stats.json, produced by scripts/fetch-player-stats.js.
-// One record per guild member (resolved by pId from data/guild.json). The
+// Shape served by GET /api/member/player-stats.
+// One record per roster member, keyed by the roster IGN. The
 // upstream account email is stripped at ingestion and never reaches this model.
 
 export interface GearAttribute {
@@ -82,34 +82,3 @@ export interface UnmatchedPlayerStats {
 }
 
 export type PlayerStatsRecord = MatchedPlayerStats | UnmatchedPlayerStats;
-
-// ── Live overlay (data/live-stats.json, from scripts/fetch-live-stats.js) ──────
-// The same member data read straight from the game API every 30 minutes instead
-// of hourly via wwmdb. Only the fields that API actually answers; everything
-// else — school, elegance, inner ways, and every name — stays with the record
-// above. PlayerStatsDataService merges the two before anything else sees them.
-
-/** Volatile stats, all optional: a field the game API didn't return is left out
- *  entirely so the wwmdb value survives the merge. */
-export interface LivePlayerStats {
-  level?: number | null;
-  weaponMasteryMax?: number | null;
-  onlineTime?: number | null;
-  loginTime?: number | null;
-  logoutTime?: number | null;
-  createTime?: number | null;
-  region?: string | null;
-  server?: number | null;
-  language?: string | null;
-  isOnline?: boolean;
-}
-
-export interface LiveStatsRecord {
-  ign: string;
-  /** Unix seconds — when this member was last swept. */
-  fetchedAt: number;
-  stats?: LivePlayerStats;
-  /** Absent when the sweep got no gear (call failed, or the player hides their
-   *  loadout in-game); the wwmdb gear is then left in place. */
-  gear?: GearSlot[];
-}

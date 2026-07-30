@@ -18,7 +18,7 @@ type MemberSortKey = 'name' | 'joined';
 
 /**
  * The dialog behind a Match History card. Was footage-only; now it leads with the
- * opponent guild's details (from data/guild-opponents.json) and puts the roster
+ * opponent guild's details (GET /api/public/guild/opponents) and puts the roster
  * and the clips in two collapsible groups.
  *
  * Collapsing uses native <details>/<summary> — free keyboard/AT behaviour and

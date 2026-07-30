@@ -3,7 +3,7 @@ name: Build & Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  workflow_dispatch:        # manual trigger + invoked by sync-sheets.yml after a data update
+  workflow_dispatch:        # manual trigger
 
 # Only one deployment at a time; cancel any in-progress run for the same ref.
 concurrency:
@@ -45,21 +45,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # ── 4. Secrets → environment file ───────────────────────────────────
+      # ── 4. Production build ───────────────────────────────────────────────
       #
-      # The app is static-only and never calls the Sheets API from the browser,
-      # so no API key / spreadsheet ID is baked into the bundle. Only the data
-      # decryption key is injected (used client-side to read data/*.enc).
-      # NOTE: this key necessarily ships to the browser — see SECURITY.md.
-      #
-      - name: Inject secrets into environment.prod.ts
-        working-directory: frontend
-        env:
-          DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
-        run: |
-          sed -i "s/YOUR_DATA_ENCRYPTION_KEY/$DATA_ENCRYPTION_KEY/" src/environments/environment.prod.ts
-
-      # ── 5. Production build ───────────────────────────────────────────────
+      # No secret-injection step any more. The bundle carries nothing sensitive: the API
+      # base URL is committed in environment.prod.ts, and the DATA_ENCRYPTION_KEY that used
+      # to be sed'd in here went away with the static data path — every read now goes
+      # through the backend, which holds its credentials server-side.
       #
       # angular.json already fixes outputPath to ./docs and baseHref to
       # /wwm/ for the "production" configuration (the default), so a plain
@@ -69,7 +60,7 @@ jobs:
         working-directory: frontend
         run: npx ng build
 
-      # ── 6. Post-build: Jekyll bypass ──────────────────────────────────────
+      # ── 5. Post-build: Jekyll bypass ──────────────────────────────────────
       #
       # GitHub Pages runs Jekyll by default, which ignores/mangles files and
       # folders starting with "_". .nojekyll disables that.
@@ -81,7 +72,7 @@ jobs:
       - name: Post-build extras
         run: touch frontend/docs/.nojekyll
 
-      # ── 7. Push docs/ to gh-pages branch ─────────────────────────────────
+      # ── 6. Push docs/ to gh-pages branch ─────────────────────────────────
       #
       # gh-pages is pure publish output, not a development branch — it is
       # always rebuilt as a fresh orphan commit (no shared history with

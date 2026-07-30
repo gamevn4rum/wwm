@@ -64,7 +64,7 @@
           </a>
         }
 
-        @if (useBackend && isCommander(user)) {
+        @if (isCommander(user)) {
           <a class="nav-btn nav-btn--plum" routerLink="/manage/members" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
             <span class="nav-icon">
               <img src="icons/icon-formation.png" alt="Manage" class="nav-icon-img" />
@@ -86,7 +86,7 @@
           </a>
         }
 
-        @if (useBackend && isAdmin(user)) {
+        @if (isAdmin(user)) {
           <a class="nav-btn nav-btn--sage" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
             <span class="nav-icon">
               <img src="icons/icon-schedule.png" alt="Admin" class="nav-icon-img" />

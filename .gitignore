@@ -16,25 +16,17 @@ yarn-error.log
 # Angular cache
 /frontend/.angular/cache
 
-# Plaintext form of encrypted data files — served only in encrypted form (.enc)
-frontend/data/match-history.json
-frontend/docs/data/match-history.json
-frontend/data/members.json
-frontend/docs/data/members.json
-frontend/data/player-stats.json
-frontend/docs/data/player-stats.json
-frontend/data/guild.json
-frontend/docs/data/guild.json
-frontend/data/live-stats.json
-frontend/docs/data/live-stats.json
+# The app ships no data of its own — every read goes through the backend API — so
+# frontend/data/ should never come back. Ignored rather than merely deleted: the payloads
+# that used to live there are the only surviving copy of the wwmdb data (archived in the
+# backend repo's backfill-data/), and re-committing them here would republish a roster
+# carrying UID/PID, the identity keys the Register flow trusts. This repo is public.
+/frontend/data/
 
-# Newcomers report (guild members not yet on the Members sheet). Carries UID/PID,
-# which are identity keys the Register flow trusts — never commit or publish them;
-# this repo and its Actions logs are public. See SECURITY.md.
-frontend/data/new-members.json
-frontend/docs/data/new-members.json
-
-# The .NET backend moved to its own private repository — nothing here builds it.
+# The .NET backend lives in its own private repository. It was vendored here once and
+# removed, so older checkouts still have the files on disk. Ignored so a `git add -A`
+# cannot quietly re-publish the private source (or its bin/obj) into this public repo.
+/backend/
 
 # ── IDEs and editors ────────────────────────────────────────────────────
 .idea/

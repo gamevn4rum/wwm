@@ -1,10 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { Observable, of } from 'rxjs';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 import { apiUrl } from '../../core/api';
-import { EncryptedPayload, decryptJson } from '../../core/utils/crypto.utils';
 import { Guild, GuildRank, HallOfFame } from './guild.model';
 
 const EMPTY_GUILD: Guild = {
@@ -19,13 +17,11 @@ export class GuildDataService {
   private readonly guild$: Observable<Guild> = this.load().pipe(shareReplay(1));
 
   /**
-   * Leaderboard standing. Always the static file — unlike the roster this is public
-   * data (our own rank/score only), so it needs no key and no gating; there is no
-   * backend endpoint for it yet, and it can move behind one later without changing
-   * callers. Fails closed to null so the tiles simply don't render.
+   * Leaderboard standing — our own rank and score only, so it is public rather than
+   * member-gated. Fails closed to null so the tiles simply don't render.
    */
   private readonly rank$: Observable<GuildRank | null> = this.http
-    .get<GuildRank>(`data/guild-rank.json?t=${Date.now()}`)
+    .get<GuildRank>(apiUrl('/public/guild/rank'))
     .pipe(catchError(() => of(null)), shareReplay(1));
 
   getGuild(): Observable<Guild> {
@@ -36,9 +32,9 @@ export class GuildDataService {
     return this.rank$;
   }
 
-  /** Leaderboard placements for our members. Public data, same as the rank file. */
+  /** Leaderboard placements for our members. Public, same as the rank above. */
   private readonly hallOfFame$: Observable<HallOfFame | null> = this.http
-    .get<HallOfFame>(`data/hall-of-fame.json?t=${Date.now()}`)
+    .get<HallOfFame>(apiUrl('/public/guild/hall-of-fame'))
     .pipe(catchError(() => of(null)), shareReplay(1));
 
   getHallOfFame(): Observable<HallOfFame | null> {
@@ -53,27 +49,8 @@ export class GuildDataService {
   }
 
   private load(): Observable<Guild> {
-    // Backend mode: gated guild data (member-only), same class as the roster.
-    if (environment.useBackend) {
-      return this.http.get<Guild>(apiUrl('/member/guild')).pipe(
-        map((g) => this.normalize(g)),
-        catchError(() => of(EMPTY_GUILD)),
-      );
-    }
-
-    const key = environment.dataEncryptionKey;
-
-    // Dev: plaintext file. Fail closed to an empty guild rather than erroring.
-    if (!key) {
-      return this.http.get<Guild>(`data/guild.json?t=${Date.now()}`).pipe(
-        map((g) => this.normalize(g)),
-        catchError(() => of(EMPTY_GUILD)),
-      );
-    }
-
-    // Prod: fetch the encrypted file and decrypt it (carries the member roster).
-    return this.http.get<EncryptedPayload>(`data/guild.enc?t=${Date.now()}`).pipe(
-      switchMap((payload) => from(decryptJson<Guild>(payload, key))),
+    // Member-gated, unlike the two above: this one carries the in-game roster.
+    return this.http.get<Guild>(apiUrl('/member/guild')).pipe(
       map((g) => this.normalize(g)),
       catchError(() => of(EMPTY_GUILD)),
     );

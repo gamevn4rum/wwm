@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ignMatches } from '../../core/utils/sheet.utils';
+import { ignMatches } from '../../core/utils/ign.utils';
 import { PlayerStatsDataService } from './player-stats-data.service';
 import { PlayerAchievement, PlayerProfile } from './player-profile.model';
 
@@ -9,11 +9,9 @@ import { PlayerAchievement, PlayerProfile } from './player-profile.model';
  * The single seam between the profile modal and wherever a member's live game
  * data comes from.
  *
- * Today the in-game data and build are read from the roster's existing
- * player-stats snapshot (data/player-stats.enc in prod, the member-gated
- * /member/player-stats endpoint in backend mode), and achievements have no
- * source at all. When the live API lands, swap the two loaders below — the
- * modal consumes `PlayerProfile` and needs no change.
+ * Today the in-game data and build come from the member-gated `/member/player-stats`
+ * endpoint, and achievements have no source at all. When an achievements API lands, swap
+ * the loader below — the modal consumes `PlayerProfile` and needs no change.
  */
 @Injectable({ providedIn: 'root' })
 export class PlayerProfileService {

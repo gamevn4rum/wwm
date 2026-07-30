@@ -1,18 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { MembersDataService } from './members-data.service';
-import { SheetRow } from '../models/sheet.model';
-import { findVal, isRegisteredRow } from '../utils/sheet.utils';
-import { environment } from '../../../environments/environment';
+import { catchError, map } from 'rxjs/operators';
 import { apiUrl } from '../api';
-
-interface DiscordApiUser {
-  id: string;
-  username: string;
-  avatar: string | null;
-}
 
 export type UserRole = 'Admin' | 'Creator' | 'Commander' | 'Warrior';
 
@@ -20,15 +10,15 @@ export interface DiscordUserSession {
   username: string;
   avatarUrl: string;
   isAuthorized: boolean;
-  /** Roster IGN of the Members row this session resolved to — the key the
-   *  profile modal looks the member's in-game data up by. */
+  /** Roster IGN this session resolved to — the key the profile modal looks the
+   *  member's in-game data up by. */
   ign?: string;
   role: UserRole;
   /** Formation Permission */
   fp: boolean;
   /** Footage Permission */
   ftp: boolean;
-  /** Whether the account may log in at all (backend mode). */
+  /** Whether the account may log in at all. */
   canLogin?: boolean;
 }
 
@@ -45,13 +35,18 @@ export function isCommanderRole(role: UserRole | undefined): boolean {
   return isAdminRole(role) || role === 'Commander';
 }
 
+/**
+ * Discord Authorization Code flow. The browser only ever handles a short-lived `code`;
+ * the server holds the client secret, exchanges it, decides who this is against the
+ * roster, and returns an app JWT. Nothing here judges membership or role — the token's
+ * claims are the server's answer, and every gated endpoint re-checks them.
+ */
 @Injectable({ providedIn: 'root' })
 export class DiscordAuthService {
   private readonly http = inject(HttpClient);
-  private readonly membersData = inject(MembersDataService);
-  private readonly tokenKey = 'gv_access_token';      // static path: raw Discord token
-  private readonly appTokenKey = 'gv_app_token';       // backend path: app JWT
-  private readonly appSessionKey = 'gv_app_session';   // backend path: cached session (UX only)
+  private readonly appTokenKey = 'gv_app_token';        // the app JWT
+  private readonly appSessionKey = 'gv_app_session';    // cached session (UX only)
+  private readonly legacyTokenKey = 'gv_access_token';  // see logout()
   private readonly stateKey = 'gv_oauth_state';
   private readonly clientId = '1512670533093949570';
   private initialized = false;
@@ -65,60 +60,39 @@ export class DiscordAuthService {
   private readonly authResolvedSubject = new BehaviorSubject<boolean>(false);
   readonly authResolved$ = this.authResolvedSubject.asObservable();
 
-  /** Localhost bypass. `ign` is the roster IGN behind the Discord handle, so the
-   *  profile modal resolves real stats in dev instead of the unlinked state. */
-  private readonly devSession: DiscordUserSession = {
-    username: 'Shinigamae',
-    avatarUrl: 'https://cdn.discordapp.com/embed/avatars/0.png',
-    isAuthorized: true,
-    ign: 'Yuenshin',
-    role: 'Creator',
-    fp: true,
-    ftp: true,
-  };
-
-  /** The app JWT for backend calls (attached by the auth interceptor). */
+  /** The app JWT, attached to our API calls by the auth interceptor. */
   getToken(): string | null {
-    return environment.useBackend ? localStorage.getItem(this.appTokenKey) : null;
+    return localStorage.getItem(this.appTokenKey);
   }
 
   initializeAuthState(): Observable<DiscordUserSession | null> {
     if (this.initialized) return this.ready$;
     this.initialized = true;
-
-    if (environment.useBackend) this.initBackend();
-    else this.initStatic();
-
+    this.init();
     return this.ready$;
   }
 
   login(): void {
-    const redirectUri = document.baseURI;
-    if (environment.useBackend) {
-      const state = crypto.randomUUID();
-      sessionStorage.setItem(this.stateKey, state);
-      const params = new URLSearchParams({
-        client_id: this.clientId,
-        response_type: 'code',
-        scope: 'identify',
-        redirect_uri: redirectUri,
-        state,
-      });
-      window.location.href = `https://discord.com/oauth2/authorize?${params.toString()}`;
-      return;
-    }
-    // Static path: implicit token flow.
+    const state = crypto.randomUUID();
+    sessionStorage.setItem(this.stateKey, state);
     const params = new URLSearchParams({
       client_id: this.clientId,
-      response_type: 'token',
+      response_type: 'code',
       scope: 'identify',
-      redirect_uri: redirectUri,
+      // Must match a redirect URI registered on the Discord application, or the consent
+      // screen refuses before our code runs. With baseHref /wwm/ this is
+      // https://gamevn4rum.github.io/wwm/.
+      redirect_uri: document.baseURI,
+      state,
     });
     window.location.href = `https://discord.com/oauth2/authorize?${params.toString()}`;
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    // legacyTokenKey held a raw Discord access token under the old static path. Clearing it
+    // costs one line and gets that token out of the browsers of anyone who logged in before
+    // the switch; drop it once that is long past.
+    localStorage.removeItem(this.legacyTokenKey);
     localStorage.removeItem(this.appTokenKey);
     localStorage.removeItem(this.appSessionKey);
     this.currentUserSubject.next(null);
@@ -131,14 +105,14 @@ export class DiscordAuthService {
     this.authResolvedSubject.next(true);
   }
 
-  // ── Backend mode (Authorization Code → app JWT) ─────────────────────────
-  private initBackend(): void {
+  private init(): void {
     if (window.location.hostname === 'localhost') {
-      // Dev bypass: ask the backend for an Admin session (needs DEV_AUTH_ENABLED).
+      // Dev bypass: ask the backend for an Admin session. Requires DEV_AUTH_ENABLED and a
+      // non-Production environment, so this is a 404 against the deployed API.
       this.http.post<AuthResponse>(apiUrl('/auth/dev'), {}).pipe(
         catchError(() => of(null)),
       ).subscribe((res) => {
-        if (res) this.storeBackendAuth(res);
+        if (res) this.storeAuth(res);
         this.finish(res?.session ?? null);
       });
       return;
@@ -155,7 +129,7 @@ export class DiscordAuthService {
 
       this.http.post<AuthResponse>(apiUrl('/auth/discord/exchange'),
         { code, redirectUri: document.baseURI }).pipe(
-        map((res) => { this.storeBackendAuth(res); return res.session; }),
+        map((res) => { this.storeAuth(res); return res.session; }),
         catchError((err) => {
           if (err?.status === 403) alert('You are not a registered member of GameVN');
           this.logout();
@@ -175,11 +149,13 @@ export class DiscordAuthService {
     this.finish(null);
   }
 
-  private storeBackendAuth(res: AuthResponse): void {
+  private storeAuth(res: AuthResponse): void {
     localStorage.setItem(this.appTokenKey, res.token);
     localStorage.setItem(this.appSessionKey, JSON.stringify(res.session));
   }
 
+  /** Local expiry check only — it decides whether to bother restoring a cached session.
+   *  The signature is the server's business. */
   private isJwtValid(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
@@ -191,96 +167,6 @@ export class DiscordAuthService {
 
   private clearUrlQuery(): void {
     const cleanUrl = `${window.location.origin}${window.location.pathname}${window.location.hash}`;
-    window.history.replaceState({}, document.title, cleanUrl);
-  }
-
-  // ── Static mode (unchanged: Discord implicit token → Members sheet) ─────
-  private initStatic(): void {
-    if (window.location.hostname === 'localhost') {
-      this.finish(this.devSession);
-      return;
-    }
-
-    const hash = window.location.hash;
-    const hasFreshToken = hash.includes('access_token=');
-    let token = localStorage.getItem(this.tokenKey);
-
-    if (hasFreshToken) {
-      const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.substring(1) : hash);
-      this.clearUrlHash();
-      token = hashParams.get('access_token');
-      if (token) localStorage.setItem(this.tokenKey, token);
-    }
-
-    if (!token) { this.finish(null); return; }
-
-    this.resolveSession(token).subscribe((session) => this.finish(session));
-  }
-
-  private resolveSession(accessToken: string): Observable<DiscordUserSession | null> {
-    const members$ = this.membersData.getRows();
-
-    return this.fetchDiscordProfile(accessToken).pipe(
-      switchMap((profile: DiscordApiUser) =>
-        members$.pipe(map((members: SheetRow[]) => ({ profile, members })))
-      ),
-      map(({ profile, members }: { profile: DiscordApiUser; members: SheetRow[] }) => {
-        const fetchedUsername = profile.username;
-        // Only *registered* rows can authenticate. Roster rows seeded from the game
-        // guild carry an empty Discord cell, and an empty cell must never match —
-        // otherwise a blank/absent username would log in as the first such member.
-        const memberRecord = fetchedUsername
-          ? members.find((m) => isRegisteredRow(m) && m['Discord'] === fetchedUsername)
-          : undefined;
-
-        if (!memberRecord) {
-          alert('You are not a registered member of GameVN');
-          this.logout();
-          return null;
-        }
-
-        const fp = memberRecord['Formation Permission'] === '✅';
-        const ftp = memberRecord['Footage Permission'] === '✅';
-
-        return {
-          username: fetchedUsername,
-          avatarUrl: this.buildAvatarUrl(profile),
-          isAuthorized: true,
-          ign: findVal(memberRecord, 'ign') || undefined,
-          role: this.resolveRole(fetchedUsername, memberRecord),
-          fp,
-          ftp,
-        } satisfies DiscordUserSession;
-      }),
-      catchError(() => {
-        this.logout();
-        return of(null);
-      })
-    );
-  }
-
-  private resolveRole(username: string, member: SheetRow): UserRole {
-    if (username === 'shinigamae') return 'Creator';
-    if (member['Role'] === '📳 Caller') return 'Commander';
-    return 'Warrior';
-  }
-
-  private fetchDiscordProfile(accessToken: string): Observable<DiscordApiUser> {
-    const headers = new HttpHeaders({ Authorization: `Bearer ${accessToken}` });
-    return this.http.get<DiscordApiUser>('https://discord.com/api/users/@me', { headers });
-  }
-
-  private buildAvatarUrl(profile: DiscordApiUser): string {
-    if (!profile.avatar) {
-      const fallbackIndex = Number(profile.id) % 5;
-      return `https://cdn.discordapp.com/embed/avatars/${fallbackIndex}.png`;
-    }
-    const extension = profile.avatar.startsWith('a_') ? 'gif' : 'png';
-    return `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${extension}?size=128`;
-  }
-
-  private clearUrlHash(): void {
-    const cleanUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
     window.history.replaceState({}, document.title, cleanUrl);
   }
 }

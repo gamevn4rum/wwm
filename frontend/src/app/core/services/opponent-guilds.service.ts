@@ -3,28 +3,26 @@ import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { catchError, shareReplay } from 'rxjs/operators';
+import { apiUrl } from '../api';
 import { OpponentGuild, OpponentGuilds } from '../../features/match-history/opponent-guild.model';
 
 /**
- * Opponent guild directory (data/guild-opponents.json) — identity + member roster
- * for every guild in Match History, refreshed twice a day by
- * `sync-opponent-guilds.yml`.
+ * Opponent guild directory — identity + member roster for every guild we hold an upstream
+ * id for. Public rather than member-gated: it is other guilds' public data.
  *
- * Public data, so it is fetched plain with no key and no backend variant (unlike
- * our own roster in GuildDataService). Fails closed to null: a missing or broken
- * file means the match popup simply shows no guild details.
+ * Fails closed to null, so an unreachable API means the match popup simply shows no guild
+ * details instead of erroring.
  *
- * Lookup is by the sheet's Opponent string. Guilds rename, so a record is indexed
- * under BOTH its current `name` and every `aliases` entry (the Match History
- * spellings) — matching case- and whitespace-insensitively, since the sheet's
- * casing drifts ("LadpraoBros" / "LadPraoBros").
+ * Lookup is by the Opponent string as Match History spells it. Guilds rename, so a record
+ * is indexed under BOTH its current `name` and every `aliases` entry — matching case- and
+ * whitespace-insensitively, since the spellings drift ("LadpraoBros" / "LadPraoBros").
  */
 @Injectable({ providedIn: 'root' })
 export class OpponentGuildsService {
   private readonly http = inject(HttpClient);
 
   private readonly data = toSignal(
-    this.http.get<OpponentGuilds>(`data/guild-opponents.json?t=${Date.now()}`).pipe(
+    this.http.get<OpponentGuilds>(apiUrl('/public/guild/opponents')).pipe(
       catchError(() => of(null)),
       shareReplay(1),
     ),

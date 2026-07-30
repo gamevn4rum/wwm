@@ -1,4 +1,4 @@
-// Shape of data/sets.json, produced by scripts/fetch-player-stats.js
+// Shape served by GET /api/member/sets
 // (static game-data catalogue, not player-specific).
 
 export interface SetBonus2Value {

@@ -5,9 +5,9 @@
   <!--
     Content-Security-Policy: defense-in-depth to limit the blast radius of any
     HTML injection (e.g. via the Events description). Test the live app after
-    changing this — youtube-player, Discord CDN avatars, Google Fonts and the
-    static-mode Register form (which POSTs to docs.google.com; connect-src applies
-    even to mode:'no-cors') all depend on the allow-lists below. The profile
+    changing this — the API origin, youtube-player, Discord CDN avatars and Google
+    Fonts all depend on the allow-lists below, and a missing connect-src entry
+    presents exactly like a backend outage rather than a CSP problem. The profile
     modal's screenshot button additionally *fetches* the Discord avatar and the
     Google Fonts files to inline them into the PNG, so those origins are in
     connect-src as well as img-src/font-src, and font-src allows data: because
@@ -22,7 +22,7 @@
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' data: https://fonts.gstatic.com;
     img-src 'self' data: https://cdn.discordapp.com https://*.discordapp.com https://i.ytimg.com https://i.ibb.co;
-    connect-src 'self' https://app-wwm-b4dffrbmdnfbcngj.southeastasia-01.azurewebsites.net https://discord.com https://docs.google.com https://cdn.discordapp.com https://*.discordapp.com https://fonts.googleapis.com https://fonts.gstatic.com;
+    connect-src 'self' https://app-wwm-b4dffrbmdnfbcngj.southeastasia-01.azurewebsites.net https://discord.com https://cdn.discordapp.com https://*.discordapp.com https://fonts.googleapis.com https://fonts.gstatic.com;
     frame-src https://www.youtube.com https://www.youtube-nocookie.com;
     object-src 'none';
     base-uri 'self';
