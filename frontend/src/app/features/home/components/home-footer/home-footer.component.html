@@ -6,8 +6,12 @@
     <span class="divider-line short"></span>
   </div>
   <div class="footer-legal">
-    <a routerLink="/terms">Terms &amp; Conditions</a>
+    <!-- Plain static files (not Angular routes) - see public/terms.html: GitHub Pages
+         serves an unknown SPA route via its 404.html fallback with a real 404 status,
+         which is fine for a browser (it redirects into the app) but reads as a dead
+         link to anything that doesn't run JS, e.g. Discord's app-portal URL validator. -->
+    <a href="/wwm/terms.html">Terms &amp; Conditions</a>
     <span class="footer-legal-sep">·</span>
-    <a routerLink="/privacy">Privacy Policy</a>
+    <a href="/wwm/privacy.html">Privacy Policy</a>
   </div>
 </footer>
