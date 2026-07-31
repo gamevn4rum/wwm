@@ -69,6 +69,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/manage/registrations-page.component').then((m) => m.RegistrationsPageComponent),
       },
+      {
+        // Public — linked from the Discord bot's application page, so it must
+        // never sit behind a login/member gate.
+        path: 'terms',
+        loadComponent: () =>
+          import('./features/legal/terms-page.component').then((m) => m.TermsPageComponent),
+      },
+      {
+        path: 'privacy',
+        loadComponent: () =>
+          import('./features/legal/privacy-page.component').then((m) => m.PrivacyPageComponent),
+      },
       { path: '**', redirectTo: '' },
     ],
   },

@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { apiUrl } from '../../core/api';
+import { DiscordAuthService } from '../../core/services/discord-auth.service';
 import { Guild, GuildRank, HallOfFame } from './guild.model';
 
 const EMPTY_GUILD: Guild = {
@@ -13,8 +14,17 @@ const EMPTY_GUILD: Guild = {
 @Injectable({ providedIn: 'root' })
 export class GuildDataService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(DiscordAuthService);
 
-  private readonly guild$: Observable<Guild> = this.load().pipe(shareReplay(1));
+  // Member-gated, so it must not fire until the app JWT is settled (restored from
+  // storage, or landed from a just-completed Discord exchange). This widget lives in
+  // the page header — mounted on every route, including the one Discord redirects
+  // back to — so without this gate it raced the OAuth exchange, got a 401, and
+  // (via shareReplay below) stayed cached empty for the rest of the session.
+  private readonly guild$: Observable<Guild> = this.auth.initializeAuthState().pipe(
+    switchMap(() => this.load()),
+    shareReplay(1),
+  );
 
   /**
    * Leaderboard standing — our own rank and score only, so it is public rather than

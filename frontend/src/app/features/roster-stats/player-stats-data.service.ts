@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { apiUrl } from '../../core/api';
+import { DiscordAuthService } from '../../core/services/discord-auth.service';
 import { MatchedPlayerStats, PlayerStatsRecord } from './player-stats.model';
 
 /**
@@ -18,8 +19,16 @@ import { MatchedPlayerStats, PlayerStatsRecord } from './player-stats.model';
 @Injectable({ providedIn: 'root' })
 export class PlayerStatsDataService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(DiscordAuthService);
 
-  private readonly records$: Observable<PlayerStatsRecord[]> = this.load().pipe(shareReplay(1));
+  // Member-gated — must wait for the app JWT to settle before firing, same reason
+  // as GuildDataService.guild$: a consumer mounted on every route (the header's
+  // guild overview) would otherwise race the Discord OAuth exchange, 401 once, and
+  // stay cached empty for the session (shareReplay never retries).
+  private readonly records$: Observable<PlayerStatsRecord[]> = this.auth.initializeAuthState().pipe(
+    switchMap(() => this.load()),
+    shareReplay(1),
+  );
 
   /** All records, matched and unmatched, in IGN order. */
   getRecords(): Observable<PlayerStatsRecord[]> {
