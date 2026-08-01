@@ -12,10 +12,8 @@
     </div>
   </header>
 
-  @if (loading()) {
-    <p class="guild-loading">Loading guild…</p>
-  } @else if (!guild()) {
-    <p class="guild-loading">Guild data isn’t available yet — check back after the next sync.</p>
+  @if (notice(); as message) {
+    <p class="guild-loading">{{ message }}</p>
   } @else {
 
     <!-- ══ IDENTITY CARD ══ -->

@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { GuildDataService } from './guild-data.service';
+import { GuildDataService, GuildLoad } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
 import { Guild, GuildMember } from './guild.model';
@@ -31,9 +31,25 @@ export class GuildPageComponent implements OnInit {
 
   readonly guild = signal<Guild | null>(null);
   readonly stats = signal<MatchedPlayerStats[]>([]);
-  readonly loading = signal(true);
+  readonly status = signal<GuildLoad['status']>('loading');
   readonly query = signal('');
   readonly sort = signal<SortKey>('ign');
+
+  /** Why the roster isn't on screen, or null when it is. A member-gated fetch has more
+   *  than one way to come back empty, and the page used to show the same "not synced yet"
+   *  line for all of them — including an expired session, which is fixable by the reader. */
+  readonly notice = computed<string | null>(() => {
+    switch (this.status()) {
+      case 'loading':
+        return 'Loading guild…';
+      case 'signed-out':
+        return 'Your session has ended — sign in with Discord again to see the roster.';
+      case 'error':
+        return 'Couldn’t load the guild roster just now. Try again in a moment.';
+      default:
+        return this.guild() ? null : 'Guild data isn’t available yet — check back after the next sync.';
+    }
+  });
 
   readonly sortOptions: ReadonlyArray<{ key: SortKey; label: string }> = [
     { key: 'ign', label: 'Name' },
@@ -110,9 +126,12 @@ export class GuildPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataService.getGuild().subscribe({
-      // Empty name = no data available (fetch failed / not synced yet).
-      next: (g) => { this.guild.set(g && g.name ? g : null); this.loading.set(false); },
-      error: () => this.loading.set(false),
+      next: (load) => {
+        this.status.set(load.status);
+        // Empty name = the sync hasn't produced a guild yet, which isn't a failure.
+        this.guild.set(load.status === 'ok' && load.guild.name ? load.guild : null);
+      },
+      error: () => { this.status.set('error'); this.guild.set(null); },
     });
     this.statsService.getMatched().subscribe({
       next: (s) => this.stats.set(s),

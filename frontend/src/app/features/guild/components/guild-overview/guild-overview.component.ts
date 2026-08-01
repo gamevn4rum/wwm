@@ -107,8 +107,9 @@ export class GuildOverviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataService.getGuild().subscribe({
-      // Empty name = no data available (fetch failed / not synced yet).
-      next: (g) => this.guild.set(g && g.name ? g : null),
+      // Tiles are decoration on someone else's page here, so anything short of real data
+      // (signed out, loading, failed) renders as nothing at all rather than as a message.
+      next: (load) => this.guild.set(load.status === 'ok' && load.guild.name ? load.guild : null),
       error: () => this.guild.set(null),
     });
     this.dataService.getRank().subscribe({

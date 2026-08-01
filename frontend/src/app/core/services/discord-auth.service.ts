@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay } from 'rxjs/operators';
 import { apiUrl } from '../api';
 
 export type UserRole = 'Admin' | 'Creator' | 'Commander' | 'Warrior';
@@ -51,6 +51,12 @@ export class DiscordAuthService {
   private readonly clientId = '1512670533093949570';
   private initialized = false;
 
+  /** Renew this long before the token expires. The access token lives an hour; the
+   *  server will keep renewing it for 30 days from the original Discord login. */
+  private readonly refreshMarginMs = 5 * 60 * 1000;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
+  private refreshInFlight: Observable<DiscordUserSession | null> | null = null;
+
   private readonly ready$ = new ReplaySubject<DiscordUserSession | null>(1);
 
   private readonly currentUserSubject = new BehaviorSubject<DiscordUserSession | null>(null);
@@ -95,7 +101,35 @@ export class DiscordAuthService {
     localStorage.removeItem(this.legacyTokenKey);
     localStorage.removeItem(this.appTokenKey);
     localStorage.removeItem(this.appSessionKey);
+    if (this.refreshTimer) { clearTimeout(this.refreshTimer); this.refreshTimer = null; }
     this.currentUserSubject.next(null);
+  }
+
+  /**
+   * Renew the access token from the one already in storage — including an expired one,
+   * which is the whole point: /auth/refresh re-reads the Member row and re-issues, so a
+   * session survives a closed browser instead of dying with the hour-long token. A refused
+   * renewal (removed from the roster, login disabled, session past its cap) logs out.
+   *
+   * Concurrent callers share one request: several 401s can land together, and two renewals
+   * racing would leave whichever finished second in storage while the first was in flight.
+   */
+  refresh(): Observable<DiscordUserSession | null> {
+    if (this.refreshInFlight) return this.refreshInFlight;
+    if (!this.getToken()) { this.logout(); return of(null); }
+
+    // The token rides along in the Authorization header, attached by the auth interceptor.
+    this.refreshInFlight = this.http.post<AuthResponse>(apiUrl('/auth/refresh'), {}).pipe(
+      map((res) => {
+        this.storeAuth(res);
+        this.currentUserSubject.next(res.session);
+        return res.session;
+      }),
+      catchError(() => { this.logout(); return of(null); }),
+      finalize(() => { this.refreshInFlight = null; }),
+      shareReplay(1),
+    );
+    return this.refreshInFlight;
   }
 
   private finish(session: DiscordUserSession | null): void {
@@ -139,29 +173,61 @@ export class DiscordAuthService {
       return;
     }
 
-    // No fresh code: restore a cached session if the JWT is still valid.
+    // No fresh code: restore the cached session.
     const token = localStorage.getItem(this.appTokenKey);
     const raw = localStorage.getItem(this.appSessionKey);
-    if (token && raw && this.isJwtValid(token)) {
-      try { this.finish(JSON.parse(raw) as DiscordUserSession); return; } catch { /* fall through */ }
+    let cached: DiscordUserSession | null = null;
+    try { cached = raw ? (JSON.parse(raw) as DiscordUserSession) : null; } catch { cached = null; }
+    if (!token || !cached) { this.logout(); this.finish(null); return; }
+
+    // An expired token is no longer a dead end — reopening the browser the next day used
+    // to land here logged out, because the token only lives an hour. Renew instead, and
+    // only treat a refusal as a logout.
+    if (this.needsRefresh(token)) {
+      this.refresh().subscribe((session) => this.finish(session));
+      return;
     }
-    this.logout();
-    this.finish(null);
+
+    this.scheduleRefresh(token);
+    this.finish(cached);
   }
 
   private storeAuth(res: AuthResponse): void {
     localStorage.setItem(this.appTokenKey, res.token);
     localStorage.setItem(this.appSessionKey, JSON.stringify(res.session));
+    this.scheduleRefresh(res.token);
   }
 
-  /** Local expiry check only — it decides whether to bother restoring a cached session.
-   *  The signature is the server's business. */
-  private isJwtValid(token: string): boolean {
+  /** Renew a few minutes ahead so a tab that stays open past the hour never sends a dead
+   *  token. Timers don't fire on schedule in a backgrounded or sleeping tab, which is why
+   *  the interceptor retries a 401 through refresh as well — this is the happy path, not
+   *  the guarantee. */
+  private scheduleRefresh(token: string): void {
+    if (this.refreshTimer) clearTimeout(this.refreshTimer);
+    this.refreshTimer = null;
+    const expiry = this.expiryOf(token);
+    if (expiry === null) return;
+    const delay = expiry - Date.now() - this.refreshMarginMs;
+    // setTimeout truncates delays past a 32-bit ms count; nothing we issue lasts that long.
+    if (delay > 2 ** 31 - 1) return;
+    this.refreshTimer = setTimeout(() => this.refresh().subscribe(), Math.max(delay, 1000));
+  }
+
+  /** True once the token is expired or close enough that a request would race it.
+   *  An unreadable token counts as needing refresh — the server decides from there. */
+  private needsRefresh(token: string): boolean {
+    const expiry = this.expiryOf(token);
+    return expiry === null || expiry - Date.now() <= this.refreshMarginMs;
+  }
+
+  /** Local expiry read only — it decides when to renew. The signature is the server's
+   *  business, and nothing here is trusted for access. */
+  private expiryOf(token: string): number | null {
     try {
       const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-      return typeof payload.exp === 'number' && payload.exp * 1000 > Date.now();
+      return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
     } catch {
-      return false;
+      return null;
     }
   }
 

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { apiUrl } from '../../core/api';
 import { DiscordAuthService } from '../../core/services/discord-auth.service';
+import { whileSignedIn } from '../../core/services/member-gated';
 import { MatchedPlayerStats, PlayerStatsRecord } from './player-stats.model';
 
 /**
@@ -21,14 +22,9 @@ export class PlayerStatsDataService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(DiscordAuthService);
 
-  // Member-gated — must wait for the app JWT to settle before firing, same reason
-  // as GuildDataService.guild$: a consumer mounted on every route (the header's
-  // guild overview) would otherwise race the Discord OAuth exchange, 401 once, and
-  // stay cached empty for the session (shareReplay never retries).
-  private readonly records$: Observable<PlayerStatsRecord[]> = this.auth.initializeAuthState().pipe(
-    switchMap(() => this.load()),
-    shareReplay(1),
-  );
+  // Member-gated, and reached from the home grid and the site header — see whileSignedIn.
+  private readonly records$: Observable<PlayerStatsRecord[]> =
+    whileSignedIn(this.auth, () => this.load(), []);
 
   /** All records, matched and unmatched, in IGN order. */
   getRecords(): Observable<PlayerStatsRecord[]> {
