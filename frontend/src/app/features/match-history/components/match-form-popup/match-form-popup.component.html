@@ -30,25 +30,31 @@
 
           <div class="mf-field">
             <label class="mf-label" for="mf-opponent">Opponent <span class="req">*</span></label>
-            <div class="mf-select-wrapper">
-              <select id="mf-opponent" class="mf-select" formControlName="opponent">
-                <option value="" disabled>Choose an opponent</option>
-                @for (name of opponents(); track name) {
-                  <option [value]="name">{{ name }}</option>
-                }
-                <option [value]="newOpponentValue">+ New opponent…</option>
-              </select>
-            </div>
-            @if (addingNewOpponent) {
+            <div class="mf-combo">
               <input
-                class="mf-input mf-new-opponent"
+                id="mf-opponent"
+                class="mf-input"
                 type="text"
-                formControlName="newOpponent"
-                placeholder="New guild name"
                 autocomplete="off"
                 maxlength="100"
+                placeholder="Type to filter, or a digit for symbol names"
+                [value]="form.controls.opponent.value"
+                (input)="onOpponentInput($any($event.target).value)"
+                (focus)="openOpponentList()"
               />
-            }
+              @if (opponentListOpen()) {
+                <ul class="mf-combo-list" role="listbox">
+                  <li
+                    class="mf-combo-new"
+                    role="option"
+                    (click)="keepTypedOpponent()"
+                  >+ Add new opponent</li>
+                  @for (name of filteredOpponents(); track name) {
+                    <li class="mf-combo-opt" role="option" (click)="chooseOpponent(name)">{{ name }}</li>
+                  }
+                </ul>
+              }
+            </div>
             @if (form.controls.opponent.invalid && form.controls.opponent.touched) {
               <span class="mf-error">An opponent is required.</span>
             }
@@ -90,6 +96,63 @@
               </select>
             </div>
           </div>
+
+          @if (mode() === 'edit' && ftpPermission()) {
+            <div class="mf-footage">
+              <span class="mf-footage-heading">Footage</span>
+
+              @if (footages().length) {
+                <ul class="mf-footage-list">
+                  @for (f of footages(); track f.uploader + f.videoId) {
+                    <li class="mf-footage-item">
+                      <span class="mf-footage-uploader">{{ f.uploader }}</span>
+                      <a
+                        class="mf-footage-link"
+                        [href]="'https://youtu.be/' + f.videoId"
+                        target="_blank"
+                        rel="noopener"
+                      >youtu.be/{{ f.videoId }}</a>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="mf-footage-empty">No clips yet.</p>
+              }
+
+              @if (uploaders().length) {
+                <div class="mf-footage-add">
+                  <div class="mf-select-wrapper">
+                    <select class="mf-select" [formControl]="footageForm.controls.uploader">
+                      <option value="" disabled>Uploader</option>
+                      @for (u of uploaders(); track u) {
+                        <option [value]="u">{{ u }}</option>
+                      }
+                    </select>
+                  </div>
+                  <input
+                    class="mf-input"
+                    type="text"
+                    placeholder="YouTube link"
+                    autocomplete="off"
+                    maxlength="300"
+                    [formControl]="footageForm.controls.youtubeLink"
+                  />
+                  <button
+                    type="button"
+                    class="mf-footage-btn"
+                    [disabled]="addingFootage()"
+                    (click)="addFootage()"
+                  >{{ addingFootage() ? '…' : 'Add' }}</button>
+                </div>
+              } @else {
+                <p class="mf-footage-empty">No prior uploaders to attribute a clip to.</p>
+              }
+
+              @if (footageError()) {
+                <span class="mf-error" role="alert">{{ footageError() }}</span>
+              }
+            </div>
+          }
 
           @if (error()) {
             <p class="mf-error" role="alert">{{ error() }}</p>

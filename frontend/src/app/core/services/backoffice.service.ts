@@ -67,6 +67,8 @@ export interface MatchOptions {
   seasons: number[];
   /** Highest season currently in the DB, clamped into `seasons`. */
   defaultSeason: number;
+  /** Distinct uploaders already on record, for the footage attribution dropdown. */
+  uploaders: string[];
 }
 
 export type MatchResult = 'win' | 'loss' | 'draw';
@@ -130,5 +132,9 @@ export class BackofficeService {
 
   patchMatch(id: number, patch: MatchPatch): Observable<MatchRecord> {
     return this.http.patch<MatchRecord>(apiUrl(`/commander/matches/${id}`), patch);
+  }
+
+  addFootage(matchId: number, body: { uploader: string; youtubeLink: string }): Observable<MatchRecord> {
+    return this.http.post<MatchRecord>(apiUrl(`/commander/matches/${matchId}/footage`), body);
   }
 }

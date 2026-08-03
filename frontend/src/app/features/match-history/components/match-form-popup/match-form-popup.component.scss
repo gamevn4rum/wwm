@@ -158,9 +158,144 @@
   }
 }
 
-/** Revealed under the dropdown when "+ New opponent…" is picked. */
-.mf-new-opponent {
-  margin-top: 0.1rem;
+// ── Opponent combobox ────────────────────────────────────────────────────────
+.mf-combo {
+  position: relative;
+}
+
+.mf-combo-list {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+
+.mf-combo-new,
+.mf-combo-opt {
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-primary-tint);
+  }
+}
+
+.mf-combo-new {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  margin-bottom: 0.25rem;
+}
+
+// ── Footage (edit mode) ────────────────────────────────────────────────────────
+.mf-footage {
+  margin: 1.4rem 0 0.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.mf-footage-heading {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.mf-footage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.mf-footage-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+}
+
+.mf-footage-uploader {
+  font-weight: 600;
+  color: var(--color-ink);
+  flex-shrink: 0;
+}
+
+.mf-footage-link {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.mf-footage-empty {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--color-ink-faint);
+  margin: 0;
+}
+
+.mf-footage-add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+
+  .mf-select-wrapper {
+    flex: 0 0 34%;
+  }
+
+  .mf-input {
+    flex: 1;
+  }
+}
+
+.mf-footage-btn {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-on-dark);
+  background: var(--color-secondary);
+  border: 1px solid var(--color-secondary-dark);
+  border-radius: var(--radius-sm);
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-secondary-dark);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
 }
 
 // ── Select ─────────────────────────────────────────────────────────────────────

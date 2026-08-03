@@ -1,17 +1,17 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import {
   BackofficeService,
   MatchOptions,
   MatchResult,
 } from '../../../../core/services/backoffice.service';
+import { DiscordAuthService } from '../../../../core/services/discord-auth.service';
 import { MatchFormPopupService } from '../../../../core/services/match-form-popup.service';
 import { MatchHistoryDataService } from '../../match-history-data.service';
-import { MatchStatus, MatchType } from '../../match-record.model';
-
-/** Sentinel option value that swaps the opponent dropdown for a free-text box. */
-const NEW_OPPONENT = '__new__';
+import { FootageEntry, MatchStatus, MatchType } from '../../match-record.model';
 
 const RESULT_OF_STATUS: Record<MatchStatus, MatchResult | ''> = {
   '✅': 'win',
@@ -19,6 +19,14 @@ const RESULT_OF_STATUS: Record<MatchStatus, MatchResult | ''> = {
   '➕': 'draw',
   '': '',
 };
+
+/** Local yyyy-MM-dd for today. Not toISOString() — that's UTC and can land a day off. */
+function todayIso(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
 
 @Component({
   selector: 'app-match-form-popup',
@@ -32,17 +40,50 @@ export class MatchFormPopupComponent {
   private readonly backoffice = inject(BackofficeService);
   private readonly matchData = inject(MatchHistoryDataService);
 
-  readonly newOpponentValue = NEW_OPPONENT;
-
   readonly mode = this.popup.mode;
   readonly editing = this.popup.editing;
+
+  /** Footage management is a footage-permission action — the section only shows with ftp. */
+  readonly ftpPermission = toSignal(
+    inject(DiscordAuthService).currentUser$.pipe(map((user) => user?.ftp ?? false)),
+    { initialValue: false },
+  );
 
   readonly loadingOptions = signal(true);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
 
-  readonly opponents = signal<string[]>([]);
+  readonly allOpponents = signal<string[]>([]);
   readonly seasons = signal<number[]>([]);
+  readonly uploaders = signal<string[]>([]);
+
+  // ── Opponent combobox state ──────────────────────────────────────────────
+  readonly opponentQuery = signal('');
+  readonly opponentListOpen = signal(false);
+
+  readonly filteredOpponents = computed(() => {
+    const q = this.opponentQuery().trim();
+    const all = this.allOpponents();
+    if (q.length === 0) return all;
+    // A digit can't type a CJK/Hangul/symbol name, so typing a number is the affordance
+    // to surface exactly those un-typeable guilds (names not starting with a Latin letter).
+    if (/^\d+$/.test(q)) return all.filter((name) => !/^[A-Za-z]/.test(name));
+    const lower = q.toLowerCase();
+    return all.filter((name) => name.toLowerCase().includes(lower));
+  });
+
+  // ── Footage state (edit mode) ────────────────────────────────────────────
+  readonly footages = signal<FootageEntry[]>([]);
+  readonly footageError = signal<string | null>(null);
+  readonly addingFootage = signal(false);
+  /** A footage add persists immediately, so the list needs refreshing even if the user
+   *  closes without pressing Save. */
+  private changed = false;
+
+  readonly footageForm = new FormGroup({
+    uploader: new FormControl('', { validators: Validators.required, nonNullable: true }),
+    youtubeLink: new FormControl('', { validators: Validators.required, nonNullable: true }),
+  });
 
   readonly types: MatchType[] = ['league', 'ranked', 'scrim'];
   readonly results: { value: MatchResult | ''; label: string }[] = [
@@ -54,8 +95,10 @@ export class MatchFormPopupComponent {
 
   readonly form = new FormGroup({
     date: new FormControl('', { validators: Validators.required, nonNullable: true }),
-    opponent: new FormControl('', { validators: Validators.required, nonNullable: true }),
-    newOpponent: new FormControl('', { nonNullable: true }),
+    opponent: new FormControl('', {
+      validators: [Validators.required, Validators.maxLength(100)],
+      nonNullable: true,
+    }),
     type: new FormControl<MatchType | ''>('', { validators: Validators.required, nonNullable: true }),
     result: new FormControl<MatchResult | ''>('', { nonNullable: true }),
     season: new FormControl<number | null>(null, { validators: Validators.required }),
@@ -67,15 +110,17 @@ export class MatchFormPopupComponent {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    // The suggestion list swallows Escape first; only then does Escape close the modal.
+    if (this.opponentListOpen()) {
+      this.opponentListOpen.set(false);
+      return;
+    }
     if (!this.submitting()) this.close();
   }
 
   close(): void {
+    if (this.changed) this.matchData.reload();
     this.popup.close();
-  }
-
-  get addingNewOpponent(): boolean {
-    return this.form.controls.opponent.value === NEW_OPPONENT;
   }
 
   private async loadOptions(): Promise<void> {
@@ -93,17 +138,19 @@ export class MatchFormPopupComponent {
     const seasons = [...options.seasons];
 
     if (match) {
-      // An opponent or season that isn't offered still has to be representable, or simply
-      // opening the dialog would silently relabel the match on save — season 1 predates
-      // the 2–10 range, and an opponent can be renamed out from under an old row.
+      // An opponent or season outside the offered set still has to be representable, or
+      // just opening the dialog would silently relabel the match on save — season 1
+      // predates the 2–10 range, and an opponent can be renamed out from under an old row.
       if (match.opponent && !opponents.includes(match.opponent)) opponents.unshift(match.opponent);
       const current = Number(match.season);
       if (Number.isFinite(current) && !seasons.includes(current)) seasons.unshift(current);
       seasons.sort((a, b) => a - b);
+      this.footages.set([...match.footages]);
     }
 
-    this.opponents.set(opponents);
+    this.allOpponents.set(opponents);
     this.seasons.set(seasons);
+    this.uploaders.set(options.uploaders);
     this.loadingOptions.set(false);
 
     this.form.patchValue(
@@ -115,13 +162,43 @@ export class MatchFormPopupComponent {
             result: RESULT_OF_STATUS[match.status] ?? '',
             season: Number(match.season) || options.defaultSeason,
           }
-        : { season: options.defaultSeason },
+        : { date: todayIso(), season: options.defaultSeason },
     );
+    this.opponentQuery.set(this.form.controls.opponent.value);
+  }
+
+  // ── Opponent combobox handlers ─────────────────────────────────────────────
+  onOpponentInput(value: string): void {
+    this.form.controls.opponent.setValue(value);
+    this.opponentQuery.set(value);
+    this.opponentListOpen.set(true);
+  }
+
+  openOpponentList(): void {
+    this.opponentQuery.set(this.form.controls.opponent.value);
+    this.opponentListOpen.set(true);
+  }
+
+  chooseOpponent(name: string): void {
+    this.form.controls.opponent.setValue(name);
+    this.opponentQuery.set(name);
+    this.opponentListOpen.set(false);
+  }
+
+  /** "+ Add new opponent" — keep whatever's typed and just close the list. */
+  keepTypedOpponent(): void {
+    this.opponentListOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.opponentListOpen()) return;
+    const target = event.target as HTMLElement;
+    if (!target.closest('.mf-combo')) this.opponentListOpen.set(false);
   }
 
   async onSubmit(): Promise<void> {
-    const opponent = this.resolvedOpponent();
-    if (this.form.invalid || !opponent) {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -132,7 +209,7 @@ export class MatchFormPopupComponent {
     const v = this.form.getRawValue();
     const body = {
       date: v.date,
-      opponent,
+      opponent: v.opponent.trim(),
       type: v.type as Exclude<MatchType, ''>,
       result: v.result,
       season: v.season!,
@@ -145,9 +222,8 @@ export class MatchFormPopupComponent {
           ? this.backoffice.patchMatch(editing.id, body)
           : this.backoffice.createMatch({ ...body, result: body.result || null }),
       );
-      // The list is a shared cached stream, so a reload also refreshes the footages page.
       this.matchData.reload();
-      this.close();
+      this.popup.close();
     } catch (err: unknown) {
       this.error.set(this.describeError(err));
     } finally {
@@ -155,10 +231,28 @@ export class MatchFormPopupComponent {
     }
   }
 
-  /** The dropdown value, or what was typed when "new opponent" is selected. */
-  private resolvedOpponent(): string {
-    const { opponent, newOpponent } = this.form.getRawValue();
-    return (opponent === NEW_OPPONENT ? newOpponent : opponent).trim();
+  // ── Footage ────────────────────────────────────────────────────────────────
+  async addFootage(): Promise<void> {
+    const editing = this.editing();
+    if (!editing || this.footageForm.invalid) {
+      this.footageForm.markAllAsTouched();
+      return;
+    }
+    this.addingFootage.set(true);
+    this.footageError.set(null);
+    const { uploader, youtubeLink } = this.footageForm.getRawValue();
+    try {
+      const updated = await firstValueFrom(
+        this.backoffice.addFootage(editing.id, { uploader, youtubeLink: youtubeLink.trim() }),
+      );
+      this.footages.set([...updated.footages]);
+      this.footageForm.reset({ uploader: '', youtubeLink: '' });
+      this.changed = true;
+    } catch (err: unknown) {
+      this.footageError.set(this.describeFootageError(err));
+    } finally {
+      this.addingFootage.set(false);
+    }
   }
 
   private describeError(err: unknown): string {
@@ -181,6 +275,24 @@ export class MatchFormPopupComponent {
         if (status === 403) return 'You do not have permission to edit matches.';
         if (status === 404) return 'That match no longer exists — it may have been removed.';
         return 'Saving failed. Please try again.';
+    }
+  }
+
+  private describeFootageError(err: unknown): string {
+    const code = (err as { error?: { error?: string } })?.error?.error;
+    switch (code) {
+      case 'already_added':
+        return 'That clip is already on this match.';
+      case 'invalid_link':
+        return 'That doesn’t look like a YouTube link.';
+      case 'link_required':
+        return 'A YouTube link is required.';
+      case 'uploader_required':
+        return 'Pick an uploader.';
+      case 'not_authorized':
+        return 'You need footage permission to add clips.';
+      default:
+        return 'Could not add the clip. Please try again.';
     }
   }
 }
