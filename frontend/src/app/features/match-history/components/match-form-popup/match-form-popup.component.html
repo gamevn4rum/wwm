@@ -1,0 +1,108 @@
+<div class="mf-overlay" (click)="close()">
+  <div
+    class="mf-panel"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="mode() === 'edit' ? 'Edit match' : 'Add match'"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="mf-header">
+      <span class="mf-title">{{ mode() === 'edit' ? 'EDIT MATCH' : 'ADD MATCH' }}</span>
+      <button class="mf-close" type="button" (click)="close()" aria-label="Close">
+        <img src="icons/icon-cross.png" alt="" />
+      </button>
+    </div>
+
+    <div class="mf-body">
+      @if (loadingOptions()) {
+        <p class="mf-loading">Loading…</p>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <p class="mf-required-note">* Required</p>
+
+          <div class="mf-field">
+            <label class="mf-label" for="mf-date">Date <span class="req">*</span></label>
+            <input id="mf-date" class="mf-input" type="date" formControlName="date" />
+            @if (form.controls.date.invalid && form.controls.date.touched) {
+              <span class="mf-error">A date is required.</span>
+            }
+          </div>
+
+          <div class="mf-field">
+            <label class="mf-label" for="mf-opponent">Opponent <span class="req">*</span></label>
+            <div class="mf-select-wrapper">
+              <select id="mf-opponent" class="mf-select" formControlName="opponent">
+                <option value="" disabled>Choose an opponent</option>
+                @for (name of opponents(); track name) {
+                  <option [value]="name">{{ name }}</option>
+                }
+                <option [value]="newOpponentValue">+ New opponent…</option>
+              </select>
+            </div>
+            @if (addingNewOpponent) {
+              <input
+                class="mf-input mf-new-opponent"
+                type="text"
+                formControlName="newOpponent"
+                placeholder="New guild name"
+                autocomplete="off"
+                maxlength="100"
+              />
+            }
+            @if (form.controls.opponent.invalid && form.controls.opponent.touched) {
+              <span class="mf-error">An opponent is required.</span>
+            }
+          </div>
+
+          <div class="mf-field">
+            <label class="mf-label" for="mf-type">Type <span class="req">*</span></label>
+            <div class="mf-select-wrapper">
+              <select id="mf-type" class="mf-select" formControlName="type">
+                <option value="" disabled>Choose a type</option>
+                @for (t of types; track t) {
+                  <option [value]="t">{{ t }}</option>
+                }
+              </select>
+            </div>
+            @if (form.controls.type.invalid && form.controls.type.touched) {
+              <span class="mf-error">A match type is required.</span>
+            }
+          </div>
+
+          <div class="mf-field">
+            <label class="mf-label" for="mf-result">Result</label>
+            <div class="mf-select-wrapper">
+              <select id="mf-result" class="mf-select" formControlName="result">
+                @for (r of results; track r.value) {
+                  <option [value]="r.value">{{ r.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="mf-field">
+            <label class="mf-label" for="mf-season">Season <span class="req">*</span></label>
+            <div class="mf-select-wrapper">
+              <select id="mf-season" class="mf-select" formControlName="season">
+                @for (s of seasons(); track s) {
+                  <option [value]="s">Season {{ s }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          @if (error()) {
+            <p class="mf-error" role="alert">{{ error() }}</p>
+          }
+
+          <div class="mf-actions">
+            <button type="button" class="mf-btn-cancel" (click)="close()">CANCEL</button>
+            <button type="submit" class="mf-btn-action" [disabled]="submitting()">
+              {{ submitting() ? 'SAVING…' : mode() === 'edit' ? 'SAVE CHANGES' : 'ADD MATCH' }}
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+</div>

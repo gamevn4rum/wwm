@@ -1,7 +1,11 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { MatchRecord, seasonSortValue } from './match-record.model';
 import { MatchHistoryDataService } from './match-history-data.service';
 import { OpponentGuildsService } from '../../core/services/opponent-guilds.service';
+import { DiscordAuthService, isCommanderRole } from '../../core/services/discord-auth.service';
+import { MatchFormPopupService } from '../../core/services/match-form-popup.service';
 import { SeasonMatchHistoryComponent } from './season-match-history/season-match-history.component';
 
 export interface SeasonGroup {
@@ -26,6 +30,15 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
    * of showing "Loading guild details…".
    */
   private readonly opponentGuilds = inject(OpponentGuildsService);
+
+  private readonly matchFormPopup = inject(MatchFormPopupService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Commander+ (Admin included) may add and correct matches. The server re-checks. */
+  readonly canEdit = toSignal(
+    inject(DiscordAuthService).currentUser$.pipe(map((user) => isCommanderRole(user?.role))),
+    { initialValue: false },
+  );
 
   // ── Loaded from service ───────────────────────────────────────────────────
   readonly allMatches = signal<MatchRecord[]>([]);
@@ -68,13 +81,23 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
   readonly pastSeasons = computed<SeasonGroup[]>(() => this.seasonGroups().slice(1));
 
   ngOnInit(): void {
-    this.matchDataService.getMatches().subscribe({
-      next: (matches) => {
-        this.allMatches.set(matches);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    // The stream stays live now that it can be reloaded, so a saved edit re-renders the
+    // page without a round trip through the router — hence takeUntilDestroyed, which the
+    // old fetch-once version didn't need.
+    this.matchDataService
+      .getMatches()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (matches) => {
+          this.allMatches.set(matches);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+  }
+
+  addMatch(): void {
+    this.matchFormPopup.openCreate();
   }
 
   ngOnDestroy(): void {

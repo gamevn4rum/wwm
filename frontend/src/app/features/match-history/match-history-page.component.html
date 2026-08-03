@@ -28,6 +28,9 @@
         </button>
       }
     </div>
+    @if (canEdit()) {
+      <button type="button" class="add-match-btn" (click)="addMatch()">+ Add match</button>
+    }
   </section>
 
   <!-- ══ LATEST SEASON (always expanded) ══ -->
@@ -37,7 +40,10 @@
         <span class="season-badge season-badge-current">Season {{ current.season }}</span>
         <span class="season-current-hint">Current</span>
       </header>
-      <app-season-match-history [matches]="current.matches"></app-season-match-history>
+      <app-season-match-history
+        [matches]="current.matches"
+        [canEdit]="canEdit()"
+      ></app-season-match-history>
     </section>
   }
 
@@ -51,7 +57,11 @@
             <span class="season-panel-count">{{ group.matches.length }} match{{ group.matches.length === 1 ? '' : 'es' }}</span>
           </summary>
           <div class="season-panel-body">
-            <app-season-match-history [matches]="group.matches" [historical]="true"></app-season-match-history>
+            <app-season-match-history
+              [matches]="group.matches"
+              [historical]="true"
+              [canEdit]="canEdit()"
+            ></app-season-match-history>
           </div>
         </details>
       }

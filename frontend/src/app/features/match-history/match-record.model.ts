@@ -18,12 +18,20 @@ export interface FootageEntry {
   videoId: string;
 }
 
+/**
+ * Win / loss / draw — or empty for a match logged before anyone agreed on the result,
+ * which the API represents as an empty string rather than omitting the field.
+ */
+export type MatchStatus = '✅' | '❌' | '➕' | '';
+
 export interface MatchRecord {
+  /** Server-side row id — what the match editor addresses a row by. */
+  id: number;
   /** ISO date (2026-07-25), so it sorts lexicographically. */
   date: string;
   opponent: string;
   type: MatchType;
-  status: '✅' | '❌' | '➕';
+  status: MatchStatus;
   /** Season label as recorded (e.g. "1", "2"). Empty string if blank. */
   season: string;
   /** Clips for this match. Empty unless the caller has footage permission. */
@@ -40,6 +48,6 @@ export interface TimelineNode extends NgxTimelineEvent {
   opponent: string;
   matchType: MatchType;
   label: string;
-  status: MatchRecord['status'];
+  status: MatchStatus;
   phantom: boolean;
 }

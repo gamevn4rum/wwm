@@ -1,0 +1,270 @@
+// Same hand-rolled dialog chrome as the registration popup (.reg-*) and the profile
+// modal (.pm-*) — there is no shared modal component in this app, only the global
+// .footage-popup-* shell in styles.css, which is sized for a wide gallery rather than
+// a form. Tokens do the work, so the three stay visually identical.
+
+// ── Overlay ────────────────────────────────────────────────────────────────────
+.mf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(58, 48, 34, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: mf-overlay-fade var(--transition-base);
+}
+
+// ── Panel ──────────────────────────────────────────────────────────────────────
+.mf-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100dvh - 3rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: mf-panel-rise var(--transition-base);
+}
+
+@keyframes mf-overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mf-panel-rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+.mf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  gap: 0.75rem;
+}
+
+.mf-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-ink);
+}
+
+.mf-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-primary-tint);
+    border-color: var(--color-primary-light);
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
+    opacity: 0.7;
+  }
+}
+
+// ── Body ───────────────────────────────────────────────────────────────────────
+.mf-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.mf-loading {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.mf-required-note {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-ink-faint);
+  margin-bottom: 1.25rem;
+}
+
+// ── Field ──────────────────────────────────────────────────────────────────────
+.mf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
+}
+
+.mf-label {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-ink);
+
+  .req {
+    color: var(--color-primary);
+    margin-left: 2px;
+  }
+}
+
+// ── Inputs ─────────────────────────────────────────────────────────────────────
+.mf-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--color-ink);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-tint);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--color-danger);
+  }
+}
+
+/** Revealed under the dropdown when "+ New opponent…" is picked. */
+.mf-new-opponent {
+  margin-top: 0.1rem;
+}
+
+// ── Select ─────────────────────────────────────────────────────────────────────
+.mf-select-wrapper {
+  position: relative;
+
+  &::after {
+    content: '▾';
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    color: var(--color-ink-faint);
+    pointer-events: none;
+  }
+}
+
+.mf-select {
+  width: 100%;
+  padding: 0.65rem 2rem 0.65rem 0.85rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--color-ink);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-tint);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--color-danger);
+  }
+
+  option {
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+}
+
+// ── Validation error ───────────────────────────────────────────────────────────
+.mf-error {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-danger);
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────────
+.mf-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.mf-btn-cancel {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 1.35rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-surface-alt);
+    border-color: var(--color-border-strong);
+  }
+}
+
+.mf-btn-action {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-on-dark);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary-dark);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.85rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+}

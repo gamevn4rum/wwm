@@ -2,6 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { NgxTimelineComponent, NgxTimelineEventGroup, NgxTimelineOrientation } from '@frxjs/ngx-timeline';
 import { MatchRecord, MatchType, TimelineNode } from '../match-record.model';
 import { FootagePopupService } from '../../../core/services/footage-popup.service';
+import { MatchFormPopupService } from '../../../core/services/match-form-popup.service';
 
 const MONTH_LABELS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
@@ -32,6 +33,7 @@ function slugId(date: string, opponent: string): string {
 })
 export class SeasonMatchHistoryComponent {
   private readonly popup = inject(FootagePopupService);
+  private readonly matchForm = inject(MatchFormPopupService);
 
   readonly matches = input<MatchRecord[]>([]);
   /**
@@ -41,6 +43,9 @@ export class SeasonMatchHistoryComponent {
    * always shows exactly two month columns even when quiet.
    */
   readonly historical = input(false);
+
+  /** Commander+ only — shows the per-card edit affordance. */
+  readonly canEdit = input(false);
 
   readonly horizontalOrientation = NgxTimelineOrientation.HORIZONTAL;
   readonly monthYearGroup = NgxTimelineEventGroup.MONTH_YEAR;
@@ -144,6 +149,12 @@ export class SeasonMatchHistoryComponent {
 
   openPopup(match: MatchRecord): void {
     this.popup.open(match);
+  }
+
+  /** stopPropagation, or the click also opens the card's footage popup behind the form. */
+  editMatch(match: MatchRecord, event: Event): void {
+    event.stopPropagation();
+    this.matchForm.openEdit(match);
   }
 
   formatDate(isoDate: string): string {

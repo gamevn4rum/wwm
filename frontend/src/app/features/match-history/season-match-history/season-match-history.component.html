@@ -54,6 +54,13 @@
         <div class="match-card"
              [class]="'card-status-' + resolveStatus(card.status)"
              (click)="openPopup(card)">
+          @if (canEdit()) {
+            <button type="button"
+                    class="card-edit"
+                    title="Edit match"
+                    aria-label="Edit match"
+                    (click)="editMatch(card, $event)">✎</button>
+          }
           <div class="card-content">
             <div class="card-top">
               <span class="card-date">{{ formatDate(card.date) }}</span>
@@ -90,6 +97,13 @@
         <div class="match-card"
              [class]="'card-status-' + resolveStatus(card.status)"
              (click)="openPopup(card)">
+          @if (canEdit()) {
+            <button type="button"
+                    class="card-edit"
+                    title="Edit match"
+                    aria-label="Edit match"
+                    (click)="editMatch(card, $event)">✎</button>
+          }
           <div class="card-content">
             <div class="card-top">
               <span class="card-date">{{ formatDate(card.date) }}</span>
@@ -126,6 +140,13 @@
         <div class="match-card"
              [class]="'card-status-' + resolveStatus(card.status)"
              (click)="openPopup(card)">
+          @if (canEdit()) {
+            <button type="button"
+                    class="card-edit"
+                    title="Edit match"
+                    aria-label="Edit match"
+                    (click)="editMatch(card, $event)">✎</button>
+          }
           <div class="card-content">
             <div class="card-top">
               <span class="card-date">{{ formatDate(card.date) }}</span>

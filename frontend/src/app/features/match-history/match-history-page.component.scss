@@ -72,6 +72,35 @@
   }
 }
 
+/** Commander-only. Sits under the chip rows, right-aligned away from the filters so
+ *  it doesn't read as another opponent chip. */
+.add-match-btn {
+  align-self: flex-end;
+  margin-top: 0.2rem;
+  border: 1px solid var(--color-primary-dark);
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover {
+    background: var(--color-primary-dark);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-tint);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // HEADER
 // ─────────────────────────────────────────────────────────────────────────────

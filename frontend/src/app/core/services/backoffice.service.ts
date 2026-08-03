@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { apiUrl } from '../api';
 import { UserRole } from './discord-auth.service';
+import { MatchRecord } from '../../features/match-history/match-record.model';
 
 export interface FeatureFlag {
   key: string;
@@ -58,6 +59,32 @@ export interface RegistrationApprove {
   role?: UserRole;
 }
 
+/** Choices for the match editor, resolved server-side in one call. */
+export interface MatchOptions {
+  /** Every opponent guild on record, for the dropdown. */
+  opponents: string[];
+  /** Selectable season numbers (2–10). */
+  seasons: number[];
+  /** Highest season currently in the DB, clamped into `seasons`. */
+  defaultSeason: number;
+}
+
+export type MatchResult = 'win' | 'loss' | 'draw';
+
+export interface MatchCreate {
+  /** ISO date, `yyyy-MM-dd`. */
+  date: string;
+  opponent: string;
+  type: 'league' | 'ranked' | 'scrim';
+  /** Omitted/null for a match with no agreed result yet. */
+  result?: MatchResult | null;
+  season: number;
+}
+
+/** Every field optional: null/absent leaves it alone. The one exception is `result`,
+ * where an empty string clears a result back to undecided. */
+export type MatchPatch = Partial<Omit<MatchCreate, 'result'>> & { result?: MatchResult | '' };
+
 /** Back-office API (Admin/Commander). The auth interceptor attaches the JWT;
  * the server re-checks role/escalation on every call. */
 @Injectable({ providedIn: 'root' })
@@ -91,5 +118,17 @@ export class BackofficeService {
 
   rejectRegistration(id: number, note?: string): Observable<Registration> {
     return this.http.post<Registration>(apiUrl(`/commander/registrations/${id}/reject`), { note });
+  }
+
+  getMatchOptions(): Observable<MatchOptions> {
+    return this.http.get<MatchOptions>(apiUrl('/commander/matches/options'));
+  }
+
+  createMatch(body: MatchCreate): Observable<MatchRecord> {
+    return this.http.post<MatchRecord>(apiUrl('/commander/matches'), body);
+  }
+
+  patchMatch(id: number, patch: MatchPatch): Observable<MatchRecord> {
+    return this.http.patch<MatchRecord>(apiUrl(`/commander/matches/${id}`), patch);
   }
 }
