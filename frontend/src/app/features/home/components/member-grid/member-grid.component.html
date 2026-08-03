@@ -54,7 +54,11 @@
         >
           <div class="badge-avatar">
             <div class="avatar-placeholder">
-              <img [src]="'icons/rank-' + player.rankIconKey + '.png'" [alt]="player.rank" />
+              <img
+                [src]="'icons/rank-' + player.rankIconKey + '.png'"
+                [alt]="player.rank"
+                (error)="onRankIconError($event)"
+              />
             </div>
           </div>
           <div class="badge-info">
@@ -80,7 +84,11 @@
             <div class="detail-header">
               <div class="badge-avatar detail-avatar">
                 <div class="avatar-placeholder">
-                  <img [src]="'icons/rank-' + player.rankIconKey + '.png'" [alt]="player.rank" />
+                  <img
+                    [src]="'icons/rank-' + player.rankIconKey + '.png'"
+                    [alt]="player.rank"
+                    (error)="onRankIconError($event)"
+                  />
                 </div>
               </div>
               <div class="detail-identity">

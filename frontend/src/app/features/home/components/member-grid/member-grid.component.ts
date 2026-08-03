@@ -127,6 +127,16 @@ export class MemberGridComponent implements OnInit {
     return rank.toLowerCase().replace(/\s+/g, '-').replace(/\//g, '-');
   }
 
+  /**
+   * The rank icon is looked up by filename, so a role with no artwork 404s and leaves a
+   * broken image in the avatar. Fall back to the generic silhouette (`rank-.png`) instead,
+   * which is what an empty role already resolves to.
+   */
+  onRankIconError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (!img.src.endsWith('/rank-.png')) img.src = 'icons/rank-.png';
+  }
+
   statsFor(player: Player): MatchedPlayerStats | undefined {
     return this.statsByIgn().get(player.name.toLowerCase());
   }

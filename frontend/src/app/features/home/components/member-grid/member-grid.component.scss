@@ -146,12 +146,14 @@
   }
 }
 
-/* ── Rank accent variants ── */
-.rank-carrier  { --accent: var(--color-secondary);   --accent-tint: var(--color-secondary-tint); }
-.rank-caller   { --accent: var(--color-primary);     --accent-tint: var(--color-primary-tint); }
-.rank-attacker { --accent: var(--color-accent-blue); --accent-tint: var(--color-accent-blue-tint); }
-.rank-healer   { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
-.rank-tanker   { --accent: var(--color-ink-soft);    --accent-tint: var(--color-border-strong); }
+/* ── Rank accent variants ──
+   Keyed to the account roles the roster actually serves (UserRole: Admin, Creator,
+   Commander, Warrior) — not the in-game class names this grid was first built against.
+   Kept in step with login-button and profile-modal, which use the same accents. */
+.rank-warrior   { --accent: var(--color-primary);     --accent-tint: var(--color-primary-tint); }
+.rank-commander { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
+.rank-creator,
+.rank-admin     { --accent: var(--color-secondary);   --accent-tint: var(--color-secondary-tint); }
 
 /* ── Collapsed summary (clickable surface) ── */
 .badge-summary {
