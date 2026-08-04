@@ -59,6 +59,29 @@ export interface RegistrationApprove {
   role?: UserRole;
 }
 
+/** A recurring weekly message the bot posts to a Discord channel. Times are Vietnam
+ *  local (UTC+7); dayOfWeek is Sunday=0 … Saturday=6. */
+export interface ScheduledMessage {
+  id: number;
+  dayOfWeek: number;
+  /** "HH:mm", Vietnam time. */
+  time: string;
+  channelId: string;
+  message: string;
+  enabled: boolean;
+  lastSentUtc: string | null;
+}
+
+export interface ScheduleCreate {
+  dayOfWeek: number;
+  time: string;
+  channelId: string;
+  message: string;
+  enabled: boolean;
+}
+
+export type SchedulePatch = Partial<ScheduleCreate>;
+
 /** Choices for the match editor, resolved server-side in one call. */
 export interface MatchOptions {
   /** Every opponent guild on record, for the dropdown. */
@@ -141,5 +164,22 @@ export class BackofficeService {
   /** Hard-delete a match and its footage. */
   deleteMatch(id: number): Observable<{ deleted: number; footagesRemoved: number }> {
     return this.http.delete<{ deleted: number; footagesRemoved: number }>(apiUrl(`/commander/matches/${id}`));
+  }
+
+  // ── Scheduled messages (Admin) ────────────────────────────────────────────
+  getSchedules(): Observable<ScheduledMessage[]> {
+    return this.http.get<ScheduledMessage[]>(apiUrl('/admin/schedules'));
+  }
+
+  createSchedule(body: ScheduleCreate): Observable<ScheduledMessage> {
+    return this.http.post<ScheduledMessage>(apiUrl('/admin/schedules'), body);
+  }
+
+  patchSchedule(id: number, patch: SchedulePatch): Observable<ScheduledMessage> {
+    return this.http.patch<ScheduledMessage>(apiUrl(`/admin/schedules/${id}`), patch);
+  }
+
+  deleteSchedule(id: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(apiUrl(`/admin/schedules/${id}`));
   }
 }
