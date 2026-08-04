@@ -7,6 +7,9 @@ import {
 } from '../../core/services/backoffice.service';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const EVERYDAY = -1;
+const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 
 @Component({
   selector: 'app-schedules-page',
@@ -61,13 +64,17 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
       } @else {
         <table class="grid">
           <thead>
-            <tr><th>Day</th><th>Time</th><th>Channel</th><th>Message</th><th>State</th><th></th></tr>
+            <tr><th>Day</th><th>Time</th><th>Next run (VN)</th><th>Channel</th><th>Message</th><th>State</th><th></th></tr>
           </thead>
           <tbody>
             @for (s of schedules(); track s.id) {
               <tr [class.disabled]="!s.enabled">
                 <td>{{ dayName(s.dayOfWeek) }}</td>
                 <td class="mono">{{ s.time }}</td>
+                <td class="timing">
+                  <div class="next">{{ s.enabled ? nextRun(s) : '—' }}</div>
+                  <div class="last">last: {{ lastSent(s) }}</div>
+                </td>
                 <td class="mono channel">{{ s.channelId }}</td>
                 <td class="msg">{{ s.message }}</td>
                 <td>
@@ -76,6 +83,9 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
                   </span>
                 </td>
                 <td class="actions">
+                  <button (click)="sendNow(s)" [disabled]="sending() === s.id || busy() === s.id">
+                    {{ sending() === s.id ? 'Sending…' : 'Send now' }}
+                  </button>
                   <button (click)="toggle(s)" [disabled]="busy() === s.id">{{ s.enabled ? 'Disable' : 'Enable' }}</button>
                   <button (click)="startEdit(s)" [disabled]="busy() === s.id">Edit</button>
                   @if (confirmingId() === s.id) {
@@ -86,6 +96,11 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
                   }
                 </td>
               </tr>
+              @if (sendResult()[s.id]; as r) {
+                <tr class="result-row">
+                  <td colspan="7"><span [class.ok]="r.ok" [class.bad]="!r.ok">{{ r.text }}</span></td>
+                </tr>
+              }
             }
           </tbody>
         </table>
@@ -121,19 +136,28 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
     .pill { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; }
     .pill.on { background: rgba(40,167,69,.2); color: #28a745; }
     .pill.off { background: rgba(220,53,69,.2); color: #dc3545; }
+    .timing .next { font-size: .82rem; }
+    .timing .last { font-size: .72rem; opacity: .6; margin-top: .15rem; }
+    .result-row td { border-bottom: 1px solid rgba(128,128,128,.25); padding-top: 0; }
+    .result-row span { font-size: .8rem; }
+    .result-row .ok { color: #28a745; }
+    .result-row .bad { color: #dc3545; }
     .error { color: #dc3545; }
   `],
 })
 export class SchedulesPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
-  readonly days = DAYS.map((label, value) => ({ label, value }));
+  // "Everyday" first, then Sunday…Saturday.
+  readonly days = [{ label: 'Everyday', value: EVERYDAY }, ...DAYS.map((label, value) => ({ label, value }))];
 
   readonly schedules = signal<ScheduledMessage[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly busy = signal<number | null>(null);
   readonly confirmingId = signal<number | null>(null);
+  readonly sending = signal<number | null>(null);
+  readonly sendResult = signal<Record<number, { ok: boolean; text: string }>>({});
 
   readonly editingId = signal<number | null>(null);
   readonly saving = signal(false);
@@ -155,7 +179,7 @@ export class SchedulesPageComponent {
   }
 
   dayName(d: number): string {
-    return DAYS[d] ?? String(d);
+    return d === EVERYDAY ? 'Everyday' : DAYS[d] ?? String(d);
   }
 
   startEdit(s: ScheduledMessage): void {
@@ -214,6 +238,57 @@ export class SchedulesPageComponent {
       },
       error: () => this.busy.set(null),
     });
+  }
+
+  /** Post this schedule's message to its channel immediately, and surface the exact result
+   *  (success, or the Discord permission/channel error) inline. Doesn't affect the timer. */
+  sendNow(s: ScheduledMessage): void {
+    this.sending.set(s.id);
+    this.backoffice.sendScheduleNow(s.id).subscribe({
+      next: (r) => {
+        this.setResult(s.id, r.ok, r.ok ? 'Sent ✓' : r.error ?? 'Send failed.');
+        this.sending.set(null);
+      },
+      error: () => { this.setResult(s.id, false, 'Request failed. Try again.'); this.sending.set(null); },
+    });
+  }
+
+  private setResult(id: number, ok: boolean, text: string): void {
+    this.sendResult.update((m) => ({ ...m, [id]: { ok, text } }));
+  }
+
+  /** The next time this schedule will fire, as a short VN-local label ("Today 20:00",
+   *  "Tomorrow 20:00", "Mon 20:00"). Fires at the next 15-min poll after this time. */
+  nextRun(s: ScheduledMessage): string {
+    const [hh, mm] = s.time.split(':').map(Number);
+    const nowVn = SchedulesPageComponent.vnNow();
+    const at = (dayOffset: number): Date => {
+      const d = new Date(nowVn);
+      d.setUTCDate(d.getUTCDate() + dayOffset);
+      d.setUTCHours(hh, mm, 0, 0);
+      return d;
+    };
+    for (let o = 0; o <= 7; o++) {
+      const c = at(o);
+      if (c.getTime() <= nowVn.getTime()) continue;
+      if (s.dayOfWeek !== EVERYDAY && c.getUTCDay() !== s.dayOfWeek) continue;
+      const label = o === 0 ? 'Today' : o === 1 ? 'Tomorrow' : WEEKDAYS[c.getUTCDay()];
+      return `${label} ${s.time}`;
+    }
+    return '—';
+  }
+
+  /** When it last fired, in VN local time — or "never". */
+  lastSent(s: ScheduledMessage): string {
+    if (!s.lastSentUtc) return 'never';
+    const d = new Date(new Date(s.lastSentUtc).getTime() + VN_OFFSET_MS);
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${WEEKDAYS[d.getUTCDay()]} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} · ${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
+  }
+
+  /** "Now" as a Date whose UTC getters read Vietnam wall-clock (fixed UTC+7, no DST). */
+  private static vnNow(): Date {
+    return new Date(Date.now() + VN_OFFSET_MS);
   }
 
   private sort(): void {

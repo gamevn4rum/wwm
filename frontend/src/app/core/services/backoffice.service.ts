@@ -82,6 +82,41 @@ export interface ScheduleCreate {
 
 export type SchedulePatch = Partial<ScheduleCreate>;
 
+/** A recurring RSVP-event template — a scheduled `/gvg`. Times are Vietnam local (UTC+7);
+ *  dayOfWeek is Sunday=0 … Saturday=6, or -1 for every day. Offsets are minutes from the post
+ *  moment: the event starts `startOffsetMinutes` later; RSVPs close `rsvpCloseOffsetMinutes`
+ *  later (null = at start). */
+export interface ScheduledEvent {
+  id: number;
+  dayOfWeek: number;
+  /** "HH:mm", Vietnam time — when the form is posted. */
+  time: string;
+  eventType: 'GvG' | 'GvE' | 'Offline';
+  title: string;
+  channelId: string;
+  notes: string;
+  capacity: number | null;
+  startOffsetMinutes: number;
+  rsvpCloseOffsetMinutes: number | null;
+  enabled: boolean;
+  lastFiredUtc: string | null;
+}
+
+export interface ScheduledEventCreate {
+  dayOfWeek: number;
+  time: string;
+  eventType: 'GvG' | 'GvE' | 'Offline';
+  title: string;
+  channelId: string;
+  notes: string;
+  capacity: number | null;
+  startOffsetMinutes: number;
+  rsvpCloseOffsetMinutes: number | null;
+  enabled: boolean;
+}
+
+export type ScheduledEventPatch = Partial<ScheduledEventCreate>;
+
 /** Choices for the match editor, resolved server-side in one call. */
 export interface MatchOptions {
   /** Every opponent guild on record, for the dropdown. */
@@ -181,5 +216,36 @@ export class BackofficeService {
 
   deleteSchedule(id: number): Observable<{ deleted: number }> {
     return this.http.delete<{ deleted: number }>(apiUrl(`/admin/schedules/${id}`));
+  }
+
+  /** Post a schedule's message to its channel right now (test). Resolves with the outcome —
+   *  `ok:false` carries the exact Discord failure (permission/channel) for display. */
+  sendScheduleNow(id: number): Observable<{ ok: boolean; status?: number; error?: string }> {
+    return this.http.post<{ ok: boolean; status?: number; error?: string }>(
+      apiUrl(`/admin/schedules/${id}/send-now`), {});
+  }
+
+  // ── Scheduled events (Admin) — a recurring /gvg ───────────────────────────
+  getScheduledEvents(): Observable<ScheduledEvent[]> {
+    return this.http.get<ScheduledEvent[]>(apiUrl('/admin/scheduled-events'));
+  }
+
+  createScheduledEvent(body: ScheduledEventCreate): Observable<ScheduledEvent> {
+    return this.http.post<ScheduledEvent>(apiUrl('/admin/scheduled-events'), body);
+  }
+
+  patchScheduledEvent(id: number, patch: ScheduledEventPatch): Observable<ScheduledEvent> {
+    return this.http.patch<ScheduledEvent>(apiUrl(`/admin/scheduled-events/${id}`), patch);
+  }
+
+  deleteScheduledEvent(id: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(apiUrl(`/admin/scheduled-events/${id}`));
+  }
+
+  /** Create + post this template's event to Discord immediately (a live test — it makes a real
+   *  event, but doesn't affect the timer's next run). `ok:false` carries the Discord failure. */
+  postScheduledEventNow(id: number): Observable<{ ok: boolean; slug?: string; status?: number; error?: string }> {
+    return this.http.post<{ ok: boolean; slug?: string; status?: number; error?: string }>(
+      apiUrl(`/admin/scheduled-events/${id}/post-now`), {});
   }
 }

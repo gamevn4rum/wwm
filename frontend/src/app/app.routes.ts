@@ -75,6 +75,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/manage/schedules-page.component').then((m) => m.SchedulesPageComponent),
       },
+      {
+        path: 'manage/scheduled-events',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/manage/scheduled-events-page.component').then((m) => m.ScheduledEventsPageComponent),
+      },
       { path: '**', redirectTo: '' },
     ],
   },
