@@ -39,15 +39,20 @@ export class MatchFormPopupComponent {
   private readonly popup = inject(MatchFormPopupService);
   private readonly backoffice = inject(BackofficeService);
   private readonly matchData = inject(MatchHistoryDataService);
+  private readonly auth = inject(DiscordAuthService);
 
   readonly mode = this.popup.mode;
   readonly editing = this.popup.editing;
 
   /** Footage management is a footage-permission action — the section only shows with ftp. */
   readonly ftpPermission = toSignal(
-    inject(DiscordAuthService).currentUser$.pipe(map((user) => user?.ftp ?? false)),
+    this.auth.currentUser$.pipe(map((user) => user?.ftp ?? false)),
     { initialValue: false },
   );
+
+  /** The logged-in user's Discord username — the default uploader when they add a clip,
+   *  on the assumption you're most often filing your own footage. */
+  private readonly currentUsername = signal('');
 
   readonly loadingOptions = signal(true);
   readonly submitting = signal(false);
@@ -148,9 +153,18 @@ export class MatchFormPopupComponent {
       this.footages.set([...match.footages]);
     }
 
+    // currentUser$ is a BehaviorSubject, so this resolves with the current session at once.
+    const me = (await firstValueFrom(this.auth.currentUser$))?.username?.trim() ?? '';
+    this.currentUsername.set(me);
+    // Make sure the current user is a selectable option even if they've never uploaded
+    // before, and pin them first so "you" is the default.
+    const uploaders = [...options.uploaders];
+    if (me && !uploaders.includes(me)) uploaders.unshift(me);
+
     this.allOpponents.set(opponents);
     this.seasons.set(seasons);
-    this.uploaders.set(options.uploaders);
+    this.uploaders.set(uploaders);
+    this.footageForm.controls.uploader.setValue(me);
     this.loadingOptions.set(false);
 
     this.form.patchValue(
@@ -246,7 +260,8 @@ export class MatchFormPopupComponent {
         this.backoffice.addFootage(editing.id, { uploader, youtubeLink: youtubeLink.trim() }),
       );
       this.footages.set([...updated.footages]);
-      this.footageForm.reset({ uploader: '', youtubeLink: '' });
+      // Keep the current user as the default for the next clip, not a blank.
+      this.footageForm.reset({ uploader: this.currentUsername(), youtubeLink: '' });
       this.changed = true;
     } catch (err: unknown) {
       this.footageError.set(this.describeFootageError(err));
