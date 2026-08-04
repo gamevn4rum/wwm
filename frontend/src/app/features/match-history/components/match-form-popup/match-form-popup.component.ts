@@ -50,9 +50,12 @@ export class MatchFormPopupComponent {
     { initialValue: false },
   );
 
-  /** The logged-in user's Discord username — the default uploader when they add a clip,
-   *  on the assumption you're most often filing your own footage. */
-  private readonly currentUsername = signal('');
+  /** The logged-in user's roster IGN — the default uploader when they add a clip, on the
+   *  assumption you're most often filing your own footage. IGN, not Discord username:
+   *  every stored uploader is an IGN (bot + historical), and the session already resolved
+   *  the Discord identity to an IGN at login, so keeping this an IGN is what keeps
+   *  attribution consistent. Blank when the session has no IGN (e.g. the dev bypass). */
+  private readonly currentUploaderIgn = signal('');
 
   readonly loadingOptions = signal(true);
   readonly submitting = signal(false);
@@ -154,8 +157,8 @@ export class MatchFormPopupComponent {
     }
 
     // currentUser$ is a BehaviorSubject, so this resolves with the current session at once.
-    const me = (await firstValueFrom(this.auth.currentUser$))?.username?.trim() ?? '';
-    this.currentUsername.set(me);
+    const me = (await firstValueFrom(this.auth.currentUser$))?.ign?.trim() ?? '';
+    this.currentUploaderIgn.set(me);
     // Make sure the current user is a selectable option even if they've never uploaded
     // before, and pin them first so "you" is the default.
     const uploaders = [...options.uploaders];
@@ -261,7 +264,7 @@ export class MatchFormPopupComponent {
       );
       this.footages.set([...updated.footages]);
       // Keep the current user as the default for the next clip, not a blank.
-      this.footageForm.reset({ uploader: this.currentUsername(), youtubeLink: '' });
+      this.footageForm.reset({ uploader: this.currentUploaderIgn(), youtubeLink: '' });
       this.changed = true;
     } catch (err: unknown) {
       this.footageError.set(this.describeFootageError(err));
