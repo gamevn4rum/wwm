@@ -99,7 +99,12 @@
 
           @if (mode() === 'edit' && ftpPermission()) {
             <div class="mf-footage">
-              <span class="mf-footage-heading">Footage</span>
+              <span class="mf-footage-heading">
+                Footage
+                @if (footages().length) {
+                  <span class="mf-footage-count">{{ footages().length }}</span>
+                }
+              </span>
 
               @if (footages().length) {
                 <ul class="mf-footage-list">
