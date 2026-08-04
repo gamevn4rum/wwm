@@ -1,16 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   BackofficeService,
   ScheduledEvent,
   ScheduledEventCreate,
+  ScheduledEventType,
 } from '../../core/services/backoffice.service';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const EVERYDAY = -1;
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
-const EVENT_TYPES = ['GvG', 'GvE', 'Offline'] as const;
+
+/** Message first: it is the simplest thing to schedule, and the one this panel started as. */
+const EVENT_TYPES: readonly ScheduledEventType[] = ['Message', 'GvG', 'GvE', 'Offline'];
+const MESSAGE = 'Message';
 
 @Component({
   selector: 'app-scheduled-events-page',
@@ -20,15 +25,16 @@ const EVENT_TYPES = ['GvG', 'GvE', 'Offline'] as const;
     <section class="backoffice">
       <h1>Scheduled events</h1>
       <p class="hint">
-        A recurring <strong>/gvg</strong>: the bot posts an RSVP event on this weekly schedule,
-        with the same buttons as the slash command. Times are <strong>Vietnam time (UTC+7)</strong>.
-        The event's start and RSVP-close are set as minutes <em>after</em> the form is posted —
-        e.g. post Saturday 10:00, start 480 min later (18:00), RSVPs close at start.
+        What the bot posts on a weekly schedule, in <strong>Vietnam time (UTC+7)</strong>. A
+        <strong>Message</strong> is plain text. The other types are a recurring
+        <strong>/gvg</strong>: an RSVP event with the same buttons as the slash command, whose
+        start and RSVP-close are set as minutes <em>after</em> the form is posted — e.g. post
+        Saturday 10:00, start 480 min later (18:00), RSVPs close at start.
       </p>
 
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
         <div class="row">
-          <label>Event type
+          <label>Type
             <select formControlName="eventType">
               @for (t of eventTypes; track t) { <option [value]="t">{{ t }}</option> }
             </select>
@@ -45,23 +51,32 @@ const EVENT_TYPES = ['GvG', 'GvE', 'Offline'] as const;
             <input type="text" formControlName="channelId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
           </label>
         </div>
-        <label>Title
-          <input type="text" formControlName="title" maxlength="200" placeholder="Heading of the event post…" />
-        </label>
-        <div class="row">
-          <label>Starts (min after post)
-            <input type="number" formControlName="startOffsetMinutes" min="0" step="15" />
+
+        @if (isMessage()) {
+          <label>Message
+            <textarea formControlName="message" rows="3" maxlength="2000"
+                      placeholder="What the bot should post…"></textarea>
           </label>
-          <label>RSVP closes (min after post)
-            <input type="number" formControlName="rsvpCloseOffsetMinutes" min="0" step="15" placeholder="blank = at start" />
+        } @else {
+          <label>Title
+            <input type="text" formControlName="title" maxlength="200" placeholder="Heading of the event post…" />
           </label>
-          <label>Capacity
-            <input type="number" formControlName="capacity" min="1" placeholder="blank = unlimited" />
+          <div class="row">
+            <label>Starts (min after post)
+              <input type="number" formControlName="startOffsetMinutes" min="0" step="15" />
+            </label>
+            <label>RSVP closes (min after post)
+              <input type="number" formControlName="rsvpCloseOffsetMinutes" min="0" step="15" placeholder="blank = at start" />
+            </label>
+            <label>Capacity
+              <input type="number" formControlName="capacity" min="1" placeholder="blank = unlimited" />
+            </label>
+          </div>
+          <label>Notes
+            <textarea formControlName="notes" rows="2" maxlength="1000" placeholder="Extra detail shown on the post (optional)…"></textarea>
           </label>
-        </div>
-        <label>Notes
-          <textarea formControlName="notes" rows="2" maxlength="1000" placeholder="Extra detail shown on the post (optional)…"></textarea>
-        </label>
+        }
+
         <div class="row bottom">
           <label class="chk"><input type="checkbox" formControlName="enabled" /> Enabled</label>
           <span class="spacer"></span>
@@ -69,7 +84,7 @@ const EVENT_TYPES = ['GvG', 'GvE', 'Offline'] as const;
             <button type="button" class="ghost" (click)="resetForm()">Cancel edit</button>
           }
           <button type="submit" [disabled]="saving()">
-            {{ saving() ? 'Saving…' : editingId() === null ? 'Add scheduled event' : 'Save changes' }}
+            {{ saving() ? 'Saving…' : editingId() === null ? 'Add schedule' : 'Save changes' }}
           </button>
         </div>
         @if (formError()) { <p class="error">{{ formError() }}</p> }
@@ -80,24 +95,28 @@ const EVENT_TYPES = ['GvG', 'GvE', 'Offline'] as const;
       } @else if (error()) {
         <p class="error">{{ error() }}</p>
       } @else if (events().length === 0) {
-        <p class="hint">No scheduled events yet.</p>
+        <p class="hint">Nothing scheduled yet.</p>
       } @else {
         <table class="grid">
           <thead>
-            <tr><th>Type</th><th>When (VN)</th><th>Event</th><th>Channel</th><th>State</th><th></th></tr>
+            <tr><th>Type</th><th>When (VN)</th><th>Posts</th><th>Channel</th><th>State</th><th></th></tr>
           </thead>
           <tbody>
             @for (s of events(); track s.id) {
               <tr [class.disabled]="!s.enabled">
-                <td><span class="type">{{ s.eventType }}</span></td>
+                <td><span class="type" [class.message]="s.eventType === 'Message'">{{ s.eventType }}</span></td>
                 <td class="timing">
                   <div>{{ dayName(s.dayOfWeek) }} {{ s.time }}</div>
                   <div class="next">next: {{ s.enabled ? nextRun(s) : '—' }}</div>
                   <div class="last">last: {{ lastFired(s) }}</div>
                 </td>
                 <td class="msg">
-                  <div class="title">{{ s.title }}</div>
-                  <div class="detail">{{ detail(s) }}</div>
+                  @if (s.eventType === 'Message') {
+                    <div class="text">{{ s.message }}</div>
+                  } @else {
+                    <div class="title">{{ s.title }}</div>
+                    <div class="detail">{{ detail(s) }}</div>
+                  }
                 </td>
                 <td class="mono channel">{{ s.channelId }}</td>
                 <td>
@@ -159,8 +178,10 @@ const EVENT_TYPES = ['GvG', 'GvE', 'Offline'] as const;
     .timing { font-size: .82rem; }
     .timing .next { font-size: .74rem; opacity: .75; margin-top: .15rem; }
     .timing .last { font-size: .72rem; opacity: .55; }
+    .type.message { background: rgba(52,152,219,.18); color: #3498DB; }
     .msg { max-width: 300px; }
     .msg .title { font-weight: 600; }
+    .msg .text { white-space: pre-wrap; word-break: break-word; font-size: .84rem; }
     .msg .detail { font-size: .74rem; opacity: .7; margin-top: .15rem; }
     .actions { white-space: nowrap; display: flex; gap: .35rem; flex-wrap: wrap; }
     .pill { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; }
@@ -192,11 +213,15 @@ export class ScheduledEventsPageComponent {
   readonly formError = signal<string | null>(null);
 
   readonly form = new FormGroup({
-    eventType: new FormControl<'GvG' | 'GvE' | 'Offline'>('GvG', { nonNullable: true }),
+    eventType: new FormControl<ScheduledEventType>('Message', { nonNullable: true }),
     dayOfWeek: new FormControl(6, { nonNullable: true }),
     time: new FormControl('20:00', { validators: Validators.required, nonNullable: true }),
     channelId: new FormControl('', { validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)], nonNullable: true }),
-    title: new FormControl('', { validators: Validators.required, nonNullable: true }),
+    // Title and message are each required only for the types that use them, so neither carries a
+    // Validators.required that the other kind of template could never satisfy — `save` checks the
+    // one that applies.
+    title: new FormControl('', { nonNullable: true }),
+    message: new FormControl('', { nonNullable: true }),
     startOffsetMinutes: new FormControl<number>(480, { validators: [Validators.required, Validators.min(0)], nonNullable: true }),
     rsvpCloseOffsetMinutes: new FormControl<number | null>(null),
     capacity: new FormControl<number | null>(null),
@@ -204,10 +229,17 @@ export class ScheduledEventsPageComponent {
     enabled: new FormControl(true, { nonNullable: true }),
   });
 
+  /** The chosen type, as a signal, so the template can swap the fields it shows. */
+  private readonly eventType = toSignal(this.form.controls.eventType.valueChanges, {
+    initialValue: this.form.controls.eventType.value,
+  });
+
+  readonly isMessage = computed(() => this.eventType() === MESSAGE);
+
   ngOnInit(): void {
     this.backoffice.getScheduledEvents().subscribe({
       next: (s) => { this.events.set(s); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load scheduled events.'); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load schedules.'); this.loading.set(false); },
     });
   }
 
@@ -235,7 +267,8 @@ export class ScheduledEventsPageComponent {
     this.formError.set(null);
     this.form.setValue({
       eventType: s.eventType, dayOfWeek: s.dayOfWeek, time: s.time, channelId: s.channelId,
-      title: s.title, startOffsetMinutes: s.startOffsetMinutes, rsvpCloseOffsetMinutes: s.rsvpCloseOffsetMinutes,
+      title: s.title, message: s.message, startOffsetMinutes: s.startOffsetMinutes,
+      rsvpCloseOffsetMinutes: s.rsvpCloseOffsetMinutes,
       capacity: s.capacity, notes: s.notes, enabled: s.enabled,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -245,13 +278,23 @@ export class ScheduledEventsPageComponent {
     this.editingId.set(null);
     this.formError.set(null);
     this.form.reset({
-      eventType: 'GvG', dayOfWeek: 6, time: '20:00', channelId: '', title: '',
+      eventType: 'Message', dayOfWeek: 6, time: '20:00', channelId: '', title: '', message: '',
       startOffsetMinutes: 480, rsvpCloseOffsetMinutes: null, capacity: null, notes: '', enabled: true,
     });
   }
 
   save(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+
+    // The one check the control validators can't own, because which field is required depends on
+    // the type that is selected at the moment Save is pressed.
+    const required = this.isMessage() ? this.form.controls.message : this.form.controls.title;
+    if (required.value.trim().length === 0) {
+      required.markAsTouched();
+      this.formError.set(this.isMessage() ? 'A message is required.' : 'A title is required.');
+      return;
+    }
+
     this.saving.set(true);
     this.formError.set(null);
     const body = this.normalize(this.form.getRawValue());
@@ -269,24 +312,28 @@ export class ScheduledEventsPageComponent {
     });
   }
 
-  /** Coerce the number inputs: empty string / NaN → null for the optional ones. */
+  /** Coerce the number inputs (empty string / NaN → null for the optional ones), and blank out
+   *  whichever half of the form the chosen type doesn't use — a template that was edited from a
+   *  GvG into a Message shouldn't keep carrying the old title, offsets and capacity. */
   private normalize(raw: {
-    eventType: 'GvG' | 'GvE' | 'Offline'; dayOfWeek: number; time: string; channelId: string;
-    title: string; startOffsetMinutes: number; rsvpCloseOffsetMinutes: number | null;
+    eventType: ScheduledEventType; dayOfWeek: number; time: string; channelId: string;
+    title: string; message: string; startOffsetMinutes: number; rsvpCloseOffsetMinutes: number | null;
     capacity: number | null; notes: string; enabled: boolean;
   }): ScheduledEventCreate {
     const num = (v: unknown): number | null =>
       v === null || v === undefined || v === '' || Number.isNaN(Number(v)) ? null : Number(v);
+    const isMessage = raw.eventType === MESSAGE;
     return {
       eventType: raw.eventType,
       dayOfWeek: Number(raw.dayOfWeek),
       time: raw.time,
       channelId: raw.channelId,
-      title: raw.title,
-      startOffsetMinutes: num(raw.startOffsetMinutes) ?? 0,
-      rsvpCloseOffsetMinutes: num(raw.rsvpCloseOffsetMinutes),
-      capacity: num(raw.capacity),
-      notes: raw.notes ?? '',
+      title: isMessage ? '' : raw.title,
+      message: isMessage ? raw.message : '',
+      startOffsetMinutes: isMessage ? 0 : num(raw.startOffsetMinutes) ?? 0,
+      rsvpCloseOffsetMinutes: isMessage ? null : num(raw.rsvpCloseOffsetMinutes),
+      capacity: isMessage ? null : num(raw.capacity),
+      notes: isMessage ? '' : raw.notes ?? '',
       enabled: raw.enabled,
     };
   }
@@ -312,12 +359,14 @@ export class ScheduledEventsPageComponent {
     });
   }
 
-  /** Create + post the event immediately (a live test) and surface the outcome inline. */
+  /** Post immediately (a live test — an event type really does create an event) and surface the
+   *  outcome inline. A message has no slug to report. */
   postNow(s: ScheduledEvent): void {
     this.posting.set(s.id);
     this.backoffice.postScheduledEventNow(s.id).subscribe({
       next: (r) => {
-        this.setResult(s.id, r.ok, r.ok ? `Posted ✓ (${r.slug})` : r.error ?? 'Post failed.');
+        const ok = r.slug ? `Posted ✓ (${r.slug})` : 'Posted ✓';
+        this.setResult(s.id, r.ok, r.ok ? ok : r.error ?? 'Post failed.');
         this.posting.set(null);
       },
       error: () => { this.setResult(s.id, false, 'Request failed. Try again.'); this.posting.set(null); },
@@ -365,8 +414,10 @@ export class ScheduledEventsPageComponent {
     switch (code) {
       case 'invalid_day': return 'Pick a valid day.';
       case 'invalid_time': return 'Enter a valid post time.';
-      case 'invalid_type': return 'Pick a valid event type.';
+      case 'invalid_type': return 'Pick a valid type.';
       case 'invalid_title': return 'A title is required (max 200 characters).';
+      case 'message_required': return 'A message is required.';
+      case 'message_too_long': return 'That message is too long (2000 characters max).';
       case 'invalid_channel': return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
       case 'notes_too_long': return 'Notes are too long (1000 characters max).';
       case 'invalid_capacity': return 'Capacity must be between 1 and 10000.';
