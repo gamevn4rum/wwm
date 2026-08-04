@@ -137,4 +137,9 @@ export class BackofficeService {
   addFootage(matchId: number, body: { uploader: string; youtubeLink: string }): Observable<MatchRecord> {
     return this.http.post<MatchRecord>(apiUrl(`/commander/matches/${matchId}/footage`), body);
   }
+
+  /** Hard-delete a match and its footage. */
+  deleteMatch(id: number): Observable<{ deleted: number; footagesRemoved: number }> {
+    return this.http.delete<{ deleted: number; footagesRemoved: number }>(apiUrl(`/commander/matches/${id}`));
+  }
 }

@@ -170,6 +170,35 @@
             </div>
           }
 
+          @if (mode() === 'edit') {
+            <div class="mf-danger">
+              @if (!confirmingDelete()) {
+                <button type="button" class="mf-btn-delete" (click)="confirmingDelete.set(true)">
+                  Delete match
+                </button>
+              } @else {
+                <p class="mf-danger-text">{{ deleteConfirmText }}</p>
+                <div class="mf-danger-actions">
+                  <button
+                    type="button"
+                    class="mf-btn-cancel"
+                    [disabled]="deleting()"
+                    (click)="confirmingDelete.set(false)"
+                  >CANCEL</button>
+                  <button
+                    type="button"
+                    class="mf-btn-delete-confirm"
+                    [disabled]="deleting()"
+                    (click)="confirmDelete()"
+                  >{{ deleting() ? 'DELETING…' : 'DELETE PERMANENTLY' }}</button>
+                </div>
+              }
+              @if (deleteError()) {
+                <span class="mf-error" role="alert">{{ deleteError() }}</span>
+              }
+            </div>
+          }
+
           @if (error()) {
             <p class="mf-error" role="alert">{{ error() }}</p>
           }

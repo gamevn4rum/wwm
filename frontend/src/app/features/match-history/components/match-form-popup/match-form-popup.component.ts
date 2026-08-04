@@ -85,6 +85,11 @@ export class MatchFormPopupComponent {
   readonly footages = signal<FootageEntry[]>([]);
   readonly footageError = signal<string | null>(null);
   readonly addingFootage = signal(false);
+
+  // ── Delete (edit mode) ───────────────────────────────────────────────────
+  readonly confirmingDelete = signal(false);
+  readonly deleting = signal(false);
+  readonly deleteError = signal<string | null>(null);
   /** A footage add persists immediately, so the list needs refreshing even if the user
    *  closes without pressing Save. */
   private changed = false;
@@ -287,6 +292,37 @@ export class MatchFormPopupComponent {
       this.footageError.set(this.describeFootageError(err));
     } finally {
       this.addingFootage.set(false);
+    }
+  }
+
+  get deleteConfirmText(): string {
+    const n = this.footages().length;
+    const clips = n === 0 ? '' : ` and its ${n} clip${n === 1 ? '' : 's'}`;
+    return `Permanently delete this match${clips}? This can’t be undone.`;
+  }
+
+  // ── Delete ───────────────────────────────────────────────────────────────
+  async confirmDelete(): Promise<void> {
+    const editing = this.editing();
+    if (!editing) return;
+    this.deleting.set(true);
+    this.deleteError.set(null);
+    try {
+      await firstValueFrom(this.backoffice.deleteMatch(editing.id));
+      this.matchData.reload();
+      this.popup.close();
+    } catch (err: unknown) {
+      const status = (err as { status?: number })?.status;
+      this.deleteError.set(
+        status === 404
+          ? 'That match no longer exists — it may already have been removed.'
+          : status === 403
+            ? 'You do not have permission to delete matches.'
+            : 'Delete failed. Please try again.',
+      );
+      this.confirmingDelete.set(false);
+    } finally {
+      this.deleting.set(false);
     }
   }
 
