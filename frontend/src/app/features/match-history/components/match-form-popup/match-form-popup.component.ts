@@ -12,6 +12,7 @@ import { DiscordAuthService } from '../../../../core/services/discord-auth.servi
 import { MatchFormPopupService } from '../../../../core/services/match-form-popup.service';
 import { MatchHistoryDataService } from '../../match-history-data.service';
 import { FootageEntry, MatchStatus, MatchType } from '../../match-record.model';
+import { extractYouTubeVideoId } from '../../../../core/utils/youtube.utils';
 
 const RESULT_OF_STATUS: Record<MatchStatus, MatchResult | ''> = {
   '✅': 'win',
@@ -91,6 +92,22 @@ export class MatchFormPopupComponent {
   readonly footageForm = new FormGroup({
     uploader: new FormControl('', { validators: Validators.required, nonNullable: true }),
     youtubeLink: new FormControl('', { validators: Validators.required, nonNullable: true }),
+  });
+
+  /** Live value of the link field, for the duplicate check as you type. */
+  private readonly linkValue = toSignal(this.footageForm.controls.youtubeLink.valueChanges, {
+    initialValue: '',
+  });
+
+  /**
+   * The already-attached clip matching what's typed, or null. Same video-id compare the
+   * server dedupes on, run client-side so a duplicate is flagged (and the Add button
+   * disabled) before a request goes out — youtube.com/watch?v=X and youtu.be/X match.
+   */
+  readonly duplicateFootage = computed<FootageEntry | null>(() => {
+    const id = extractYouTubeVideoId(this.linkValue() ?? '');
+    if (!id) return null;
+    return this.footages().find((f) => f.videoId === id) ?? null;
   });
 
   readonly types: MatchType[] = ['league', 'ranked', 'scrim'];
@@ -251,7 +268,7 @@ export class MatchFormPopupComponent {
   // ── Footage ────────────────────────────────────────────────────────────────
   async addFootage(): Promise<void> {
     const editing = this.editing();
-    if (!editing || this.footageForm.invalid) {
+    if (!editing || this.footageForm.invalid || this.duplicateFootage()) {
       this.footageForm.markAllAsTouched();
       return;
     }

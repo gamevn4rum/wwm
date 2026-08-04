@@ -104,8 +104,12 @@
               @if (footages().length) {
                 <ul class="mf-footage-list">
                   @for (f of footages(); track f.uploader + f.videoId) {
-                    <li class="mf-footage-item">
+                    <li
+                      class="mf-footage-item"
+                      [class.is-duplicate]="duplicateFootage()?.videoId === f.videoId"
+                    >
                       <span class="mf-footage-uploader">{{ f.uploader }}</span>
+                      <span class="mf-footage-sep">|</span>
                       <a
                         class="mf-footage-link"
                         [href]="'https://youtu.be/' + f.videoId"
@@ -135,17 +139,24 @@
                     placeholder="YouTube link"
                     autocomplete="off"
                     maxlength="300"
+                    [class.is-duplicate]="duplicateFootage()"
                     [formControl]="footageForm.controls.youtubeLink"
                   />
                   <button
                     type="button"
                     class="mf-footage-btn"
-                    [disabled]="addingFootage()"
+                    [disabled]="addingFootage() || !!duplicateFootage()"
                     (click)="addFootage()"
                   >{{ addingFootage() ? '…' : 'Add' }}</button>
                 </div>
               } @else {
                 <p class="mf-footage-empty">No prior uploaders to attribute a clip to.</p>
+              }
+
+              @if (duplicateFootage(); as dup) {
+                <span class="mf-footage-flag" role="alert">
+                  Already on this match — {{ dup.uploader }} added this clip.
+                </span>
               }
 
               @if (footageError()) {
