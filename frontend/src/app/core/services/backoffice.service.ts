@@ -83,7 +83,7 @@ export interface ScheduleCreate {
 export type SchedulePatch = Partial<ScheduleCreate>;
 
 /** What a scheduled template posts: plain text, or an RSVP event of the given kind. */
-export type ScheduledEventType = 'Message' | 'GvG' | 'GvE' | 'Offline';
+export type ScheduledEventType = 'Message' | 'GvG' | 'GvE' | 'Event';
 
 /** A recurring template — a scheduled `/gvg`, or a plain message. Times are Vietnam local
  *  (UTC+7); dayOfWeek is Sunday=0 … Saturday=6, or -1 for every day. Offsets are minutes from

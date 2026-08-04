@@ -14,7 +14,7 @@ const EVERYDAY = -1;
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 
 /** Message first: it is the simplest thing to schedule, and the one this panel started as. */
-const EVENT_TYPES: readonly ScheduledEventType[] = ['Message', 'GvG', 'GvE', 'Offline'];
+const EVENT_TYPES: readonly ScheduledEventType[] = ['Message', 'GvG', 'GvE', 'Event'];
 const MESSAGE = 'Message';
 
 @Component({
