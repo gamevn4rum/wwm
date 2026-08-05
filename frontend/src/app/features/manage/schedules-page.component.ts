@@ -19,9 +19,8 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
   template: `
     <section class="backoffice">
       <p class="hint">
-        The bot posts these to a Discord channel on a weekly schedule. Times are
-        <strong>Vietnam time (UTC+7)</strong>. Set <strong>Trigger</strong> to
-        <strong>On demand</strong> for a message the timer never sends on its own — only the
+        The bot posts these to a Discord channel on a weekly schedule. Set <strong>Trigger</strong>
+        to <strong>On demand</strong> for a message the timer never sends on its own — only the
         <strong>Send now</strong> button posts it. To get a channel id: Discord → User Settings →
         Advanced → Developer Mode on, then right-click the channel → Copy Channel ID.
       </p>
@@ -42,7 +41,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
                 @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
               </select>
             </label>
-            <label>Time (VN)
+            <label>Time
               <input type="time" formControlName="time" />
             </label>
           }
@@ -75,7 +74,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
       } @else {
         <table class="grid">
           <thead>
-            <tr><th>Day</th><th>Time</th><th>Next run (VN)</th><th>Channel</th><th>Message</th><th>State</th><th></th></tr>
+            <tr><th>Day</th><th>Time</th><th>Next run</th><th>Channel</th><th>Message</th><th>State</th><th></th></tr>
           </thead>
           <tbody>
             @for (s of schedules(); track s.id) {

@@ -85,23 +85,24 @@ export type SchedulePatch = Partial<ScheduleCreate>;
 /** The kind of RSVP event a scheduled template posts. */
 export type ScheduledEventType = 'GvG' | 'GvE' | 'Event';
 
-/** A recurring RSVP-event template — a scheduled `/gvg`. Times are Vietnam local (UTC+7);
- *  dayOfWeek is Sunday=0 … Saturday=6, -1 for every day, or -2 for on demand (posted only by
- *  the "Post now" button, never the timer). Offsets are minutes from the post moment: the event
- *  starts `startOffsetMinutes` later; RSVPs close `rsvpCloseOffsetMinutes` later (null = at
- *  start). */
+/** A recurring RSVP-event template — a scheduled `/gvg`. Every time is "HH:mm" Vietnam local
+ *  (UTC+7); dayOfWeek is Sunday=0 … Saturday=6, -1 for every day, or -2 for on demand (posted only
+ *  by the "Post now" button, never the timer). `startTime` is resolved to the first such time at or
+ *  after the post — which is what lets an on-demand template have one at all — and `closeTime` to
+ *  the occurrence at or before the start (null = at start). */
 export interface ScheduledEvent {
   id: number;
   dayOfWeek: number;
-  /** "HH:mm", Vietnam time — when the form is posted. */
+  /** When the form is posted. Meaningless on an on-demand template. */
   time: string;
   eventType: ScheduledEventType;
   title: string;
   channelId: string;
   notes: string;
   capacity: number | null;
-  startOffsetMinutes: number;
-  rsvpCloseOffsetMinutes: number | null;
+  /** Null only on a template last saved before clock times existed. */
+  startTime: string | null;
+  closeTime: string | null;
   enabled: boolean;
   lastFiredUtc: string | null;
 }
@@ -114,8 +115,9 @@ export interface ScheduledEventCreate {
   channelId: string;
   notes: string;
   capacity: number | null;
-  startOffsetMinutes: number;
-  rsvpCloseOffsetMinutes: number | null;
+  startTime: string;
+  /** Empty or null closes RSVPs at the start. */
+  closeTime: string | null;
   enabled: boolean;
 }
 
