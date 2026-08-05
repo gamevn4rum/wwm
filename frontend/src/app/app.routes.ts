@@ -70,17 +70,14 @@ export const routes: Routes = [
           import('./features/manage/registrations-page.component').then((m) => m.RegistrationsPageComponent),
       },
       {
-        path: 'manage/schedules',
+        path: 'manage/bot-schedule',
         canActivate: [adminGuard],
         loadComponent: () =>
-          import('./features/manage/schedules-page.component').then((m) => m.SchedulesPageComponent),
+          import('./features/manage/bot-schedule-page.component').then((m) => m.BotSchedulePageComponent),
       },
-      {
-        path: 'manage/scheduled-events',
-        canActivate: [adminGuard],
-        loadComponent: () =>
-          import('./features/manage/scheduled-events-page.component').then((m) => m.ScheduledEventsPageComponent),
-      },
+      // Old split routes now live as collapsible panels under one page.
+      { path: 'manage/schedules', redirectTo: 'manage/bot-schedule', pathMatch: 'full' },
+      { path: 'manage/scheduled-events', redirectTo: 'manage/bot-schedule', pathMatch: 'full' },
       { path: '**', redirectTo: '' },
     ],
   },

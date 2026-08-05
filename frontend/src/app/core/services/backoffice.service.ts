@@ -82,25 +82,21 @@ export interface ScheduleCreate {
 
 export type SchedulePatch = Partial<ScheduleCreate>;
 
-/** What a scheduled template posts: plain text, or an RSVP event of the given kind. */
-export type ScheduledEventType = 'Message' | 'GvG' | 'GvE' | 'Event';
+/** The kind of RSVP event a scheduled template posts. */
+export type ScheduledEventType = 'GvG' | 'GvE' | 'Event';
 
-/** A recurring template — a scheduled `/gvg`, or a plain message. Times are Vietnam local
- *  (UTC+7); dayOfWeek is Sunday=0 … Saturday=6, or -1 for every day. Offsets are minutes from
- *  the post moment: the event starts `startOffsetMinutes` later; RSVPs close
- *  `rsvpCloseOffsetMinutes` later (null = at start).
- *
- *  A `Message` template uses only `message` — title, offsets and capacity are ignored, and no
- *  event is created. The other types ignore `message`. */
+/** A recurring RSVP-event template — a scheduled `/gvg`. Times are Vietnam local (UTC+7);
+ *  dayOfWeek is Sunday=0 … Saturday=6, -1 for every day, or -2 for on demand (posted only by
+ *  the "Post now" button, never the timer). Offsets are minutes from the post moment: the event
+ *  starts `startOffsetMinutes` later; RSVPs close `rsvpCloseOffsetMinutes` later (null = at
+ *  start). */
 export interface ScheduledEvent {
   id: number;
   dayOfWeek: number;
-  /** "HH:mm", Vietnam time — when the form (or the message) is posted. */
+  /** "HH:mm", Vietnam time — when the form is posted. */
   time: string;
   eventType: ScheduledEventType;
   title: string;
-  /** The text a `Message` template posts. Empty for the event types. */
-  message: string;
   channelId: string;
   notes: string;
   capacity: number | null;
@@ -115,7 +111,6 @@ export interface ScheduledEventCreate {
   time: string;
   eventType: ScheduledEventType;
   title: string;
-  message: string;
   channelId: string;
   notes: string;
   capacity: number | null;

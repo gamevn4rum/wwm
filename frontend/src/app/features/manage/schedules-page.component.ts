@@ -9,6 +9,7 @@ import {
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const EVERYDAY = -1;
+const ON_DEMAND = -2; // never timer-fired; posted only by the "Send now" button
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 
 @Component({
@@ -17,11 +18,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
   imports: [ReactiveFormsModule],
   template: `
     <section class="backoffice">
-      <h1>Scheduled messages</h1>
       <p class="hint">
         The bot posts these to a Discord channel on a weekly schedule. Times are
-        <strong>Vietnam time (UTC+7)</strong>. To get a channel id: Discord → User Settings →
-        Advanced → Developer Mode on, then right-click the channel → Copy Channel ID.
+        <strong>Vietnam time (UTC+7)</strong>. Pick <strong>On demand</strong> for a message the
+        timer never sends on its own — only the <strong>Send now</strong> button posts it. To get a
+        channel id: Discord → User Settings → Advanced → Developer Mode on, then right-click the
+        channel → Copy Channel ID.
       </p>
 
       <!-- Add / edit form -->
@@ -108,8 +110,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
     </section>
   `,
   styles: [`
-    .backoffice { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
-    h1 { margin-bottom: .25rem; }
+    .backoffice { padding: .25rem 0 0; }
     .hint { opacity: .75; margin-bottom: 1rem; line-height: 1.5; }
     .sched-form { display: flex; flex-direction: column; gap: .6rem; padding: 1rem;
       border: 1px solid rgba(128,128,128,.3); border-radius: 8px; margin-bottom: 1.5rem; }
@@ -148,8 +149,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 export class SchedulesPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
-  // "Everyday" first, then Sunday…Saturday.
-  readonly days = [{ label: 'Everyday', value: EVERYDAY }, ...DAYS.map((label, value) => ({ label, value }))];
+  // "Everyday" and "On demand" first, then Sunday…Saturday.
+  readonly days = [
+    { label: 'Everyday', value: EVERYDAY },
+    { label: 'On demand', value: ON_DEMAND },
+    ...DAYS.map((label, value) => ({ label, value })),
+  ];
 
   readonly schedules = signal<ScheduledMessage[]>([]);
   readonly loading = signal(true);
@@ -179,7 +184,9 @@ export class SchedulesPageComponent {
   }
 
   dayName(d: number): string {
-    return d === EVERYDAY ? 'Everyday' : DAYS[d] ?? String(d);
+    if (d === EVERYDAY) return 'Everyday';
+    if (d === ON_DEMAND) return 'On demand';
+    return DAYS[d] ?? String(d);
   }
 
   startEdit(s: ScheduledMessage): void {
@@ -260,6 +267,7 @@ export class SchedulesPageComponent {
   /** The next time this schedule will fire, as a short VN-local label ("Today 20:00",
    *  "Tomorrow 20:00", "Mon 20:00"). Fires at the next 15-min poll after this time. */
   nextRun(s: ScheduledMessage): string {
+    if (s.dayOfWeek === ON_DEMAND) return 'on demand';
     const [hh, mm] = s.time.split(':').map(Number);
     const nowVn = SchedulesPageComponent.vnNow();
     const at = (dayOffset: number): Date => {
