@@ -1,0 +1,1 @@
+import{F as s,K as c,M as p,n as t,s as o,t as n}from"./chunk-A5EKHMRK.js";function b(e){return n([e.authResolved$,e.currentUser$]).pipe(o(([r,i])=>r&&i?.isAuthorized===!0),s())}function h(e,r,i){return b(e).pipe(p(a=>a?r():t(i)),c(1))}export{b as a,h as b};
