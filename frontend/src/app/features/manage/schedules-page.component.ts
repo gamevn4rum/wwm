@@ -20,23 +20,32 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
     <section class="backoffice">
       <p class="hint">
         The bot posts these to a Discord channel on a weekly schedule. Times are
-        <strong>Vietnam time (UTC+7)</strong>. Pick <strong>On demand</strong> for a message the
-        timer never sends on its own — only the <strong>Send now</strong> button posts it. To get a
-        channel id: Discord → User Settings → Advanced → Developer Mode on, then right-click the
-        channel → Copy Channel ID.
+        <strong>Vietnam time (UTC+7)</strong>. Set <strong>Trigger</strong> to
+        <strong>On demand</strong> for a message the timer never sends on its own — only the
+        <strong>Send now</strong> button posts it. To get a channel id: Discord → User Settings →
+        Advanced → Developer Mode on, then right-click the channel → Copy Channel ID.
       </p>
 
       <!-- Add / edit form -->
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
         <div class="row">
-          <label>Day
-            <select formControlName="dayOfWeek">
-              @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+          <label>Trigger
+            <select formControlName="trigger">
+              <option value="schedule">On a schedule</option>
+              <option value="demand">On demand</option>
             </select>
           </label>
-          <label>Time (VN)
-            <input type="time" formControlName="time" />
-          </label>
+          <!-- An on-demand message has no day and no time: the Send now button is its clock. -->
+          @if (scheduled) {
+            <label>Day
+              <select formControlName="dayOfWeek">
+                @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+              </select>
+            </label>
+            <label>Time (VN)
+              <input type="time" formControlName="time" />
+            </label>
+          }
           <label class="grow">Channel ID
             <input type="text" formControlName="channelId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
           </label>
@@ -72,7 +81,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
             @for (s of schedules(); track s.id) {
               <tr [class.disabled]="!s.enabled">
                 <td>{{ dayName(s.dayOfWeek) }}</td>
-                <td class="mono">{{ s.time }}</td>
+                <td class="mono">{{ s.dayOfWeek === onDemand ? '—' : s.time }}</td>
                 <td class="timing">
                   <div class="next">{{ s.enabled ? nextRun(s) : '—' }}</div>
                   <div class="last">last: {{ lastSent(s) }}</div>
@@ -149,12 +158,15 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 export class SchedulesPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
-  // "Everyday" and "On demand" first, then Sunday…Saturday.
+  // "Everyday" first, then Sunday…Saturday. "On demand" is not a day — it's the Trigger select,
+  // which is what hides this whole field.
   readonly days = [
     { label: 'Everyday', value: EVERYDAY },
-    { label: 'On demand', value: ON_DEMAND },
     ...DAYS.map((label, value) => ({ label, value })),
   ];
+
+  /** Exposed for the table, which shows no time against an on-demand row. */
+  readonly onDemand = ON_DEMAND;
 
   readonly schedules = signal<ScheduledMessage[]>([]);
   readonly loading = signal(true);
@@ -169,12 +181,20 @@ export class SchedulesPageComponent {
   readonly formError = signal<string | null>(null);
 
   readonly form = new FormGroup({
+    trigger: new FormControl<'schedule' | 'demand'>('schedule', { nonNullable: true }),
     dayOfWeek: new FormControl(1, { nonNullable: true }),
-    time: new FormControl('20:00', { validators: Validators.required, nonNullable: true }),
+    // Not required: it is hidden for an on-demand message, and a hidden control that blocks submit
+    // is a form with no visible reason not to save. save() reports an empty one when it matters.
+    time: new FormControl('20:00', { nonNullable: true }),
     channelId: new FormControl('', { validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)], nonNullable: true }),
     message: new FormControl('', { validators: Validators.required, nonNullable: true }),
     enabled: new FormControl(true, { nonNullable: true }),
   });
+
+  /** Whether the timer sends this one — the Day and Time fields only exist when it does. */
+  get scheduled(): boolean {
+    return this.form.controls.trigger.value === 'schedule';
+  }
 
   ngOnInit(): void {
     this.backoffice.getSchedules().subscribe({
@@ -192,8 +212,11 @@ export class SchedulesPageComponent {
   startEdit(s: ScheduledMessage): void {
     this.editingId.set(s.id);
     this.formError.set(null);
+    const onDemand = s.dayOfWeek === ON_DEMAND;
     this.form.setValue({
-      dayOfWeek: s.dayOfWeek, time: s.time, channelId: s.channelId, message: s.message, enabled: s.enabled,
+      trigger: onDemand ? 'demand' : 'schedule',
+      dayOfWeek: onDemand ? 1 : s.dayOfWeek,
+      time: s.time, channelId: s.channelId, message: s.message, enabled: s.enabled,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -201,14 +224,31 @@ export class SchedulesPageComponent {
   resetForm(): void {
     this.editingId.set(null);
     this.formError.set(null);
-    this.form.reset({ dayOfWeek: 1, time: '20:00', channelId: '', message: '', enabled: true });
+    this.form.reset({
+      trigger: 'schedule', dayOfWeek: 1, time: '20:00', channelId: '', message: '', enabled: true,
+    });
   }
 
   save(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    const raw = this.form.getRawValue();
+    const onDemand = raw.trigger === 'demand';
+    if (!onDemand && raw.time === '') {
+      this.formError.set('Enter a time.');
+      return;
+    }
+
     this.saving.set(true);
     this.formError.set(null);
-    const body = this.form.getRawValue() as ScheduleCreate;
+    // On demand is stored as a day the timer skips, so the API still sees one field. Its time is
+    // never read, but the column is not nullable.
+    const body: ScheduleCreate = {
+      dayOfWeek: onDemand ? ON_DEMAND : Number(raw.dayOfWeek),
+      time: raw.time === '' ? '00:00' : raw.time,
+      channelId: raw.channelId,
+      message: raw.message,
+      enabled: raw.enabled,
+    };
     const id = this.editingId();
     const req = id === null ? this.backoffice.createSchedule(body) : this.backoffice.patchSchedule(id, body);
     req.subscribe({

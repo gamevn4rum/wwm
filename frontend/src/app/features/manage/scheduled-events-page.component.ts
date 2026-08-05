@@ -12,6 +12,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const EVERYDAY = -1;
 const ON_DEMAND = -2; // never timer-fired; posted only by the "Post now" button
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
+const MINUTES_PER_DAY = 24 * 60;
 const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
 
 @Component({
@@ -22,11 +23,12 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
     <section class="backoffice">
       <p class="hint">
         A recurring <strong>/gvg</strong>: the bot posts an RSVP event on this weekly schedule,
-        with the same buttons as the slash command. Times are <strong>Vietnam time (UTC+7)</strong>.
-        The event's start and RSVP-close are set as minutes <em>after</em> the form is posted —
-        e.g. post Saturday 10:00, start 480 min later (18:00), RSVPs close at start. Pick
-        <strong>On demand</strong> for an event the timer never posts on its own — only the
-        <strong>Post now</strong> button posts it.
+        with the same buttons as the slash command. Times are <strong>Vietnam time (UTC+7)</strong>
+        — e.g. post Saturday 10:00, event starts 18:00, RSVPs close at start. A start time earlier
+        than the post time means the following morning; the event has to start within 24 h of its
+        post. Set <strong>Trigger</strong> to <strong>On demand</strong> for an event the timer
+        never posts on its own — only the <strong>Post now</strong> button posts it, so its start
+        is counted in minutes from whenever you press it.
       </p>
 
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
@@ -36,14 +38,23 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
               @for (t of eventTypes; track t) { <option [value]="t">{{ t }}</option> }
             </select>
           </label>
-          <label>Day
-            <select formControlName="dayOfWeek">
-              @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+          <label>Trigger
+            <select formControlName="trigger">
+              <option value="schedule">On a schedule</option>
+              <option value="demand">On demand</option>
             </select>
           </label>
-          <label>Post time (VN)
-            <input type="time" formControlName="time" />
-          </label>
+          <!-- An on-demand event has no day and no post time: the Post now button is its clock. -->
+          @if (scheduled) {
+            <label>Day
+              <select formControlName="dayOfWeek">
+                @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+              </select>
+            </label>
+            <label>Post time (VN)
+              <input type="time" formControlName="time" />
+            </label>
+          }
           <label class="grow">Channel ID
             <input type="text" formControlName="channelId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
           </label>
@@ -52,12 +63,23 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
           <input type="text" formControlName="title" maxlength="200" placeholder="Heading of the event post…" />
         </label>
         <div class="row">
-          <label>Starts (min after post)
-            <input type="number" formControlName="startOffsetMinutes" min="0" step="15" />
-          </label>
-          <label>RSVP closes (min after post)
-            <input type="number" formControlName="rsvpCloseOffsetMinutes" min="0" step="15" placeholder="blank = at start" />
-          </label>
+          <!-- Clock times when the post time is known; a duration when it isn't (on demand). -->
+          @if (scheduled) {
+            <label>Starts at (VN)
+              <input type="time" formControlName="startTime" />
+            </label>
+            <label>RSVP closes at (VN)
+              <input type="time" formControlName="closeTime" />
+              <small class="sub">blank = at start</small>
+            </label>
+          } @else {
+            <label>Starts (min after posting)
+              <input type="number" formControlName="startOffsetMinutes" min="0" step="15" />
+            </label>
+            <label>RSVP closes (min after posting)
+              <input type="number" formControlName="closeOffsetMinutes" min="0" step="15" placeholder="blank = at start" />
+            </label>
+          }
           <label>Capacity
             <input type="number" formControlName="capacity" min="1" placeholder="blank = unlimited" />
           </label>
@@ -95,7 +117,7 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
               <tr [class.disabled]="!s.enabled">
                 <td><span class="type">{{ s.eventType }}</span></td>
                 <td class="timing">
-                  <div>{{ dayName(s.dayOfWeek) }} {{ s.time }}</div>
+                  <div>{{ whenLabel(s) }}</div>
                   <div class="next">next: {{ s.enabled ? nextRun(s) : '—' }}</div>
                   <div class="last">last: {{ lastFired(s) }}</div>
                 </td>
@@ -146,6 +168,7 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
       padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; font: inherit; }
     .sched-form input[type=number] { width: 11rem; }
     .sched-form textarea { resize: vertical; }
+    .sched-form .sub { font-weight: 400; font-size: .72rem; opacity: .6; }
     .row.bottom { align-items: center; }
     .chk { flex-direction: row; align-items: center; gap: .4rem; font-weight: 600; }
     .spacer { flex: 1; }
@@ -180,9 +203,10 @@ export class ScheduledEventsPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
   readonly eventTypes = EVENT_TYPES;
+
+  // "On demand" is not a day — it's the Trigger select, which is what hides this whole field.
   readonly days = [
     { label: 'Everyday', value: EVERYDAY },
-    { label: 'On demand', value: ON_DEMAND },
     ...DAYS.map((label, value) => ({ label, value })),
   ];
 
@@ -198,18 +222,36 @@ export class ScheduledEventsPageComponent {
   readonly saving = signal(false);
   readonly formError = signal<string | null>(null);
 
+  /**
+   * The event's start and RSVP-close are stored as offsets from the post (a weekly template has
+   * no absolute dates), but nobody wants to do that arithmetic to say "it starts at 18:00" — so
+   * the form takes clock times and converts. The offset fields survive for on-demand events,
+   * where there is no post time to count from until the button is pressed.
+   */
   readonly form = new FormGroup({
     eventType: new FormControl<ScheduledEventType>('GvG', { nonNullable: true }),
+    trigger: new FormControl<'schedule' | 'demand'>('schedule', { nonNullable: true }),
     dayOfWeek: new FormControl(6, { nonNullable: true }),
-    time: new FormControl('20:00', { validators: Validators.required, nonNullable: true }),
+    // Also not required, for the same reason as startTime below — normalize() reports an empty one
+    // when it matters, and substitutes midnight when it doesn't (an on-demand post ignores it).
+    time: new FormControl('10:00', { nonNullable: true }),
     channelId: new FormControl('', { validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)], nonNullable: true }),
     title: new FormControl('', { validators: Validators.required, nonNullable: true }),
+    // Not `Validators.required`: it is hidden for on-demand events, and a hidden control that
+    // blocks submit is a form with no visible reason not to save.
+    startTime: new FormControl('18:00', { nonNullable: true }),
+    closeTime: new FormControl('', { nonNullable: true }),
     startOffsetMinutes: new FormControl<number>(480, { validators: [Validators.required, Validators.min(0)], nonNullable: true }),
-    rsvpCloseOffsetMinutes: new FormControl<number | null>(null),
+    closeOffsetMinutes: new FormControl<number | null>(null),
     capacity: new FormControl<number | null>(null),
     notes: new FormControl('', { nonNullable: true }),
     enabled: new FormControl(true, { nonNullable: true }),
   });
+
+  /** Whether the timer posts this one — which is also what decides clock times vs. durations. */
+  get scheduled(): boolean {
+    return this.form.controls.trigger.value === 'schedule';
+  }
 
   ngOnInit(): void {
     this.backoffice.getScheduledEvents().subscribe({
@@ -224,10 +266,20 @@ export class ScheduledEventsPageComponent {
     return DAYS[d] ?? String(d);
   }
 
-  /** Compact "starts +8h · closes at start · cap 20" line under the title. */
+  /** The "When (VN)" cell: an on-demand row has no post time worth showing. */
+  whenLabel(s: ScheduledEvent): string {
+    return s.dayOfWeek === ON_DEMAND ? 'On demand' : `${this.dayName(s.dayOfWeek)} ${s.time}`;
+  }
+
+  /**
+   * Compact line under the title — "starts 18:00 · closes at start · cap 20" for a scheduled
+   * event, and durations ("starts +8h") for an on-demand one, matching how each was entered.
+   */
   detail(s: ScheduledEvent): string {
-    const parts = [`starts ${this.offset(s.startOffsetMinutes)}`];
-    parts.push(s.rsvpCloseOffsetMinutes === null ? 'closes at start' : `closes ${this.offset(s.rsvpCloseOffsetMinutes)}`);
+    const onDemand = s.dayOfWeek === ON_DEMAND;
+    const when = (min: number) => (onDemand ? this.offset(min) : this.clockAfter(s.time, min));
+    const parts = [`starts ${when(s.startOffsetMinutes)}`];
+    parts.push(s.rsvpCloseOffsetMinutes === null ? 'closes at start' : `closes ${when(s.rsvpCloseOffsetMinutes)}`);
     if (s.capacity !== null) parts.push(`cap ${s.capacity}`);
     return parts.join(' · ');
   }
@@ -239,32 +291,81 @@ export class ScheduledEventsPageComponent {
     return m === 0 ? `+${h}h` : `+${h}h${m}m`;
   }
 
+  // ---------------------------------------------------- clock ⇄ offset
+
+  private static toMinutes(hhmm: string): number {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  private static toClock(min: number): string {
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${p(Math.floor(min / 60) % 24)}:${p(min % 60)}`;
+  }
+
+  /** Where `offset` minutes past `base` lands on the clock, flagging a roll past midnight. */
+  private clockAfter(base: string, offset: number): string {
+    const total = ScheduledEventsPageComponent.toMinutes(base) + offset;
+    const days = Math.floor(total / MINUTES_PER_DAY);
+    return ScheduledEventsPageComponent.toClock(total % MINUTES_PER_DAY) + (days > 0 ? ` (+${days}d)` : '');
+  }
+
+  /** Minutes from `from` to `to` on the clock, the following day if `to` is the earlier of the
+   *  two — so a 20:00 post with a 02:00 start is +6 h, not a negative offset. */
+  private static minutesBetween(from: string, to: string): number {
+    const diff = ScheduledEventsPageComponent.toMinutes(to) - ScheduledEventsPageComponent.toMinutes(from);
+    return ((diff % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+  }
+
   startEdit(s: ScheduledEvent): void {
     this.editingId.set(s.id);
-    this.formError.set(null);
+    const onDemand = s.dayOfWeek === ON_DEMAND;
     this.form.setValue({
-      eventType: s.eventType, dayOfWeek: s.dayOfWeek, time: s.time, channelId: s.channelId,
-      title: s.title, startOffsetMinutes: s.startOffsetMinutes,
-      rsvpCloseOffsetMinutes: s.rsvpCloseOffsetMinutes,
+      eventType: s.eventType,
+      trigger: onDemand ? 'demand' : 'schedule',
+      dayOfWeek: onDemand ? 6 : s.dayOfWeek,
+      time: s.time,
+      channelId: s.channelId,
+      title: s.title,
+      startTime: this.clockOf(s.time, s.startOffsetMinutes),
+      closeTime: s.rsvpCloseOffsetMinutes === null ? '' : this.clockOf(s.time, s.rsvpCloseOffsetMinutes),
+      startOffsetMinutes: s.startOffsetMinutes,
+      closeOffsetMinutes: s.rsvpCloseOffsetMinutes,
       capacity: s.capacity, notes: s.notes, enabled: s.enabled,
     });
+
+    // Clock times can only express the 24 h after the post, so an older template with a longer
+    // offset can't be round-tripped through them. Say so rather than quietly shortening it.
+    this.formError.set(
+      !onDemand && Math.max(s.startOffsetMinutes, s.rsvpCloseOffsetMinutes ?? 0) >= MINUTES_PER_DAY
+        ? 'This template starts more than 24 h after its post, which the clock times below can’t ' +
+          'express — saving will shorten it to the times shown.'
+        : null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** The bare clock time an offset lands on, without the "(+1d)" marker the table shows. */
+  private clockOf(base: string, offset: number): string {
+    return ScheduledEventsPageComponent.toClock(
+      (ScheduledEventsPageComponent.toMinutes(base) + offset) % MINUTES_PER_DAY);
   }
 
   resetForm(): void {
     this.editingId.set(null);
     this.formError.set(null);
     this.form.reset({
-      eventType: 'GvG', dayOfWeek: 6, time: '20:00', channelId: '', title: '',
-      startOffsetMinutes: 480, rsvpCloseOffsetMinutes: null, capacity: null, notes: '', enabled: true,
+      eventType: 'GvG', trigger: 'schedule', dayOfWeek: 6, time: '10:00', channelId: '', title: '',
+      startTime: '18:00', closeTime: '', startOffsetMinutes: 480, closeOffsetMinutes: null,
+      capacity: null, notes: '', enabled: true,
     });
   }
 
   save(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    const body = this.normalize(this.form.getRawValue());
+    if (body === null) return; // normalize() has put the reason in formError
     this.saving.set(true);
     this.formError.set(null);
-    const body = this.normalize(this.form.getRawValue());
     const id = this.editingId();
     const req = id === null ? this.backoffice.createScheduledEvent(body) : this.backoffice.patchScheduledEvent(id, body);
     req.subscribe({
@@ -279,22 +380,54 @@ export class ScheduledEventsPageComponent {
     });
   }
 
-  /** Coerce the number inputs: empty string / NaN → null for the optional ones. */
+  /**
+   * Form values → the API's shape: clock times become offsets from the post time, and the number
+   * inputs are coerced (empty string / NaN → null for the optional ones).
+   *
+   * Returns null and fills `formError` when the two times can't be reconciled — RSVPs closing
+   * after the start is the one combination clock entry makes easy to write by accident, since
+   * "closes 09:00" on a 10:00 post reads as tomorrow morning.
+   */
   private normalize(raw: {
-    eventType: ScheduledEventType; dayOfWeek: number; time: string; channelId: string;
-    title: string; startOffsetMinutes: number; rsvpCloseOffsetMinutes: number | null;
+    eventType: ScheduledEventType; trigger: 'schedule' | 'demand'; dayOfWeek: number; time: string;
+    channelId: string; title: string; startTime: string; closeTime: string;
+    startOffsetMinutes: number; closeOffsetMinutes: number | null;
     capacity: number | null; notes: string; enabled: boolean;
-  }): ScheduledEventCreate {
+  }): ScheduledEventCreate | null {
     const num = (v: unknown): number | null =>
       v === null || v === undefined || v === '' || Number.isNaN(Number(v)) ? null : Number(v);
+
+    const onDemand = raw.trigger === 'demand';
+    if (!onDemand && (raw.time === '' || raw.startTime === '')) {
+      this.formError.set('Enter both the post time and the time the event starts.');
+      return null;
+    }
+
+    // The timer never reads an on-demand template's post time, but the column is not nullable.
+    const postTime = raw.time === '' ? '00:00' : raw.time;
+    const startOffset = onDemand
+      ? num(raw.startOffsetMinutes) ?? 0
+      : ScheduledEventsPageComponent.minutesBetween(postTime, raw.startTime);
+    const closeOffset = onDemand
+      ? num(raw.closeOffsetMinutes)
+      : raw.closeTime === ''
+        ? null
+        : ScheduledEventsPageComponent.minutesBetween(postTime, raw.closeTime);
+
+    if (closeOffset !== null && closeOffset > startOffset) {
+      this.formError.set('RSVPs would close after the event starts. Check the two times.');
+      return null;
+    }
+
     return {
       eventType: raw.eventType,
-      dayOfWeek: Number(raw.dayOfWeek),
-      time: raw.time,
+      // On demand is stored as a day the timer skips, so it stays one field to the API.
+      dayOfWeek: onDemand ? ON_DEMAND : Number(raw.dayOfWeek),
+      time: postTime,
       channelId: raw.channelId,
       title: raw.title,
-      startOffsetMinutes: num(raw.startOffsetMinutes) ?? 0,
-      rsvpCloseOffsetMinutes: num(raw.rsvpCloseOffsetMinutes),
+      startOffsetMinutes: startOffset,
+      rsvpCloseOffsetMinutes: closeOffset,
       capacity: num(raw.capacity),
       notes: raw.notes ?? '',
       enabled: raw.enabled,
