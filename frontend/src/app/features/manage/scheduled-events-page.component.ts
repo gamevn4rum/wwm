@@ -5,7 +5,15 @@ import {
   ScheduledEvent,
   ScheduledEventCreate,
   ScheduledEventType,
+  USE_TYPE_DEFAULT_ROLE,
 } from '../../core/services/backoffice.service';
+
+/**
+ * Which role a template's post calls out. Stored as one nullable column, but the three states it
+ * holds — the type's own role, nobody, this specific one — are a choice, not a text field: a blank
+ * box cannot distinguish "whatever the type pings" from "ping nobody".
+ */
+type RoleMode = 'default' | 'none' | 'custom';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -72,6 +80,28 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
           <label>Capacity
             <input type="number" formControlName="capacity" min="1" placeholder="blank = unlimited" />
           </label>
+        </div>
+        <div class="row">
+          <!-- Three states, because "use the type's role" and "ping nobody" are different answers
+               and a blank text box can only mean one of them. -->
+          <label>Mention role
+            <select formControlName="roleMode">
+              <option value="default">Default for this type</option>
+              <option value="none">Ping nobody</option>
+              <option value="custom">A specific role…</option>
+            </select>
+          </label>
+          @if (customRole) {
+            <label class="grow">Role ID
+              <input type="text" formControlName="mentionRoleId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
+            </label>
+          } @else {
+            <p class="side-note">
+              {{ roleMode === 'default'
+                ? 'Whatever this event type pings — set below, under Event ping roles.'
+                : 'This template posts with no mention, whatever its type pings.' }}
+            </p>
+          }
         </div>
         <label>Notes
           <textarea formControlName="notes" rows="2" maxlength="1000" placeholder="Extra detail shown on the post (optional)…"></textarea>
@@ -156,6 +186,7 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
     .sched-form input, .sched-form select, .sched-form textarea {
       padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; font: inherit; }
     .sched-form input[type=number] { width: 11rem; }
+    .side-note { font-size: .74rem; opacity: .65; margin: 0 0 .45rem; flex: 1; min-width: 180px; }
     .sched-form textarea { resize: vertical; }
     .row.bottom { align-items: center; }
     .chk { flex-direction: row; align-items: center; gap: .4rem; font-weight: 600; }
@@ -228,6 +259,9 @@ export class ScheduledEventsPageComponent {
     startTime: new FormControl('18:00', { nonNullable: true }),
     closeTime: new FormControl('', { nonNullable: true }),
     capacity: new FormControl<number | null>(null),
+    roleMode: new FormControl<RoleMode>('default', { nonNullable: true }),
+    // Only read when roleMode is 'custom'; the other two modes say what they mean on their own.
+    mentionRoleId: new FormControl('', { validators: Validators.pattern(/^\d{1,24}$/), nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),
     enabled: new FormControl(true, { nonNullable: true }),
   });
@@ -237,7 +271,22 @@ export class ScheduledEventsPageComponent {
     return this.form.controls.trigger.value === 'schedule';
   }
 
+  get roleMode(): RoleMode {
+    return this.form.controls.roleMode.value;
+  }
+
+  /** Whether a role id is being typed — the other two modes need no field. */
+  get customRole(): boolean {
+    return this.roleMode === 'custom';
+  }
+
   ngOnInit(): void {
+    // Leaving "A specific role" takes the field away, so anything half-typed in it goes too —
+    // otherwise a stray character left behind blocks submit from a field nobody can see.
+    this.form.controls.roleMode.valueChanges.subscribe((mode) => {
+      if (mode !== 'custom') this.form.controls.mentionRoleId.setValue('');
+    });
+
     this.backoffice.getScheduledEvents().subscribe({
       next: (s) => { this.events.set(s); this.loading.set(false); },
       error: () => { this.error.set('Failed to load scheduled events.'); this.loading.set(false); },
@@ -260,7 +309,19 @@ export class ScheduledEventsPageComponent {
     const parts = [`starts ${s.startTime ?? 'not set'}`];
     parts.push(s.closeTime === null ? 'closes at start' : `closes ${s.closeTime}`);
     if (s.capacity !== null) parts.push(`cap ${s.capacity}`);
+    // Only when it differs from the type's role: saying "pings the usual role" on every row would
+    // be noise, and this line exists to flag the ones that don't.
+    const mode = ScheduledEventsPageComponent.roleModeOf(s.mentionRoleId);
+    if (mode === 'none') parts.push('no ping');
+    if (mode === 'custom') parts.push(`pings @${s.mentionRoleId}`);
     return parts.join(' · ');
+  }
+
+  /** Which of the three answers a stored override is: null took the type's role, empty chose
+   *  nobody, a value overrides. */
+  private static roleModeOf(mentionRoleId: string | null): RoleMode {
+    if (mentionRoleId === null) return 'default';
+    return mentionRoleId.trim() === '' ? 'none' : 'custom';
   }
 
   startEdit(s: ScheduledEvent): void {
@@ -275,6 +336,8 @@ export class ScheduledEventsPageComponent {
       title: s.title,
       startTime: s.startTime ?? '',
       closeTime: s.closeTime ?? '',
+      roleMode: ScheduledEventsPageComponent.roleModeOf(s.mentionRoleId),
+      mentionRoleId: s.mentionRoleId ?? '',
       capacity: s.capacity, notes: s.notes, enabled: s.enabled,
     });
 
@@ -294,18 +357,36 @@ export class ScheduledEventsPageComponent {
     this.formError.set(null);
     this.form.reset({
       eventType: 'GvG', trigger: 'schedule', dayOfWeek: 6, time: '10:00', channelId: '', title: '',
-      startTime: '18:00', closeTime: '', capacity: null, notes: '', enabled: true,
+      startTime: '18:00', closeTime: '', roleMode: 'default', mentionRoleId: '', capacity: null,
+      notes: '', enabled: true,
     });
   }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      // Say which field, or a bad id reads as a Save button that simply doesn't work.
+      this.formError.set(
+        this.form.controls.channelId.invalid
+          ? 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).'
+          : this.form.controls.mentionRoleId.invalid
+            ? 'Role ID must be the numeric role id (right-click the role → Copy Role ID).'
+            : 'A title is required.');
+      return;
+    }
     const body = this.normalize(this.form.getRawValue());
     if (body === null) return; // normalize() has put the reason in formError
     this.saving.set(true);
     this.formError.set(null);
     const id = this.editingId();
-    const req = id === null ? this.backoffice.createScheduledEvent(body) : this.backoffice.patchScheduledEvent(id, body);
+    // A create has no stored value to leave alone, so null says "use the type's role" there all by
+    // itself. The "default" word is only needed to overwrite an override that already exists.
+    const req = id === null
+      ? this.backoffice.createScheduledEvent({
+          ...body,
+          mentionRoleId: body.mentionRoleId === USE_TYPE_DEFAULT_ROLE ? null : body.mentionRoleId,
+        })
+      : this.backoffice.patchScheduledEvent(id, body);
     req.subscribe({
       next: (saved) => {
         this.events.update((list) =>
@@ -324,8 +405,8 @@ export class ScheduledEventsPageComponent {
    */
   private normalize(raw: {
     eventType: ScheduledEventType; trigger: 'schedule' | 'demand'; dayOfWeek: number; time: string;
-    channelId: string; title: string; startTime: string; closeTime: string;
-    capacity: number | null; notes: string; enabled: boolean;
+    channelId: string; title: string; startTime: string; closeTime: string; roleMode: RoleMode;
+    mentionRoleId: string; capacity: number | null; notes: string; enabled: boolean;
   }): ScheduledEventCreate | null {
     const onDemand = raw.trigger === 'demand';
     if (raw.startTime === '') {
@@ -334,6 +415,11 @@ export class ScheduledEventsPageComponent {
     }
     if (!onDemand && raw.time === '') {
       this.formError.set('Enter the time the form is posted.');
+      return null;
+    }
+    const role = raw.mentionRoleId.trim();
+    if (raw.roleMode === 'custom' && role === '') {
+      this.formError.set('Enter the role id to mention, or pick another Mention role option.');
       return null;
     }
 
@@ -350,6 +436,10 @@ export class ScheduledEventsPageComponent {
       title: raw.title,
       startTime: raw.startTime,
       closeTime: raw.closeTime === '' ? null : raw.closeTime,
+      // Never null: on an edit that would mean "leave it as it was", so dropping an override back
+      // to the type's role has to be said out loud.
+      mentionRoleId: raw.roleMode === 'default' ? USE_TYPE_DEFAULT_ROLE
+        : raw.roleMode === 'none' ? '' : role,
       capacity: num(raw.capacity),
       notes: raw.notes ?? '',
       enabled: raw.enabled,
@@ -436,6 +526,7 @@ export class ScheduledEventsPageComponent {
       case 'invalid_type': return 'Pick a valid type.';
       case 'invalid_title': return 'A title is required (max 200 characters).';
       case 'invalid_channel': return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
+      case 'invalid_role': return 'Role ID must be the numeric role id (right-click the role → Copy Role ID).';
       case 'notes_too_long': return 'Notes are too long (1000 characters max).';
       case 'invalid_capacity': return 'Capacity must be between 1 and 10000.';
       case 'invalid_start_time': return 'Enter a valid start time.';

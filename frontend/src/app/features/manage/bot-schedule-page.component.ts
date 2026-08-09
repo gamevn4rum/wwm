@@ -1,16 +1,20 @@
 import { Component } from '@angular/core';
 import { SchedulesPageComponent } from './schedules-page.component';
 import { ScheduledEventsPageComponent } from './scheduled-events-page.component';
+import { PingRolesPanelComponent } from './ping-roles-panel.component';
 
 /**
  * Admin "Bot schedule" hub: the two things the bot posts on a timer — plain scheduled messages,
  * and recurring RSVP events — each in its own collapsible panel, so one nav entry covers both.
  * The panels are the existing standalone components, embedded rather than routed to.
+ *
+ * A third panel sits under them for the role each event type pings, which is settings rather than
+ * schedule — but it is what the other two mean by "default", so it belongs where they are.
  */
 @Component({
   selector: 'app-bot-schedule-page',
   standalone: true,
-  imports: [SchedulesPageComponent, ScheduledEventsPageComponent],
+  imports: [SchedulesPageComponent, ScheduledEventsPageComponent, PingRolesPanelComponent],
   template: `
     <section class="wrap">
       <h1>Bot schedule</h1>
@@ -30,6 +34,14 @@ import { ScheduledEventsPageComponent } from './scheduled-events-page.component'
           <span class="tag">recurring /gvg</span>
         </summary>
         <div class="body"><app-scheduled-events-page /></div>
+      </details>
+
+      <details class="panel">
+        <summary>
+          <span class="name">Event ping roles</span>
+          <span class="tag">who gets mentioned</span>
+        </summary>
+        <div class="body"><app-ping-roles-panel /></div>
       </details>
     </section>
   `,

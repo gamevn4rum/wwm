@@ -49,6 +49,13 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
             <input type="text" formControlName="channelId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
           </label>
         </div>
+        <div class="row">
+          <label class="grow">Mention role
+            <input type="text" formControlName="mentionRoleId" placeholder="blank = ping nobody" inputmode="numeric" />
+            <small>Posted as its own line above the message, so it actually notifies. Right-click
+              the role → Copy Role ID.</small>
+          </label>
+        </div>
         <label>Message
           <textarea formControlName="message" rows="2" maxlength="2000" placeholder="What the bot should post…"></textarea>
         </label>
@@ -86,7 +93,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
                   <div class="last">last: {{ lastSent(s) }}</div>
                 </td>
                 <td class="mono channel">{{ s.channelId }}</td>
-                <td class="msg">{{ s.message }}</td>
+                <td class="msg">
+                  @if (s.mentionRoleId) {
+                    <div class="ping mono">pings &#64;{{ s.mentionRoleId }}</div>
+                  }
+                  {{ s.message }}
+                </td>
                 <td>
                   <span class="pill" [class.on]="s.enabled" [class.off]="!s.enabled">
                     {{ s.enabled ? 'On' : 'Off' }}
@@ -124,6 +136,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
       border: 1px solid rgba(128,128,128,.3); border-radius: 8px; margin-bottom: 1.5rem; }
     .sched-form .row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
     .sched-form label { display: flex; flex-direction: column; gap: .25rem; font-size: .82rem; font-weight: 600; }
+    .sched-form small { font-weight: 400; opacity: .65; font-size: .74rem; }
     .sched-form .grow { flex: 1; min-width: 200px; }
     .sched-form input, .sched-form select, .sched-form textarea {
       padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; font: inherit; }
@@ -141,6 +154,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
     .mono { font-family: monospace; }
     .channel { font-size: .8rem; opacity: .8; }
     .msg { max-width: 320px; white-space: pre-wrap; word-break: break-word; }
+    .msg .ping { font-size: .72rem; opacity: .7; margin-bottom: .15rem; }
     .actions { white-space: nowrap; display: flex; gap: .35rem; }
     .pill { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; }
     .pill.on { background: rgba(40,167,69,.2); color: #28a745; }
@@ -186,6 +200,9 @@ export class SchedulesPageComponent {
     // is a form with no visible reason not to save. save() reports an empty one when it matters.
     time: new FormControl('20:00', { nonNullable: true }),
     channelId: new FormControl('', { validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)], nonNullable: true }),
+    // Optional, so no `required` — but a non-id typed into it would post a broken mention, hence
+    // the same digits-only shape the channel takes.
+    mentionRoleId: new FormControl('', { validators: Validators.pattern(/^\d{1,24}$/), nonNullable: true }),
     message: new FormControl('', { validators: Validators.required, nonNullable: true }),
     enabled: new FormControl(true, { nonNullable: true }),
   });
@@ -215,7 +232,8 @@ export class SchedulesPageComponent {
     this.form.setValue({
       trigger: onDemand ? 'demand' : 'schedule',
       dayOfWeek: onDemand ? 1 : s.dayOfWeek,
-      time: s.time, channelId: s.channelId, message: s.message, enabled: s.enabled,
+      time: s.time, channelId: s.channelId, mentionRoleId: s.mentionRoleId ?? '',
+      message: s.message, enabled: s.enabled,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -224,12 +242,23 @@ export class SchedulesPageComponent {
     this.editingId.set(null);
     this.formError.set(null);
     this.form.reset({
-      trigger: 'schedule', dayOfWeek: 1, time: '20:00', channelId: '', message: '', enabled: true,
+      trigger: 'schedule', dayOfWeek: 1, time: '20:00', channelId: '', mentionRoleId: '',
+      message: '', enabled: true,
     });
   }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      // Say which field, or a bad id reads as a Save button that simply doesn't work.
+      this.formError.set(
+        this.form.controls.channelId.invalid
+          ? 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).'
+          : this.form.controls.mentionRoleId.invalid
+            ? 'Mention role must be the numeric role id (right-click the role → Copy Role ID).'
+            : 'A message is required.');
+      return;
+    }
     const raw = this.form.getRawValue();
     const onDemand = raw.trigger === 'demand';
     if (!onDemand && raw.time === '') {
@@ -245,6 +274,9 @@ export class SchedulesPageComponent {
       dayOfWeek: onDemand ? ON_DEMAND : Number(raw.dayOfWeek),
       time: raw.time === '' ? '00:00' : raw.time,
       channelId: raw.channelId,
+      // Sent even when blank: on an edit that is how the ping comes back off, which a null
+      // (leave alone) could not say.
+      mentionRoleId: raw.mentionRoleId.trim(),
       message: raw.message,
       enabled: raw.enabled,
     };
@@ -350,7 +382,9 @@ export class SchedulesPageComponent {
       case 'invalid_time': return 'Enter a valid time.';
       case 'invalid_channel': return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
       case 'message_required': return 'A message is required.';
-      case 'message_too_long': return 'That message is too long (2000 characters max).';
+      case 'invalid_role': return 'Mention role must be the numeric role id (right-click the role → Copy Role ID).';
+      // The mention is posted as part of the message, so it spends the same 2000 characters.
+      case 'message_too_long': return 'That message is too long (2000 characters max, including the mention line).';
       default: return 'Save failed. Please try again.';
     }
   }

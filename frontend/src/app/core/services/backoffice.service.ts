@@ -68,6 +68,9 @@ export interface ScheduledMessage {
   time: string;
   channelId: string;
   message: string;
+  /** Role id called out on its own line above the message. Null pings nobody. It counts
+   *  against the same 2000-character limit as the text. */
+  mentionRoleId: string | null;
   enabled: boolean;
   lastSentUtc: string | null;
 }
@@ -77,6 +80,8 @@ export interface ScheduleCreate {
   time: string;
   channelId: string;
   message: string;
+  /** Empty or null both mean "ping nobody" — a message has no per-type default to fall back to. */
+  mentionRoleId: string | null;
   enabled: boolean;
 }
 
@@ -103,6 +108,9 @@ export interface ScheduledEvent {
   /** Null only on a template last saved before clock times existed. */
   startTime: string | null;
   closeTime: string | null;
+  /** Which role this template's post calls out, overriding the event type's own role
+   *  ({@link EventPingRole}). Null uses that default; empty pings nobody. */
+  mentionRoleId: string | null;
   enabled: boolean;
   lastFiredUtc: string | null;
 }
@@ -118,10 +126,31 @@ export interface ScheduledEventCreate {
   startTime: string;
   /** Empty or null closes RSVPs at the start. */
   closeTime: string | null;
+  /** Null uses the event type's own role; empty pings nobody; a role id overrides both. */
+  mentionRoleId: string | null;
   enabled: boolean;
 }
 
+/**
+ * On a patch, null means "leave this field alone" — so it is not how a template goes back to
+ * using its event type's role. {@link USE_TYPE_DEFAULT_ROLE} is.
+ */
 export type ScheduledEventPatch = Partial<ScheduledEventCreate>;
+
+/**
+ * The `mentionRoleId` a patch sends to drop a template's override and put it back on whatever its
+ * event type pings. A role id is all digits, so this word can't be mistaken for one.
+ */
+export const USE_TYPE_DEFAULT_ROLE = 'default';
+
+/** The role one event type's posts call out, when the template doesn't override it. */
+export interface EventPingRole {
+  eventType: ScheduledEventType;
+  /** Null or empty means posts of this type ping nobody — a real setting, not an unset one. */
+  roleId: string | null;
+  updatedBy: string | null;
+  updatedUtc: string | null;
+}
 
 /** Choices for the match editor, resolved server-side in one call. */
 export interface MatchOptions {
@@ -253,5 +282,18 @@ export class BackofficeService {
   postScheduledEventNow(id: number): Observable<{ ok: boolean; slug?: string; status?: number; error?: string }> {
     return this.http.post<{ ok: boolean; slug?: string; status?: number; error?: string }>(
       apiUrl(`/admin/scheduled-events/${id}/post-now`), {});
+  }
+
+  // ── Event ping roles (Admin) ──────────────────────────────────────────────
+  /** Always answers with a row per event type, configured or not. */
+  getPingRoles(): Observable<EventPingRole[]> {
+    return this.http.get<EventPingRole[]>(apiUrl('/admin/ping-roles'));
+  }
+
+  /** A PUT, not a patch: there is one field, and clearing it is a real setting ("ping nobody")
+   *  rather than "leave it alone". */
+  setPingRole(eventType: ScheduledEventType, roleId: string | null): Observable<EventPingRole> {
+    return this.http.put<EventPingRole>(
+      apiUrl(`/admin/ping-roles/${eventType}`), { roleId });
   }
 }
