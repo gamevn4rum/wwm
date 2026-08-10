@@ -152,6 +152,35 @@ export interface EventPingRole {
   updatedUtc: string | null;
 }
 
+/**
+ * The Discord channels and roles the pickers offer, so nobody has to paste a snowflake.
+ *
+ * A server-side cache refreshed at 00:00 Vietnam time and by the Refresh button — not a live read,
+ * so a channel created minutes ago is missing until one of those runs. Every picker keeps a
+ * paste-an-id fallback for exactly that gap. `syncedUtc` is null when the cache has never been
+ * populated, which reads differently from "this server has no channels" and is shown as such.
+ *
+ * Channels are limited to the events category; roles are the whole guild, minus `@everyone`.
+ */
+export interface DiscordDirectory {
+  channels: DiscordChannel[];
+  roles: DiscordRole[];
+  syncedUtc: string | null;
+}
+
+export interface DiscordChannel {
+  id: string;
+  name: string;
+  type: 'text' | 'announcement' | 'voice';
+}
+
+export interface DiscordRole {
+  id: string;
+  name: string;
+  /** False means the ping only notifies if the bot holds Mention @everyone — flagged in the UI. */
+  mentionable: boolean;
+}
+
 /** Choices for the match editor, resolved server-side in one call. */
 export interface MatchOptions {
   /** Every opponent guild on record, for the dropdown. */
@@ -286,6 +315,21 @@ export class BackofficeService {
 
   // ── Event ping roles (Admin) ──────────────────────────────────────────────
   /** Always answers with a row per event type, configured or not. */
+  /**
+   * The cached channel and role lists behind every picker.
+   *
+   * Not cached client-side here on purpose — `DiscordDirectoryService` does that, so several panels
+   * on one page share a single request instead of each issuing their own.
+   */
+  getDiscordDirectory(): Observable<DiscordDirectory> {
+    return this.http.get<DiscordDirectory>(apiUrl('/admin/discord/directory'));
+  }
+
+  /** Re-reads the lists from Discord now, and answers with the refreshed directory. */
+  refreshDiscordDirectory(): Observable<DiscordDirectory> {
+    return this.http.post<DiscordDirectory>(apiUrl('/admin/discord/directory/refresh'), {});
+  }
+
   getPingRoles(): Observable<EventPingRole[]> {
     return this.http.get<EventPingRole[]>(apiUrl('/admin/ping-roles'));
   }

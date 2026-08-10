@@ -7,6 +7,8 @@ import {
   ScheduledEventType,
   USE_TYPE_DEFAULT_ROLE,
 } from '../../core/services/backoffice.service';
+import { DiscordDirectoryService } from '../../core/services/discord-directory.service';
+import { DiscordPickerComponent } from './discord-picker.component';
 
 /**
  * Which role a template's post calls out. Stored as one nullable column, but the three states it
@@ -25,7 +27,7 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
 @Component({
   selector: 'app-scheduled-events-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DiscordPickerComponent],
   template: `
     <section class="backoffice">
       <p class="hint">
@@ -61,8 +63,9 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
               <input type="time" formControlName="time" />
             </label>
           }
-          <label class="grow">Channel ID
-            <input type="text" formControlName="channelId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
+          <label class="grow">Channel
+            <app-discord-picker kind="channel" blankLabel="— choose a channel —"
+              formControlName="channelId" />
           </label>
         </div>
         <label>Title
@@ -92,8 +95,9 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
             </select>
           </label>
           @if (customRole) {
-            <label class="grow">Role ID
-              <input type="text" formControlName="mentionRoleId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
+            <label class="grow">Role
+              <app-discord-picker kind="role" blankLabel="— choose a role —"
+                formControlName="mentionRoleId" />
             </label>
           } @else {
             <p class="side-note">
@@ -144,7 +148,7 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
                   <div class="title">{{ s.title }}</div>
                   <div class="detail">{{ detail(s) }}</div>
                 </td>
-                <td class="mono channel">{{ s.channelId }}</td>
+                <td class="channel" [title]="s.channelId">{{ channelLabel(s.channelId) }}</td>
                 <td>
                   <span class="pill" [class.on]="s.enabled" [class.off]="!s.enabled">
                     {{ s.enabled ? 'On' : 'Off' }}
@@ -221,7 +225,17 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
 export class ScheduledEventsPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
+  /** Shared cache behind the pickers; also used to name the channel in the table. */
+  protected readonly directory = inject(DiscordDirectoryService);
+
   readonly eventTypes = EVENT_TYPES;
+
+  /** The channel's name for the table, falling back to the raw id when the cache doesn't know it —
+   *  a channel outside the events category, or one created since the last sync. The id stays in the
+   *  cell's tooltip, since that is what is actually stored. */
+  channelLabel(id: string): string {
+    return this.directory.channels().find((c) => c.id === id)?.name ?? id;
+  }
 
   // "On demand" is not a day — it's the Trigger select, which is what hides this whole field.
   readonly days = [

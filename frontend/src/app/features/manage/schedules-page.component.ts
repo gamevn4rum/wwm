@@ -5,6 +5,8 @@ import {
   ScheduleCreate,
   ScheduledMessage,
 } from '../../core/services/backoffice.service';
+import { DiscordDirectoryService } from '../../core/services/discord-directory.service';
+import { DiscordPickerComponent } from './discord-picker.component';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -15,14 +17,14 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 @Component({
   selector: 'app-schedules-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DiscordPickerComponent],
   template: `
     <section class="backoffice">
       <p class="hint">
         The bot posts these to a Discord channel on a weekly schedule. Set <strong>Trigger</strong>
         to <strong>On demand</strong> for a message the timer never sends on its own — only the
-        <strong>Send now</strong> button posts it. To get a channel id: Discord → User Settings →
-        Advanced → Developer Mode on, then right-click the channel → Copy Channel ID.
+        <strong>Send now</strong> button posts it. Channels come from the events category; use
+        <em>paste an ID</em> for anything outside it or newer than the nightly list.
       </p>
 
       <!-- Add / edit form -->
@@ -45,15 +47,16 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
               <input type="time" formControlName="time" />
             </label>
           }
-          <label class="grow">Channel ID
-            <input type="text" formControlName="channelId" placeholder="e.g. 123456789012345678" inputmode="numeric" />
+          <label class="grow">Channel
+            <app-discord-picker kind="channel" blankLabel="— choose a channel —"
+              formControlName="channelId" />
           </label>
         </div>
         <div class="row">
           <label class="grow">Mention role
-            <input type="text" formControlName="mentionRoleId" placeholder="blank = ping nobody" inputmode="numeric" />
-            <small>Posted as its own line above the message, so it actually notifies. Right-click
-              the role → Copy Role ID.</small>
+            <app-discord-picker kind="role" blankLabel="— none — (ping nobody)"
+              placeholder="blank = ping nobody" formControlName="mentionRoleId" />
+            <small>Posted as its own line above the message, so it actually notifies.</small>
           </label>
         </div>
         <label>Message
@@ -92,7 +95,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
                   <div class="next">{{ s.enabled ? nextRun(s) : '—' }}</div>
                   <div class="last">last: {{ lastSent(s) }}</div>
                 </td>
-                <td class="mono channel">{{ s.channelId }}</td>
+                <td class="channel" [title]="s.channelId">{{ channelLabel(s.channelId) }}</td>
                 <td class="msg">
                   @if (s.mentionRoleId) {
                     <div class="ping mono">pings &#64;{{ s.mentionRoleId }}</div>
@@ -171,6 +174,9 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 export class SchedulesPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
+  /** Shared cache behind the pickers; also used to name the channel in the table. */
+  protected readonly directory = inject(DiscordDirectoryService);
+
   // "Everyday" first, then Sunday…Saturday. "On demand" is not a day — it's the Trigger select,
   // which is what hides this whole field.
   readonly days = [
@@ -223,6 +229,13 @@ export class SchedulesPageComponent {
     if (d === EVERYDAY) return 'Everyday';
     if (d === ON_DEMAND) return 'On demand';
     return DAYS[d] ?? String(d);
+  }
+
+  /** The channel's name for the table, falling back to the raw id when the cache doesn't know it —
+   *  a channel outside the events category, or one created since the last sync. The id stays in the
+   *  cell's tooltip either way, since that is what is actually stored. */
+  channelLabel(id: string): string {
+    return this.directory.channels().find((c) => c.id === id)?.name ?? id;
   }
 
   startEdit(s: ScheduledMessage): void {

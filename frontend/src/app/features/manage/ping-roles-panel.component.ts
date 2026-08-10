@@ -5,6 +5,8 @@ import {
   EventPingRole,
   ScheduledEventType,
 } from '../../core/services/backoffice.service';
+import { DiscordDirectoryService } from '../../core/services/discord-directory.service';
+import { DiscordPickerComponent } from './discord-picker.component';
 
 const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
@@ -32,14 +34,26 @@ const BLURB: Record<ScheduledEventType, string> = {
 @Component({
   selector: 'app-ping-roles-panel',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DiscordPickerComponent],
   template: `
     <section class="backoffice">
       <p class="hint">
         Which role gets pinged on each kind of event post. This is the only place these ids live —
-        the bot reads them from here rather than keeping a copy. To get a role id: Discord → User
-        Settings → Advanced → Developer Mode on, then Server Settings → Roles → right-click a role →
-        <strong>Copy Role ID</strong>. Leave one blank for posts of that type to ping nobody.
+        the bot reads them from here rather than keeping a copy. The list holds the guild's own
+        <strong>Rainbow…</strong> roles; use <em>paste an ID</em> for anything else, or for a role
+        newer than the nightly list. Leave one on <em>— none —</em> for posts of that type to ping
+        nobody.
+      </p>
+
+      <p class="hint sync">
+        Role and channel lists refresh nightly at 00:00 (VN).
+        <span class="when">{{ syncedLabel() }}</span>
+        <button type="button" (click)="directory.refresh()" [disabled]="directory.refreshing()">
+          {{ directory.refreshing() ? 'Refreshing…' : 'Refresh now' }}
+        </button>
+        @if (directory.refreshError(); as e) {
+          <span class="bad">{{ e }}</span>
+        }
       </p>
 
       @if (loading()) {
@@ -55,12 +69,11 @@ const BLURB: Record<ScheduledEventType, string> = {
                 <span class="blurb">{{ blurb[t] }}</span>
               </div>
               <div class="edit">
-                <input
-                  type="text"
-                  [formControlName]="t"
+                <app-discord-picker
+                  kind="role"
+                  blankLabel="— none — (ping nobody)"
                   placeholder="blank = ping nobody"
-                  inputmode="numeric"
-                  (keydown.enter)="save(t); $event.preventDefault()" />
+                  [formControlName]="t" />
                 <button type="button" (click)="save(t)" [disabled]="saving() === t || !changed(t)">
                   {{ saving() === t ? 'Saving…' : 'Save' }}
                 </button>
@@ -89,8 +102,11 @@ const BLURB: Record<ScheduledEventType, string> = {
       background: rgba(31,139,76,.18); color: #1F8B4C; font-size: .8rem; }
     .blurb { font-size: .74rem; opacity: .7; }
     .edit { display: flex; gap: .4rem; align-items: center; }
-    input { padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; font-family: monospace; width: 15rem; }
+    .edit app-discord-picker { width: 17rem; }
+    .sync { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; font-size: .78rem;
+      margin-top: -.4rem; }
+    .sync .when { opacity: .65; }
+    .sync button { padding: .25rem .7rem; font-size: .74rem; }
     button { padding: .4rem .85rem; cursor: pointer; border-radius: 6px;
       border: 1px solid rgba(128,128,128,.4); background: transparent; }
     button:disabled { opacity: .5; cursor: default; }
@@ -103,6 +119,9 @@ const BLURB: Record<ScheduledEventType, string> = {
 })
 export class PingRolesPanelComponent {
   private readonly backoffice = inject(BackofficeService);
+
+  /** Shared with the schedule panels, so Refresh here updates their pickers too. */
+  protected readonly directory = inject(DiscordDirectoryService);
 
   readonly eventTypes = EVENT_TYPES;
   readonly blurb = BLURB;
@@ -164,6 +183,17 @@ export class PingRolesPanelComponent {
         this.saving.set(null);
       },
     });
+  }
+
+  /** How old the picker lists are, in the same VN-local shape as the per-row stamps. Says so
+   *  explicitly when the cache has never been filled: an empty dropdown otherwise reads as a server
+   *  with no roles in it. */
+  syncedLabel(): string {
+    const synced = this.directory.syncedUtc();
+    if (!synced) return 'list never synced yet';
+    const d = new Date(new Date(synced).getTime() + VN_OFFSET_MS);
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `list from ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} · ${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
   }
 
   /** "by khanh · Sat 14:32 · 9/8", or nothing for a type nobody has set yet. */
