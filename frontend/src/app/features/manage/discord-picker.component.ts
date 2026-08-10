@@ -19,6 +19,13 @@ const CHANNEL_ICON: Record<string, string> = {
  * The fallback is not optional garnish. The list is a cache refreshed nightly, so a channel made an
  * hour ago is not in it, and without a way to type an id the panel would be *less* capable than the
  * text box it replaced. It also carries the case where the directory has never synced at all.
+ *
+ * That last case needs a word of its own, which is what `Sync the list` is for. A cache that has
+ * never been filled — the hours between deploying this and the first nightly run, which is exactly
+ * when somebody goes looking for the new dropdowns — is indistinguishable from the feature not
+ * being there: every picker silently renders as the same text box it always was. The Refresh button
+ * that fixes it lives on the ping-roles panel, which is no help to someone standing in front of a
+ * schedule form. So each empty picker says so and offers the same refresh.
  */
 @Component({
   selector: 'app-discord-picker',
@@ -44,6 +51,19 @@ const CHANNEL_ICON: Record<string, string> = {
           (ngModelChange)="write($event)" />
         @if (!directory.empty()) {
           <button type="button" class="link" (click)="typing.set(false)">choose from list</button>
+        } @else {
+          <button
+            type="button"
+            class="link"
+            [disabled]="directory.refreshing()"
+            (click)="directory.refresh()">
+            {{ directory.refreshing() ? 'syncing…' : 'sync the list' }}
+          </button>
+          @if (directory.refreshError(); as e) {
+            <span class="bad">{{ e }}</span>
+          } @else {
+            <span class="note">no channels or roles synced yet</span>
+          }
         }
       </span>
     } @else {
@@ -83,6 +103,9 @@ const CHANNEL_ICON: Record<string, string> = {
     .link { background: none; border: none; padding: 0; font-size: .72rem; cursor: pointer;
       opacity: .7; text-decoration: underline; color: inherit; }
     .link:hover { opacity: 1; }
+    .link:disabled { cursor: default; opacity: .45; text-decoration: none; }
+    .note { font-size: .72rem; opacity: .55; }
+    .bad { font-size: .72rem; color: #c0392b; }
   `],
 })
 export class DiscordPickerComponent implements ControlValueAccessor {
