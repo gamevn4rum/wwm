@@ -39,8 +39,10 @@ type Trigger = 'schedule' | 'demand' | 'date';
         close at start. A start time earlier than the post means the following morning. Set
         <strong>Trigger</strong> to <strong>On demand</strong> for an event the timer never posts on
         its own: only the <strong>Post now</strong> button posts it, and it then starts at the next
-        <em>Starts at</em> after you press. Set it to <strong>On a specific date</strong> for a one-off
-        — it posts once, on that date at the post time, and never repeats.
+        <em>Starts at</em> after you press. Set it to <strong>On a specific date</strong> to fix the
+        event's start on a future calendar date (its <em>Start date</em> + <em>Starts at</em>): it too
+        is posted with the <strong>Post now</strong> button — press it whenever you want the form up,
+        now or days ahead — and the event still starts on that fixed date.
       </p>
 
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
@@ -57,8 +59,9 @@ type Trigger = 'schedule' | 'demand' | 'date';
               <option value="demand">On demand</option>
             </select>
           </label>
-          <!-- On a schedule: pick a weekday. On a date: pick the exact day. On demand has neither
-               day nor post time — the Post now button is its clock. -->
+          <!-- On a schedule: pick a weekday and the timer posts weekly. On a specific date: pick the
+               event's start date — it's posted on demand with the Post now button, so it has no post
+               time. On demand: no day, no post time — the button is its clock. -->
           @if (scheduled) {
             <label>Day
               <select formControlName="dayOfWeek">
@@ -67,11 +70,11 @@ type Trigger = 'schedule' | 'demand' | 'date';
             </label>
           }
           @if (dated) {
-            <label>Date
+            <label>Start date
               <input type="date" formControlName="specificDate" [min]="minDate" />
             </label>
           }
-          @if (scheduled || dated) {
+          @if (scheduled) {
             <label>Post time
               <input type="time" formControlName="time" />
             </label>
@@ -339,9 +342,10 @@ export class ScheduledEventsPageComponent {
     return DAYS[d] ?? String(d);
   }
 
-  /** The "When (VN)" cell: a one-off shows its date, an on-demand row has no post time to show. */
+  /** The "When (VN)" cell: a one-off shows its fixed start (date + start time), an on-demand row has
+   *  no post time to show, a weekly one shows its day + post time. */
   whenLabel(s: ScheduledEvent): string {
-    if (s.specificDate) return `${s.specificDate} ${s.time}`;
+    if (s.specificDate) return `Starts ${s.specificDate} ${s.startTime ?? ''}`.trimEnd();
     return s.dayOfWeek === ON_DEMAND ? 'On demand' : `${this.dayName(s.dayOfWeek)} ${s.time}`;
   }
 
@@ -456,14 +460,16 @@ export class ScheduledEventsPageComponent {
     const onDemand = raw.trigger === 'demand';
     const dated = raw.trigger === 'date';
     if (dated && raw.specificDate === '') {
-      this.formError.set('Pick the date the event happens.');
+      this.formError.set('Pick the date the event starts.');
       return null;
     }
     if (raw.startTime === '') {
       this.formError.set('Enter the time the event starts.');
       return null;
     }
-    if (!onDemand && raw.time === '') {
+    // Only a weekly schedule has a post time; a dated one-off and an on-demand event are both
+    // posted with the Post now button, so neither needs one.
+    if (raw.trigger === 'schedule' && raw.time === '') {
       this.formError.set('Enter the time the form is posted.');
       return null;
     }
@@ -478,11 +484,12 @@ export class ScheduledEventsPageComponent {
 
     return {
       eventType: raw.eventType,
-      // On demand is stored as a day the timer skips; a dated one-off's day is derived server-side
-      // from its date, so whatever we send here is overwritten — leave the weekly value be.
-      dayOfWeek: onDemand ? ON_DEMAND : Number(raw.dayOfWeek),
-      // The timer never reads an on-demand template's post time, but the column is not nullable.
-      time: raw.time === '' ? '00:00' : raw.time,
+      // Both on-demand and dated one-offs are stored as a day the timer skips (the server also
+      // forces OnDemandDay when a date is set); only a weekly schedule sends a real weekday.
+      dayOfWeek: onDemand || dated ? ON_DEMAND : Number(raw.dayOfWeek),
+      // Only a weekly schedule uses the post time; the column is not nullable, so the others send
+      // a placeholder the timer never reads.
+      time: raw.trigger === 'schedule' && raw.time !== '' ? raw.time : '00:00',
       channelId: raw.channelId,
       title: raw.title,
       startTime: raw.startTime,
@@ -541,15 +548,9 @@ export class ScheduledEventsPageComponent {
 
   /** Next post time as a short VN-local label ("Today 20:00", "Tomorrow 20:00", "Sat 20:00"). */
   nextRun(s: ScheduledEvent): string {
+    // A dated one-off is stored as OnDemandDay (posted with the button), so it reports "on demand"
+    // here — its fixed start is shown in the When cell instead.
     if (s.dayOfWeek === ON_DEMAND) return 'on demand';
-    // A one-off runs on its date, or has already run: no rolling "next weekday" applies.
-    if (s.specificDate) {
-      const [hh, mm] = s.time.split(':').map(Number);
-      const at = new Date(`${s.specificDate}T00:00:00Z`);
-      at.setUTCHours(hh, mm, 0, 0);
-      const nowVn = new Date(Date.now() + VN_OFFSET_MS);
-      return at.getTime() > nowVn.getTime() ? `${s.specificDate} ${s.time}` : 'past';
-    }
     const [hh, mm] = s.time.split(':').map(Number);
     const nowVn = new Date(Date.now() + VN_OFFSET_MS);
     const at = (dayOffset: number): Date => {
