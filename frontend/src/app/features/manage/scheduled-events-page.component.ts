@@ -24,6 +24,9 @@ const ON_DEMAND = -2; // never timer-fired; posted only by the "Post now" button
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
 const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
 
+/** How a template is fired: weekly on a day, once on a date, or never (button only). */
+type Trigger = 'schedule' | 'demand' | 'date';
+
 @Component({
   selector: 'app-scheduled-events-page',
   standalone: true,
@@ -36,7 +39,8 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
         close at start. A start time earlier than the post means the following morning. Set
         <strong>Trigger</strong> to <strong>On demand</strong> for an event the timer never posts on
         its own: only the <strong>Post now</strong> button posts it, and it then starts at the next
-        <em>Starts at</em> after you press.
+        <em>Starts at</em> after you press. Set it to <strong>On a specific date</strong> for a one-off
+        — it posts once, on that date at the post time, and never repeats.
       </p>
 
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
@@ -49,16 +53,25 @@ const EVENT_TYPES: readonly ScheduledEventType[] = ['GvG', 'GvE', 'Event'];
           <label>Trigger
             <select formControlName="trigger">
               <option value="schedule">On a schedule</option>
+              <option value="date">On a specific date</option>
               <option value="demand">On demand</option>
             </select>
           </label>
-          <!-- An on-demand event has no day and no post time: the Post now button is its clock. -->
+          <!-- On a schedule: pick a weekday. On a date: pick the exact day. On demand has neither
+               day nor post time — the Post now button is its clock. -->
           @if (scheduled) {
             <label>Day
               <select formControlName="dayOfWeek">
                 @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
               </select>
             </label>
+          }
+          @if (dated) {
+            <label>Date
+              <input type="date" formControlName="specificDate" [min]="minDate" />
+            </label>
+          }
+          @if (scheduled || dated) {
             <label>Post time
               <input type="time" formControlName="time" />
             </label>
@@ -262,8 +275,11 @@ export class ScheduledEventsPageComponent {
    */
   readonly form = new FormGroup({
     eventType: new FormControl<ScheduledEventType>('GvG', { nonNullable: true }),
-    trigger: new FormControl<'schedule' | 'demand'>('schedule', { nonNullable: true }),
+    trigger: new FormControl<Trigger>('schedule', { nonNullable: true }),
     dayOfWeek: new FormControl(6, { nonNullable: true }),
+    // A one-off's date ("yyyy-MM-dd", VN), read only when trigger is 'date'. The weekly day and the
+    // date are separate controls so switching trigger doesn't lose whichever the other kind used.
+    specificDate: new FormControl('', { nonNullable: true }),
     // The times aren't `Validators.required`: the post time is hidden for an on-demand event, and a
     // hidden control that blocks submit is a form with no visible reason not to save. normalize()
     // reports an empty one where it matters and substitutes midnight where it doesn't.
@@ -280,9 +296,19 @@ export class ScheduledEventsPageComponent {
     enabled: new FormControl(true, { nonNullable: true }),
   });
 
-  /** Whether the timer posts this one — which is also what decides clock times vs. durations. */
+  /** Whether the timer posts this one weekly — which is also what shows the Day dropdown. */
   get scheduled(): boolean {
     return this.form.controls.trigger.value === 'schedule';
+  }
+
+  /** A one-off on a specific calendar date — shows the date picker instead of the Day dropdown. */
+  get dated(): boolean {
+    return this.form.controls.trigger.value === 'date';
+  }
+
+  /** Today in Vietnam (UTC+7) as yyyy-MM-dd — the earliest a one-off can be scheduled for. */
+  get minDate(): string {
+    return new Date(Date.now() + VN_OFFSET_MS).toISOString().slice(0, 10);
   }
 
   get roleMode(): RoleMode {
@@ -313,8 +339,9 @@ export class ScheduledEventsPageComponent {
     return DAYS[d] ?? String(d);
   }
 
-  /** The "When (VN)" cell: an on-demand row has no post time worth showing. */
+  /** The "When (VN)" cell: a one-off shows its date, an on-demand row has no post time to show. */
   whenLabel(s: ScheduledEvent): string {
+    if (s.specificDate) return `${s.specificDate} ${s.time}`;
     return s.dayOfWeek === ON_DEMAND ? 'On demand' : `${this.dayName(s.dayOfWeek)} ${s.time}`;
   }
 
@@ -341,10 +368,14 @@ export class ScheduledEventsPageComponent {
   startEdit(s: ScheduledEvent): void {
     this.editingId.set(s.id);
     const onDemand = s.dayOfWeek === ON_DEMAND;
+    const trigger: Trigger = s.specificDate ? 'date' : onDemand ? 'demand' : 'schedule';
     this.form.setValue({
       eventType: s.eventType,
-      trigger: onDemand ? 'demand' : 'schedule',
+      trigger,
+      // For a one-off the stored day mirrors its date and is hidden anyway; keep it a valid dropdown
+      // value so switching back to a weekly schedule has something sensible selected.
       dayOfWeek: onDemand ? 6 : s.dayOfWeek,
+      specificDate: s.specificDate ?? '',
       time: s.time,
       channelId: s.channelId,
       title: s.title,
@@ -370,9 +401,9 @@ export class ScheduledEventsPageComponent {
     this.editingId.set(null);
     this.formError.set(null);
     this.form.reset({
-      eventType: 'GvG', trigger: 'schedule', dayOfWeek: 6, time: '10:00', channelId: '', title: '',
-      startTime: '18:00', closeTime: '', roleMode: 'default', mentionRoleId: '', capacity: null,
-      notes: '', enabled: true,
+      eventType: 'GvG', trigger: 'schedule', dayOfWeek: 6, specificDate: '', time: '10:00',
+      channelId: '', title: '', startTime: '18:00', closeTime: '', roleMode: 'default',
+      mentionRoleId: '', capacity: null, notes: '', enabled: true,
     });
   }
 
@@ -418,11 +449,16 @@ export class ScheduledEventsPageComponent {
    * time can be blank about; everything else the API validates and `describe()` translates.
    */
   private normalize(raw: {
-    eventType: ScheduledEventType; trigger: 'schedule' | 'demand'; dayOfWeek: number; time: string;
-    channelId: string; title: string; startTime: string; closeTime: string; roleMode: RoleMode;
-    mentionRoleId: string; capacity: number | null; notes: string; enabled: boolean;
+    eventType: ScheduledEventType; trigger: Trigger; dayOfWeek: number; specificDate: string;
+    time: string; channelId: string; title: string; startTime: string; closeTime: string;
+    roleMode: RoleMode; mentionRoleId: string; capacity: number | null; notes: string; enabled: boolean;
   }): ScheduledEventCreate | null {
     const onDemand = raw.trigger === 'demand';
+    const dated = raw.trigger === 'date';
+    if (dated && raw.specificDate === '') {
+      this.formError.set('Pick the date the event happens.');
+      return null;
+    }
     if (raw.startTime === '') {
       this.formError.set('Enter the time the event starts.');
       return null;
@@ -442,7 +478,8 @@ export class ScheduledEventsPageComponent {
 
     return {
       eventType: raw.eventType,
-      // On demand is stored as a day the timer skips, so it stays one field to the API.
+      // On demand is stored as a day the timer skips; a dated one-off's day is derived server-side
+      // from its date, so whatever we send here is overwritten — leave the weekly value be.
       dayOfWeek: onDemand ? ON_DEMAND : Number(raw.dayOfWeek),
       // The timer never reads an on-demand template's post time, but the column is not nullable.
       time: raw.time === '' ? '00:00' : raw.time,
@@ -457,6 +494,9 @@ export class ScheduledEventsPageComponent {
       capacity: num(raw.capacity),
       notes: raw.notes ?? '',
       enabled: raw.enabled,
+      // A date makes it a one-off; empty string on the other triggers clears any one-off back to the
+      // weekly/on-demand day (the API reads "" as "clear", null as "leave alone").
+      specificDate: dated ? raw.specificDate : '',
     };
   }
 
@@ -502,6 +542,14 @@ export class ScheduledEventsPageComponent {
   /** Next post time as a short VN-local label ("Today 20:00", "Tomorrow 20:00", "Sat 20:00"). */
   nextRun(s: ScheduledEvent): string {
     if (s.dayOfWeek === ON_DEMAND) return 'on demand';
+    // A one-off runs on its date, or has already run: no rolling "next weekday" applies.
+    if (s.specificDate) {
+      const [hh, mm] = s.time.split(':').map(Number);
+      const at = new Date(`${s.specificDate}T00:00:00Z`);
+      at.setUTCHours(hh, mm, 0, 0);
+      const nowVn = new Date(Date.now() + VN_OFFSET_MS);
+      return at.getTime() > nowVn.getTime() ? `${s.specificDate} ${s.time}` : 'past';
+    }
     const [hh, mm] = s.time.split(':').map(Number);
     const nowVn = new Date(Date.now() + VN_OFFSET_MS);
     const at = (dayOffset: number): Date => {
@@ -536,6 +584,7 @@ export class ScheduledEventsPageComponent {
     const code = (err as { error?: { error?: string } })?.error?.error;
     switch (code) {
       case 'invalid_day': return 'Pick a valid day.';
+      case 'invalid_date': return 'Pick a valid date (YYYY-MM-DD).';
       case 'invalid_time': return 'Enter a valid post time.';
       case 'invalid_type': return 'Pick a valid type.';
       case 'invalid_title': return 'A title is required (max 200 characters).';

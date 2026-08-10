@@ -113,6 +113,10 @@ export interface ScheduledEvent {
   mentionRoleId: string | null;
   enabled: boolean;
   lastFiredUtc: string | null;
+  /** A one-off on this exact date ("yyyy-MM-dd", Vietnam), instead of recurring weekly. Null for
+   *  the recurring and on-demand templates. When set, `dayOfWeek` mirrors this date's weekday and
+   *  is not what fires it. */
+  specificDate: string | null;
 }
 
 export interface ScheduledEventCreate {
@@ -129,6 +133,10 @@ export interface ScheduledEventCreate {
   /** Null uses the event type's own role; empty pings nobody; a role id overrides both. */
   mentionRoleId: string | null;
   enabled: boolean;
+  /** A one-off on this exact date ("yyyy-MM-dd", Vietnam) instead of recurring on `dayOfWeek`.
+   *  Null/absent means recurring or on-demand. On a patch, an empty string clears it back to the
+   *  weekly `dayOfWeek`; null leaves the trigger as it was. */
+  specificDate?: string | null;
 }
 
 /**
