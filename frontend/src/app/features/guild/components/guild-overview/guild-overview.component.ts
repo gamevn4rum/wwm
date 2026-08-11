@@ -5,6 +5,17 @@ import { MatchedPlayerStats } from '../../../roster-stats/player-stats.model';
 import { Guild, GuildRank } from '../../guild.model';
 import { compactNumber, formatUnixDate } from '../../guild-format';
 
+/**
+ * Whether the Guild War tiles render.
+ *
+ * Off since 2026-08-11: both boards came from the wwmdb relay, whose host stopped
+ * resolving, so the rankings behind them are frozen at their last successful sweep. A
+ * stale rank reads as a current one, which is worse than showing no tile at all. The
+ * first-party gateway does expose a `rank_service`, but its method names are unknown, so
+ * there is no live source to switch to yet — flip this back when there is.
+ */
+const SHOW_GUILD_WAR = false;
+
 /** One header tile. `sub` and `small` are optional presentation hints. */
 export interface OverviewTile {
   key: string;
@@ -66,6 +77,15 @@ export class GuildOverviewComponent implements OnInit {
       ? Math.round(playtimes.reduce((a, b) => a + b, 0) / playtimes.length / 3600)
       : null;
 
+    // Elegance is live again — it comes from the game API's fashion.score on every
+    // sweep, where it used to ride the wwmdb relay and froze when that went away.
+    const elegances = this.stats()
+      .map((m) => m.player.eleganceScore)
+      .filter((v): v is number => v != null);
+    const avgElegance = elegances.length
+      ? elegances.reduce((a, b) => a + b, 0) / elegances.length
+      : null;
+
     const tiles: OverviewTile[] = [
       { key: 'members', label: 'Members', value: String(g?.memberCount ?? 0) },
       { key: 'founded', label: 'Founded', value: formatUnixDate(g?.createTime), small: true },
@@ -74,6 +94,7 @@ export class GuildOverviewComponent implements OnInit {
         value: avgPlaytimeHours != null ? `${avgPlaytimeHours.toLocaleString('en-GB')}h` : '—',
       },
       { key: 'mastery', label: 'Avg Mastery', value: avgMastery != null ? compactNumber(avgMastery) : '—' },
+      { key: 'elegance', label: 'Avg Elegance', value: avgElegance != null ? compactNumber(avgElegance) : '—' },
     ];
 
     const r = this.rank();
@@ -85,10 +106,10 @@ export class GuildOverviewComponent implements OnInit {
         sub: r.prosperity.rank != null ? `#${r.prosperity.rank} of ${r.prosperity.total}` : undefined,
       });
     }
-    for (const [key, label, entry] of [
+    for (const [key, label, entry] of SHOW_GUILD_WAR ? ([
       ['gw-ranked', 'Guild War', r?.guildWar?.ranked],
       ['gw-league', 'GW League', r?.guildWar?.league],
-    ] as const) {
+    ] as const) : []) {
       if (entry?.rank == null) continue;
       // Rank is the headline; the board's own metric (war points) rides the sub-line
       // next to the field size, so the tile carries both.
