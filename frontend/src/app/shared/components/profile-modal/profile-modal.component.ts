@@ -13,7 +13,8 @@ import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../features/roster-stats/set-catalogue.model';
 import {
-  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, schoolColor, tierClass,
+  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtColor, schoolColor,
+  tierClass,
 } from '../../../features/roster-stats/build.utils';
 import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from '../../../features/guild/guild-format';
 
@@ -69,6 +70,25 @@ export class ProfileModalComponent implements OnInit {
   readonly tierClass = tierClass;
   readonly isEffectAffix = isEffectAffix;
   readonly schoolColor = schoolColor;
+  readonly martialArtColor = martialArtColor;
+
+  /**
+   * The member's martial arts, in slot order, ready to draw as chips.
+   *
+   * Deliberately unlabelled as "1" and "2": which slot an art sits in is a storage detail, not
+   * something a reader of a profile is asking. The order still carries it (primary first).
+   * Absent slots are dropped rather than drawn empty — most members have both, and a lone chip
+   * is a truer statement than a chip beside a dash.
+   */
+  martialArts(p: PlayerDetail): ReadonlyArray<{ id: number; label: string }> {
+    const slots: Array<[number | null | undefined, string | null | undefined]> = [
+      [p.martialArt1, p.martialArt1Label],
+      [p.martialArt2, p.martialArt2Label],
+    ];
+    return slots
+      .filter(([id]) => id != null)
+      .map(([id, label]) => ({ id: id as number, label: label || `#${id}` }));
+  }
   readonly gearRows = gearRows;
   readonly compact = compactNumber;
   readonly formatDate = formatUnixDate;

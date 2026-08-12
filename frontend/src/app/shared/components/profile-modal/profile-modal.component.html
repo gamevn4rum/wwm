@@ -132,6 +132,21 @@
               <dt>Wandering since</dt>
               <dd>{{ formatDate(p.createTime) }}</dd>
             </div>
+            <!-- Martial arts. One label for both slots: which is primary is carried by the
+                 order, and numbering them would surface a storage detail nobody asked about.
+                 The whole row is dropped when the sweep has read neither. -->
+            @if (martialArts(p).length > 0) {
+              <div class="pm-stat pm-stat-wide">
+                <dt>Martial Arts</dt>
+                <dd class="pm-arts">
+                  @for (art of martialArts(p); track art.id) {
+                    <span class="pm-art" [style.border-left-color]="martialArtColor(art.id)">
+                      {{ art.label }}
+                    </span>
+                  }
+                </dd>
+              </div>
+            }
           </dl>
         </section>
         }

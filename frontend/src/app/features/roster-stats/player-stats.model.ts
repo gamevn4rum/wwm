@@ -53,6 +53,19 @@ export interface PlayerDetail {
   /** Cumulative seconds played (not a timestamp). */
   onlineTime?: number | null;
   eleganceScore?: number | null;
+  /**
+   * The two martial-art slots, as raw ids over ONE id space — the same id can be one member's
+   * primary and another's secondary.
+   *
+   * ⚠ Not weapons. The hand-entered MainWeapon/SecondaryWeapon on the roster is the item; this
+   * is the discipline, and neither follows from the other (one id was found across five
+   * different weapons). The `*Label` fields are resolved server-side and are currently the raw
+   * id as `#10102`, since nothing names these yet.
+   */
+  martialArt1?: number | null;
+  martialArt2?: number | null;
+  martialArt1Label?: string | null;
+  martialArt2Label?: string | null;
   gear: GearSlot[];
   innerWays: PlayerInnerWay[];
 }

@@ -73,9 +73,30 @@ const SCHOOL_PALETTE = [
 /** Stable colour for a school name — the same school is the same colour everywhere. */
 export function schoolColor(school: string | null): string {
   if (!school) return 'var(--color-ink-faint)';
+  return SCHOOL_PALETTE[paletteIndex(school, SCHOOL_PALETTE.length)];
+}
+
+/**
+ * Stable colour for a martial art, keyed on its raw id.
+ *
+ * Same palette and same hash as `schoolColor`, so an art has one colour across the whole site.
+ * ⚠ The Discord bot mirrors this: `StatsPresenter.MartialArtChip` hashes the id's decimal text
+ * through the identical `h * 31 + c` and picks the same palette slot, so an art that is teal here
+ * is the teal square there. Change the hash or the palette order in one place and the two drift.
+ *
+ * Colour is never the only cue — the label is always drawn beside the chip — so a collision
+ * between two arts costs nothing but a repeated hue.
+ */
+export function martialArtColor(id: number | null | undefined): string {
+  if (id == null) return 'var(--color-ink-faint)';
+  return SCHOOL_PALETTE[paletteIndex(String(id), SCHOOL_PALETTE.length)];
+}
+
+/** `h = h * 31 + c` over the key's text. Shared so every caller lands on the same slot. */
+function paletteIndex(key: string, slots: number): number {
   let h = 0;
-  for (let i = 0; i < school.length; i++) h = (h * 31 + school.charCodeAt(i)) >>> 0;
-  return SCHOOL_PALETTE[h % SCHOOL_PALETTE.length];
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return h % slots;
 }
 
 /** Whole affix names that are really set-effect prose (long sentences). */

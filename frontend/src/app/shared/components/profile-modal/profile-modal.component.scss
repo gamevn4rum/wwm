@@ -421,6 +421,30 @@
   }
 }
 
+/* Martial arts. Spans the grid because two chips do not fit a 118px cell, and the labels are
+   currently raw ids that will get longer once they are real names. */
+.pm-stat-wide {
+  grid-column: 1 / -1;
+}
+
+.pm-arts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* The colour rides a left border rather than the text, so the label keeps full contrast at any
+   palette slot — colour identifies the art, it never has to be read. */
+.pm-art {
+  border-left: 3px solid var(--color-border-strong);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
 /* Figures that carry the brag get the display face, at a size worth reading. */
 .pm-figure {
   font-family: var(--font-heading) !important;
