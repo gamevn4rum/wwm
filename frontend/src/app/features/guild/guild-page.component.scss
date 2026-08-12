@@ -304,6 +304,57 @@
   &.is-online {
     border-left-color: var(--color-secondary);
   }
+
+  // Departed. Muted rather than struck through or greyed to illegibility: these are people
+  // the guild wants to remember, so the card recedes without becoming hard to read. Opacity
+  // is deliberately avoided — it would fade the text itself below comfortable contrast.
+  &.is-former {
+    background: var(--color-surface-alt);
+    border-left-color: var(--color-border);
+    border-style: dashed;
+
+    .member-ign {
+      color: var(--color-ink-soft);
+    }
+
+    &:hover {
+      border-left-color: var(--color-border-strong);
+    }
+  }
+}
+
+// ─── Former-members divider ───────────────────────────────────────────────────
+// A labelled rule rather than a second <section>: this is the tail of the roster, not a
+// separate topic, and giving it section chrome would suggest otherwise.
+.former-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-4);
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+}
+
+.former-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+
+.former-count {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
 
 // ─── Card head: avatar + name/school + level ──────────────────────────────────

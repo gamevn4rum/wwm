@@ -15,6 +15,22 @@ export function formatUnixDate(unixSeconds: number | null | undefined): string {
   });
 }
 
+/**
+ * `"2026-08-11"` → `"11 Aug 2026"`, matching `formatUnixDate` so the two read alike.
+ *
+ * Parsed by hand rather than through `new Date(str)`. A bare `yyyy-MM-dd` is treated as UTC
+ * midnight, which in any timezone behind UTC renders as the *previous* day — and a leave
+ * date is nothing but the day, so shifting it corrupts the only thing the field says.
+ */
+export function formatIsoDate(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+}
+
 /** Unix seconds → a coarse "5m / 4h / 3d ago"; falls back to the date once it's
  *  older than ~4 weeks. */
 export function relativeTime(unixSeconds: number): string {

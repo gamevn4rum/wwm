@@ -68,9 +68,12 @@
         />
       </div>
 
-      @if (roster().length === 0) {
+      <!-- Both lists are searched, so "nothing matches" has to mean nothing in EITHER — a
+           query that hits only a former member would otherwise print this line directly above
+           the card it claims not to have found. -->
+      @if (roster().length === 0 && formerMembers().length === 0) {
         <p class="section-empty">No members match “{{ query() }}”.</p>
-      } @else {
+      } @else if (roster().length > 0) {
         <div class="roster-grid">
           @for (entry of roster(); track entry.member.uid || entry.member.ign) {
             <article class="roster-card" [class.is-online]="entry.online">
@@ -110,6 +113,37 @@
                 <div class="member-stat member-stat-wide">
                   <dt>Joined</dt>
                   <dd>{{ formatDate(entry.member.joinTime) }}</dd>
+                </div>
+              </dl>
+            </article>
+          }
+        </div>
+      }
+
+      <!-- Departed members, after the current roster. Their cards carry no stats: the live
+           sweep only covers current members, so every figure would be an em dash. What is
+           worth keeping is that they were here and when they left, which is the one field
+           the card shows in place of the join date. -->
+      @if (formerMembers().length > 0) {
+        <div class="former-header">
+          <h3 class="former-title">Former members</h3>
+          <span class="former-count">{{ formerMembers().length }}</span>
+        </div>
+        <div class="roster-grid">
+          @for (member of formerMembers(); track member.ign) {
+            <article class="roster-card is-former">
+              <div class="member-head">
+                <span class="member-avatar">{{ initial(member.ign) }}</span>
+                <div class="member-id">
+                  <span class="member-ign">{{ member.ign }}</span>
+                  <span class="member-school">{{ member.role || '—' }}</span>
+                </div>
+              </div>
+
+              <dl class="member-stats">
+                <div class="member-stat member-stat-wide">
+                  <dt>Left</dt>
+                  <dd>{{ formatLeaveDate(member.leaveDate) }}</dd>
                 </div>
               </dl>
             </article>

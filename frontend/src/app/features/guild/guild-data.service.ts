@@ -9,7 +9,7 @@ import { Guild, GuildRank, HallOfFame } from './guild.model';
 
 const EMPTY_GUILD: Guild = {
   id: '', numberId: null, name: '', level: null, createTime: null,
-  hostnum: null, memberCount: 0, members: [],
+  hostnum: null, memberCount: 0, members: [], formerMembers: [],
 };
 
 /**
@@ -69,7 +69,13 @@ export class GuildDataService {
   private normalize(g: Guild | null): Guild {
     if (!g) return EMPTY_GUILD;
     const members = Array.isArray(g.members) ? g.members : [];
-    return { ...EMPTY_GUILD, ...g, members, memberCount: g.memberCount ?? members.length };
+    // Re-grounded rather than spread through: an API older than this build sends no
+    // formerMembers key at all, and the template iterates it unconditionally.
+    const formerMembers = Array.isArray(g.formerMembers) ? g.formerMembers : [];
+    return {
+      ...EMPTY_GUILD, ...g, members, formerMembers,
+      memberCount: g.memberCount ?? members.length,
+    };
   }
 
   private load(): Observable<GuildLoad> {

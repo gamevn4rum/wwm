@@ -2,8 +2,10 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { GuildDataService, GuildLoad } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
-import { Guild, GuildMember } from './guild.model';
-import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from './guild-format';
+import { FormerMember, Guild, GuildMember } from './guild.model';
+import {
+  compactNumber, formatIsoDate, formatUnixDate, playtimeLabel, relativeTime,
+} from './guild-format';
 
 
 /** A roster member joined with their in-game profile (absent until stats load,
@@ -124,6 +126,21 @@ export class GuildPageComponent implements OnInit {
     }
   });
 
+  /**
+   * Members who have left, drawn after the current roster.
+   *
+   * Filtered by the search box like the roster above — a search that hid a name from one list
+   * and not the other would read as the name being missing. Deliberately NOT re-sorted: the API
+   * sends them newest-leaver first, and the sort control above ranks on live stats that a
+   * departed member does not have.
+   */
+  readonly formerMembers = computed<FormerMember[]>(() => {
+    const g = this.guild();
+    if (!g) return [];
+    const q = this.query().trim().toLowerCase();
+    return g.formerMembers.filter((m) => !q || m.ign.toLowerCase().includes(q));
+  });
+
   ngOnInit(): void {
     this.dataService.getGuild().subscribe({
       next: (load) => {
@@ -171,6 +188,12 @@ export class GuildPageComponent implements OnInit {
 
   formatDate(unixSeconds: number | null | undefined): string {
     return formatUnixDate(unixSeconds);
+  }
+
+  /** Leave dates arrive as "yyyy-MM-dd", not unix seconds — see formatIsoDate for why they
+   *  must not go through the Date constructor. */
+  formatLeaveDate(iso: string | null | undefined): string {
+    return formatIsoDate(iso);
   }
 
   initial(ign: string): string {
