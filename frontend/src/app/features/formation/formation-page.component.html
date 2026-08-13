@@ -1,3 +1,6 @@
 <div class="page-fade">
-  <app-member-grid [innerWayFilter]="true"></app-member-grid>
+  <!-- registeredOnly: Formation plans around people you can actually organise, so members with no
+       app registration are left out here even though the homepage grid shows them with a badge.
+       Members who have left need no flag — the roster endpoint no longer serves them. -->
+  <app-member-grid [innerWayFilter]="true" [registeredOnly]="true"></app-member-grid>
 </div>

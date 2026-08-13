@@ -3,6 +3,7 @@ import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
 import { toBlob } from 'html-to-image';
 import { cardFontCss } from '../../../core/utils/card-fonts';
+import { captureScale } from '../../../core/utils/card-shot';
 import { ProfilePopupService } from '../../../core/services/profile-popup.service';
 import { DiscordAuthService, DiscordUserSession } from '../../../core/services/discord-auth.service';
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
@@ -197,7 +198,9 @@ export class ProfileModalComponent implements OnInit {
       const card = this.card().nativeElement;
       const fullHeight = card.scrollHeight;
       const blob = await toBlob(card, {
-        pixelRatio: 2,
+        // Shared with the member card so neither surface can end up sharper than the other; a
+        // hard-coded 2 on each is how they diverged.
+        pixelRatio: captureScale(card.clientWidth, fullHeight),
         // Width stays at the on-screen value (clientWidth, i.e. scrollbar
         // already discounted) so nothing reflows in the clone.
         height: fullHeight,

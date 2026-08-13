@@ -2,6 +2,7 @@ import { Component, HostListener, computed, inject, input, OnInit, signal } from
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { toBlob } from 'html-to-image';
 import { cardFontCss } from '../../../../core/utils/card-fonts';
+import { captureScale } from '../../../../core/utils/card-shot';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
@@ -40,6 +41,18 @@ export class MemberGridComponent implements OnInit {
   /** Show the inner-way path filter above the grid (Formation page). */
   readonly innerWayFilter = input(false);
 
+  /**
+   * Drop members who have not registered with the app (Formation page).
+   *
+   * ⚠ Off by default, because the homepage grid deliberately shows them with an UNREGISTERED badge —
+   * that roster is "everyone in the guild", and hiding the unregistered would quietly shrink it.
+   * Formation is a planning view of people you can actually organise, so there it is on.
+   *
+   * Members who have *left* need no flag: the roster endpoint stops serving them, so no grid can
+   * show one.
+   */
+  readonly registeredOnly = input(false);
+
   readonly players = signal<Player[]>([]);
   private readonly statsByIgn = signal<Map<string, MatchedPlayerStats>>(new Map());
   private readonly innerWaysById = signal<Map<number, InnerWayCatalogueEntry>>(new Map());
@@ -77,9 +90,16 @@ export class MemberGridComponent implements OnInit {
    * out of a filtered view.
    */
   readonly visiblePlayers = computed<Player[]>(() => {
+    // Registration is checked first and separately from the path filter: it decides who belongs in
+    // this view at all, where the path filter is the reader narrowing it. Folding them together
+    // would make the unregistered reappear the moment the path filter was cleared.
+    const base = this.registeredOnly()
+      ? this.players().filter((p) => p.registered)
+      : this.players();
+
     const path = this.pathFilter();
-    if (!path) return this.players();
-    return this.players().filter((p) => this.tier5Paths(p).has(path));
+    if (!path) return base;
+    return base.filter((p) => this.tier5Paths(p).has(path));
   });
 
   /** The distinct paths a player has a tier-5 inner way on. */
@@ -310,8 +330,20 @@ export class MemberGridComponent implements OnInit {
       host.appendChild(clone);
       document.body.appendChild(host);
 
+      // Measured after the clone is in the document, so the height is the trimmed one the
+      // `.mg-noshot` removals produced rather than the taller card still on screen. Rounded up:
+      // a fractional size makes the library rasterize at one size and draw at another, and the
+      // resampling is exactly what reads as a soft image.
+      const rect = clone.getBoundingClientRect();
+      const shotWidth = Math.ceil(rect.width);
+      const shotHeight = Math.ceil(rect.height);
+
       const blob = await toBlob(clone, {
-        pixelRatio: 2,
+        // Shared with the profile card so neither surface can end up sharper than the other; a
+        // hard-coded 2 on each is how they diverged.
+        pixelRatio: captureScale(shotWidth, shotHeight),
+        width: shotWidth,
+        height: shotHeight,
         backgroundColor: getComputedStyle(document.documentElement)
           .getPropertyValue('--color-surface').trim() || '#ffffff',
         // Curated font set — see card-fonts.ts for why we don't let the library
