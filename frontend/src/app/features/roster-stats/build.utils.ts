@@ -77,19 +77,43 @@ export function schoolColor(school: string | null): string {
 }
 
 /**
- * Stable colour for a martial art, keyed on its raw id.
+ * Colour for a martial art — its path's, so both arts of a path share one.
  *
- * Same palette and same hash as `schoolColor`, so an art has one colour across the whole site.
- * ⚠ The Discord bot mirrors this: `StatsPresenter.MartialArtChip` hashes the id's decimal text
- * through the identical `h * 31 + c` and picks the same palette slot, so an art that is teal here
- * is the teal square there. Change the hash or the palette order in one place and the two drift.
+ * The backend's colour is authoritative and now always present for an art that has a path. ⚠ It is a
+ * **family** colour: the two paths of a family are the same hue, deliberately, because the game's own
+ * badge artwork colours them that way. What separates two paths of a family is the icon, so never draw
+ * this colour as the only cue — the label is always beside it here.
  *
- * Colour is never the only cue — the label is always drawn beside the chip — so a collision
- * between two arts costs nothing but a repeated hue.
+ * The hashed fallback survives for an art with **no** path (a discipline the backend's table has not
+ * placed yet), keyed on the art id so it at least stays stable. ⚠ The bot mirrors that fallback in
+ * `StatsPresenter.MartialArtChip` through the identical `h * 31 + c` into the same palette order;
+ * change the hash, the key or the palette order in one place and the two drift.
  */
-export function martialArtColor(id: number | null | undefined): string {
-  if (id == null) return 'var(--color-ink-faint)';
-  return SCHOOL_PALETTE[paletteIndex(String(id), SCHOOL_PALETTE.length)];
+export function martialArtColor(
+  pathColor: string | null | undefined,
+  pathSlug: string | null | undefined,
+  id: number | null | undefined,
+): string {
+  if (pathColor) return pathColor;
+  const key = pathSlug ?? (id == null ? null : String(id));
+  if (key == null) return 'var(--color-ink-faint)';
+  return SCHOOL_PALETTE[paletteIndex(key, SCHOOL_PALETTE.length)];
+}
+
+/**
+ * The path's icon, hosted by us, or null for an art with no path.
+ *
+ * Built from the slug rather than sent by the API: the artwork lives in this repo under
+ * `public/icons/paths/`, so the backend has no business knowing which files we shipped. It came off a
+ * community wiki, and pointing live at that wiki made every profile depend on a host nobody here
+ * controls.
+ *
+ * ⚠ Returning a path is **not** a promise the file exists — three of the nine were never archived and
+ * have no artwork. Callers must handle a load failure (see the profile modal's `onIconError`); the
+ * colour and the label already carry the meaning without it.
+ */
+export function martialArtIcon(pathSlug: string | null | undefined): string | null {
+  return pathSlug ? `icons/paths/${pathSlug}.png` : null;
 }
 
 /** `h = h * 31 + c` over the key's text. Shared so every caller lands on the same slot. */

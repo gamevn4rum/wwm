@@ -436,6 +436,9 @@
 /* The colour rides a left border rather than the text, so the label keeps full contrast at any
    palette slot — colour identifies the art, it never has to be read. */
 .pm-art {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   border-left: 3px solid var(--color-border-strong);
   background: var(--color-surface);
   border-radius: var(--radius-sm);
@@ -443,6 +446,39 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-ink);
+}
+
+/* Sized in em so it tracks the label rather than needing its own breakpoint. The chip's layout must
+   not depend on it: the icon is third-party and can vanish, and a gap that collapses cleanly is the
+   whole point of flex + gap here. */
+.pm-art-icon {
+  width: 1.15em;
+  height: 1.15em;
+  object-fit: contain;
+  flex: none;
+}
+
+/* The build tag beside the arts. Deliberately quieter than a chip and with no left border: it is a
+   statement ABOUT the two chips, not a third art, and must not be counted as one. */
+.pm-art-build {
+  align-self: center;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+/* A path build is the notable case, so it gets the solid outline. Mixed keeps the dashed one —
+   neither is better, but only one of them is a single named thing. */
+.pm-art-build-path {
+  border-style: solid;
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-tint);
+  color: var(--color-ink-soft);
 }
 
 /* Figures that carry the brag get the display face, at a size worth reading. */

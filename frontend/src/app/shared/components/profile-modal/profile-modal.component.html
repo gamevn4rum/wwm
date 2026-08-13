@@ -134,14 +134,43 @@
             </div>
             <!-- Martial arts. One label for both slots: which is primary is carried by the
                  order, and numbering them would surface a storage detail nobody asked about.
-                 The whole row is dropped when the sweep has read neither. -->
+                 The whole row is dropped when the sweep has read neither.
+
+                 Each chip is coloured by its PATH, so a path build reads as two matching chips and
+                 a mixed one as two that clash — the build tag then names what the colours already
+                 show. The tag is absent, not "Mixed", when the backend could not classify it. -->
             @if (martialArts(p).length > 0) {
               <div class="pm-stat pm-stat-wide">
                 <dt>Martial Arts</dt>
                 <dd class="pm-arts">
                   @for (art of martialArts(p); track art.id) {
-                    <span class="pm-art" [style.border-left-color]="martialArtColor(art.id)">
+                    <span
+                      class="pm-art"
+                      [style.border-left-color]="art.color"
+                      [title]="art.path ?? ''"
+                    >
+                      <!-- The icon is decorative: the label beside it already names the art, and the
+                           border already carries the path's colour. So it takes an empty alt and, if
+                           the file is one of the three paths with no artwork, simply drops out. -->
+                      @if (art.iconUrl) {
+                        <img
+                          class="pm-art-icon"
+                          [src]="art.iconUrl"
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          (error)="onIconError(art.iconUrl)"
+                        />
+                      }
                       {{ art.label }}
+                    </span>
+                  }
+                  @if (martialArtBuild(p); as build) {
+                    <span
+                      class="pm-art-build"
+                      [class.pm-art-build-path]="p.martialArtBuild === 'Path'"
+                    >
+                      {{ build }}
                     </span>
                   }
                 </dd>
