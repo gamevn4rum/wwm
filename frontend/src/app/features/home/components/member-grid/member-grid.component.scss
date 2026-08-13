@@ -441,6 +441,64 @@
 /* tile-school accent is set inline from the school palette */
 
 /* ── Inner Ways ── */
+/* Martial arts, above the inner ways. Reuses .gear-heading, so the card's three sections announce
+   themselves identically — only the icon differs. */
+.ma-section { margin-top: var(--space-2); margin-bottom: var(--space-5); }
+
+.ma-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* The colour rides a left border rather than the text, so the label keeps full contrast at any
+   palette slot — colour identifies the path, it never has to be read. Same treatment as the profile
+   card's .pm-art, deliberately: one art should look like itself on both surfaces. */
+.ma-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-left: 3px solid var(--color-border-strong);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* Sized in em so it tracks the label. The chip's layout must not depend on it: three of the nine
+   paths have no artwork, and flex + gap is what makes the space collapse cleanly when it is absent. */
+.ma-chip-icon {
+  width: 1.15em;
+  height: 1.15em;
+  object-fit: contain;
+  flex: none;
+}
+
+/* The build tag sits in the heading, not among the chips: it is a statement ABOUT the two chips and
+   must not be miscounted as a third art. Quieter than a chip for the same reason. */
+.ma-build {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.05rem 0.4rem;
+}
+
+/* A path build is the notable case, so it gets the solid outline. Mixed keeps the dashed one —
+   neither is better, but only one of them is a single named thing. */
+.ma-build--path {
+  border-style: solid;
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-tint);
+  color: var(--color-ink-soft);
+}
+
 .inner-ways-section { margin-top: var(--space-2); margin-bottom: var(--space-5); }
 
 /* A member equips four inner ways, so they line up as four boxes in one row. */

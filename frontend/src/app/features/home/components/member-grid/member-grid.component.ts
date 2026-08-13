@@ -11,7 +11,8 @@ import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogu
 import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
 import {
-  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, schoolColor, tierClass,
+  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
+  noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
 } from '../../../roster-stats/build.utils';
 
 export type { ActiveSetEffect };
@@ -164,11 +165,17 @@ export class MemberGridComponent implements OnInit {
     }
   }
 
-  // Template-facing wrappers over the shared build helpers.
+  // Template-facing wrappers over the shared build helpers. Martial arts and the gear filter come
+  // from the same place the profile modal reads, so the two views cannot disagree about what a member
+  // is wearing or training.
   readonly tierClass = tierClass;
   readonly isEffectAffix = isEffectAffix;
   readonly schoolColor = schoolColor;
   readonly gearRows = gearRows;
+  readonly visibleGear = visibleGear;
+  readonly martialArts = martialArts;
+  readonly martialArtBuild = martialArtBuild;
+  readonly onIconError = noteMartialArtIconFailed;
 
   /** Account creation → "Since Dec 2025". */
   joinedLabel(createTime: number | null): string {

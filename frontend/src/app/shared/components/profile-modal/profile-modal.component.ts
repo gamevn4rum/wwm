@@ -13,8 +13,8 @@ import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../features/roster-stats/set-catalogue.model';
 import {
-  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtColor, martialArtIcon,
-  schoolColor, tierClass,
+  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
+  noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
 } from '../../../features/roster-stats/build.utils';
 import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from '../../../features/guild/guild-format';
 
@@ -83,76 +83,12 @@ export class ProfileModalComponent implements OnInit {
    * one slot together — a template calling a colour helper per chip can pair a colour with the
    * wrong art's label the moment the slots are reordered.
    */
-  martialArts(p: PlayerDetail): ReadonlyArray<{
-    id: number;
-    label: string;
-    color: string;
-    path: string | null;
-    iconUrl: string | null;
-  }> {
-    const slots: Array<{
-      id?: number | null;
-      label?: string | null;
-      slug?: string | null;
-      color?: string | null;
-      path?: string | null;
-      iconUrl?: string | null;
-    }> = [
-      {
-        id: p.martialArt1,
-        label: p.martialArt1Label,
-        slug: p.martialArt1Path,
-        color: p.martialArt1PathColor,
-        path: p.martialArt1PathLabel,
-      },
-      {
-        id: p.martialArt2,
-        label: p.martialArt2Label,
-        slug: p.martialArt2Path,
-        color: p.martialArt2PathColor,
-        path: p.martialArt2PathLabel,
-      },
-    ];
-    return slots
-      .filter((s) => s.id != null)
-      .map((s) => {
-        const icon = martialArtIcon(s.slug);
-        return {
-          id: s.id as number,
-          label: s.label || `#${s.id}`,
-          color: martialArtColor(s.color, s.slug, s.id),
-          path: s.path ?? null,
-          // Withheld once the browser has failed to load it, so a path with no artwork shipped leaves
-          // a chip that reads exactly like one that never had an icon, not a broken-image glyph.
-          iconUrl: icon && !this.deadIcons().has(icon) ? icon : null,
-        };
-      });
-  }
-
-  /**
-   * Path icons the browser could not load.
-   *
-   * Three of the nine paths have no artwork, so a miss is expected rather than exceptional. Recorded
-   * per URL rather than per art, so one missing file only costs its own path — and both arts of that
-   * path lose the icon together, which is right: they share it.
-   */
-  private readonly deadIcons = signal<ReadonlySet<string>>(new Set());
-
-  onIconError(url: string): void {
-    this.deadIcons.update((dead) => (dead.has(url) ? dead : new Set(dead).add(url)));
-  }
-
-  /**
-   * The build, in the words the profile shows: the path's name, or that the arts cross two.
-   *
-   * ⚠ Null for anything the backend left unclassified — one art on file, or an art its path table
-   * has not placed. Showing "Mixed" there would report a gap in that table as a choice the member
-   * made, and the two arts' own path labels are still drawn either way.
-   */
-  martialArtBuild(p: PlayerDetail): string | null {
-    if (p.martialArtBuild === 'Path') return p.martialArtPathLabel || 'Path';
-    return p.martialArtBuild === 'Mixed' ? 'Mixed' : null;
-  }
+  // Martial arts are drawn the same way on the member grid, so both read one definition in
+  // build.utils — including which icons have already failed to load.
+  readonly martialArts = martialArts;
+  readonly martialArtBuild = martialArtBuild;
+  readonly onIconError = noteMartialArtIconFailed;
+  readonly visibleGear = visibleGear;
   readonly gearRows = gearRows;
   readonly compact = compactNumber;
   readonly formatDate = formatUnixDate;

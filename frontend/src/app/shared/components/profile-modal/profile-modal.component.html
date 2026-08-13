@@ -275,11 +275,13 @@
 
         <!-- Gear ------------------------------------------------------------->
         <!-- Same checkbox as Set Effects: the two read as one "build" block. -->
-        @if (p.gear.length && !hideBuild()) {
+        <!-- visibleGear, not p.gear: the count must match the tiles below it, and the Fishing Rod
+             is not among them. -->
+        @if (visibleGear(p).length && !hideBuild()) {
           <section class="pm-section">
             <h3 class="pm-heading">
               <span>GEAR</span>
-              <span class="pm-count">{{ p.gear.length }}</span>
+              <span class="pm-count">{{ visibleGear(p).length }}</span>
             </h3>
 
             <div class="pm-gear-rows">

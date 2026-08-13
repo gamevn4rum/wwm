@@ -166,6 +166,49 @@
               </div>
             </div>
 
+            <!-- Martial Arts. Above Inner Ways because the arts identify the character the way the
+                 level does, where inner ways are a build detail. Each chip is coloured by its PATH,
+                 so a path build reads as two matching chips and a mixed one as two that clash; the
+                 build tag then names what the colours already show. The tag is absent, not "Mixed",
+                 when the backend could not classify it. -->
+            @if (martialArts(p).length) {
+              <div class="ma-section">
+                <h3 class="gear-heading">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 20L20 4M14 4h6v6M9 15l-5 5"
+                      fill="none" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  Martial Arts
+                  @if (martialArtBuild(p); as build) {
+                    <span
+                      class="ma-build"
+                      [class.ma-build--path]="p.martialArtBuild === 'Path'"
+                    >{{ build }}</span>
+                  }
+                </h3>
+                <div class="ma-chips">
+                  @for (art of martialArts(p); track art.id) {
+                    <span class="ma-chip" [style.border-left-color]="art.color" [title]="art.path ?? ''">
+                      <!-- Decorative: the label names the art and the border carries the path's
+                           colour, so an empty alt is right and a load failure just drops it. -->
+                      @if (art.iconUrl) {
+                        <img
+                          class="ma-chip-icon"
+                          [src]="art.iconUrl"
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          (error)="onIconError(art.iconUrl)"
+                        />
+                      }
+                      {{ art.label }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
             <!-- Inner Ways -->
             @if (p.innerWays.length) {
               <div class="inner-ways-section">
@@ -311,15 +354,16 @@
               </div>
             }
 
-            <!-- Gear -->
-            @if (p.gear.length) {
+            <!-- Gear. visibleGear, not p.gear: the count has to match the tiles below it, and the
+                 Fishing Rod is not among them. -->
+            @if (visibleGear(p).length) {
               <div class="gear-section">
                 <h3 class="gear-heading">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 2l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V5z"
                       fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
                   </svg>
-                  Gear <span class="gear-count">{{ p.gear.length }}</span>
+                  Gear <span class="gear-count">{{ visibleGear(p).length }}</span>
                 </h3>
                 <!-- Two rows in the game's grouping: the four slots that can share
                      a set, a hairline, then the piece that stands outside it. -->
