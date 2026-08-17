@@ -173,17 +173,49 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                   </td>
                   <td class="num">{{ e.boutsReported }}/{{ e.boutsDrawn }}</td>
                   <td class="config">
-                    {{ e.boutCap }} bouts · {{ e.pointsPerWin }}pt
-                    @if (e.allowDraftedHealer) {
-                      <small>drafting on</small>
+                    @if (editing() === e.id) {
+                      <form [formGroup]="editForm" class="edit">
+                        <label>
+                          <span>Bouts</span>
+                          <input type="number" formControlName="boutCap" min="1" max="50" />
+                        </label>
+                        <label>
+                          <span>Points</span>
+                          <input type="number" formControlName="pointsPerWin" min="1" max="100" />
+                        </label>
+                        <label class="check">
+                          <input type="checkbox" formControlName="allowDraftedHealer" />
+                          <span>Draft a Tank/DPS as healer</span>
+                        </label>
+                        <label class="check">
+                          <input type="checkbox" formControlName="avoidRepeatPairings" />
+                          <span>Avoid repeat pairings</span>
+                        </label>
+                      </form>
                     } @else {
-                      <small class="warn">drafting off</small>
+                      {{ e.boutCap }} bouts · {{ e.pointsPerWin }}pt
+                      @if (e.allowDraftedHealer) {
+                        <small>drafting on</small>
+                      } @else {
+                        <small class="warn">drafting off</small>
+                      }
+                      @if (!e.avoidRepeatPairings) {
+                        <small class="warn">repeats allowed</small>
+                      }
                     }
                   </td>
                   <td class="row-actions">
-                    @if (e.status === 'pending' || e.status === 'running') {
-                      <button type="button" (click)="cancel(e)" [disabled]="busy() === e.id">
-                        {{ busy() === e.id ? '…' : 'Cancel' }}
+                    @if (editing() === e.id) {
+                      <button type="button" (click)="saveEdit(e)" [disabled]="busy() === e.id">
+                        {{ busy() === e.id ? '…' : 'Save' }}
+                      </button>
+                      <button type="button" (click)="cancelEdit()">Cancel</button>
+                    } @else if (e.status === 'pending' || e.status === 'running') {
+                      <!-- Only while it can still change a draw. A finished event's config is a
+                           record of how it was run, not a setting. -->
+                      <button type="button" (click)="startEdit(e)">Edit</button>
+                      <button type="button" (click)="cancelEvent(e)" [disabled]="busy() === e.id">
+                        {{ busy() === e.id ? '…' : 'Cancel event' }}
                       </button>
                     }
                   </td>
@@ -215,7 +247,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        max-width: 34rem;
+        max-width: 40rem;
         padding: 1rem;
         border: 1px solid rgba(128, 128, 128, 0.35);
         border-radius: 6px;
@@ -227,6 +259,9 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+        /* Grid and flex children default to min-width:auto, which for a date or number input is its
+           intrinsic width — wide enough to overflow a 1fr track and cover the field beside it. */
+        min-width: 0;
       }
       label > span {
         font-weight: 600;
@@ -237,9 +272,35 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         opacity: 0.75;
         display: block;
       }
+      /* Matches the Scheduled events panel: nothing global styles a bare input, so each panel
+         dresses its own. font: inherit matters — without it a control renders in the browser's
+         default face at a size the rest of the page never uses. */
+      .new input,
+      .new select,
+      .new textarea {
+        padding: 0.45rem 0.6rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+      .new textarea {
+        resize: vertical;
+      }
+      /* A checkbox must not be stretched by the rule above. */
+      .new input[type='checkbox'] {
+        width: auto;
+        min-width: auto;
+        margin: 0.2rem 0 0;
+        flex: 0 0 auto;
+      }
+      /* auto-fit rather than 1fr 1fr so a narrow window stacks the pair instead of squeezing two
+         date inputs into space neither of them fits. */
       .pair {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
         gap: 0.75rem;
       }
       label.check {
@@ -255,6 +316,22 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .actions button,
+      .row-actions button {
+        padding: 0.45rem 0.9rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        cursor: pointer;
+        background: var(--color-surface, #fff);
+        color: inherit;
+      }
+      .actions button:disabled,
+      .row-actions button:disabled {
+        cursor: default;
+        opacity: 0.5;
       }
       table.rows {
         width: 100%;
@@ -312,6 +389,54 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
       .warn {
         color: #e67e22;
       }
+      /* The inline row editor. Same control dressing as the create form — nothing global styles a
+         bare input, so both places have to say so. */
+      form.edit {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        min-width: 12rem;
+      }
+      form.edit label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 0;
+      }
+      form.edit label > span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0.8;
+      }
+      form.edit input {
+        padding: 0.3rem 0.45rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 5px;
+        font: inherit;
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+      form.edit label.check {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      form.edit label.check > span {
+        font-size: 0.75rem;
+      }
+      form.edit input[type='checkbox'] {
+        width: auto;
+        min-width: auto;
+        margin: 0;
+        flex: 0 0 auto;
+      }
+      td.row-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        align-items: stretch;
+      }
     `,
   ],
 })
@@ -324,6 +449,17 @@ export class PvpEventsPageComponent {
   protected readonly creating = signal(false);
   protected readonly createError = signal<string | null>(null);
   protected readonly busy = signal<number | null>(null);
+
+  /** Which row is being edited, or null. One at a time — a table of open forms is a table nobody
+   *  can read, and there is no reason to change two tournaments at once. */
+  protected readonly editing = signal<number | null>(null);
+
+  protected readonly editForm = new FormGroup({
+    boutCap: new FormControl<number>(5, { nonNullable: true }),
+    pointsPerWin: new FormControl<number>(1, { nonNullable: true }),
+    allowDraftedHealer: new FormControl(true, { nonNullable: true }),
+    avoidRepeatPairings: new FormControl(true, { nonNullable: true }),
+  });
 
   protected readonly form = new FormGroup({
     title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -412,7 +548,44 @@ export class PvpEventsPageComponent {
     });
   }
 
-  protected cancel(e: PvpEvent): void {
+  protected startEdit(e: PvpEvent): void {
+    this.editing.set(e.id);
+    this.editForm.setValue({
+      boutCap: e.boutCap,
+      pointsPerWin: e.pointsPerWin,
+      allowDraftedHealer: e.allowDraftedHealer,
+      avoidRepeatPairings: e.avoidRepeatPairings,
+    });
+  }
+
+  protected cancelEdit(): void {
+    this.editing.set(null);
+  }
+
+  /**
+   * Saves the four settings that can still change after the post is up.
+   *
+   * Raising the bout cap mid-event is the useful case: it lets more rounds be drawn from a field that
+   * still has people in it. Lowering it below what somebody has already played takes nobody's results
+   * away — they simply stop being drawn.
+   */
+  protected saveEdit(e: PvpEvent): void {
+    const v = this.editForm.getRawValue();
+    this.busy.set(e.id);
+    this.api.patchPvpEvent(e.id, v).subscribe({
+      next: () => {
+        this.busy.set(null);
+        this.editing.set(null);
+        this.load();
+      },
+      error: () => {
+        this.busy.set(null);
+        this.error.set('Could not save that change.');
+      },
+    });
+  }
+
+  protected cancelEvent(e: PvpEvent): void {
     if (!confirm(`Cancel "${e.title}"? Its registration post stops taking answers. Results are kept.`)) {
       return;
     }
