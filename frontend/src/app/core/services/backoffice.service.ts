@@ -119,6 +119,75 @@ export interface ScheduledEvent {
   specificDate: string | null;
 }
 
+/**
+ * A hosted PvP tournament — see `PVP-TOURNAMENT.md` in the API repo.
+ *
+ * Registration is an ordinary RSVP event of type `Pvp`, posted when this is created; everything here
+ * is what happens once it closes. The bot runs it from there (`/gtourstart`, `/gtourboard`).
+ */
+export interface PvpEvent {
+  id: number;
+  /** Shared with the registration post's slug — one identity for both halves. */
+  eventId: string;
+  title: string;
+  channelId: string | null;
+  /** The thread the rounds play out in, once the bot has opened one. */
+  threadId: string | null;
+  status: 'pending' | 'running' | 'finished' | 'cancelled';
+  currentRound: number;
+  boutCap: number;
+  pointsPerWin: number;
+  damageSeatsPerTeam: number;
+  healerSeatsPerTeam: number;
+  allowDraftedHealer: boolean;
+  avoidRepeatPairings: boolean;
+  startsAt: string | null;
+  rsvpClosesAt: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdUtc: string;
+  createdBy: string | null;
+  /** Registered so far, or the frozen field once it has started. */
+  registeredDamage: number;
+  registeredHealer: number;
+  /**
+   * How many healers short of what a full event needs — a healer for every two Tank/DPS, which is
+   * just the team ratio read backwards. Positive is roughly how many Tank/DPS will finish under the
+   * bout cap unless somebody is drafted into a healer seat. Shown **before** the first draw so this
+   * is a decision rather than a surprise mid-event.
+   */
+  healerShortfall: number;
+  boutsDrawn: number;
+  boutsReported: number;
+}
+
+export interface PvpEventCreate {
+  title: string;
+  channelId: string;
+  /** ISO instant. The registration post shows it and the bot draws from that moment on. */
+  startsAt: string;
+  /** Null closes registration at the start. Must not be after it. */
+  rsvpClosesAt: string | null;
+  capacity: number | null;
+  notes: string | null;
+  /** Bouts one person may play before leaving the pool. Null uses 5. */
+  boutCap: number | null;
+  pointsPerWin: number | null;
+  /** Let a Tank/DPS fill a healer seat when the healer pool runs dry. Null uses true. */
+  allowDraftedHealer: boolean | null;
+  avoidRepeatPairings: boolean | null;
+  /** Null uses the `Pvp` type's own role; empty pings nobody; an id overrides both. */
+  mentionRoleId: string | null;
+}
+
+/** Null means "leave this field alone". */
+export interface PvpEventPatch {
+  boutCap?: number | null;
+  pointsPerWin?: number | null;
+  allowDraftedHealer?: boolean | null;
+  avoidRepeatPairings?: boolean | null;
+}
+
 export interface ScheduledEventCreate {
   dayOfWeek: number;
   time: string;
@@ -319,6 +388,31 @@ export class BackofficeService {
   postScheduledEventNow(id: number): Observable<{ ok: boolean; slug?: string; status?: number; error?: string }> {
     return this.http.post<{ ok: boolean; slug?: string; status?: number; error?: string }>(
       apiUrl(`/admin/scheduled-events/${id}/post-now`), {});
+  }
+
+  // ── Hosted PvP tournaments (Admin) ────────────────────────────────────────
+  getPvpEvents(): Observable<PvpEvent[]> {
+    return this.http.get<PvpEvent[]>(apiUrl('/admin/pvp-events'));
+  }
+
+  /**
+   * Creates the tournament **and posts its registration form to Discord**, in one call. There is no
+   * separate "post now": a tournament with no post is invisible, and a post with no tournament
+   * behind it collects registrations nothing will draw from — so either both exist or neither does.
+   * A Discord failure comes back 502 and nothing is created.
+   */
+  createPvpEvent(body: PvpEventCreate): Observable<PvpEvent> {
+    return this.http.post<PvpEvent>(apiUrl('/admin/pvp-events'), body);
+  }
+
+  /** Only the knobs that survive the post going up — the title, channel and times belong to it. */
+  patchPvpEvent(id: number, patch: PvpEventPatch): Observable<PvpEvent> {
+    return this.http.patch<PvpEvent>(apiUrl(`/admin/pvp-events/${id}`), patch);
+  }
+
+  /** Cancels rather than erases: the results are the guild's record of an evening. */
+  cancelPvpEvent(id: number): Observable<void> {
+    return this.http.delete<void>(apiUrl(`/admin/pvp-events/${id}`));
   }
 
   // ── Event ping roles (Admin) ──────────────────────────────────────────────

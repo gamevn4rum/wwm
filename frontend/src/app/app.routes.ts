@@ -75,6 +75,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/manage/bot-schedule-page.component').then((m) => m.BotSchedulePageComponent),
       },
+      {
+        path: 'manage/pvp-events',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/manage/pvp-events-page.component').then((m) => m.PvpEventsPageComponent),
+      },
       // Old split routes now live as collapsible panels under one page.
       { path: 'manage/schedules', redirectTo: 'manage/bot-schedule', pathMatch: 'full' },
       { path: 'manage/scheduled-events', redirectTo: 'manage/bot-schedule', pathMatch: 'full' },
