@@ -137,6 +137,9 @@ export interface PvpEvent {
   currentRound: number;
   boutCap: number;
   pointsPerWin: number;
+  /** Points to each member of the losing team. 0 by default — a loser scoring nothing is the
+   * ordinary case — but always lower than `pointsPerWin`, which the API enforces. */
+  pointsPerLoss: number;
   damageSeatsPerTeam: number;
   healerSeatsPerTeam: number;
   allowDraftedHealer: boolean;
@@ -173,6 +176,8 @@ export interface PvpEventCreate {
   /** Bouts one person may play before leaving the pool. Null uses 5. */
   boutCap: number | null;
   pointsPerWin: number | null;
+  /** Null uses 0. Must come out lower than `pointsPerWin` — the API rejects the request otherwise. */
+  pointsPerLoss: number | null;
   /** Let a Tank/DPS fill a healer seat when the healer pool runs dry. Null uses true. */
   allowDraftedHealer: boolean | null;
   avoidRepeatPairings: boolean | null;
@@ -184,6 +189,7 @@ export interface PvpEventCreate {
 export interface PvpEventPatch {
   boutCap?: number | null;
   pointsPerWin?: number | null;
+  pointsPerLoss?: number | null;
   allowDraftedHealer?: boolean | null;
   avoidRepeatPairings?: boolean | null;
 }

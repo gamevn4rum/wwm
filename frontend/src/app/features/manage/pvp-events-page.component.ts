@@ -80,6 +80,11 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
               <span>Points per win</span>
               <input type="number" formControlName="pointsPerWin" min="1" max="100" />
             </label>
+            <label>
+              <span>Points per loss</span>
+              <input type="number" formControlName="pointsPerLoss" min="0" max="99" />
+              <small>0 = losers score nothing. Must stay lower than points per win.</small>
+            </label>
           </div>
 
           <label>
@@ -180,8 +185,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                           <input type="number" formControlName="boutCap" min="1" max="50" />
                         </label>
                         <label>
-                          <span>Points</span>
+                          <span>Points/win</span>
                           <input type="number" formControlName="pointsPerWin" min="1" max="100" />
+                        </label>
+                        <label>
+                          <span>Points/loss</span>
+                          <input type="number" formControlName="pointsPerLoss" min="0" max="99" />
                         </label>
                         <label class="check">
                           <input type="checkbox" formControlName="allowDraftedHealer" />
@@ -193,7 +202,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                         </label>
                       </form>
                     } @else {
-                      {{ e.boutCap }} bouts · {{ e.pointsPerWin }}pt
+                      {{ e.boutCap }} bouts · +{{ e.pointsPerWin }}/{{ e.pointsPerLoss }}pt
                       @if (e.allowDraftedHealer) {
                         <small>drafting on</small>
                       } @else {
@@ -457,6 +466,7 @@ export class PvpEventsPageComponent {
   protected readonly editForm = new FormGroup({
     boutCap: new FormControl<number>(5, { nonNullable: true }),
     pointsPerWin: new FormControl<number>(1, { nonNullable: true }),
+    pointsPerLoss: new FormControl<number>(0, { nonNullable: true }),
     allowDraftedHealer: new FormControl(true, { nonNullable: true }),
     avoidRepeatPairings: new FormControl(true, { nonNullable: true }),
   });
@@ -468,6 +478,7 @@ export class PvpEventsPageComponent {
     closesAt: new FormControl('', { nonNullable: true }),
     boutCap: new FormControl<number>(5, { nonNullable: true }),
     pointsPerWin: new FormControl<number>(1, { nonNullable: true }),
+    pointsPerLoss: new FormControl<number>(0, { nonNullable: true }),
     capacity: new FormControl<number | null>(null),
     mentionRoleId: new FormControl<string | null>(null),
     allowDraftedHealer: new FormControl(true, { nonNullable: true }),
@@ -509,6 +520,11 @@ export class PvpEventsPageComponent {
       return;
     }
 
+    if ((v.pointsPerLoss ?? 0) >= (v.pointsPerWin ?? 1)) {
+      this.createError.set('Points per loss must be lower than points per win.');
+      return;
+    }
+
     const body: PvpEventCreate = {
       title: v.title.trim(),
       channelId: v.channelId,
@@ -518,6 +534,7 @@ export class PvpEventsPageComponent {
       notes: v.notes.trim() || null,
       boutCap: v.boutCap ?? null,
       pointsPerWin: v.pointsPerWin ?? null,
+      pointsPerLoss: v.pointsPerLoss ?? null,
       allowDraftedHealer: v.allowDraftedHealer,
       avoidRepeatPairings: v.avoidRepeatPairings,
       mentionRoleId: v.mentionRoleId,
@@ -542,7 +559,9 @@ export class PvpEventsPageComponent {
               ? 'The API has no Discord bot token configured, so it cannot post.'
               : err?.error?.error === 'close_after_start'
                 ? 'Registration cannot close after the tournament starts.'
-                : 'Could not create the tournament.',
+                : err?.error?.error === 'points_per_loss_too_high'
+                  ? 'Points per loss must be lower than points per win.'
+                  : 'Could not create the tournament.',
         );
       },
     });
@@ -553,6 +572,7 @@ export class PvpEventsPageComponent {
     this.editForm.setValue({
       boutCap: e.boutCap,
       pointsPerWin: e.pointsPerWin,
+      pointsPerLoss: e.pointsPerLoss,
       allowDraftedHealer: e.allowDraftedHealer,
       avoidRepeatPairings: e.avoidRepeatPairings,
     });
@@ -571,6 +591,11 @@ export class PvpEventsPageComponent {
    */
   protected saveEdit(e: PvpEvent): void {
     const v = this.editForm.getRawValue();
+    if (v.pointsPerLoss >= v.pointsPerWin) {
+      this.error.set('Points per loss must be lower than points per win.');
+      return;
+    }
+
     this.busy.set(e.id);
     this.api.patchPvpEvent(e.id, v).subscribe({
       next: () => {
@@ -578,9 +603,13 @@ export class PvpEventsPageComponent {
         this.editing.set(null);
         this.load();
       },
-      error: () => {
+      error: (err) => {
         this.busy.set(null);
-        this.error.set('Could not save that change.');
+        this.error.set(
+          err?.error?.error === 'points_per_loss_too_high'
+            ? 'Points per loss must be lower than points per win.'
+            : 'Could not save that change.',
+        );
       },
     });
   }
