@@ -19,19 +19,40 @@ export interface CommanderMember {
   /** Opaque wwmdb pId, used by the stats sync. Officer-only. */
   pid: string | null;
   discord: string | null;
+  /** The permission rank. Not {@link combatRole}, which is how they play. */
   role: UserRole;
   canLogin: boolean;
   fp: boolean;
   ftp: boolean;
   /** Derived: has a Discord handle. False = "Unregistered". */
   registered: boolean;
+  leaveDate: string | null;
+  /** tank | dps | healer, or null if they never said. The same three words the RSVP role menu and
+   *  the tournament pools use, so the answers line up across all three. */
+  combatRole: string | null;
+  team: string | null;
+  saturday: string | null;
+  sunday: string | null;
+  notes: string | null;
 }
 
+/**
+ * What an officer may change. Omitted means "leave alone"; an empty string clears a text field.
+ *
+ * ⚠ IGN, UID and PID are not here on purpose — the roster sweep owns them and rewrites them every
+ * pass, so a box for them would accept an edit and lose it within the hour.
+ */
 export interface MemberPatch {
   canLogin?: boolean;
   fp?: boolean;
   ftp?: boolean;
   role?: UserRole;
+  discord?: string;
+  combatRole?: string;
+  team?: string;
+  saturday?: string;
+  sunday?: string;
+  notes?: string;
 }
 
 export interface Registration {
@@ -39,8 +60,7 @@ export interface Registration {
   discord: string;
   uid: string | null;
   ign: string;
-  mainWeapon: string | null;
-  secondaryWeapon: string | null;
+  combatRole: string | null;
   saturday: string | null;
   sunday: string | null;
   note: string | null;

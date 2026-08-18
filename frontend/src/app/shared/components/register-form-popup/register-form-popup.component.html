@@ -78,35 +78,19 @@
             }
           </div>
 
-          <!-- Main Weapon -->
+          <!-- Role -->
           <div class="reg-field">
-            <label class="reg-label" for="reg-main">Main Weapon <span class="req">*</span></label>
+            <label class="reg-label" for="reg-role">Role <span class="req">*</span></label>
             <div class="reg-select-wrapper">
-              <select id="reg-main" class="reg-select" formControlName="main">
+              <select id="reg-role" class="reg-select" formControlName="combatRole">
                 <option value="" disabled>Choose</option>
-                @for (w of weaponsMain; track w) {
-                  <option [value]="w">{{ w }}</option>
+                @for (r of combatRoles; track r.value) {
+                  <option [value]="r.value">{{ r.label }}</option>
                 }
               </select>
             </div>
-            @if (form.controls.main.invalid && form.controls.main.touched) {
-              <span class="reg-error">Please select a weapon.</span>
-            }
-          </div>
-
-          <!-- Secondary Weapon -->
-          <div class="reg-field">
-            <label class="reg-label" for="reg-secondary">Secondary Weapon <span class="req">*</span></label>
-            <div class="reg-select-wrapper">
-              <select id="reg-secondary" class="reg-select" formControlName="secondary">
-                <option value="" disabled>Choose</option>
-                @for (w of weaponsSecondary; track w) {
-                  <option [value]="w">{{ w }}</option>
-                }
-              </select>
-            </div>
-            @if (form.controls.secondary.invalid && form.controls.secondary.touched) {
-              <span class="reg-error">Please select a weapon.</span>
+            @if (form.controls.combatRole.invalid && form.controls.combatRole.touched) {
+              <span class="reg-error">Please choose a role.</span>
             }
           </div>
 

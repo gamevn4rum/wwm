@@ -5,16 +5,21 @@ import { firstValueFrom } from 'rxjs';
 import { RegisterPopupService } from '../../../core/services/register-popup.service';
 import { apiUrl } from '../../../core/api';
 
-const WEAPONS_MAIN = [
-  'Nameless Sword', 'Nameless Spear', 'Infernal Twinblades', 'Heavenquaker Spear',
-  'Strategic Sword', 'Mortal Rope Dart', 'Snowparting Blade', 'Inkwell Fan',
-  'Vernal Umbrella', 'Unfettered Rope Dart', 'Thundercry Blade', 'Stormbreaker Spear',
-  'Phalanxbane Blade', 'Panacea Fan', 'Soulshade Umbrella', 'Everspring Umbrella',
-] as const;
-
-const WEAPONS_SECONDARY = [
-  ...WEAPONS_MAIN,
-  'Mixed: PF/IF', 'Mixed: SS/IF', 'Mixed: TwB/IF', 'Mixed: TB/PB',
+/**
+ * The three seats somebody can play.
+ *
+ * This replaced the two weapon questions. What a member carries is read from the game now — the
+ * live sweep knows their martial arts and gear, correctly and currently — so asking them to type it
+ * once at registration only produced a second, staler answer. Which seat they want to fill is the
+ * part the game cannot tell us, because it is a preference rather than a fact.
+ *
+ * ⚠ The values are the API's `CombatRole` ids, which are also the RSVP role menu's and the
+ * tournament pools'. Same three words everywhere, so the answers line up without a mapping.
+ */
+const COMBAT_ROLES = [
+  { value: 'tank', label: 'Tank' },
+  { value: 'dps', label: 'DPS' },
+  { value: 'healer', label: 'Healer' },
 ] as const;
 
 const AVAILABILITY = ['7h30+', '8h30+', '9h30+', '🚫'] as const;
@@ -30,8 +35,7 @@ export class RegisterFormPopupComponent {
   private readonly popupService = inject(RegisterPopupService);
   private readonly http = inject(HttpClient);
 
-  readonly weaponsMain      = WEAPONS_MAIN;
-  readonly weaponsSecondary = WEAPONS_SECONDARY;
+  readonly combatRoles      = COMBAT_ROLES;
   readonly availability     = AVAILABILITY;
   readonly submitted        = signal(false);
   readonly submitting       = signal(false);
@@ -43,8 +47,7 @@ export class RegisterFormPopupComponent {
     discord:   new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
     uid:       new FormControl('', { validators: Validators.required, nonNullable: true }),
     ign:       new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
-    main:      new FormControl('', { validators: Validators.required, nonNullable: true }),
-    secondary: new FormControl('', { validators: Validators.required, nonNullable: true }),
+    combatRole: new FormControl('', { validators: Validators.required, nonNullable: true }),
     saturday:  new FormControl('', { validators: Validators.required, nonNullable: true }),
     sunday:    new FormControl('', { validators: Validators.required, nonNullable: true }),
   });
@@ -74,8 +77,7 @@ export class RegisterFormPopupComponent {
         discord: v.discord,
         uid: v.uid,
         ign: v.ign,
-        mainWeapon: v.main,
-        secondaryWeapon: v.secondary,
+        combatRole: v.combatRole,
         saturday: v.saturday,
         sunday: v.sunday,
       }));

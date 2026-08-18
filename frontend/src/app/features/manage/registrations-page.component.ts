@@ -27,8 +27,7 @@ import { BackofficeService, Registration, RegistrationApprove } from '../../core
             </header>
             <dl class="fields">
               <div><dt>UID</dt><dd>{{ r.uid || '—' }}</dd></div>
-              <div><dt>Main</dt><dd>{{ r.mainWeapon || '—' }}</dd></div>
-              <div><dt>Secondary</dt><dd>{{ r.secondaryWeapon || '—' }}</dd></div>
+              <div><dt>Role</dt><dd>{{ roleLabel(r.combatRole) }}</dd></div>
               <div><dt>Saturday</dt><dd>{{ r.saturday || '—' }}</dd></div>
               <div><dt>Sunday</dt><dd>{{ r.sunday || '—' }}</dd></div>
               @if (r.note) { <div><dt>Note</dt><dd>{{ r.note }}</dd></div> }
@@ -67,6 +66,11 @@ import { BackofficeService, Registration, RegistrationApprove } from '../../core
   `],
 })
 export class RegistrationsPageComponent {
+  /** Title-cases the stored id for display; the ids themselves are lower case everywhere. */
+  roleLabel(role: string | null): string {
+    return role === 'tank' ? 'Tank' : role === 'dps' ? 'DPS' : role === 'healer' ? 'Healer' : '—';
+  }
+
   private readonly backoffice = inject(BackofficeService);
 
   readonly pending = signal<Registration[]>([]);
