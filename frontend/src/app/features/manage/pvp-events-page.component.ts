@@ -73,6 +73,26 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
 
           <div class="pair">
             <label>
+              <span>Team size</span>
+              <select formControlName="teamSize" (change)="onTeamSizeChange()">
+                @for (n of teamSizes; track n) {
+                  <option [value]="n">{{ n }}v{{ n }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span>Healers per team</span>
+              <select formControlName="healersPerTeam">
+                @for (n of healerChoices(); track n) {
+                  <option [value]="n">{{ n }}</option>
+                }
+              </select>
+              <small>{{ formatHint() }}</small>
+            </label>
+          </div>
+
+          <div class="pair">
+            <label>
               <span>Bouts per person</span>
               <input type="number" formControlName="boutCap" min="1" max="50" />
             </label>
@@ -180,6 +200,28 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                   <td class="config">
                     @if (editing() === e.id) {
                       <form [formGroup]="editForm" class="edit">
+                        @if (e.status === 'pending') {
+                          <label>
+                            <span>Team size</span>
+                            <select formControlName="teamSize" (change)="onEditTeamSizeChange()">
+                              @for (n of teamSizes; track n) {
+                                <option [value]="n">{{ n }}v{{ n }}</option>
+                              }
+                            </select>
+                          </label>
+                          <label>
+                            <span>Healers/team</span>
+                            <select formControlName="healersPerTeam">
+                              @for (n of editHealerChoices(); track n) {
+                                <option [value]="n">{{ n }}</option>
+                              }
+                            </select>
+                          </label>
+                        } @else {
+                          <!-- Running or finished: bouts of two shapes cannot share a scoreboard,
+                               so the API refuses it and the form must not offer it. -->
+                          <small class="warn">Format locked once it starts</small>
+                        }
                         <label>
                           <span>Bouts</span>
                           <input type="number" formControlName="boutCap" min="1" max="50" />
@@ -417,7 +459,8 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         font-weight: 600;
         opacity: 0.8;
       }
-      form.edit input {
+      form.edit input,
+      form.edit select {
         padding: 0.3rem 0.45rem;
         border: 1px solid rgba(128, 128, 128, 0.4);
         border-radius: 5px;
@@ -464,6 +507,8 @@ export class PvpEventsPageComponent {
   protected readonly editing = signal<number | null>(null);
 
   protected readonly editForm = new FormGroup({
+    teamSize: new FormControl<number>(3, { nonNullable: true }),
+    healersPerTeam: new FormControl<number>(1, { nonNullable: true }),
     boutCap: new FormControl<number>(5, { nonNullable: true }),
     pointsPerWin: new FormControl<number>(1, { nonNullable: true }),
     pointsPerLoss: new FormControl<number>(0, { nonNullable: true }),
@@ -476,6 +521,8 @@ export class PvpEventsPageComponent {
     channelId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     startsAt: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     closesAt: new FormControl('', { nonNullable: true }),
+    teamSize: new FormControl<number>(3, { nonNullable: true }),
+    healersPerTeam: new FormControl<number>(1, { nonNullable: true }),
     boutCap: new FormControl<number>(5, { nonNullable: true }),
     pointsPerWin: new FormControl<number>(1, { nonNullable: true }),
     pointsPerLoss: new FormControl<number>(0, { nonNullable: true }),
@@ -484,6 +531,33 @@ export class PvpEventsPageComponent {
     allowDraftedHealer: new FormControl(true, { nonNullable: true }),
     avoidRepeatPairings: new FormControl(true, { nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),
+  });
+
+  /** The sizes the draw is willing to run. Two teams are seated per bout, so an odd size nobody
+   *  plays in this game only adds ways for a round to come up short. Mirrors the API's TeamSizes. */
+  protected readonly teamSizes = [1, 2, 3, 5];
+
+  /** Healer counts allowed for the size currently chosen: none up to all-but-one, so there is always
+   *  somebody to do damage. A 1v1 can only be 0, which is what makes it a role-less duel. */
+  protected readonly healerChoices = computed(() =>
+    this.choicesFor(Number(this.formTeamSize())));
+
+  protected readonly editHealerChoices = computed(() =>
+    this.choicesFor(Number(this.editTeamSize())));
+
+  /** Reads the selects back as numbers — a native select yields strings, and `4 + '1'` is `'41'`. */
+  private readonly formTeamSize = signal(3);
+  private readonly editTeamSize = signal(3);
+
+  /** What the chosen format costs per bout, which is the number worth knowing before committing:
+   *  healers are the scarce pool, so this is what decides whether a round can be fielded at all. */
+  protected readonly formatHint = computed(() => {
+    const size = Number(this.formTeamSize());
+    const healers = Number(this.form.controls.healersPerTeam.value);
+    const damage = size - healers;
+    return healers === 0
+      ? `${damage * 2} players a bout, no healer seat — both pools drawn as one.`
+      : `${damage * 2} Tank/DPS + ${healers * 2} healers a bout.`;
   });
 
   constructor() {
@@ -538,6 +612,8 @@ export class PvpEventsPageComponent {
       allowDraftedHealer: v.allowDraftedHealer,
       avoidRepeatPairings: v.avoidRepeatPairings,
       mentionRoleId: v.mentionRoleId,
+      teamSize: Number(v.teamSize),
+      healersPerTeam: Number(v.healersPerTeam),
     };
 
     this.creating.set(true);
@@ -567,9 +643,39 @@ export class PvpEventsPageComponent {
     });
   }
 
+  private choicesFor(size: number): number[] {
+    const max = Math.max(0, (Number.isFinite(size) ? size : 3) - 1);
+    return Array.from({ length: max + 1 }, (_, i) => i);
+  }
+
+  /** Keeps the healer count inside what the new size allows — dropping 5v5 (2 healers) to a 1v1
+   *  must not leave a team asking for more healers than it has seats. */
+  protected onTeamSizeChange(): void {
+    const size = Number(this.form.controls.teamSize.value);
+    this.formTeamSize.set(size);
+    const allowed = this.choicesFor(size);
+    const current = Number(this.form.controls.healersPerTeam.value);
+    if (!allowed.includes(current)) {
+      this.form.controls.healersPerTeam.setValue(allowed.includes(1) ? 1 : 0);
+    }
+  }
+
+  protected onEditTeamSizeChange(): void {
+    const size = Number(this.editForm.controls.teamSize.value);
+    this.editTeamSize.set(size);
+    const allowed = this.choicesFor(size);
+    const current = Number(this.editForm.controls.healersPerTeam.value);
+    if (!allowed.includes(current)) {
+      this.editForm.controls.healersPerTeam.setValue(allowed.includes(1) ? 1 : 0);
+    }
+  }
+
   protected startEdit(e: PvpEvent): void {
     this.editing.set(e.id);
+    this.editTeamSize.set(e.teamSize);
     this.editForm.setValue({
+      teamSize: e.teamSize,
+      healersPerTeam: e.healerSeatsPerTeam,
       boutCap: e.boutCap,
       pointsPerWin: e.pointsPerWin,
       pointsPerLoss: e.pointsPerLoss,

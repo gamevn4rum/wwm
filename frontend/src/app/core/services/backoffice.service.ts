@@ -142,6 +142,8 @@ export interface PvpEvent {
   pointsPerLoss: number;
   damageSeatsPerTeam: number;
   healerSeatsPerTeam: number;
+  /** Players per team — the sum of the two seat counts above, which is what the draw works in. */
+  teamSize: number;
   allowDraftedHealer: boolean;
   avoidRepeatPairings: boolean;
   startsAt: string | null;
@@ -183,6 +185,11 @@ export interface PvpEventCreate {
   avoidRepeatPairings: boolean | null;
   /** Null uses the `Pvp` type's own role; empty pings nobody; an id overrides both. */
   mentionRoleId: string | null;
+  /** 1, 2, 3 or 5. Null uses 3. */
+  teamSize: number | null;
+  /** How many of those seats are healer seats. Null takes the size's default — none for a 1v1,
+   *  which has no roles, one otherwise. Must leave at least one damage seat. */
+  healersPerTeam: number | null;
 }
 
 /** Null means "leave this field alone". */
@@ -192,6 +199,10 @@ export interface PvpEventPatch {
   pointsPerLoss?: number | null;
   allowDraftedHealer?: boolean | null;
   avoidRepeatPairings?: boolean | null;
+  /** ⚠ Refused with `format_locked` once the event is running — bouts of two shapes cannot share a
+   *  scoreboard. Only changeable while it is still taking registrations. */
+  teamSize?: number | null;
+  healersPerTeam?: number | null;
 }
 
 export interface ScheduledEventCreate {
