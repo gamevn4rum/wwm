@@ -29,13 +29,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
   imports: [ReactiveFormsModule, DiscordPickerComponent],
   template: `
     <section class="backoffice">
-      <h2>PvP tournaments</h2>
-
+      <h1>PvP tournaments</h1>
       <p class="hint">
-        A self-hosted 3v3 tournament: two registration pools, teams drawn fresh every round, a point
-        per win. Creating one posts its registration form to the channel straight away — there is no
-        draft state. The bot takes it from there with
-        <code>/gtourstart</code>, and the scoreboard is <code>/gtourboard</code>.
+        Self-hosted tournaments: two registration pools, teams drawn fresh every round, a point per
+        win. Creating one posts its registration form to the channel straight away — there is no
+        draft state. The bot takes it from there with <code>/gtourstart</code>, and the scoreboard is
+        <code>/gtourboard</code>. Times are Vietnam (UTC+7).
       </p>
 
       @if (loading()) {
@@ -47,7 +46,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
 
         <!-- ── new tournament ────────────────────────────────────────────── -->
         <form [formGroup]="form" (ngSubmit)="create()" class="new">
-          <h3>New tournament</h3>
+          <h2>New tournament</h2>
 
           <label>
             <span>Title</span>
@@ -160,7 +159,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         @if (events().length === 0) {
           <p class="hint">No tournaments yet.</p>
         } @else {
-          <table class="rows">
+          <table class="grid">
             <thead>
               <tr>
                 <th>Tournament</th>
@@ -280,19 +279,25 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
   `,
   styles: [
     `
+      /* Matches the other Manage pages: a centred column, an h1 with a hint under it, 8px cards and
+         the same table dressing as Member permissions — which is the widest of them, and the right
+         width for a table this many columns wide. */
       .backoffice {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      h1 {
+        margin-bottom: 0.25rem;
       }
       .hint {
-        opacity: 0.8;
-        font-size: 0.9rem;
-        max-width: 60rem;
+        opacity: 0.7;
+        margin-bottom: 1rem;
+        max-width: 62rem;
       }
       .error,
       .bad {
-        color: #e74c3c;
+        color: #dc3545;
       }
       .new {
         display: flex;
@@ -300,11 +305,13 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         gap: 0.75rem;
         max-width: 40rem;
         padding: 1rem;
-        border: 1px solid rgba(128, 128, 128, 0.35);
-        border-radius: 6px;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
       }
-      .new h3 {
+      .new h2 {
         margin: 0;
+        font-size: 1.05rem;
       }
       label {
         display: flex;
@@ -316,16 +323,17 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
       }
       label > span {
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
       label small {
         font-weight: 400;
-        opacity: 0.75;
+        opacity: 0.7;
         display: block;
+        font-size: 0.75rem;
       }
-      /* Matches the Scheduled events panel: nothing global styles a bare input, so each panel
-         dresses its own. font: inherit matters — without it a control renders in the browser's
-         default face at a size the rest of the page never uses. */
+      /* Nothing global styles a bare input — each panel dresses its own, as Scheduled events does.
+         font: inherit matters: without it a control renders in the browser's default face at a size
+         the rest of the page never uses, and stops reading as a field you can type in. */
       .new input,
       .new select,
       .new textarea {
@@ -347,11 +355,11 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         margin: 0.2rem 0 0;
         flex: 0 0 auto;
       }
-      /* auto-fit rather than 1fr 1fr so a narrow window stacks the pair instead of squeezing two
-         date inputs into space neither of them fits. */
+      /* auto-fit rather than fixed tracks so a narrow window stacks the pair instead of squeezing
+         two date inputs into space neither of them fits. */
       .pair {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
         gap: 0.75rem;
       }
       label.check {
@@ -361,7 +369,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
       }
       label.check > span {
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
       .actions {
         display: flex;
@@ -369,40 +377,37 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         gap: 0.75rem;
         flex-wrap: wrap;
       }
-      .actions button,
-      .row-actions button {
-        padding: 0.45rem 0.9rem;
+      button {
+        padding: 0.35rem 0.9rem;
         border: 1px solid rgba(128, 128, 128, 0.4);
         border-radius: 6px;
         font: inherit;
         cursor: pointer;
-        background: var(--color-surface, #fff);
+        background: transparent;
         color: inherit;
       }
-      .actions button:disabled,
-      .row-actions button:disabled {
+      button:disabled {
         cursor: default;
         opacity: 0.5;
       }
-      table.rows {
+      table.grid {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.9rem;
       }
-      table.rows th {
+      .grid th,
+      .grid td {
         text-align: left;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.4);
-        padding: 0.4rem 0.5rem;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        opacity: 0.7;
-      }
-      table.rows td {
-        border-bottom: 1px solid rgba(128, 128, 128, 0.18);
-        padding: 0.5rem;
+        padding: 0.45rem 0.6rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
         vertical-align: top;
       }
-      table.rows tr.done {
+      .grid th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+      }
+      .grid tr.done {
         opacity: 0.6;
       }
       td.num,
@@ -415,30 +420,33 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         font-size: 0.78rem;
       }
       small.slug {
-        font-family: ui-monospace, monospace;
+        font-family: monospace;
+        opacity: 0.8;
       }
+      /* The same pill the roster's tags use. */
       .pill {
         display: inline-block;
+        font-size: 0.72rem;
         padding: 0.1rem 0.5rem;
+        border: 1px solid rgba(128, 128, 128, 0.45);
         border-radius: 999px;
-        font-size: 0.78rem;
-        border: 1px solid currentColor;
+        opacity: 0.85;
       }
       .pill.running {
-        color: #2ecc71;
+        border-color: #7c9473;
+        color: #5f7757;
+        opacity: 1;
       }
       .pill.pending {
-        color: #f1c40f;
-      }
-      .pill.finished,
-      .pill.cancelled {
-        opacity: 0.7;
+        border-color: #ad7a4c;
+        color: #8b5f37;
+        opacity: 1;
       }
       .ok {
-        color: #2ecc71;
+        color: #5f7757;
       }
       .warn {
-        color: #e67e22;
+        color: #b5533d;
       }
       /* The inline row editor. Same control dressing as the create form — nothing global styles a
          bare input, so both places have to say so. */
@@ -446,24 +454,20 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         display: flex;
         flex-direction: column;
         gap: 0.4rem;
-        min-width: 12rem;
+        min-width: 11rem;
       }
       form.edit label {
-        display: flex;
-        flex-direction: column;
         gap: 0.15rem;
-        min-width: 0;
       }
       form.edit label > span {
-        font-size: 0.75rem;
-        font-weight: 600;
-        opacity: 0.8;
+        font-size: 0.72rem;
+        opacity: 0.75;
       }
       form.edit input,
       form.edit select {
         padding: 0.3rem 0.45rem;
         border: 1px solid rgba(128, 128, 128, 0.4);
-        border-radius: 5px;
+        border-radius: 6px;
         font: inherit;
         width: 100%;
         box-sizing: border-box;
@@ -475,7 +479,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         gap: 0.4rem;
       }
       form.edit label.check > span {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
       }
       form.edit input[type='checkbox'] {
         width: auto;
@@ -487,7 +491,6 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
-        align-items: stretch;
       }
     `,
   ],
