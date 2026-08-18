@@ -24,9 +24,6 @@ type Draft = {
   discord: string;
   combatRole: string;
   team: string;
-  saturday: string;
-  sunday: string;
-  notes: string;
 };
 
 /**
@@ -39,6 +36,10 @@ type Draft = {
  * **IGN, UID and PID are read-only here**, and that is not an oversight: the roster sweep owns them
  * and rewrites them on every pass, following in-game renames. A box for them would accept an edit
  * and lose it within the hour, which is worse than not offering one.
+ *
+ * **Saturday and Sunday are read-only for a different reason**: they are the member's own answer
+ * about when they can play, so an officer editing them replaces a statement with a guess. They are
+ * shown because they are worth seeing next to the rest of the row.
  *
  * **People who have left are not listed.** Leaving stamps a leave date and clears their login
  * server-side; the row survives so a rejoin restores everything, and the sweep un-stamps it the
@@ -79,7 +80,6 @@ type Draft = {
               <th>Login</th>
               <th>FP</th>
               <th>FTP</th>
-              <th>Notes</th>
               <th></th>
             </tr>
           </thead>
@@ -122,16 +122,11 @@ type Draft = {
                          (ngModelChange)="edit(m, { team: $event })"
                          [ngModelOptions]="{ standalone: true }" placeholder="—" />
                 </td>
-                <td>
-                  <input class="short" [ngModel]="draftOf(m).saturday"
-                         (ngModelChange)="edit(m, { saturday: $event })"
-                         [ngModelOptions]="{ standalone: true }" placeholder="—" />
-                </td>
-                <td>
-                  <input class="short" [ngModel]="draftOf(m).sunday"
-                         (ngModelChange)="edit(m, { sunday: $event })"
-                         [ngModelOptions]="{ standalone: true }" placeholder="—" />
-                </td>
+                <!-- Availability is the member's own answer from the register form, shown for
+                     context but not edited here: an officer overwriting when somebody said they can
+                     play replaces a statement with a guess. -->
+                <td class="quiet">{{ m.saturday || '—' }}</td>
+                <td class="quiet">{{ m.sunday || '—' }}</td>
                 <td class="mid">
                   <input type="checkbox" [ngModel]="draftOf(m).canLogin"
                          (ngModelChange)="edit(m, { canLogin: $event })"
@@ -146,10 +141,6 @@ type Draft = {
                   <input type="checkbox" [ngModel]="draftOf(m).ftp"
                          (ngModelChange)="edit(m, { ftp: $event })"
                          [ngModelOptions]="{ standalone: true }" />
-                </td>
-                <td>
-                  <input [ngModel]="draftOf(m).notes" (ngModelChange)="edit(m, { notes: $event })"
-                         [ngModelOptions]="{ standalone: true }" placeholder="—" />
                 </td>
                 <td class="row-actions">
                   <button type="button" (click)="save(m)" [disabled]="!isDirty(m) || busy() === m.id">
@@ -176,10 +167,11 @@ type Draft = {
     .grid th { font-size: .75rem; text-transform: uppercase; opacity: .6; font-weight: 600; }
     .grid input, .grid select { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4);
       border-radius: 6px; font: inherit; width: 100%; box-sizing: border-box; min-width: 0; }
-    .grid input[type=checkbox] { width: auto; }
+    .grid input[type=checkbox] { width: var(--checkbox-size); }
     .grid td.mid { text-align: center; }
     .mono { font-family: monospace; opacity: .8; }
     .short { max-width: 7ch; }
+    .quiet { opacity: .7; white-space: nowrap; }
     .tag { font-size: .72rem; padding: .1rem .4rem; border: 1px solid rgba(128,128,128,.45); border-radius: 999px; opacity: .75; white-space: nowrap; }
     .tag-on { border-color: rgba(124,148,115,.75); color: #5f7757; opacity: 1; }
     tr.saving { opacity: .5; }
@@ -238,9 +230,6 @@ export class ManageMembersPageComponent {
       discord: m.discord ?? '',
       combatRole: m.combatRole ?? '',
       team: m.team ?? '',
-      saturday: m.saturday ?? '',
-      sunday: m.sunday ?? '',
-      notes: m.notes ?? '',
     };
   }
 
@@ -288,9 +277,6 @@ export class ManageMembersPageComponent {
     if (draft.discord !== base.discord) patch.discord = draft.discord;
     if (draft.combatRole !== base.combatRole) patch.combatRole = draft.combatRole;
     if (draft.team !== base.team) patch.team = draft.team;
-    if (draft.saturday !== base.saturday) patch.saturday = draft.saturday;
-    if (draft.sunday !== base.sunday) patch.sunday = draft.sunday;
-    if (draft.notes !== base.notes) patch.notes = draft.notes;
 
     this.busy.set(m.id);
     this.notice.set(null);

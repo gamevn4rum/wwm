@@ -25,6 +25,11 @@
   --color-primary-light: #d6b78c;
   --color-primary-tint: rgba(173, 122, 76, 0.12);
 
+  /* Shared so the site-wide checkbox rule and the few component rules that have to override a
+     `width: 100%` on inputs agree on one number. A styled checkbox has no intrinsic size — it is
+     `appearance: none` — so `width: auto` collapses it to nothing, which is the trap this avoids. */
+  --checkbox-size: 1.1rem;
+
   --color-secondary: #7c9473;
   --color-secondary-dark: #5f7757;
   --color-secondary-tint: rgba(124, 148, 115, 0.14);
@@ -254,4 +259,96 @@ html, body {
 :root {
   --tier: var(--color-ink-faint);
   --tier-fill: var(--color-surface);
+}
+
+/* ── Checkboxes ───────────────────────────────────────────────────────────────
+   Site-wide, and here rather than on the components for the reason the tier rule
+   above gives: Angular scopes component selectors with an attribute, which outranks
+   a plain global selector — so a component that wants to differ still can, and
+   everything else inherits one look.
+
+   `appearance: none` throws away the platform control, so everything it used to
+   provide has to be put back deliberately: the size, the checked state, the focus
+   ring, the disabled look, and a cursor. Missing any of those makes a checkbox that
+   looks nicer and behaves worse.
+   ────────────────────────────────────────────────────────────────────────────── */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  margin: 0;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 5px;
+  background: var(--color-surface);
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+input[type="checkbox"]:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+input[type="checkbox"]:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary-dark);
+}
+
+/* The tick is drawn rather than a glyph: a character would inherit the page's font and
+   sit differently in every family it lands in. Two borders rotated is the same mark at
+   every size. */
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 0.3em;
+  height: 0.55em;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+
+/* Kept because `appearance: none` also removes the platform focus ring, and a keyboard
+   user would otherwise have no idea where they are. :focus-visible so a mouse click
+   does not leave one behind. */
+input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
+  border-color: var(--color-primary);
+}
+
+input[type="checkbox"]:disabled {
+  cursor: default;
+  opacity: 0.5;
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+}
+
+input[type="checkbox"]:indeterminate {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+input[type="checkbox"]:indeterminate::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.55em;
+  height: 2px;
+  background: #fff;
+  border: none;
+  transform: translate(-50%, -50%);
+}
+
+/* The colour transition is decoration; the state change is not. Anybody who has asked
+   for less motion still needs to see the box fill. */
+@media (prefers-reduced-motion: reduce) {
+  input[type="checkbox"] {
+    transition: none;
+  }
 }

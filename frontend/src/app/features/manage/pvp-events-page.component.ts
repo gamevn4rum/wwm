@@ -350,7 +350,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
       }
       /* A checkbox must not be stretched by the rule above. */
       .new input[type='checkbox'] {
-        width: auto;
+        width: var(--checkbox-size);
         min-width: auto;
         margin: 0.2rem 0 0;
         flex: 0 0 auto;
@@ -482,7 +482,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         font-size: 0.72rem;
       }
       form.edit input[type='checkbox'] {
-        width: auto;
+        width: var(--checkbox-size);
         min-width: auto;
         margin: 0;
         flex: 0 0 auto;
