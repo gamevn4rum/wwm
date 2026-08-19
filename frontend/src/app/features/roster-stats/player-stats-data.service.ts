@@ -14,7 +14,9 @@ import { MatchedPlayerStats, PlayerStatsRecord } from './player-stats.model';
  * browser. It now happens server-side in `GameDataMappers.ToPlayerStatsDto`, under the same
  * rules: live gear wins outright when the sweep has any (never a mix — a half-swept loadout
  * would show items nobody is wearing together), volatile stats win per field, and names,
- * school, elegance and inner ways are snapshot-only because the live API doesn't carry them.
+ * school and elegance are snapshot-only because the live API doesn't carry them. Inner ways are
+ * no longer in that list: the live sweep reads the equipped loadout and resolves each id's tier off
+ * the catalogue, so innerWays is live data with tiers unless the member has never been swept.
  * So what arrives here is already merged.
  */
 @Injectable({ providedIn: 'root' })
