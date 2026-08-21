@@ -84,6 +84,16 @@
               <span class="nav-sub">REVIEW REQUESTS</span>
             </span>
           </a>
+
+          <a class="nav-btn nav-btn--blue" routerLink="/manage/events" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span class="nav-icon">
+              <img src="icons/icon-daily.png" alt="Events" class="nav-icon-img" />
+            </span>
+            <span class="nav-text">
+              <span class="nav-main">EVENTS</span>
+              <span class="nav-sub">POST ARTICLES</span>
+            </span>
+          </a>
         }
 
         @if (isAdmin(user)) {

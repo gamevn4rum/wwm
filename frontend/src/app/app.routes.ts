@@ -70,6 +70,12 @@ export const routes: Routes = [
           import('./features/manage/registrations-page.component').then((m) => m.RegistrationsPageComponent),
       },
       {
+        path: 'manage/events',
+        canActivate: [commanderGuard],
+        loadComponent: () =>
+          import('./features/manage/events-page.component').then((m) => m.ManageEventsPageComponent),
+      },
+      {
         path: 'manage/bot-schedule',
         canActivate: [adminGuard],
         loadComponent: () =>

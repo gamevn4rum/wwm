@@ -5,7 +5,7 @@
     <p class="events-empty">No events to display.</p>
   } @else {
     <div class="events-list">
-      @for (event of visibleEvents(); track event.title) {
+      @for (event of visibleEvents(); track event.id) {
         <div class="event-item" [class.event-item--future]="isFuture(event.date)">
 
           <!-- Header -->
@@ -21,9 +21,15 @@
             <span class="event-header-title">{{ event.title }}</span>
           </div>
 
-          <!-- Date -->
-          @if (event.date) {
-            <p class="event-date">{{ event.date }}</p>
+          <!-- Date. A pinned article is held at the top of the feed whatever its date, so it
+               says so — otherwise the first card is simply an old one for no visible reason. -->
+          @if (event.date || event.pin) {
+            <p class="event-date">
+              @if (event.pin) {
+                <span class="event-pinned">Pinned</span>
+              }
+              {{ event.date }}
+            </p>
           }
 
           <!-- Content -->

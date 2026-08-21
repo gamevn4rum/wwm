@@ -1,7 +1,8 @@
-import { Component, SecurityContext, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { EventsDataService } from '../../../events/events-data.service';
 import { EventRecord } from '../../../events/event-record.model';
+import { CONTENT_IMG_CLASS, buildEventHtml } from '../../../events/event-content';
 
 const PAGE_SIZE = 2;
 
@@ -57,45 +58,20 @@ export class EventsListComponent implements OnInit, OnDestroy {
    * so inline images can't take an Angular (click) binding directly. */
   onContentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (target.tagName === 'IMG' && target.classList.contains('event-content-img')) {
+    if (target.tagName === 'IMG' && target.classList.contains(CONTENT_IMG_CLASS)) {
       this.openLightbox((target as HTMLImageElement).src);
     }
   }
 
+  /**
+   * The article body, with its `[P1]`..`[P5]` tokens turned into images.
+   *
+   * The substitution and the sanitizing both live in `event-content.ts`, because the Manage editor
+   * previews articles with the same function — a preview that rendered even slightly differently
+   * from this would be showing an author something other than what they are about to publish.
+   */
   buildDescription(event: EventRecord): string {
-    const placeholders: Record<string, string | null> = {
-      '[P1]': event.p1,
-      '[P2]': event.p2,
-      '[P3]': event.p3,
-      '[P4]': event.p4,
-      '[P5]': event.p5,
-    };
-
-    let html = event.description;
-    for (const [token, url] of Object.entries(placeholders)) {
-      if (url) {
-        // Escape the sheet-supplied URL before it lands in an attribute value,
-        // so it can't break out of src="" with something like  x" onerror="…
-        const safeUrl = this.escapeAttr(url);
-        html = html.split(token).join(`<img src="${safeUrl}" class="event-content-img" alt="" />`);
-      }
-    }
-
-    // Run the whole description (which is authored in the Google Sheet) through
-    // Angular's HTML sanitizer instead of bypassing it. Safe markup — <img>,
-    // basic formatting, the event-content-img class — survives; <script>,
-    // onerror/onclick handlers and other injection vectors are stripped. This
-    // is what stops a sheet editor from running JS in every visitor's browser.
-    return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
-  }
-
-  private escapeAttr(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+    return buildEventHtml(event.description, event, this.sanitizer);
   }
 
   isFuture(date: string): boolean {

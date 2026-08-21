@@ -111,6 +111,19 @@
   margin: 0;
 }
 
+.event-pinned {
+  display: inline-block;
+  margin-right: var(--space-2);
+  padding: 0 0.4rem;
+  border: 1px solid var(--color-primary-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
 // ── Description panel ─────────────────────────────────────────────────────────
 // A dedicated readable surface — better contrast + a constrained line length
 // so the guild-news copy is comfortable to read.

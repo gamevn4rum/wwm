@@ -55,6 +55,68 @@ export interface MemberPatch {
   notes?: string;
 }
 
+/**
+ * A guild news article, as the editor sees it.
+ *
+ * `description` is **HTML**, and may contain the literal tokens `[P1]`..`[P5]`. The public renderer
+ * replaces each one with an `<img>` pointing at the matching `p1`..`p5` URL, then sanitizes the
+ * result — so tags survive, `<script>` and `onerror=` do not, and a token with no URL behind it is
+ * simply left as text.
+ *
+ * Every image is a **link**; nothing is uploaded or hosted by the site, and the API refuses anything
+ * that is not an absolute http(s) URL.
+ */
+export interface AdminEvent {
+  id: number;
+  title: string;
+  /** ISO `yyyy-MM-dd`. The public feed sends `dd/MMM/yyyy` instead; this one is what a date input
+   *  reads and writes, which is why the editor has its own DTO. */
+  date: string | null;
+  description: string;
+  /** Held at the top of the feed whatever its date. */
+  pin: boolean;
+  banner: string | null;
+  p1: string | null;
+  p2: string | null;
+  p3: string | null;
+  p4: string | null;
+  p5: string | null;
+  link: string | null;
+}
+
+/** A new article. Title and date are required; an announcement that is only a headline and a day is
+ *  a legitimate thing to post. */
+export interface EventCreate {
+  title: string;
+  date: string;
+  description: string | null;
+  pin: boolean;
+  banner: string | null;
+  p1: string | null;
+  p2: string | null;
+  p3: string | null;
+  p4: string | null;
+  p5: string | null;
+  link: string | null;
+}
+
+/** Omitted means "leave alone"; an empty string clears a text field — the same distinction
+ *  {@link MemberPatch} draws. `date` has no cleared spelling: a create refuses a dateless article,
+ *  so an edit must not be able to produce one. */
+export interface EventPatch {
+  title?: string;
+  date?: string;
+  description?: string;
+  pin?: boolean;
+  banner?: string;
+  p1?: string;
+  p2?: string;
+  p3?: string;
+  p4?: string;
+  p5?: string;
+  link?: string;
+}
+
 export interface Registration {
   id: number;
   discord: string;
@@ -425,6 +487,30 @@ export class BackofficeService {
   postScheduledEventNow(id: number): Observable<{ ok: boolean; slug?: string; status?: number; error?: string }> {
     return this.http.post<{ ok: boolean; slug?: string; status?: number; error?: string }>(
       apiUrl(`/admin/scheduled-events/${id}/post-now`), {});
+  }
+
+  // ── Events — the guild's news articles (Commander) ───────────────────
+  /** Every article, pinned first then newest — the order the public feed renders in, so the
+   *  editor's list matches the page it writes. Not gated on the `page.events` flag: turning the
+   *  section off should not also take away the tool for writing what goes back on it. */
+  getEvents(): Observable<AdminEvent[]> {
+    return this.http.get<AdminEvent[]>(apiUrl('/commander/events'));
+  }
+
+  createEvent(body: EventCreate): Observable<AdminEvent> {
+    return this.http.post<AdminEvent>(apiUrl('/commander/events'), body);
+  }
+
+  /** Send only what changed — the API reads an absent field as "leave alone" and an empty string
+   *  as "clear", which is the only way to ask it to drop a banner or empty an image slot. */
+  patchEvent(id: number, patch: EventPatch): Observable<AdminEvent> {
+    return this.http.patch<AdminEvent>(apiUrl(`/commander/events/${id}`), patch);
+  }
+
+  /** A hard delete, unlike cancelling a tournament: an article taken down is meant to be gone from
+   *  the page, and the audit row is what keeps the record of it. */
+  deleteEvent(id: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(apiUrl(`/commander/events/${id}`));
   }
 
   // ── Hosted PvP tournaments (Admin) ────────────────────────────────────────

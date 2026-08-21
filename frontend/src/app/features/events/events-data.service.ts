@@ -47,7 +47,14 @@ export class EventsDataService {
   private load(): Observable<EventRecord[]> {
     return this.http.get<EventRecord[]>(apiUrl('/public/events')).pipe(
       catchError(() => of<EventRecord[]>([])),
-      map((records) => [...records].sort((a, b) => parseDMY(b.date) - parseDMY(a.date))),
+      map((records) =>
+        // Pinned first, then newest — the same order the API returns. Re-sorted here anyway
+        // because this sort is what the list actually renders from, so an order that only the
+        // server knew about would be silently undone on arrival.
+        [...records].sort(
+          (a, b) => Number(b.pin) - Number(a.pin) || parseDMY(b.date) - parseDMY(a.date),
+        ),
+      ),
     );
   }
 }
