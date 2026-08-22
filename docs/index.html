@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!--
+    Content-Security-Policy: defense-in-depth to limit the blast radius of any
+    HTML injection (e.g. via the Events description). Test the live app after
+    changing this — the API origin, youtube-player, Discord CDN avatars and Google
+    Fonts all depend on the allow-lists below, and a missing connect-src entry
+    presents exactly like a backend outage rather than a CSP problem. The profile
+    modal's screenshot button additionally *fetches* the Discord avatar and the
+    Google Fonts files to inline them into the PNG, so those origins are in
+    connect-src as well as img-src/font-src, and font-src allows data: because
+    that is the form the inlined fonts take. 'unsafe-inline'
+    for script is required by
+    the inline SPA-restore script and Angular's runtime; tighten with hashes if
+    you later remove inline scripts.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    img-src 'self' data: https://cdn.discordapp.com https://*.discordapp.com https://i.ytimg.com https://i.ibb.co;
+    connect-src 'self' https://app-wwm-b4dffrbmdnfbcngj.southeastasia-01.azurewebsites.net https://discord.com https://cdn.discordapp.com https://*.discordapp.com https://fonts.googleapis.com https://fonts.gstatic.com;
+    frame-src https://www.youtube.com https://www.youtube-nocookie.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+  <title>GameVN・Where Winds Meet</title>
+  <base href="/wwm/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="theme-color" content="#f6f0e3">
+  <meta name="description" content="Official companion for the GameVN Where Winds Meet guild — roster, schedule, match history and footage.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=Noto+Serif+SC:wght@500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <script>
+    // Restore path encoded by 404.html for GitHub Pages SPA routing
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var p = params.get('p');
+      if (p) {
+        var parts = p.split('&');
+        var path = '/' + decodeURIComponent(parts[0]);
+        var query = parts.length > 1 ? '?' + parts.slice(1).join('&') : '';
+        window.history.replaceState(null, null, path + query + window.location.hash);
+      }
+    })();
+  </script>
+<link rel="stylesheet" href="styles-5567SZZC.css"></head>
+<body>
+  <app-root></app-root>
+<link rel="modulepreload" href="chunk-7672IR6C.js"><link rel="modulepreload" href="chunk-EJMWBWBE.js"><link rel="modulepreload" href="chunk-XMOTB3UJ.js"><link rel="modulepreload" href="chunk-WUSWUDMY.js"><link rel="modulepreload" href="chunk-FHCJHO6K.js"><link rel="modulepreload" href="chunk-3ZPPEP2B.js"><link rel="modulepreload" href="chunk-LCMAGLXT.js"><link rel="modulepreload" href="chunk-6K3QSSZO.js"><link rel="modulepreload" href="chunk-NW3HFRK3.js"><link rel="modulepreload" href="chunk-3CECKAAS.js"><script src="main-RVEBPMH3.js" type="module"></script></body>
+</html>

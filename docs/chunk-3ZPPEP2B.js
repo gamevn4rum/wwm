@@ -1,0 +1,1 @@
+import{H as s,M as c,O as p,p as t,u as o,v as n}from"./chunk-ZOB3E3GU.js";function b(e){return n([e.authResolved$,e.currentUser$]).pipe(o(([r,i])=>r&&i?.isAuthorized===!0),s())}function h(e,r,i){return b(e).pipe(p(a=>a?r():t(i)),c(1))}export{b as a,h as b};

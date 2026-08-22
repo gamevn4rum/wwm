@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'HoshikoSatsuki';
+  src: url('fonts/Hoshiko Satsuki.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TrajanusBricks';
+  src: url('fonts/TrajanusBricks.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Blacksword';
+  src: url('fonts/Blacksword.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ExcessV';
+  src: url('fonts/ExcessV.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sigokae';
+  src: url('fonts/Sigokae.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
