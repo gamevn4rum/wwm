@@ -184,7 +184,7 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                   </td>
                   <td class="num">
                     🛡 {{ e.registeredDamage }}<br />
-                    🩹 {{ e.registeredHealer }}
+                    ➕ {{ e.registeredHealer }}
                   </td>
                   <td class="num">
                     @if (e.healerShortfall === 0) {
