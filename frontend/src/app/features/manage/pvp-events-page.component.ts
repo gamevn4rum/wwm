@@ -1,6 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BackofficeService, PvpEvent, PvpEventCreate } from '../../core/services/backoffice.service';
+import {
+  BackofficeService,
+  PvpEvent,
+  PvpEventCreate,
+  PvpFieldBout,
+  PvpFieldRow,
+} from '../../core/services/backoffice.service';
 import { DiscordPickerComponent } from './discord-picker.component';
 
 /** Vietnam is a fixed UTC+7 with no DST, so plain arithmetic on the offset is exact. */
@@ -17,6 +23,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
  * From there the bot runs it — `/gtourstart` closes registration and draws round one, the bout posts
  * carry the reporting buttons, `/gtourboard` shows the scoreboard. Nothing on this page starts or
  * scores an event, because the person doing that is standing in Discord.
+ *
+ * What this page adds to that is the **field**, under each event: everyone in it in scoreboard order
+ * with their points, and every bout they were drawn into with teammates and opponents named. Read
+ * only, and ranked by the API's own helper rather than re-sorted here, so it says exactly what
+ * `/gtourboard` says. A thread of bout posts answers "who won #7"; this answers "who has this person
+ * been playing all evening", which is the question a host asks when a draw looks unlucky.
  *
  * The one number worth reading before you commit: **healers must be a third of the field**. A bout
  * seats four Tank/DPS and two healers, so sustaining everyone to the bout cap needs a healer for
@@ -255,6 +267,12 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                     }
                   </td>
                   <td class="row-actions">
+                    <!-- Offered on every event, including a finished one: the results are the whole
+                         point of having run it, and a cancelled event still has the bouts that were
+                         played before it was called off. -->
+                    <button type="button" (click)="toggleField(e)">
+                      {{ expanded() === e.id ? 'Hide field' : 'Field' }}
+                    </button>
                     @if (editing() === e.id) {
                       <button type="button" (click)="saveEdit(e)" [disabled]="busy() === e.id">
                         {{ busy() === e.id ? '…' : 'Save' }}
@@ -270,6 +288,103 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                     }
                   </td>
                 </tr>
+
+                <!-- ── the field, under the event it belongs to ──────────────── -->
+                @if (expanded() === e.id) {
+                  <tr class="field-row">
+                    <td colspan="7">
+                      @if (fieldLoading()) {
+                        <p class="note">Loading the field…</p>
+                      } @else if (fieldError(); as fe) {
+                        <p class="error">{{ fe }}</p>
+                      } @else if (field().length === 0) {
+                        <p class="note">
+                          Nobody in the field yet. It is snapshotted from the registration when
+                          <code>/gtourstart</code> runs, so a tournament still taking answers has
+                          registrations but no field.
+                        </p>
+                      } @else {
+                        <div class="field-head">
+                          <span>
+                            <strong>{{ field().length }}</strong> in the field ·
+                            {{ e.boutsReported }}/{{ e.boutsDrawn }} bouts reported · cap
+                            {{ e.boutCap }} · +{{ e.pointsPerWin }}/{{ e.pointsPerLoss }}pt
+                          </span>
+                          <!-- The bouts are reported in Discord, so this table goes stale while it
+                               is open. Cheaper to re-ask than to guess when. -->
+                          <button type="button" (click)="loadField(e)">Refresh</button>
+                        </div>
+
+                        @if (e.pointsPerLoss > 0) {
+                          <!-- Only worth saying when losses score: the order is wins first, so a
+                               consolation point can leave somebody ranked above a player with more
+                               points. Said out loud here, because a Pts column that does not fall
+                               all the way down reads as a broken table rather than as a tiebreak. -->
+                          <p class="note">
+                            Ranked by wins, then win rate, then fewer bouts played — the same order
+                            <code>/gtourboard</code> uses. With a point per loss, points can run out
+                            of step with that order.
+                          </p>
+                        }
+
+                        <table class="board">
+                          <thead>
+                            <tr>
+                              <th class="rank">#</th>
+                              <th>Player</th>
+                              <th class="num">Pts</th>
+                              <th class="num">W–L</th>
+                              <th class="num">Bouts</th>
+                              <th class="num">Rate</th>
+                              <th>Match history — teammates · opponents</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (p of field(); track p.participantId) {
+                              <tr>
+                                <td class="rank">{{ medal(p.rank) }}</td>
+                                <td class="who">
+                                  <span class="mark" [title]="poolLabel(p)">{{ poolMark(p) }}</span>
+                                  {{ p.name }}
+                                  @if (p.status !== 'active') {
+                                    <span class="pill" [class]="p.status" [title]="statusHelp(p)">
+                                      {{ statusLabel(p) }}
+                                    </span>
+                                  }
+                                </td>
+                                <td class="num pts">{{ p.points }}</td>
+                                <td class="num">{{ p.wins }}–{{ p.losses }}</td>
+                                <td class="num">{{ p.boutsPlayed }}</td>
+                                <td class="num">{{ rateLabel(p) }}</td>
+                                <td class="history">
+                                  @if (p.history.length === 0) {
+                                    <span class="note">not drawn yet</span>
+                                  } @else {
+                                    @for (b of p.history; track b.boutId) {
+                                      <div class="bout">
+                                        <span class="no">#{{ b.number }}</span>
+                                        <span class="outcome" [class]="b.outcome">
+                                          {{ outcomeLabel(b) }}
+                                        </span>
+                                        @if (b.draftedHealer) {
+                                          <span class="mark" title="Drafted into a healer seat">➕</span>
+                                        }
+                                        @if (b.teammates.length > 0) {
+                                          <span class="with">{{ b.teammates.join(', ') }}</span>
+                                        }
+                                        <span class="vs">vs {{ b.opponents.join(', ') }}</span>
+                                      </div>
+                                    }
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                    </td>
+                  </tr>
+                }
               }
             </tbody>
           </table>
@@ -492,6 +607,134 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         flex-direction: column;
         gap: 0.35rem;
       }
+
+      /* ── the field drawer ─────────────────────────────────────────────────
+         Inset and tinted so it reads as belonging to the row above rather than as another event.
+         The same 8px/greys as everything else here, one step in from the table's own padding. */
+      .field-row > td {
+        padding: 0.75rem 0.6rem 1rem;
+        background: rgba(128, 128, 128, 0.06);
+      }
+      .field-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        font-size: 0.8rem;
+        opacity: 0.85;
+        margin-bottom: 0.5rem;
+      }
+      .note {
+        margin: 0 0 0.5rem;
+        opacity: 0.7;
+        font-size: 0.82rem;
+        max-width: 60rem;
+      }
+      table.board {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+      .board th,
+      .board td {
+        text-align: left;
+        padding: 0.35rem 0.5rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+        vertical-align: top;
+      }
+      .board th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .board tr:last-child td {
+        border-bottom: none;
+      }
+      .board td.num,
+      .board th.num {
+        text-align: right;
+        white-space: nowrap;
+      }
+      /* Tabular figures so a column of scores lines up digit over digit. */
+      .board td.num {
+        font-variant-numeric: tabular-nums;
+      }
+      .board td.pts {
+        font-weight: 600;
+      }
+      .board .rank {
+        width: 2.4rem;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        opacity: 0.75;
+      }
+      .board td.who {
+        white-space: nowrap;
+      }
+      .board .mark {
+        opacity: 0.85;
+      }
+      .board .pill {
+        margin-left: 0.35rem;
+        font-size: 0.66rem;
+      }
+      .pill.done {
+        border-color: #7c9473;
+        color: #5f7757;
+        opacity: 1;
+      }
+      .pill.withdrawn,
+      .pill.absent {
+        border-color: #b5533d;
+        color: #b5533d;
+        opacity: 1;
+      }
+      /* One bout per line: what it was, then who was on it. Wrapping inside a line rather than one
+         long row per bout keeps a five-bout history readable at a glance. */
+      .bout {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        align-items: baseline;
+        padding: 0.1rem 0;
+        line-height: 1.4;
+      }
+      .bout .no {
+        font-family: monospace;
+        opacity: 0.6;
+        font-size: 0.78rem;
+        min-width: 2rem;
+      }
+      /* Wide enough for the longest of the four words, so the names beside them start at the same
+         place down a history — a column that only aligns for wins is worse than no column. */
+      .bout .outcome {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        font-weight: 600;
+        min-width: 4.7rem;
+      }
+      .bout .outcome.win {
+        color: #5f7757;
+      }
+      .bout .outcome.loss {
+        color: #b5533d;
+      }
+      .bout .outcome.pending,
+      .bout .outcome.skipped {
+        opacity: 0.55;
+      }
+      /* Teammates read plainly, opponents behind a "vs" — the separator does the labelling, so
+         neither list needs a word in front of it. */
+      .bout .with {
+        opacity: 0.9;
+      }
+      .bout .vs {
+        opacity: 0.7;
+      }
     `,
   ],
 })
@@ -508,6 +751,13 @@ export class PvpEventsPageComponent {
   /** Which row is being edited, or null. One at a time — a table of open forms is a table nobody
    *  can read, and there is no reason to change two tournaments at once. */
   protected readonly editing = signal<number | null>(null);
+
+  /** Which event's field is open, and that field. One at a time, for the same reason as above and
+   *  one more: each one is a request that joins every seat of every bout. */
+  protected readonly expanded = signal<number | null>(null);
+  protected readonly field = signal<PvpFieldRow[]>([]);
+  protected readonly fieldLoading = signal(false);
+  protected readonly fieldError = signal<string | null>(null);
 
   protected readonly editForm = new FormGroup({
     teamSize: new FormControl<number>(3, { nonNullable: true }),
@@ -738,6 +988,94 @@ export class PvpEventsPageComponent {
         this.error.set('Could not cancel that tournament.');
       },
     });
+  }
+
+  // ── the field ───────────────────────────────────────────────────────────────
+
+  protected toggleField(e: PvpEvent): void {
+    if (this.expanded() === e.id) {
+      this.expanded.set(null);
+      return;
+    }
+    this.expanded.set(e.id);
+    this.loadField(e);
+  }
+
+  /**
+   * Reads one event's field. Also the Refresh button, because the bouts are reported in Discord —
+   * this table starts going stale the moment it is open, and there is no push to tell it so.
+   */
+  protected loadField(e: PvpEvent): void {
+    this.fieldLoading.set(true);
+    this.fieldError.set(null);
+    this.field.set([]);
+    this.api.getPvpField(e.id).subscribe({
+      next: (rows) => {
+        this.field.set(rows);
+        this.fieldLoading.set(false);
+      },
+      error: () => {
+        this.fieldError.set('Could not load that field.');
+        this.fieldLoading.set(false);
+      },
+    });
+  }
+
+  /** The same medals the bot's scoreboard puts on the podium, so the two read as one thing. */
+  protected medal(rank: number): string {
+    switch (rank) {
+      case 1:
+        return '🥇';
+      case 2:
+        return '🥈';
+      case 3:
+        return '🥉';
+      default:
+        return String(rank);
+    }
+  }
+
+  protected poolMark(p: PvpFieldRow): string {
+    return p.pool === 'healer' ? '➕' : '🛡';
+  }
+
+  protected poolLabel(p: PvpFieldRow): string {
+    return p.pool === 'healer' ? 'Registered healer' : 'Registered Tank/DPS';
+  }
+
+  protected statusLabel(p: PvpFieldRow): string {
+    return p.status === 'done' ? 'capped' : p.status;
+  }
+
+  protected statusHelp(p: PvpFieldRow): string {
+    switch (p.status) {
+      case 'done':
+        return 'Played their full allowance of bouts and left the pool — a finish, not a removal.';
+      case 'withdrawn':
+        return 'Dropped from the field. Bouts they already played still count.';
+      case 'absent':
+        return 'Could not play a bout they were drawn into, so they left the pool.';
+      default:
+        return '';
+    }
+  }
+
+  /** Blank rather than 0% for anyone who has not played: a win rate off no bouts is not a rate. */
+  protected rateLabel(p: PvpFieldRow): string {
+    return p.boutsPlayed === 0 ? '—' : `${Math.round(p.winRate * 100)}%`;
+  }
+
+  protected outcomeLabel(b: PvpFieldBout): string {
+    switch (b.outcome) {
+      case 'win':
+        return 'won';
+      case 'loss':
+        return 'lost';
+      case 'skipped':
+        return 'skipped';
+      default:
+        return 'pending';
+    }
   }
 
   protected stateLabel(e: PvpEvent): string {

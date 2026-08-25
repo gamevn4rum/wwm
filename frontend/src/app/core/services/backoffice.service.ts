@@ -287,6 +287,53 @@ export interface PvpEventPatch {
   healersPerTeam?: number | null;
 }
 
+/**
+ * One person in a tournament's field, as the panel reads them — where they stand and every bout they
+ * were drawn into.
+ *
+ * The order is the API's, resolved through the same tiebreaks the bot's `/gtourboard` uses: wins,
+ * then win rate, then **fewer** bouts played, then registration order. Render `rank` rather than the
+ * array index, so a change to the tiebreaks needs no change here.
+ */
+export interface PvpFieldRow {
+  rank: number;
+  participantId: number;
+  /** Discord snowflake. */
+  userId: string;
+  /** IGN where the roster knows them, else the name Discord gave at registration. */
+  name: string;
+  pool: 'damage' | 'healer';
+  /** `done` is the bout cap reached — a finish, not a removal. */
+  status: 'active' | 'withdrawn' | 'absent' | 'done';
+  /** Wins × pointsPerWin + losses × pointsPerLoss, derived by the API on read. */
+  points: number;
+  wins: number;
+  losses: number;
+  boutsPlayed: number;
+  /** 0..1, and 0 for anyone who has not played yet. */
+  winRate: number;
+  /** Oldest bout first, pending and skipped ones included. */
+  history: PvpFieldBout[];
+}
+
+/** One bout from one participant's side of it. */
+export interface PvpFieldBout {
+  boutId: number;
+  /** What the bout post calls it — `Trận #7`. 1-based across the whole event. */
+  number: number;
+  round: number;
+  status: 'pending' | 'reported' | 'skipped';
+  /** From this person's seat. A skipped bout is not a loss — nobody in it played anybody. */
+  outcome: 'win' | 'loss' | 'pending' | 'skipped';
+  team: number;
+  healerSeat: boolean;
+  /** They registered Tank/DPS and sat a healer seat — a role they did not sign up for. */
+  draftedHealer: boolean;
+  /** Names, damage seats first, so a line reads in the order the bout post did. */
+  teammates: string[];
+  opponents: string[];
+}
+
 export interface ScheduledEventCreate {
   dayOfWeek: number;
   time: string;
@@ -536,6 +583,16 @@ export class BackofficeService {
   /** Cancels rather than erases: the results are the guild's record of an evening. */
   cancelPvpEvent(id: number): Observable<void> {
     return this.http.delete<void>(apiUrl(`/admin/pvp-events/${id}`));
+  }
+
+  /**
+   * One event's field: everyone in it in scoreboard order, each with their bouts.
+   *
+   * A separate call from {@link getPvpEvents} because it joins every seat of every bout — nobody
+   * should pay for that on a page they opened to create a tournament. Fetched per event expanded.
+   */
+  getPvpField(id: number): Observable<PvpFieldRow[]> {
+    return this.http.get<PvpFieldRow[]>(apiUrl(`/admin/pvp-events/${id}/field`));
   }
 
   // ── Event ping roles (Admin) ──────────────────────────────────────────────
