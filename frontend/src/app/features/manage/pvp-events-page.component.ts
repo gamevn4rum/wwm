@@ -341,7 +341,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                           <p class="note legend">
                             <span>✅ won</span><span>❌ lost</span><span>⌚ not reported yet</span>
                             <span><span class="idle">–</span> not drawn</span>
-                            <span><span class="drafted-key">✅</span> drafted into a healer seat</span>
+                            <span><span class="drafted-key">❌</span> drafted into a healer seat</span>
                           </p>
 
                           @if (e.pointsPerLoss > 0) {
@@ -360,7 +360,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                             <thead>
                               <tr>
                                 <th class="rank">#</th>
-                                <th>Player</th>
+                                <th class="player">Player</th>
                                 <th class="num">Pts</th>
                                 <th class="num">W–L</th>
                                 <th class="num">Bouts</th>
@@ -676,6 +676,11 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         width: 100%;
         border-collapse: collapse;
         font-size: 0.85rem;
+        /* Fixed, so the widths below are the widths: the name column is capped and every other
+           column takes an equal share of what is left. Left to the auto algorithm, a table of
+           mostly two-character cells hands its slack to whichever column has the longest word in
+           it, which is how the scores ended up a hand's width from the names they belong to. */
+        table-layout: fixed;
       }
       .board th,
       .board td {
@@ -707,17 +712,20 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         font-weight: 600;
       }
       .board .rank {
-        width: 2.4rem;
         text-align: center;
         font-variant-numeric: tabular-nums;
         opacity: 0.75;
       }
-      /* The one elastic column. Without this the table's slack is split between the score columns,
-         which pushes the round grid — the point of the table — against the right edge and leaves
-         four numbers floating a hand's width from the names they belong to. */
+      /* 25 characters of the table's own font, which is what a ch unit measures, and an ellipsis
+         past it. The only column given a width: an IGN is the one cell here whose length is somebody
+         else's decision, and left to size itself it either pushed the scores off to the right or
+         swallowed the table's whole slack. */
+      .board th.player,
       .board td.who {
+        width: 25ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
-        width: 100%;
       }
       .board .mark {
         opacity: 0.85;
@@ -746,7 +754,6 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         white-space: nowrap;
         padding-left: 0.3rem;
         padding-right: 0.3rem;
-        width: 2.1rem;
       }
       /* One rule down the left of the grid, so it reads as a block of rounds rather than as four
          more score columns. Only the first — a line between every round would draw a cage. */
