@@ -598,6 +598,19 @@ export class BackofficeService {
   }
 
   /**
+   * Un-cancels a called-off tournament: back to **pending**, with its registration taking answers
+   * again, and one step further back than {@link resetPvpEvent} — the field goes too, so starting it
+   * snapshots a fresh one out of whoever has answered by then.
+   *
+   * The RSVP answers are kept: they *are* the registrations, and throwing them away would mean
+   * everybody re-pressing a button to say what they already said. Refused on anything that is not
+   * cancelled, so it can never be a quiet way to delete results.
+   */
+  reopenPvpEvent(id: number): Observable<PvpEvent> {
+    return this.http.post<PvpEvent>(apiUrl(`/admin/pvp-events/${id}/reopen`), {});
+  }
+
+  /**
    * One event's field: everyone in it in scoreboard order, each with their bouts.
    *
    * A separate call from {@link getPvpEvents} because it joins every seat of every bout — nobody

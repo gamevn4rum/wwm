@@ -296,10 +296,17 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                         {{ busy() === e.id ? '…' : 'Cancel event' }}
                       </button>
                     }
+                    <!-- A cancelled event gets the other way back instead: not "replay the rounds"
+                         but "it is on again after all", which returns it to taking registrations. -->
+                    @if (e.status === 'cancelled') {
+                      <button type="button" (click)="reopenEvent(e)" [disabled]="busy() === e.id">
+                        {{ busy() === e.id ? '…' : 'Reopen' }}
+                      </button>
+                    }
                     <!-- Offered on a finished event too: "that run should not have counted" is
                          usually said after the scoreboard has been read, and a reset is the only way
-                         back from a draw made on the wrong field. Not on a cancelled one — that was
-                         called off deliberately, and re-running it is a new tournament. -->
+                         back from a draw made on the wrong field. Not on a cancelled one — that one
+                         is reopened rather than replayed. -->
                     @if (e.status !== 'cancelled' && e.boutsDrawn > 0) {
                       <button
                         type="button"
@@ -1140,6 +1147,49 @@ export class PvpEventsPageComponent {
       error: () => {
         this.busy.set(null);
         this.error.set('Could not reset that tournament.');
+      },
+    });
+  }
+
+  /**
+   * Put a cancelled tournament back to taking registrations.
+   *
+   * One step further back than a reset: the field goes as well as the rounds, because a tournament
+   * that has not started does not have a field — starting it snapshots one from whoever has answered
+   * by then. The answers themselves survive, which is what makes this a reopen rather than a rerun.
+   */
+  protected reopenEvent(e: PvpEvent): void {
+    const drawn = e.boutsDrawn > 0
+      ? `The ${e.boutsDrawn} bouts drawn before it was called off will be deleted permanently, along with every point. `
+      : '';
+    const closed = e.rsvpClosesAt !== null && new Date(e.rsvpClosesAt) < new Date()
+      ? '\n\nNote: its registration deadline has already passed, so the form will not take new ' +
+        'answers — the ones already given still count, and /gtourstart works on them.'
+      : '';
+    if (
+      !confirm(
+        `Reopen "${e.title}" for registration?\n\n` +
+          `${drawn}It goes back to pending with its registration taking answers again, and ` +
+          `everyone's answers are kept. The field is rebuilt from those answers when you start it.` +
+          closed,
+      )
+    ) {
+      return;
+    }
+    this.busy.set(e.id);
+    this.api.reopenPvpEvent(e.id).subscribe({
+      next: () => {
+        this.busy.set(null);
+        if (this.expanded() === e.id) this.expanded.set(null);
+        this.load();
+      },
+      error: (err) => {
+        this.busy.set(null);
+        this.error.set(
+          err?.error?.error === 'not_cancelled'
+            ? 'That tournament is not cancelled — use Reset rounds instead.'
+            : 'Could not reopen that tournament.',
+        );
       },
     });
   }
