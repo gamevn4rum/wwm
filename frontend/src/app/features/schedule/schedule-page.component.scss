@@ -1,6 +1,5 @@
 // ─── Shared Row Grid ──────────────────────────────────────────────────────────
-$row-grid:       56px 150px 120px 1fr 32px;
-$row-grid-fixed: 56px 150px 120px 1fr;
+$row-grid: 56px 150px 120px 1fr 32px;
 $row-col-gap: 1rem;
 
 // ─── Host ──────────────────────────────────────────────────────────────────────
@@ -144,15 +143,7 @@ $row-col-gap: 1rem;
   }
 
   // Left accent bar colour-codes the row by activity type at a glance.
-  &:has(.icon-daily)  { border-left-color: var(--color-primary); }
-  &:has(.icon-weekly) { border-left-color: var(--color-accent-blue); }
-  &:has(.icon-gvg)    { border-left-color: var(--color-accent-plum); }
   &:has(.icon-scrim)  { border-left-color: var(--color-secondary); }
-}
-
-// Fixed-activity rows have no chevron — use the four-column grid.
-.schedule-row--fixed {
-  grid-template-columns: $row-grid-fixed;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -211,9 +202,6 @@ $row-col-gap: 1rem;
   }
 
   // Per-type tints — soft tinted circle background
-  &.icon-daily  { background: var(--color-primary-tint); }
-  &.icon-weekly { background: var(--color-accent-blue-tint); }
-  &.icon-gvg    { background: var(--color-accent-plum-tint); }
   &.icon-scrim  { background: var(--color-secondary-tint); }
 }
 
@@ -247,11 +235,7 @@ $row-col-gap: 1rem;
   line-height: 1;
 
   // Badge colour variants — tinted background, matching solid text
-  &.badge-daily   { background: var(--color-primary-tint);     color: var(--color-primary-dark); }
-  &.badge-weekly  { background: var(--color-accent-blue-tint); color: var(--color-accent-blue); }
-  &.badge-gvg     { background: var(--color-accent-plum-tint); color: var(--color-accent-plum); }
   &.badge-scrim   { background: var(--color-secondary-tint);   color: var(--color-secondary-dark); }
-  &.badge-default { background: var(--color-surface-alt);      color: var(--color-ink-soft); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -311,14 +295,6 @@ $row-col-gap: 1rem;
     row-gap: 0.2rem;
     column-gap: 0.7rem;
     padding: var(--space-3);
-  }
-
-  // Fixed rows have no chevron column on mobile either.
-  .schedule-row--fixed {
-    grid-template-columns: 42px 1fr;
-    grid-template-areas:
-      "icon activity"
-      "icon meta";
   }
 
   .col-icon     { grid-area: icon;     align-self: center; }
