@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toBlob } from 'html-to-image';
 import {
   BackofficeService,
   PvpEvent,
@@ -7,10 +8,16 @@ import {
   PvpFieldBout,
   PvpFieldRow,
 } from '../../core/services/backoffice.service';
+import { cardFontCss } from '../../core/utils/card-fonts';
+import { captureScale } from '../../core/utils/card-shot';
 import { DiscordPickerComponent } from './discord-picker.component';
 
 /** Vietnam is a fixed UTC+7 with no DST, so plain arithmetic on the offset is exact. */
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+/** Same four states the roster card's share button reports, for the same reason: a capture takes
+ *  long enough that a button which does not say so reads as one that did nothing. */
+type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
 
 /**
  * Admin panel for hosted PvP tournaments — see `PVP-TOURNAMENT.md` in the API repo.
@@ -28,7 +35,8 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
  * with their points, and every bout they were drawn into with teammates and opponents named. Read
  * only, and ranked by the API's own helper rather than re-sorted here, so it says exactly what
  * `/gtourboard` says. A thread of bout posts answers "who won #7"; this answers "who has this person
- * been playing all evening", which is the question a host asks when a draw looks unlucky.
+ * been playing all evening", which is the question a host asks when a draw looks unlucky. Copy image
+ * puts the whole board on the clipboard as a PNG, for pasting the standings back into Discord.
  *
  * The one number worth reading before you commit: **healers must be a third of the field**. A bout
  * seats four Tank/DPS and two healers, so sustaining everyone to the bout cap needs a healer for
@@ -304,83 +312,99 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
                           registrations but no field.
                         </p>
                       } @else {
-                        <div class="field-head">
-                          <span>
-                            <strong>{{ field().length }}</strong> in the field ·
-                            {{ e.boutsReported }}/{{ e.boutsDrawn }} bouts reported · cap
-                            {{ e.boutCap }} · +{{ e.pointsPerWin }}/{{ e.pointsPerLoss }}pt
-                          </span>
-                          <!-- The bouts are reported in Discord, so this table goes stale while it
-                               is open. Cheaper to re-ask than to guess when. -->
-                          <button type="button" (click)="loadField(e)">Refresh</button>
-                        </div>
+                        <!-- The capture target. The title is inside it, not only on the row above,
+                             so the shared image says which tournament it is — and so does the drawer
+                             itself once the table is long enough to scroll its own row out of view. -->
+                        <div class="field-shot">
+                          <div class="field-head">
+                            <span>
+                              <strong>{{ e.title }}</strong> ·
+                              {{ field().length }} in the field ·
+                              {{ e.boutsReported }}/{{ e.boutsDrawn }} bouts reported · cap
+                              {{ e.boutCap }} · +{{ e.pointsPerWin }}/{{ e.pointsPerLoss }}pt
+                            </span>
+                            <span class="head-actions pvp-noshot">
+                              <!-- The bouts are reported in Discord, so this table goes stale while
+                                   it is open. Cheaper to re-ask than to guess when. -->
+                              <button type="button" (click)="loadField(e)">Refresh</button>
+                              <button type="button" (click)="share(e, $event)" [disabled]="shot() === 'working'">
+                                {{ shotLabel() }}
+                              </button>
+                            </span>
+                          </div>
 
-                        @if (e.pointsPerLoss > 0) {
-                          <!-- Only worth saying when losses score: the order is wins first, so a
-                               consolation point can leave somebody ranked above a player with more
-                               points. Said out loud here, because a Pts column that does not fall
-                               all the way down reads as a broken table rather than as a tiebreak. -->
-                          <p class="note">
-                            Ranked by wins, then win rate, then fewer bouts played — the same order
-                            <code>/gtourboard</code> uses. With a point per loss, points can run out
-                            of step with that order.
-                          </p>
-                        }
+                          @if (e.pointsPerLoss > 0) {
+                            <!-- Only worth saying when losses score: the order is wins first, so a
+                                 consolation point can leave somebody ranked above a player with more
+                                 points. Said out loud here, because a Pts column that does not fall
+                                 all the way down reads as a broken table rather than as a tiebreak. -->
+                            <p class="note">
+                              Ranked by wins, then win rate, then fewer bouts played — the same order
+                              <code>/gtourboard</code> uses. With a point per loss, points can run out
+                              of step with that order.
+                            </p>
+                          }
 
-                        <table class="board">
-                          <thead>
-                            <tr>
-                              <th class="rank">#</th>
-                              <th>Player</th>
-                              <th class="num">Pts</th>
-                              <th class="num">W–L</th>
-                              <th class="num">Bouts</th>
-                              <th class="num">Rate</th>
-                              <th>Match history — teammates · opponents</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            @for (p of field(); track p.participantId) {
+                          <table class="board">
+                            <thead>
                               <tr>
-                                <td class="rank">{{ medal(p.rank) }}</td>
-                                <td class="who">
-                                  <span class="mark" [title]="poolLabel(p)">{{ poolMark(p) }}</span>
-                                  {{ p.name }}
-                                  @if (p.status !== 'active') {
-                                    <span class="pill" [class]="p.status" [title]="statusHelp(p)">
-                                      {{ statusLabel(p) }}
-                                    </span>
-                                  }
-                                </td>
-                                <td class="num pts">{{ p.points }}</td>
-                                <td class="num">{{ p.wins }}–{{ p.losses }}</td>
-                                <td class="num">{{ p.boutsPlayed }}</td>
-                                <td class="num">{{ rateLabel(p) }}</td>
-                                <td class="history">
-                                  @if (p.history.length === 0) {
-                                    <span class="note">not drawn yet</span>
-                                  } @else {
-                                    @for (b of p.history; track b.boutId) {
-                                      <div class="bout">
-                                        <span class="no">#{{ b.number }}</span>
-                                        <span class="outcome" [class]="b.outcome">
-                                          {{ outcomeLabel(b) }}
-                                        </span>
-                                        @if (b.draftedHealer) {
-                                          <span class="mark" title="Drafted into a healer seat">➕</span>
-                                        }
-                                        @if (b.teammates.length > 0) {
-                                          <span class="with">{{ b.teammates.join(', ') }}</span>
-                                        }
-                                        <span class="vs">vs {{ b.opponents.join(', ') }}</span>
-                                      </div>
-                                    }
-                                  }
-                                </td>
+                                <th class="rank">#</th>
+                                <th>Player</th>
+                                <th class="num">Pts</th>
+                                <th class="num">W–L</th>
+                                <th class="num">Bouts</th>
+                                <th class="num">Rate</th>
+                                <th>Match history — teammates ⚔️ opponents</th>
                               </tr>
-                            }
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody>
+                              @for (p of rows(); track p.participantId) {
+                                <tr>
+                                  <td class="rank">{{ medal(p.rank) }}</td>
+                                  <td class="who">
+                                    <span class="mark" [title]="poolLabel(p)">{{ poolMark(p) }}</span>
+                                    {{ p.name }}
+                                    @if (p.status !== 'active') {
+                                      <span class="pill" [class]="p.status" [title]="statusHelp(p)">
+                                        {{ statusLabel(p) }}
+                                      </span>
+                                    }
+                                  </td>
+                                  <td class="num pts">{{ p.points }}</td>
+                                  <td class="num">{{ p.wins }}–{{ p.losses }}</td>
+                                  <td class="num">{{ p.boutsPlayed }}</td>
+                                  <td class="num">{{ rateLabel(p) }}</td>
+                                  <td class="history">
+                                    @if (p.history.length === 0) {
+                                      <span class="note">nothing played yet</span>
+                                    } @else {
+                                      @for (b of p.history; track b.boutId) {
+                                        <div class="bout">
+                                          <span class="no">#{{ b.number }}</span>
+                                          <span class="outcome" [class]="b.outcome">
+                                            {{ outcomeLabel(b) }}
+                                          </span>
+                                          @if (b.draftedHealer) {
+                                            <span class="mark" title="Drafted into a healer seat">➕</span>
+                                          }
+                                          @if (b.teammates.length > 0) {
+                                            <span class="mates" title="Teammates">
+                                              {{ b.teammates.join(', ') }}
+                                            </span>
+                                          }
+                                          <span class="vs" title="against">⚔️</span>
+                                          <span class="foes" title="Opponents">
+                                            {{ b.opponents.join(', ') }}
+                                          </span>
+                                        </div>
+                                      }
+                                    }
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
                       }
                     </td>
                   </tr>
@@ -625,6 +649,11 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
         opacity: 0.85;
         margin-bottom: 0.5rem;
       }
+      .head-actions {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
       .note {
         margin: 0 0 0.5rem;
         opacity: 0.7;
@@ -727,13 +756,20 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
       .bout .outcome.skipped {
         opacity: 0.55;
       }
-      /* Teammates read plainly, opponents behind a "vs" — the separator does the labelling, so
-         neither list needs a word in front of it. */
-      .bout .with {
-        opacity: 0.9;
+      /* Which side someone was on is carried by colour and by the ⚔ between the two lists, so
+         neither needs a word in front of it. The palette's own blue and red rather than a raw
+         primary pair — this page sits in a warm bronze theme, and #00f/#f00 in it would read as an
+         error state rather than as two teams. */
+      .bout .mates {
+        color: var(--color-accent-blue, #6e88a8);
       }
+      .bout .foes {
+        color: var(--color-danger, #b5533d);
+      }
+      /* Not dimmed like the other separators here: it is a colour glyph, and fading one next to the
+         two saturated name lists reads as a rendering fault rather than as restraint. */
       .bout .vs {
-        opacity: 0.7;
+        font-size: 0.8rem;
       }
     `,
   ],
@@ -758,6 +794,23 @@ export class PvpEventsPageComponent {
   protected readonly field = signal<PvpFieldRow[]>([]);
   protected readonly fieldLoading = signal(false);
   protected readonly fieldError = signal<string | null>(null);
+
+  /**
+   * The field as the table shows it: skipped bouts dropped.
+   *
+   * A skipped bout is one nobody played — it scores nothing and says nothing about who somebody has
+   * been drawn against, so on a history read as a record of an evening it is noise. The API still
+   * serves them (they are what explains a bout count short of the cap, and the bot may want them),
+   * so this is a view rather than a narrower request.
+   *
+   * Filtered here rather than in the template so it happens once per load instead of once per change
+   * detection pass, on a table that can run to a few hundred lines.
+   */
+  protected readonly rows = computed(() =>
+    this.field().map((r) => ({ ...r, history: r.history.filter((b) => b.outcome !== 'skipped') })));
+
+  /** The capture button's state. One at a time, because only one field is open at a time. */
+  protected readonly shot = signal<ShotState>('idle');
 
   protected readonly editForm = new FormGroup({
     teamSize: new FormControl<number>(3, { nonNullable: true }),
@@ -1019,6 +1072,104 @@ export class PvpEventsPageComponent {
         this.fieldLoading.set(false);
       },
     });
+  }
+
+  protected shotLabel(): string {
+    switch (this.shot()) {
+      case 'working':
+        return 'Capturing…';
+      case 'copied':
+        return 'Copied';
+      case 'downloaded':
+        return 'Saved';
+      case 'failed':
+        return 'Failed';
+      default:
+        return 'Copy image';
+    }
+  }
+
+  /**
+   * Rasterize the open field and put the PNG on the clipboard, so a scoreboard can be pasted into
+   * Discord as one image instead of screenshotted by hand.
+   *
+   * Built the same way the roster card's share button is — `toBlob`, the curated font set, the shared
+   * oversampling budget, and a download if the clipboard write is refused — because a second way of
+   * doing this is a second way for it to come out soft or unreadable. See `card-shot.ts`.
+   *
+   * The buttons are removed from an **off-screen clone** rather than hidden during capture: the
+   * library sizes its output from the live element, so hiding a node in place leaves its space in the
+   * image, and hiding it for real would make the page jump under the cursor that just clicked it.
+   */
+  protected async share(e: PvpEvent, event: Event): Promise<void> {
+    if (this.shot() === 'working') return;
+
+    const panel = (event.currentTarget as HTMLElement)?.closest('.field-shot') as HTMLElement | null;
+    if (!panel) return;
+
+    this.shot.set('working');
+    const host = document.createElement('div');
+    try {
+      const clone = panel.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll('.pvp-noshot').forEach((n) => n.remove());
+
+      // The drawer's own background is a translucent grey over the page, which on its own resolves to
+      // near-white in a PNG. Painted explicitly so the image looks like the page it came from.
+      const styles = getComputedStyle(document.documentElement);
+      const paper = styles.getPropertyValue('--color-bg').trim() || '#f6f0e3';
+      const ink = styles.getPropertyValue('--color-ink').trim() || '#3a2f22';
+      clone.style.cssText = `background: ${paper}; color: ${ink}; padding: 1rem 1.25rem;`;
+
+      // Off-screen but laid out — display:none would give every child zero size. Pinned to the live
+      // width so the history lines wrap exactly where they do on screen.
+      host.style.cssText =
+        `position: fixed; left: -10000px; top: 0; width: ${panel.offsetWidth}px; pointer-events: none;`;
+      host.appendChild(clone);
+      document.body.appendChild(host);
+
+      // Measured after it is in the document, so this is the trimmed height rather than the taller
+      // panel still on screen. Rounded up: a fractional size makes the library rasterize at one size
+      // and draw at another, and that resampling is what reads as a soft image.
+      const rect = clone.getBoundingClientRect();
+      const width = Math.ceil(rect.width);
+      const height = Math.ceil(rect.height);
+
+      const blob = await toBlob(clone, {
+        pixelRatio: captureScale(width, height),
+        width,
+        height,
+        backgroundColor: paper,
+        fontEmbedCSS: await cardFontCss(),
+      });
+      if (!blob) {
+        this.shot.set('failed');
+        return;
+      }
+
+      // Clipboard image writes must stay in the click's task; a rejection falls back to saving the
+      // same blob rather than losing the capture that was just paid for.
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this.shot.set('copied');
+      } catch {
+        this.download(blob, e.eventId);
+        this.shot.set('downloaded');
+      }
+    } catch {
+      this.shot.set('failed');
+    } finally {
+      host.remove();
+      setTimeout(() => this.shot.set('idle'), 3200);
+    }
+  }
+
+  private download(blob: Blob, name: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(name || 'tournament').replace(/[^\w.-]+/g, '-')}-field.png`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   /** The same medals the bot's scoreboard puts on the podium, so the two read as one thing. */
