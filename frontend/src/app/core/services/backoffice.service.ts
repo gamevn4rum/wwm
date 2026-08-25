@@ -586,6 +586,18 @@ export class BackofficeService {
   }
 
   /**
+   * Starts the evening over: every round, bout and point is **hard deleted**, and the tournament
+   * goes back to pending so `/gtourstart` can draw round one again.
+   *
+   * The people are kept — rejoining is a Discord round trip for twenty-odd of them, and a reset is
+   * nearly always about a bad draw rather than a bad field. Anyone who withdrew stays withdrawn.
+   * This is the one destructive call on the panel, so it is worth a confirm the caller has to read.
+   */
+  resetPvpEvent(id: number): Observable<PvpEvent> {
+    return this.http.post<PvpEvent>(apiUrl(`/admin/pvp-events/${id}/reset`), {});
+  }
+
+  /**
    * One event's field: everyone in it in scoreboard order, each with their bouts.
    *
    * A separate call from {@link getPvpEvents} because it joins every seat of every bout — nobody

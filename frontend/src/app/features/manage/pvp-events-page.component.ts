@@ -296,6 +296,20 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                         {{ busy() === e.id ? '…' : 'Cancel event' }}
                       </button>
                     }
+                    <!-- Offered on a finished event too: "that run should not have counted" is
+                         usually said after the scoreboard has been read, and a reset is the only way
+                         back from a draw made on the wrong field. Not on a cancelled one — that was
+                         called off deliberately, and re-running it is a new tournament. -->
+                    @if (e.status !== 'cancelled' && e.boutsDrawn > 0) {
+                      <button
+                        type="button"
+                        class="danger"
+                        (click)="resetEvent(e)"
+                        [disabled]="busy() === e.id"
+                      >
+                        {{ busy() === e.id ? '…' : 'Reset rounds' }}
+                      </button>
+                    }
                   </td>
                 </tr>
 
@@ -642,6 +656,12 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
+      }
+      /* The one button here that deletes something. Same red the other Manage pages use for theirs,
+         so "this one is not like the others" reads the same way across the panel. */
+      .danger {
+        color: #dc3545;
+        border-color: #dc3545;
       }
 
       /* ── the field drawer ─────────────────────────────────────────────────
@@ -1082,6 +1102,44 @@ export class PvpEventsPageComponent {
       error: () => {
         this.busy.set(null);
         this.error.set('Could not cancel that tournament.');
+      },
+    });
+  }
+
+  /**
+   * Delete every round of a tournament and let it be started again from the same field.
+   *
+   * ⚠ The only destructive action on this page, so the confirm spells out both halves of it — what
+   * goes (rounds, bouts, points, bout counts, for good) and what stays (the people, minus anyone who
+   * withdrew). Two counts are named because they are what makes it real: a reset of a tournament
+   * with 15 reported bouts is a very different decision from one with none.
+   */
+  protected resetEvent(e: PvpEvent): void {
+    const played = e.boutsReported > 0 ? `, ${e.boutsReported} of them reported` : '';
+    if (
+      !confirm(
+        `Reset "${e.title}"?\n\n` +
+          `All ${e.boutsDrawn} bouts drawn so far${played} will be deleted permanently, ` +
+          `along with every point and bout count. This cannot be undone.\n\n` +
+          `The field stays: ${e.registeredDamage + e.registeredHealer} people keep their places ` +
+          `(anyone who withdrew stays out). The tournament goes back to pending, so /gtourstart ` +
+          `draws round 1 again.`,
+      )
+    ) {
+      return;
+    }
+    this.busy.set(e.id);
+    this.api.resetPvpEvent(e.id).subscribe({
+      next: () => {
+        this.busy.set(null);
+        // The field drawer, if it is open on this event, is now a table of bouts that no longer
+        // exist — so it closes rather than showing them until somebody presses Refresh.
+        if (this.expanded() === e.id) this.expanded.set(null);
+        this.load();
+      },
+      error: () => {
+        this.busy.set(null);
+        this.error.set('Could not reset that tournament.');
       },
     });
   }
