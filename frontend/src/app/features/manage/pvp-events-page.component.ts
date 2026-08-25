@@ -32,11 +32,13 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
  * scores an event, because the person doing that is standing in Discord.
  *
  * What this page adds to that is the **field**, under each event: everyone in it in scoreboard order
- * with their points, and every bout they were drawn into with teammates and opponents named. Read
- * only, and ranked by the API's own helper rather than re-sorted here, so it says exactly what
- * `/gtourboard` says. A thread of bout posts answers "who won #7"; this answers "who has this person
- * been playing all evening", which is the question a host asks when a draw looks unlucky. Copy image
- * puts the whole board on the clipboard as a PNG, for pasting the standings back into Discord.
+ * with their points, and a **grid of rounds** — a column per round, a mark per person, ✅ won, ❌
+ * lost, ⌚ not reported yet, – not drawn. Who they were seated with and against hangs off each mark
+ * as a tooltip, because a whole evening's pairings written out is a wall of names, while the shape
+ * of somebody's evening — three rounds on, one sat out, the last still open — is a thing you should
+ * be able to see without reading. Read only, and ranked by the API's own helper rather than
+ * re-sorted here, so it says exactly what `/gtourboard` says. Copy image puts the whole board on the
+ * clipboard as a PNG, for pasting the standings back into Discord.
  *
  * The one number worth reading before you commit: **healers must be a third of the field**. A bout
  * seats four Tank/DPS and two healers, so sustaining everyone to the bout cap needs a healer for
@@ -333,6 +335,15 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                             </span>
                           </div>
 
+                          <!-- A key, not decoration: the grid is glyphs, and the copied PNG has no
+                               tooltips to fall back on. Reads left to right in the order somebody
+                               meets them scanning a row. -->
+                          <p class="note legend">
+                            <span>✅ won</span><span>❌ lost</span><span>⌚ not reported yet</span>
+                            <span><span class="idle">–</span> not drawn</span>
+                            <span><span class="drafted-key">✅</span> drafted into a healer seat</span>
+                          </p>
+
                           @if (e.pointsPerLoss > 0) {
                             <!-- Only worth saying when losses score: the order is wins first, so a
                                  consolation point can leave somebody ranked above a player with more
@@ -354,7 +365,12 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                 <th class="num">W–L</th>
                                 <th class="num">Bouts</th>
                                 <th class="num">Rate</th>
-                                <th>Match history — teammates ⚔️ opponents</th>
+                                <!-- One column per round that was actually played. Numbered from the
+                                     bouts rather than counted off, so a round the whole field
+                                     skipped leaves no empty column and R4 still says R4. -->
+                                @for (r of roundColumns(); track r) {
+                                  <th class="round" [class.first]="$first" [title]="'Round ' + r">R{{ r }}</th>
+                                }
                               </tr>
                             </thead>
                             <tbody>
@@ -374,32 +390,28 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                   <td class="num">{{ p.wins }}–{{ p.losses }}</td>
                                   <td class="num">{{ p.boutsPlayed }}</td>
                                   <td class="num">{{ rateLabel(p) }}</td>
-                                  <td class="history">
-                                    @if (p.history.length === 0) {
-                                      <span class="note">nothing played yet</span>
-                                    } @else {
-                                      @for (b of p.history; track b.boutId) {
-                                        <div class="bout">
-                                          <span class="no">#{{ b.number }}</span>
-                                          <span class="outcome" [class]="b.outcome">
-                                            {{ outcomeLabel(b) }}
-                                          </span>
-                                          @if (b.draftedHealer) {
-                                            <span class="mark" title="Drafted into a healer seat">➕</span>
-                                          }
-                                          @if (b.teammates.length > 0) {
-                                            <span class="mates" title="Teammates">
-                                              {{ b.teammates.join(', ') }}
-                                            </span>
-                                          }
-                                          <span class="vs" title="against">⚔️</span>
-                                          <span class="foes" title="Opponents">
-                                            {{ b.opponents.join(', ') }}
-                                          </span>
-                                        </div>
+                                  <!-- A cell per round column, in the same order as the headers, so
+                                       a row can be read straight across. Normally one bout to a
+                                       cell; the loop is there because a re-draw could seat somebody
+                                       twice in a round, and two marks side by side say that better
+                                       than the last one silently winning. -->
+                                  @for (c of p.cells; track c.round) {
+                                    <td class="round" [class.first]="$first">
+                                      @if (c.bouts.length === 0) {
+                                        <span class="idle" [title]="'Not drawn into round ' + c.round">–</span>
+                                      } @else {
+                                        @for (b of c.bouts; track b.boutId) {
+                                          <span
+                                            class="outcome"
+                                            [class]="b.outcome"
+                                            [class.drafted]="b.draftedHealer"
+                                            [title]="boutTip(b)"
+                                            [attr.aria-label]="boutTip(b)"
+                                          >{{ outcomeIcon(b) }}</span>
+                                        }
                                       }
-                                    }
-                                  </td>
+                                    </td>
+                                  }
                                 </tr>
                               }
                             </tbody>
@@ -670,7 +682,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         text-align: left;
         padding: 0.35rem 0.5rem;
         border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-        vertical-align: top;
+        vertical-align: middle;
       }
       .board th {
         font-size: 0.7rem;
@@ -700,8 +712,12 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         font-variant-numeric: tabular-nums;
         opacity: 0.75;
       }
+      /* The one elastic column. Without this the table's slack is split between the score columns,
+         which pushes the round grid — the point of the table — against the right edge and leaves
+         four numbers floating a hand's width from the names they belong to. */
       .board td.who {
         white-space: nowrap;
+        width: 100%;
       }
       .board .mark {
         opacity: 0.85;
@@ -721,55 +737,47 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
         color: #b5533d;
         opacity: 1;
       }
-      /* One bout per line: what it was, then who was on it. Wrapping inside a line rather than one
-         long row per bout keeps a five-bout history readable at a glance. */
-      .bout {
+      /* ── the round grid ───────────────────────────────────────────────────
+         Narrow, centred, fixed width: the point of a grid is that a column reads down as well as a
+         row reads across, and marks that shuffle sideways with the header text do neither. */
+      .board th.round,
+      .board td.round {
+        text-align: center;
+        white-space: nowrap;
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+        width: 2.1rem;
+      }
+      /* One rule down the left of the grid, so it reads as a block of rounds rather than as four
+         more score columns. Only the first — a line between every round would draw a cage. */
+      .board th.round.first,
+      .board td.round.first {
+        border-left: 1px solid rgba(128, 128, 128, 0.25);
+      }
+      .board td.round .outcome {
+        font-size: 0.95rem;
+        line-height: 1;
+        /* The tooltip is the only place the teams are named now, so say the mark is worth hovering. */
+        cursor: help;
+      }
+      /* Somebody who was never drawn and somebody whose round is still open are different states, so
+         the dash is dimmed well below the ⌚ beside it rather than sitting at the same weight. */
+      .idle {
+        opacity: 0.35;
+      }
+      /* A drafted healer sat a role they did not sign up for — worth seeing at a glance and not only
+         in the tooltip, because the copied PNG has no tooltips. An underline rather than a second
+         glyph: the cell is 2rem wide and a ➕ next to a ✅ in it reads as one smudge. */
+      .board td.round .outcome.drafted,
+      .drafted-key {
+        border-bottom: 2px dotted var(--color-accent-blue, #6e88a8);
+        padding-bottom: 1px;
+      }
+      /* Spaced apart rather than comma-run, so each pair is one thing to take in. */
+      .legend {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.35rem;
-        align-items: baseline;
-        padding: 0.1rem 0;
-        line-height: 1.4;
-      }
-      .bout .no {
-        font-family: monospace;
-        opacity: 0.6;
-        font-size: 0.78rem;
-        min-width: 2rem;
-      }
-      /* Wide enough for the longest of the four words, so the names beside them start at the same
-         place down a history — a column that only aligns for wins is worse than no column. */
-      .bout .outcome {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-        font-weight: 600;
-        min-width: 4.7rem;
-      }
-      .bout .outcome.win {
-        color: #5f7757;
-      }
-      .bout .outcome.loss {
-        color: #b5533d;
-      }
-      .bout .outcome.pending,
-      .bout .outcome.skipped {
-        opacity: 0.55;
-      }
-      /* Which side someone was on is carried by colour and by the ⚔ between the two lists, so
-         neither needs a word in front of it. The palette's own blue and red rather than a raw
-         primary pair — this page sits in a warm bronze theme, and #00f/#f00 in it would read as an
-         error state rather than as two teams. */
-      .bout .mates {
-        color: var(--color-accent-blue, #6e88a8);
-      }
-      .bout .foes {
-        color: var(--color-danger, #b5533d);
-      }
-      /* Not dimmed like the other separators here: it is a colour glyph, and fading one next to the
-         two saturated name lists reads as a rendering fault rather than as restraint. */
-      .bout .vs {
-        font-size: 0.8rem;
+        gap: 0.25rem 1rem;
       }
     `,
   ],
@@ -806,8 +814,36 @@ export class PvpEventsPageComponent {
    * Filtered here rather than in the template so it happens once per load instead of once per change
    * detection pass, on a table that can run to a few hundred lines.
    */
-  protected readonly rows = computed(() =>
+  private readonly played = computed(() =>
     this.field().map((r) => ({ ...r, history: r.history.filter((b) => b.outcome !== 'skipped') })));
+
+  /**
+   * The rounds that get a column, ascending.
+   *
+   * Collected from the bouts rather than counted `1..currentRound`, so the columns match what is
+   * actually in the table: a round the whole field skipped leaves no empty stripe of dashes, and
+   * because the header is the bout's own round number, dropping one does not renumber the rest.
+   */
+  protected readonly roundColumns = computed(() => {
+    const seen = new Set<number>();
+    for (const r of this.played()) for (const b of r.history) seen.add(b.round);
+    return [...seen].sort((a, b) => a - b);
+  });
+
+  /**
+   * A row per participant, with one cell per round column already lined up.
+   *
+   * Pivoted here and not in the template: a template that filtered the history per round would do it
+   * rows × rounds times on every change detection pass, and this table is a few hundred lines long
+   * while somebody is holding the mouse over it.
+   */
+  protected readonly rows = computed(() => {
+    const rounds = this.roundColumns();
+    return this.played().map((r) => ({
+      ...r,
+      cells: rounds.map((round) => ({ round, bouts: r.history.filter((b) => b.round === round) })),
+    }));
+  });
 
   /** The capture button's state. One at a time, because only one field is open at a time. */
   protected readonly shot = signal<ShotState>('idle');
@@ -1227,6 +1263,34 @@ export class PvpEventsPageComponent {
       default:
         return 'pending';
     }
+  }
+
+  /** One glyph per bout. The same four the bot's own posts use, so the grid and Discord agree. */
+  protected outcomeIcon(b: PvpFieldBout): string {
+    switch (b.outcome) {
+      case 'win':
+        return '✅';
+      case 'loss':
+        return '❌';
+      default:
+        return '⌚';
+    }
+  }
+
+  /**
+   * Everything the old written-out history said, hung off the mark instead.
+   *
+   * `title` rather than a custom popover: it is the one tooltip that works on a table cell without a
+   * library, survives being cloned into the PNG capture, and is what a screen reader reads — which is
+   * why the same string is the `aria-label` too. Newlines, because four facts on one line is the wall
+   * of text this rework exists to get rid of.
+   */
+  protected boutTip(b: PvpFieldBout): string {
+    const lines = [`Trận #${b.number} · round ${b.round} · ${this.outcomeLabel(b)}`];
+    if (b.draftedHealer) lines.push('Drafted into a healer seat');
+    if (b.teammates.length > 0) lines.push(`With: ${b.teammates.join(', ')}`);
+    if (b.opponents.length > 0) lines.push(`Against: ${b.opponents.join(', ')}`);
+    return lines.join('\n');
   }
 
   protected stateLabel(e: PvpEvent): string {
