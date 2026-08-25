@@ -11,6 +11,7 @@ import { InnerWayCatalogueService } from '../../../roster-stats/inner-way-catalo
 import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
+import { roleRank } from '../../../../core/services/discord-auth.service';
 import {
   ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
   noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
@@ -20,6 +21,9 @@ export type { ActiveSetEffect };
 
 /** Only fully-upgraded inner ways count for the Formation filter. */
 const TIER_FILTERED = 5;
+
+/** How the grid is ordered. `roster` is whatever order the roster arrived in. */
+type SortMode = 'roster' | 'role';
 
 /** Where a share ended up. Clipboard first, download for browsers that refuse
  *  image writes (Firefox, older Safari) — same ladder as the profile modal. */
@@ -64,6 +68,14 @@ export class MemberGridComponent implements OnInit {
   /** Which inner way's detail card is open (click-to-open, not hover). */
   readonly openInnerWayId = signal<number | null>(null);
 
+  // ── Sort ────────────────────────────────────────────────────────────────
+  /**
+   * Ordering of the grid. `roster` leaves the list as the service handed it over; `role` groups it
+   * by standing — Admin, then Commander, then Warrior — which is the order somebody asks for when
+   * they are looking for whoever can actually call a formation rather than for a particular person.
+   */
+  readonly sortMode = signal<SortMode>('roster');
+
   // ── Inner-way path filter ───────────────────────────────────────────────
   /** Selected path.name; '' = no filter. */
   readonly pathFilter = signal('');
@@ -98,8 +110,14 @@ export class MemberGridComponent implements OnInit {
       : this.players();
 
     const path = this.pathFilter();
-    if (!path) return base;
-    return base.filter((p) => this.tier5Paths(p).has(path));
+    const filtered = path ? base.filter((p) => this.tier5Paths(p).has(path)) : base;
+    if (this.sortMode() !== 'role') return filtered;
+
+    // A copy: `players()` holds the service's own shared array, and sorting it in place would
+    // reorder it for every other subscriber. Ties break on name so the order inside a role is the
+    // same on every load — the roster order it would otherwise fall back to is not stable.
+    return [...filtered].sort((a, b) =>
+      roleRank(a.rank) - roleRank(b.rank) || a.name.localeCompare(b.name));
   });
 
   /** The distinct paths a player has a tier-5 inner way on. */
@@ -115,6 +133,13 @@ export class MemberGridComponent implements OnInit {
       if (name) paths.add(name);
     }
     return paths;
+  }
+
+  onSortMode(event: Event): void {
+    this.sortMode.set((event.target as HTMLSelectElement).value as SortMode);
+    // Same reason as the filter below: the card that was open has just moved.
+    this.expandedId.set(null);
+    this.openInnerWayId.set(null);
   }
 
   onPathFilter(event: Event): void {

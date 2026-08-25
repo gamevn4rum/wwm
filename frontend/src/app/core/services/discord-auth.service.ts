@@ -36,6 +36,28 @@ export function isCommanderRole(role: UserRole | undefined): boolean {
 }
 
 /**
+ * Seniority as a number, for sorting a roster by rank. Lower is more senior, and anything the
+ * roster serves that is not one of the four sorts last rather than in the middle — a role nobody
+ * here recognises is not evidence of standing.
+ *
+ * Takes a plain string because the roster projection types `role` as one: this is the sort key for
+ * a list of members, not a permission check. Permission goes through the two helpers above.
+ */
+export function roleRank(role: string | undefined | null): number {
+  switch (role) {
+    case 'Admin':
+    case 'Creator':
+      return 0;
+    case 'Commander':
+      return 1;
+    case 'Warrior':
+      return 2;
+    default:
+      return 3;
+  }
+}
+
+/**
  * Discord Authorization Code flow. The browser only ever handles a short-lived `code`;
  * the server holds the client secret, exchanges it, decides who this is against the
  * roster, and returns an app JWT. Nothing here judges membership or role — the token's

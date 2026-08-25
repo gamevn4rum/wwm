@@ -5,10 +5,24 @@
     <span class="accent-line"></span>
   </header>
 
-  <!-- Inner-way path filter (Formation page). Options are the catalogue's tier-5
-       paths; a member matches only on a tier-5 inner way of the chosen path. -->
-  @if (innerWayFilter()) {
-    <div class="iw-filter">
+  <!-- Controls: sort always, the inner-way path filter only where it applies
+       (Formation page). One row, because two stacked rows of one control each
+       read as two unrelated things. -->
+  <div class="iw-filter">
+    <label class="iw-filter-label" for="member-sort">SORT BY</label>
+    <select
+      id="member-sort"
+      class="iw-filter-select"
+      [value]="sortMode()"
+      (change)="onSortMode($event)"
+    >
+      <option value="roster">Roster order</option>
+      <option value="role">Role</option>
+    </select>
+
+    <!-- Options are the catalogue's tier-5 paths; a member matches only on a
+         tier-5 inner way of the chosen path. -->
+    @if (innerWayFilter()) {
       <label class="iw-filter-label" for="iw-path-filter">INNER WAY PATH</label>
       <select
         id="iw-path-filter"
@@ -26,8 +40,8 @@
           {{ visiblePlayers().length }} of {{ players().length }} with a Tier 5 inner way
         </span>
       }
-    </div>
-  }
+    }
+  </div>
 
   @if (innerWayFilter() && pathFilter() && visiblePlayers().length === 0) {
     <p class="iw-filter-empty">No member has a Tier 5 inner way on “{{ pathFilter() }}”.</p>
