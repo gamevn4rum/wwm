@@ -605,9 +605,14 @@ export class BackofficeService {
    * The RSVP answers are kept: they *are* the registrations, and throwing them away would mean
    * everybody re-pressing a button to say what they already said. Refused on anything that is not
    * cancelled, so it can never be a quiet way to delete results.
+   *
+   * `keepField` is the question the caller has to have answered: true puts the same people back in,
+   * false drops the field so starting rebuilds it from whoever has answered by then. Always sent
+   * explicitly — the API defaults an omitted flag to keeping people, and this should never be
+   * relying on that.
    */
-  reopenPvpEvent(id: number): Observable<PvpEvent> {
-    return this.http.post<PvpEvent>(apiUrl(`/admin/pvp-events/${id}/reopen`), {});
+  reopenPvpEvent(id: number, keepField: boolean): Observable<PvpEvent> {
+    return this.http.post<PvpEvent>(apiUrl(`/admin/pvp-events/${id}/reopen`), { keepField });
   }
 
   /**

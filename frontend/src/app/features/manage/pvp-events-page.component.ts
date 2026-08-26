@@ -297,10 +297,30 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                       </button>
                     }
                     <!-- A cancelled event gets the other way back instead: not "replay the rounds"
-                         but "it is on again after all", which returns it to taking registrations. -->
+                         but "it is on again after all", which returns it to taking registrations.
+
+                         Two buttons rather than one, because there are two of these and the
+                         difference is a field of twenty-odd people. A single "Reopen" that quietly
+                         did the second one is what lost a field on 2026-08-26 — a host reaching for
+                         "reset, but from cancelled" has no reason to expect the players to go, so
+                         the choice is on the buttons instead of inside them. -->
                     @if (e.status === 'cancelled') {
-                      <button type="button" (click)="reopenEvent(e)" [disabled]="busy() === e.id">
-                        {{ busy() === e.id ? '…' : 'Reopen' }}
+                      <button
+                        type="button"
+                        (click)="reopenEvent(e, true)"
+                        [disabled]="busy() === e.id"
+                        title="Back on with the same players. Rounds are cleared; nobody signs up again."
+                      >
+                        {{ busy() === e.id ? '…' : 'Reopen · same players' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="danger"
+                        (click)="reopenEvent(e, false)"
+                        [disabled]="busy() === e.id"
+                        title="Drops the field. The line-up is rebuilt from whoever has answered when you start it."
+                      >
+                        {{ busy() === e.id ? '…' : 'Reopen · fresh signups' }}
                       </button>
                     }
                     <!-- Offered on a finished event too: "that run should not have counted" is
@@ -1152,13 +1172,17 @@ export class PvpEventsPageComponent {
   }
 
   /**
-   * Put a cancelled tournament back to taking registrations.
+   * Put a cancelled tournament back to taking registrations, one of two ways.
    *
-   * One step further back than a reset: the field goes as well as the rounds, because a tournament
-   * that has not started does not have a field — starting it snapshots one from whoever has answered
-   * by then. The answers themselves survive, which is what makes this a reopen rather than a rerun.
+   * `keepField` true is the one a host almost always means: the evening is on again with the people
+   * who were already in it, and only the rounds go. False is the harder one — the field goes too,
+   * and starting rebuilds it from whoever has answered by then.
+   *
+   * The RSVP answers survive either way, which is what makes this a reopen rather than a rerun, and
+   * what made the lost field of 2026-08-26 recoverable by simply starting the event again. Recovery
+   * existing is not a reason to keep offering the destructive one by default, so now it is asked.
    */
-  protected reopenEvent(e: PvpEvent): void {
+  protected reopenEvent(e: PvpEvent, keepField: boolean): void {
     const drawn = e.boutsDrawn > 0
       ? `The ${e.boutsDrawn} bouts drawn before it was called off will be deleted permanently, along with every point. `
       : '';
@@ -1166,18 +1190,23 @@ export class PvpEventsPageComponent {
       ? '\n\nNote: its registration deadline has already passed, so the form will not take new ' +
         'answers — the ones already given still count, and /gtourstart works on them.'
       : '';
+    const field = keepField
+      ? `Everyone currently in it stays in it, with their wins and bouts cleared. ` +
+        `Nobody has to sign up again.`
+      : `Its ${e.registeredDamage + e.registeredHealer} players are removed from the event. ` +
+        `Their answers are kept, so starting it rebuilds the line-up from whoever has answered ` +
+        `by then — including anyone who signs up in the meantime.`;
     if (
       !confirm(
-        `Reopen "${e.title}" for registration?\n\n` +
-          `${drawn}It goes back to pending with its registration taking answers again, and ` +
-          `everyone's answers are kept. The field is rebuilt from those answers when you start it.` +
+        `Reopen "${e.title}" ${keepField ? 'with the same players' : 'for fresh signups'}?\n\n` +
+          `${drawn}${field}` +
           closed,
       )
     ) {
       return;
     }
     this.busy.set(e.id);
-    this.api.reopenPvpEvent(e.id).subscribe({
+    this.api.reopenPvpEvent(e.id, keepField).subscribe({
       next: () => {
         this.busy.set(null);
         if (this.expanded() === e.id) this.expanded.set(null);
