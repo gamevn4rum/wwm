@@ -14,6 +14,9 @@ export type MatchType = 'league' | 'ranked' | 'scrim';
 export type UploaderKey = string;
 
 export interface FootageEntry {
+  /** Server-side row id — what the match editor addresses a clip by when it edits or
+   *  removes one. The video id moves with the link, so it can't serve as the handle. */
+  id: number;
   uploader: UploaderKey;
   videoId: string;
 }

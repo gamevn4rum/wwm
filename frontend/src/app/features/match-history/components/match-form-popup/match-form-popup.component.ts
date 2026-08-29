@@ -21,6 +21,18 @@ const RESULT_OF_STATUS: Record<MatchStatus, MatchResult | ''> = {
   '': '',
 };
 
+/** The canonical form of a stored clip, and what an edit box starts from — the DTO carries
+ *  the video id, not whatever URL shape was originally filed. */
+function youtubeUrl(videoId: string): string {
+  return `https://youtu.be/${videoId}`;
+}
+
+/** One attached clip and the box its link is edited in. */
+interface FootageRow {
+  entry: FootageEntry;
+  control: FormControl<string>;
+}
+
 /** Local yyyy-MM-dd for today. Not toISOString() — that's UTC and can land a day off. */
 function todayIso(): string {
   const d = new Date();
@@ -83,6 +95,8 @@ export class MatchFormPopupComponent {
 
   // ── Footage state (edit mode) ────────────────────────────────────────────
   readonly footages = signal<FootageEntry[]>([]);
+  /** The same clips, each paired with the link box that edits it. */
+  readonly footageRows = signal<FootageRow[]>([]);
   readonly footageError = signal<string | null>(null);
   readonly addingFootage = signal(false);
 
@@ -90,8 +104,8 @@ export class MatchFormPopupComponent {
   readonly confirmingDelete = signal(false);
   readonly deleting = signal(false);
   readonly deleteError = signal<string | null>(null);
-  /** A footage add persists immediately, so the list needs refreshing even if the user
-   *  closes without pressing Save. */
+  /** A footage add or edit persists immediately, so the list needs refreshing even if the
+   *  user closes without pressing Save. */
   private changed = false;
 
   readonly footageForm = new FormGroup({
@@ -175,7 +189,7 @@ export class MatchFormPopupComponent {
       const current = Number(match.season);
       if (Number.isFinite(current) && !seasons.includes(current)) seasons.unshift(current);
       seasons.sort((a, b) => a - b);
-      this.footages.set([...match.footages]);
+      this.setFootages(match.footages);
     }
 
     // currentUser$ is a BehaviorSubject, so this resolves with the current session at once.
@@ -261,6 +275,9 @@ export class MatchFormPopupComponent {
           ? this.backoffice.patchMatch(editing.id, body)
           : this.backoffice.createMatch({ ...body, result: body.result || null }),
       );
+      // Match fields first, then the link boxes — a failure there leaves the dialog open
+      // on its own message rather than throwing away the typed links.
+      if (editing && !(await this.saveFootageEdits(editing.id))) return;
       this.matchData.reload();
       this.popup.close();
     } catch (err: unknown) {
@@ -271,6 +288,48 @@ export class MatchFormPopupComponent {
   }
 
   // ── Footage ────────────────────────────────────────────────────────────────
+  /** Reset the list and its boxes to what the server just said is stored. */
+  private setFootages(list: FootageEntry[]): void {
+    this.footages.set([...list]);
+    this.footageRows.set(
+      list.map((entry) => ({
+        entry,
+        control: new FormControl(youtubeUrl(entry.videoId), { nonNullable: true }),
+      })),
+    );
+  }
+
+  /**
+   * Send whatever the link boxes now say. An emptied box detaches that clip; a box still
+   * pointing at the same video is left alone, so saving without touching one sends nothing.
+   * Returns false if one failed — the boxes keep what was typed and the caller stays open.
+   */
+  private async saveFootageEdits(matchId: number): Promise<boolean> {
+    this.footageError.set(null);
+    let latest: FootageEntry[] | null = null;
+    for (const row of this.footageRows()) {
+      const link = row.control.value.trim();
+      if (link.length > 0 && extractYouTubeVideoId(link) === row.entry.videoId) continue;
+      try {
+        const updated = await firstValueFrom(
+          link.length === 0
+            ? this.backoffice.deleteFootage(matchId, row.entry.id)
+            : this.backoffice.patchFootage(matchId, row.entry.id, link),
+        );
+        this.changed = true;
+        latest = updated.footages;
+      } catch (err: unknown) {
+        // Whatever landed before this one stands; refresh so the list isn't showing clips
+        // that are already gone, but leave the boxes alone so nothing typed is lost.
+        if (latest) this.footages.set([...latest]);
+        this.footageError.set(this.describeFootageError(err));
+        return false;
+      }
+    }
+    if (latest) this.setFootages(latest);
+    return true;
+  }
+
   async addFootage(): Promise<void> {
     const editing = this.editing();
     if (!editing || this.footageForm.invalid || this.duplicateFootage()) {
@@ -284,7 +343,7 @@ export class MatchFormPopupComponent {
       const updated = await firstValueFrom(
         this.backoffice.addFootage(editing.id, { uploader, youtubeLink: youtubeLink.trim() }),
       );
-      this.footages.set([...updated.footages]);
+      this.setFootages(updated.footages);
       // Keep the current user as the default for the next clip, not a blank.
       this.footageForm.reset({ uploader: this.currentUploaderIgn(), youtubeLink: '' });
       this.changed = true;
@@ -361,9 +420,11 @@ export class MatchFormPopupComponent {
       case 'uploader_required':
         return 'Pick an uploader.';
       case 'not_authorized':
-        return 'You need footage permission to add clips.';
+        return 'You need footage permission to manage clips.';
+      case 'footage_not_found':
+        return 'That clip is no longer on this match — it may already have been removed.';
       default:
-        return 'Could not add the clip. Please try again.';
+        return 'Could not save that clip. Please try again.';
     }
   }
 }

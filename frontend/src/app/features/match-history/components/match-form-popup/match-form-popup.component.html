@@ -108,24 +108,33 @@
 
               @if (footages().length) {
                 <ul class="mf-footage-list">
-                  @for (f of footages(); track f.uploader + f.videoId) {
+                  @for (row of footageRows(); track row.entry.id) {
                     <li
                       class="mf-footage-item"
-                      [class.is-duplicate]="duplicateFootage()?.videoId === f.videoId"
+                      [class.is-duplicate]="duplicateFootage()?.videoId === row.entry.videoId"
                     >
-                      <span class="mf-footage-uploader">{{ f.uploader }}</span>
+                      <span class="mf-footage-uploader">{{ row.entry.uploader }}</span>
                       <span class="mf-footage-sep">|</span>
-                      <a
-                        class="mf-footage-link"
-                        [href]="'https://youtu.be/' + f.videoId"
-                        target="_blank"
-                        rel="noopener"
-                      >youtu.be/{{ f.videoId }}</a>
+                      <input
+                        class="mf-input mf-footage-edit"
+                        type="text"
+                        autocomplete="off"
+                        maxlength="300"
+                        placeholder="Empty to remove this clip"
+                        aria-label="YouTube link"
+                        [formControl]="row.control"
+                      />
                     </li>
                   }
                 </ul>
               } @else {
                 <p class="mf-footage-empty">No clips yet.</p>
+              }
+
+              @if (footageRows().length) {
+                <p class="mf-footage-hint">
+                  Edited links are saved with the match; clearing one removes the clip.
+                </p>
               }
 
               @if (uploaders().length) {

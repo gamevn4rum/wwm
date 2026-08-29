@@ -280,18 +280,19 @@
   flex-shrink: 0;
 }
 
-.mf-footage-link {
+// The link box sits inline in the row, so it drops the full-width input's padding.
+.mf-footage-edit {
   flex: 1;
   min-width: 0;
-  color: var(--color-primary-dark);
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+}
 
-  &:hover {
-    text-decoration: underline;
-  }
+.mf-footage-hint {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  color: var(--color-ink-faint);
+  margin: 0;
 }
 
 .mf-footage-empty {

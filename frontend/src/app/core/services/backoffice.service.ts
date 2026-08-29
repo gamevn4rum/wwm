@@ -483,6 +483,19 @@ export class BackofficeService {
     return this.http.post<MatchRecord>(apiUrl(`/commander/matches/${matchId}/footage`), body);
   }
 
+  /** Repoint an attached clip at a different link. The uploader stays as filed. */
+  patchFootage(matchId: number, footageId: number, youtubeLink: string): Observable<MatchRecord> {
+    return this.http.patch<MatchRecord>(
+      apiUrl(`/commander/matches/${matchId}/footage/${footageId}`),
+      { youtubeLink },
+    );
+  }
+
+  /** Detach one clip, leaving the match in place. */
+  deleteFootage(matchId: number, footageId: number): Observable<MatchRecord> {
+    return this.http.delete<MatchRecord>(apiUrl(`/commander/matches/${matchId}/footage/${footageId}`));
+  }
+
   /** Hard-delete a match and its footage. */
   deleteMatch(id: number): Observable<{ deleted: number; footagesRemoved: number }> {
     return this.http.delete<{ deleted: number; footagesRemoved: number }>(apiUrl(`/commander/matches/${id}`));
