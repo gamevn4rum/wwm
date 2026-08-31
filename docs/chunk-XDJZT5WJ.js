@@ -1,0 +1,1 @@
+import{ab as t}from"./chunk-76BUXS4A.js";var n=class e{static \u0275fac=function(o){return new(o||e)};static \u0275cmp=t({type:e,selectors:[["app-home-page"]],decls:0,vars:0,template:function(o,m){},styles:["[_nghost-%COMP%]{display:block;width:100%}"]})};export{n as HomePageComponent};
