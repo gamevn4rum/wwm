@@ -83,7 +83,6 @@ export class DiscordAuthService {
 
   private readonly currentUserSubject = new BehaviorSubject<DiscordUserSession | null>(null);
   readonly currentUser$ = this.currentUserSubject.asObservable();
-  get currentUser(): DiscordUserSession | null { return this.currentUserSubject.value; }
 
   private readonly authResolvedSubject = new BehaviorSubject<boolean>(false);
   readonly authResolved$ = this.authResolvedSubject.asObservable();

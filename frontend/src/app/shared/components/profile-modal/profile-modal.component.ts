@@ -8,7 +8,7 @@ import { ProfilePopupService } from '../../../core/services/profile-popup.servic
 import { DiscordAuthService, DiscordUserSession } from '../../../core/services/discord-auth.service';
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
 import { PlayerProfile } from '../../../features/roster-stats/player-profile.model';
-import { GearSlot, PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
+import { PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
 import { InnerWayCatalogueService } from '../../../features/roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';

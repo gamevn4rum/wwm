@@ -5,7 +5,7 @@ import { catchError, map, startWith, switchMap, shareReplay } from 'rxjs/operato
 import { apiUrl } from '../../core/api';
 import { DiscordAuthService } from '../../core/services/discord-auth.service';
 import { signedIn$ } from '../../core/services/member-gated';
-import { Guild, GuildRank, HallOfFame } from './guild.model';
+import { Guild, GuildRank } from './guild.model';
 
 const EMPTY_GUILD: Guild = {
   id: '', numberId: null, name: '', level: null, createTime: null,
@@ -54,15 +54,6 @@ export class GuildDataService {
 
   getRank(): Observable<GuildRank | null> {
     return this.rank$;
-  }
-
-  /** Leaderboard placements for our members. Public, same as the rank above. */
-  private readonly hallOfFame$: Observable<HallOfFame | null> = this.http
-    .get<HallOfFame>(apiUrl('/public/guild/hall-of-fame'))
-    .pipe(catchError(() => of(null)), shareReplay(1));
-
-  getHallOfFame(): Observable<HallOfFame | null> {
-    return this.hallOfFame$;
   }
 
   /** Fill in defaults + a member-count fallback so the template can trust the shape. */

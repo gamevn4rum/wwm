@@ -17,8 +17,6 @@ import {
   noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
 } from '../../../roster-stats/build.utils';
 
-export type { ActiveSetEffect };
-
 /** Only fully-upgraded inner ways count for the Formation filter. */
 const TIER_FILTERED = 5;
 

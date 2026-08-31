@@ -6,8 +6,7 @@ import { OpponentGuildsService } from '../../../../core/services/opponent-guilds
 import { DiscordAuthService } from '../../../../core/services/discord-auth.service';
 import { FootageVideoCardComponent } from '../../../footages/components/footage-video-card.component';
 import { OpponentGuildMember } from '../../opponent-guild.model';
-
-const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+import { formatUnixDate } from '../../../../core/utils/date.utils';
 
 /**
  * Roster sort keys. Deliberately a subset of the Guild page's — an opponent's
@@ -103,10 +102,7 @@ export class MatchPopupComponent {
 
   /** Unix seconds → "19/May/2026". Blank for missing/zero timestamps. */
   formatUnix(seconds: number | null | undefined): string {
-    if (!seconds) return '—';
-    const d = new Date(seconds * 1000);
-    if (Number.isNaN(d.getTime())) return '—';
-    return `${String(d.getUTCDate()).padStart(2, '0')}/${MONTH_ABBR[d.getUTCMonth()]}/${d.getUTCFullYear()}`;
+    return formatUnixDate(seconds);
   }
 
   close(): void {

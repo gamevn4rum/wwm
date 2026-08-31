@@ -28,12 +28,13 @@ everything here is world-readable by design.
 There is no `frontend/data/` and no data-sync tooling any more — the API is the only
 source. `frontend/scripts/` keeps just `generate-dummy-assets.py`, which touches no data.
 
-The **.NET 10 backend lives in a separate private repository** (Azure SQL +
+The **.NET 10 backend lives in a separate private repository** (Neon Postgres +
 ASP.NET Core Minimal API + Azure Functions sync). It implements the server-side trust
 boundary this repo's [`SECURITY.md`](SECURITY.md) documents as missing, and it is
 private because it holds that boundary's schema, the gated member data model, and
-reverse-engineered notes on NetEase's API. Its `README.md` is the deployment runbook and
-its `PLAN.md` is the design spec; ask an officer for access.
+reverse-engineered notes on NetEase's API. Its `RUNBOOK.md` is how to bring it online and
+operate it; `PLAN.md` is the original design spec and is now historical. Ask an officer
+for access.
 
 This repo does not build or vendor the backend; the coupling is the `apiBaseUrl` in
 `environment.prod.ts` plus the matching `connect-src` entry in `index.html`. Miss the
@@ -54,10 +55,11 @@ limitation) with a proper server boundary, and adds back-office management:
 - **Server-side auth** — Discord **Authorization Code** flow: the server holds the
   client secret, mints a short-lived **app JWT**, and gates data with it. The browser
   ships **no secret**.
-- **Gated data** — only **Events, Schedule, a safe roster projection** (IGN/role/notes)
-  and the feature config are public. **Match history, footages, roster-stats,
-  player-stats, catalogues and formation require a valid JWT**; footage URLs need `ftp`,
-  formation needs `fp`. Not-logged-in visitors see only the homepage.
+- **Gated data** — only **Events, our guild's own board standing, opponent guilds, a
+  safe roster projection** (IGN/role/notes) and the feature config are public. **Match
+  history, footages, roster-stats, player-stats, catalogues and formation require a valid
+  JWT**; footage URLs need `ftp`. A not-logged-in visitor sees the Guild Events page and
+  the roster grid, and an empty homepage.
 - **Roles** — Admin ⊇ Commander ⊇ Warrior, enforced server-side (Admin = the legacy
   "Creator").
 - **`/admin`** — feature-flag screen (Admin only): toggle any page/feature on or off.
@@ -67,7 +69,7 @@ limitation) with a proper server boundary, and adds back-office management:
   `ftp` / role, audited, with a role-grant escalation guard.
 - **`/manage/registrations`** — review the public Register form submissions and grant
   access (creates/updates the member so they can log in immediately).
-- **Sync** — Azure Functions pull the Google Sheet into SQL on a timer, waking the DB only
+- **Sync** — Azure Functions reconcile the in-game guild into SQL on a timer, waking the DB only
   when data actually changed (cost-minimised).
 - **Security hardening** — refuses to start in prod without a strong `JWT_SIGNING_KEY`
   and `CORS_ALLOWED_ORIGINS`; per-IP rate limiting; a `RESTRICT_TO_FRONTEND` origin
@@ -111,6 +113,13 @@ ng build (in frontend/)  →  frontend/docs/  →  force-pushed to gh-pages bran
 > those pages was imported into SQL from this repo's final published payloads, which are
 > archived in the backend repo's `backfill-data/`. The live-stats overlay still works —
 > it reads NetEase's own game API, which is unaffected.
+>
+> The **Hall of Fame is gone too**, and for that reason: its widget was the homepage, and it
+> could only ever redraw a frozen snapshot. Widget, endpoint and the three tables behind it
+> were dropped together. The homepage is deliberately empty until the weekly honours — which
+> read the live game API — take that slot. Guild board standing in the site header comes from
+> the same dead sweep and is frozen the same way; it stays because it is a live *widget*
+> waiting on a repointed source, not a dead one.
 
 ---
 
@@ -203,8 +212,10 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 | `deploy.yml` | Push to `main`, manual | Builds the app (in `frontend/`) and force-pushes `frontend/docs/` to `gh-pages` |
 
 That is the only workflow. The four `sync-*` jobs that used to fetch the sheet, wwmdb and
-the game API were removed — that work now runs in the backend's Azure Functions, on the
-same schedules, writing to SQL instead of committing files here.
+the game API were removed — that work now runs in the backend's Azure Functions, writing
+to SQL instead of committing files here. The Google Sheet itself has since been retired
+altogether: the roster is reconciled against the in-game guild, and matches and events are
+edited on the site or through the Discord bot.
 
 ---
 

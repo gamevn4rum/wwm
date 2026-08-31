@@ -7,69 +7,19 @@
     <span class="accent-line"></span>
   </header>
 
-  @if (loading()) {
-    <p class="schedule-loading">Loading schedule…</p>
-  } @else {
-
-    <!-- ══ UPCOMING MATCHES ══ -->
+  <!-- ══ EVENTS ══ -->
+  <!-- Moved here from the homepage — same feature flag, same component. -->
+  @if (config.isOn('page.events')) {
     <section class="schedule-section">
 
       <div class="section-banner">
-        <h2 class="section-title">UPCOMING MATCHES</h2>
-        <p class="section-sub">Verified scrims and external matches.</p>
+        <h2 class="section-title">EVENTS</h2>
+        <p class="section-sub">Announcements, giveaways and one-off happenings.</p>
       </div>
 
-      @if (upcomingMatches().length === 0) {
-        <p class="section-empty">No upcoming matches scheduled.</p>
-      } @else {
-        <div class="schedule-rows">
-          @for (row of upcomingMatches(); track row.activity + row.dateTime) {
-            <div class="schedule-row">
-
-              <div class="col-icon">
-                <span class="icon-circle icon-scrim">
-                  <img src="icons/icon-scrim.png" alt="" />
-                </span>
-              </div>
-
-              <div class="col-time">
-                <span class="row-datetime">{{ row.dateTime }}</span>
-              </div>
-
-              <div class="col-badge">
-                <span class="row-badge badge-scrim">Scrim</span>
-              </div>
-
-              <div class="col-activity">
-                <span class="row-activity">{{ row.activity }}</span>
-              </div>
-
-              <div class="col-chevron" (click)="goToFootages(row.activity)">
-                <span class="row-chevron">&#8250;</span>
-              </div>
-
-            </div>
-          }
-        </div>
-      }
+      <app-events-list></app-events-list>
 
     </section>
-
-    <!-- ══ EVENTS ══ -->
-    <!-- Moved here from the homepage — same feature flag, same component. -->
-    @if (config.isOn('page.events')) {
-      <section class="schedule-section">
-
-        <div class="section-banner">
-          <h2 class="section-title">EVENTS</h2>
-          <p class="section-sub">Announcements, giveaways and one-off happenings.</p>
-        </div>
-
-        <app-events-list></app-events-list>
-
-      </section>
-    }
-
   }
 
 </div>

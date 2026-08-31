@@ -7,10 +7,3 @@ export interface Player {
   /** False = on the roster but no Discord handle yet, i.e. "Unregistered". */
   registered: boolean;
 }
-
-export type RankType =
-  | 'Caller'
-  | 'Attacker'
-  | 'Healer'
-  | 'Tanker'
-  | 'Carrier';

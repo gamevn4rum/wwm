@@ -5,8 +5,10 @@
 // context: web fonts only apply if their @font-face rules travel with it. Left
 // to itself the library embeds every face it can see — for this app that is
 // Cormorant Garamond, Inter, Noto Serif SC, Noto Sans SC across ~450 unicode
-// ranges, plus five decorative .otf/.ttf files in public/fonts — and capture
-// took ~12s.
+// ranges — and capture took ~12s. It used to be worse: five decorative
+// .otf/.ttf faces in public/fonts were embedded on top of those, declared by a
+// stylesheet nothing ever linked. Both are gone.
+//
 //
 // So we hand it exactly what the card uses: the two families it renders in, in
 // the Latin/Vietnamese subsets its content actually needs. Built once per

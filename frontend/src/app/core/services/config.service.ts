@@ -25,10 +25,6 @@ export class ConfigService {
   private readonly featuresSignal: Signal<FeatureMap> =
     toSignal(this.features$, { initialValue: {} as FeatureMap });
 
-  getFeatures(): Observable<FeatureMap> {
-    return this.features$;
-  }
-
   /** A flag is enabled unless explicitly set to false. */
   isEnabled(key: string): Observable<boolean> {
     return this.features$.pipe(map((f) => f[key] !== false));

@@ -3,8 +3,7 @@ import { NgxTimelineComponent, NgxTimelineEventGroup, NgxTimelineOrientation } f
 import { MatchRecord, MatchType, TimelineNode } from '../match-record.model';
 import { FootagePopupService } from '../../../core/services/footage-popup.service';
 import { MatchFormPopupService } from '../../../core/services/match-form-popup.service';
-
-const MONTH_LABELS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+import { MONTH_LABELS, formatIsoDate } from '../../../core/utils/date.utils';
 
 /** "2026-05-19" → { label: "19 MAY", timestamp: Date } */
 function dateToTimeline(iso: string): { label: string; timestamp: Date } {
@@ -158,11 +157,6 @@ export class SeasonMatchHistoryComponent {
   }
 
   formatDate(isoDate: string): string {
-    const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const d = new Date(isoDate);
-    const day = String(d.getUTCDate()).padStart(2, '0');
-    const mon = MONTH_ABBR[d.getUTCMonth()];
-    const year = d.getUTCFullYear();
-    return `${day}/${mon}/${year}`;
+    return formatIsoDate(isoDate);
   }
 }

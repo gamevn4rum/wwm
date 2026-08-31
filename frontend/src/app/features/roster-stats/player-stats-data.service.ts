@@ -26,11 +26,6 @@ export class PlayerStatsDataService {
   private readonly records$: Observable<PlayerStatsRecord[]> =
     whileSignedIn(this.auth, () => this.load(), []);
 
-  /** All records, matched and unmatched, in IGN order. */
-  getRecords(): Observable<PlayerStatsRecord[]> {
-    return this.records$;
-  }
-
   /** Only members whose in-game profile was resolved. */
   getMatched(): Observable<MatchedPlayerStats[]> {
     return this.records$.pipe(

@@ -1,16 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { MatchRecord } from '../../features/match-history/match-record.model';
 import { FootageRecord, MatchType } from '../../features/footages/footages.model';
-
-const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-function formatDate(isoDate: string): string {
-  const d = new Date(isoDate);
-  const day = String(d.getUTCDate()).padStart(2, '0');
-  const mon = MONTH_ABBR[d.getUTCMonth()];
-  const year = d.getUTCFullYear();
-  return `${day}/${mon}/${year}`;
-}
+import { formatIsoDate } from '../utils/date.utils';
 
 function toDisplayMatchType(type: MatchRecord['type']): MatchType {
   return (type.charAt(0).toUpperCase() + type.slice(1)) as MatchType;
@@ -25,7 +16,7 @@ export class FootagePopupService {
   readonly popupHeader = computed(() => {
     const match = this.popupMatch();
     if (!match) return '';
-    return `${toDisplayMatchType(match.type)} - ${match.opponent} - ${formatDate(match.date)}`;
+    return `${toDisplayMatchType(match.type)} - ${match.opponent} - ${formatIsoDate(match.date)}`;
   });
 
   readonly popupFootages = computed<FootageRecord[]>(() => {
