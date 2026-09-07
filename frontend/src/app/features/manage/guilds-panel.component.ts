@@ -37,6 +37,15 @@ import {
  * an identified row the weekly name pass reads the name from the game — so a typo there already
  * corrects itself, and the field is not editable rather than editable-and-reverted.
  *
+ * **A rename into a name that is taken is a merge, and is offered as one.** Correcting a spelling
+ * onto one another row already holds says the two rows are one guild — so the 409 becomes "merge
+ * this record into that one?" rather than a message telling the officer to go and do it elsewhere.
+ * There was no elsewhere: the duplicates block only lists what the near-duplicate finder pairs, and
+ * that stops at two characters, so a difference of rename scale — `Scim CoHonCave` against
+ * `CoHonCave` — never appears there, and the merge could not be reached from this panel at all. The
+ * offer folds *this* row into the one holding the name and never the reverse, because a merge keeps
+ * the surviving row's own name and the officer has just said which name they want.
+ *
  * **Scout is a reading, never a record.** It is the same answer `/gscout` gives: who is online in
  * that guild at the moment of asking. Nothing about it is cached or stored — not here, not in the
  * API — because a minute-old copy would put people in a fight they have already left. It is shown
@@ -48,6 +57,24 @@ import {
  * online, and their parties — and simply never claims a match. That is not a failure, and the panel
  * says so rather than leaving an empty space where a match count would be.
  */
+/**
+ * A rename the API refused because another row owns the name, turned into the merge it implies.
+ *
+ * Held rather than derived because it records a moment: the spelling that was typed, and the row the
+ * API named as its owner. Deriving it from the drafts instead would leave it standing after the name
+ * is edited again — so it is dropped then (see `editName`).
+ */
+interface MergeOffer {
+  /** The row that folds away: the one whose Rename was refused. */
+  rowId: number;
+  rowName: string;
+  /** The row that survives, because it is the one already holding the name that was asked for. */
+  ownerId: number;
+  ownerName: string;
+  /** What agreeing actually does, said in full — a merge cannot be undone from this panel. */
+  detail: string;
+}
+
 @Component({
   selector: 'app-guilds-panel',
   standalone: true,
@@ -205,6 +232,31 @@ import {
                 </td>
               </tr>
 
+              <!-- Attached to the row rather than shown as a banner, for the same reason the scout
+                   reading is: it is about this row, and it names two guilds — read anywhere else it
+                   takes working out which row is asking. -->
+              @if (offerFor(g); as offer) {
+                <tr class="offer-row">
+                  <td colspan="5">
+                    <div class="offer">
+                      <p class="offer-q">
+                        Do you want to merge <strong>{{ offer.rowName }}</strong> into
+                        <strong>{{ offer.ownerName }}</strong>?
+                      </p>
+                      <p class="offer-why">{{ offer.detail }}</p>
+                      <span class="offer-actions">
+                        <button type="button" class="danger" (click)="confirmMergeOffer()"
+                                [disabled]="merging() !== null">
+                          {{ merging() === offer.rowId ? '…' : 'Merge' }}
+                        </button>
+                        <button type="button" (click)="dismissOffer()"
+                                [disabled]="merging() !== null">Keep both</button>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              }
+
               @if (expanded() === g.id) {
                 <tr class="scout-row">
                   <td colspan="5">
@@ -337,6 +389,14 @@ import {
     button { padding: .3rem .8rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
       font: inherit; cursor: pointer; background: transparent; color: inherit; }
     button:disabled { cursor: default; opacity: .45; }
+    /* Tinted like the duplicates block rather than like the scout row: it is work to do, and the
+       same kind of work that block holds. */
+    .offer-row > td { background: rgba(173,122,76,.1); }
+    .offer { display: flex; gap: .75rem; align-items: baseline; flex-wrap: wrap; }
+    .offer-q { margin: 0; }
+    .offer-why { margin: 0; opacity: .75; font-size: .84rem; max-width: 52rem; flex: 1 1 24rem; }
+    .offer-actions { margin-left: auto; display: inline-flex; gap: .35rem; white-space: nowrap; }
+
     .scout-row > td { background: rgba(128,128,128,.06); }
     .scout header { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; margin-bottom: .4rem; }
     .scout header .taken { margin-left: auto; opacity: .6; font-size: .8rem; font-variant-numeric: tabular-nums; }
@@ -393,6 +453,9 @@ export class GuildsPanelComponent {
   private readonly nameDrafts = signal<Record<number, string>>({});
   /** Pairs the officer has flipped, so the kept side is the one they chose. */
   private readonly swapped = signal<Record<string, boolean>>({});
+  /** The one outstanding "merge this into that?" question, or none. At most one, because it comes
+   *  from a rename and a rename is one row at a time. */
+  private readonly mergeOffer = signal<MergeOffer | null>(null);
 
   readonly pending = computed(() => this.guilds().filter((g) => !g.identified).length);
 
@@ -521,6 +584,9 @@ export class GuildsPanelComponent {
 
   protected editName(g: ManagedGuild, value: string): void {
     this.nameDrafts.update((all) => ({ ...all, [g.id]: value }));
+    // The offer quotes the spelling that collided, so editing the name again turns it into a
+    // question about something the officer is no longer asking for.
+    if (this.mergeOffer()?.rowId === g.id) this.mergeOffer.set(null);
   }
 
   protected isNameDirty(g: ManagedGuild): boolean {
@@ -536,6 +602,7 @@ export class GuildsPanelComponent {
 
     this.busy.set(g.id);
     this.notice.set(null);
+    this.mergeOffer.set(null);
     this.backoffice.renameGuild(g.id, draft).subscribe({
       next: (res) => {
         this.busy.set(null);
@@ -550,22 +617,97 @@ export class GuildsPanelComponent {
       },
       error: (err) => {
         this.busy.set(null);
+        const code = err?.error?.error;
+
+        // Both conflicts say the same thing — another row already answers to this name — and that
+        // is the duplicate case rather than a refusal. The API names the owner precisely so it can
+        // be offered here. The messages below stay as the fallback for an answer without one.
+        if ((code === 'name_taken' || code === 'name_is_alias') && err?.error?.ownerId) {
+          this.offerMerge(g, draft, code, err.error.ownerId, err.error.ownerName);
+          return;
+        }
+
         this.notice.set(
-          err?.error?.error === 'name_is_synced'
+          code === 'name_is_synced'
             ? 'This guild has a UID, so the weekly name pass reads its name from the game — a '
               + 'wrong spelling there corrects itself on the next run.'
-            : err?.error?.error === 'name_taken'
+            : code === 'name_taken'
               ? `“${err.error.ownerName}” already holds that name. If they are the same guild, `
                 + 'merge the two rows instead of renaming.'
-              : err?.error?.error === 'name_is_alias'
+              : code === 'name_is_alias'
                 ? 'Another guild already answers to that name as an alias.'
-                : err?.error?.error === 'invalid_name'
+                : code === 'invalid_name'
                   ? 'That is not a usable guild name.'
                   : err?.status === 403
                     ? 'Not permitted.'
                     : 'Rename failed.');
       },
     });
+  }
+
+  // ── The merge a refused rename implies ─────────────────────────────────────
+
+  /** The offer belonging to this row, so the row itself carries the question. */
+  protected offerFor(g: ManagedGuild): MergeOffer | null {
+    const offer = this.mergeOffer();
+    return offer?.rowId === g.id ? offer : null;
+  }
+
+  /**
+   * Turn a refused rename into the question it actually raises.
+   *
+   * ⚠ The two conflicts differ in one way that has to be said out loud. On `name_taken` the
+   * surviving row *is* called what was typed, so agreeing gets the officer exactly what they asked
+   * for. On `name_is_alias` it is not: the typed spelling is only one of that row's aliases, the
+   * merge keeps the survivor's own name, and the result is a row under a third name. Consolidating
+   * the records is still right — one guild, one row — but agreeing to it blind would be agreeing to
+   * a rename that never happens, so the detail names the survivor.
+   */
+  private offerMerge(
+    g: ManagedGuild,
+    typed: string,
+    code: 'name_taken' | 'name_is_alias',
+    ownerId: number,
+    ownerName?: string,
+  ): void {
+    // The API sends the name; the list is the fallback for an older one, and the id is the last
+    // resort — a question naming neither guild is not a question worth asking.
+    const owner = ownerName
+      || this.guilds().find((x) => x.id === ownerId)?.name
+      || `guild #${ownerId}`;
+    const moved = g.matchCount === 1 ? 'its 1 match' : `its ${g.matchCount} matches`;
+
+    this.mergeOffer.set({
+      rowId: g.id,
+      rowName: g.name,
+      ownerId,
+      ownerName: owner,
+      detail: (code === 'name_taken'
+        ? `“${typed}” is already a guild record of its own.`
+        : `“${typed}” is already an alias of “${owner}”, so the row answering to it is that one.`)
+        + ` Merging moves ${moved} onto “${owner}”, keeps “${g.name}” as a further alias so matches`
+        + ' filed under that spelling still land there, and deletes this row.'
+        + (code === 'name_is_alias'
+          ? ` The surviving row stays named “${owner}” — a merge never renames the row it keeps.`
+          : '')
+        + ' It cannot be undone from here.',
+    });
+  }
+
+  /** Left as two rows. Nothing was written, so there is nothing to say about it. */
+  protected dismissOffer(): void {
+    this.mergeOffer.set(null);
+  }
+
+  protected confirmMergeOffer(): void {
+    const offer = this.mergeOffer();
+    if (!offer) return;
+
+    // The owner survives, and there is deliberately no Swap here as there is on a duplicate pair:
+    // the officer has just asked for this row to be called the owner's name, and a merge keeps the
+    // surviving row's name — so folding the other way would leave standing the very spelling they
+    // were correcting.
+    this.mergeRows(offer.ownerId, offer.rowId);
   }
 
   // ── Merging duplicate rows ─────────────────────────────────────────────────
@@ -596,14 +738,30 @@ export class GuildsPanelComponent {
   }
 
   protected merge(d: GuildDuplicate): void {
-    const keep = this.keepSide(d);
-    const fold = this.foldSide(d);
+    this.mergeRows(this.keepSide(d).id, this.foldSide(d).id);
+  }
 
-    this.merging.set(fold.id);
+  /**
+   * The one merge call, for both the duplicate pairs and a refused rename.
+   *
+   * Shared for the sake of the failure messages rather than the request: a collision is refused
+   * with the fixtures named, and that explanation — same match on both rows, one may carry footage
+   * the other does not — is the whole value of refusing rather than picking. It should not exist in
+   * two wordings that can drift apart.
+   */
+  private mergeRows(survivorId: number, sourceId: number): void {
+    this.merging.set(sourceId);
     this.notice.set(null);
-    this.backoffice.mergeGuild(keep.id, fold.id).subscribe({
+    this.backoffice.mergeGuild(survivorId, sourceId).subscribe({
       next: (res) => {
         this.merging.set(null);
+        this.mergeOffer.set(null);
+        // The folded row will not be in the next load, so a draft still keyed to it is a draft for
+        // a row that no longer exists.
+        this.nameDrafts.update((all) => {
+          const { [sourceId]: _dropped, ...rest } = all;
+          return rest;
+        });
         this.load();
         this.notice.set(
           `Merged ${res.mergedName} into ${res.survivorName} — `
@@ -617,6 +775,9 @@ export class GuildsPanelComponent {
       },
       error: (err) => {
         this.merging.set(null);
+        // The offer is left standing on failure. Nothing was written, so the two rows are still
+        // two rows and the question is still open — and on a collision the officer has something
+        // to go and do first, then come back to.
         this.notice.set(
           err?.error?.error === 'match_collision'
             ? 'Both rows record the same match, so merging would lose one of the two records: '
