@@ -65,8 +65,23 @@ limitation) with a proper server boundary, and adds back-office management:
 - **`/admin`** — feature-flag screen (Admin only): toggle any page/feature on or off.
   Disabling a page hides its nav button, blocks its route, **and** stops the API
   serving its data (404) — not just hiding the link.
-- **`/manage/members`** — member permission editor (Commander+): `canLogin` / `fp` /
-  `ftp` / role, audited, with a role-grant escalation guard.
+- **`/manage`** — two collapsible panels (Commander+); `/manage/members` redirects here.
+  - **Members** — permission editor: `canLogin` / `fp` / `ftp` / role, audited, with a
+    role-grant escalation guard.
+  - **Guilds** — opponent guilds. A row is only a name until it has a **UID** (the in-game
+    guild number), so the list puts the unidentified ones first; entering one resolves the
+    guild upstream and makes the row syncable. **Scout** then reads who is online in it right
+    now — the same reading `/gscout` gives, live and never stored. ⚠ A match is only ever
+    *inferred*, and only between 19:30 and midnight VN; outside that the scout answers in full
+    and simply never claims one.
+    - **Possible duplicates** — because a row is created on first sight of a *spelling*, a typo
+      makes a second row that then holds some of the matches. The pairs that look like one guild
+      typed two ways are offered above the list; **Merge** re-points the matches onto the kept row
+      and keeps the other spelling as an alias, which is what stops the pair re-forming on the next
+      import. ⚠ A suggestion, not a finding — two real guilds can be one character apart.
+    - A guild with **no UID** can also be renamed in place, since no sync will ever touch that name.
+      One that has a UID cannot: the weekly name pass reads it from the game, so a typo there
+      corrects itself.
 - **`/manage/registrations`** — review the public Register form submissions and grant
   access (creates/updates the member so they can log in immediately).
 - **Sync** — Azure Functions reconcile the in-game guild into SQL on a timer, waking the DB only

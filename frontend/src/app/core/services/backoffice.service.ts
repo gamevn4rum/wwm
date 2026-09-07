@@ -432,6 +432,144 @@ export interface MatchCreate {
  * where an empty string clears a result back to undecided. */
 export type MatchPatch = Partial<Omit<MatchCreate, 'result'>> & { result?: MatchResult | '' };
 
+/**
+ * An opponent guild as the Manage page lists it.
+ *
+ * A row is born the first time the match sync meets an opponent *name*, and is a name and nothing
+ * else until somebody reads the guild's number off it in game. So {@link identified} is the field
+ * the panel is really about: false means the guild sync skips the row entirely and there is nothing
+ * to scout.
+ */
+export interface ManagedGuild {
+  id: number;
+  /** The spelling Match History files them under — not necessarily their name in game now. */
+  name: string;
+  /** The in-game guild number (e.g. 10005661) — the "UID" an officer reads off the guild. */
+  numberId: number | null;
+  /** The guild's own server number, filled in by the same lookup that resolves the id. */
+  hostnum: number | null;
+  /** Resolved upstream: the sync can see this guild, and Scout can read it. */
+  identified: boolean;
+  level: number | null;
+  /** Roster size as last synced — 0 until a sync has run. */
+  memberCount: number;
+  /** Matches on record against them. What makes a guild worth identifying. */
+  matchCount: number;
+  syncedUtc: string | null;
+  /** Other Match History spellings folded onto this row — how you recognise a rename. */
+  aliases: string[];
+}
+
+/** What comes back when a number resolves. `upstreamName` is their name *now*, which may differ
+ *  from the spelling we file them under; both are shown rather than reconciled. */
+export interface GuildIdentified {
+  id: number;
+  name: string;
+  upstreamName: string | null;
+  numberId: number | null;
+  hostnum: number | null;
+  level: number | null;
+  memberCount: number | null;
+}
+
+/** One online player in a scouted guild, and what they have equipped. */
+export interface GuildScoutMember {
+  ign: string;
+  level: number | null;
+  firstArt: string | null;
+  secondArt: string | null;
+  /** The art family — set even when the two arts form no complete path. */
+  family: string | null;
+  /** The branch within the family ("Splendor", "Umbra"), or null for a mixed pair. */
+  path: string | null;
+  pathSlug: string | null;
+  /** Which group sharing an instance they are in, numbered from 1. Null when alone.
+   *  ⚠ A hint: sharing an instance *looks like* being in a party, and has not been confirmed. */
+  partyNumber: number | null;
+  partySize: number | null;
+  spaceNo: number | null;
+  /** In instanced content rather than standing in the open world. */
+  instanced: boolean;
+  /** ⚠ Inferred, never stated — render it as a guess. See {@link GuildScoutReading.matchCount}. */
+  inMatch: boolean;
+}
+
+/**
+ * Who is online in a guild at the moment of asking — the same reading `/gscout` gives.
+ *
+ * ⚠ A reading, not a record. {@link takenUtc} is part of the answer because the answer expires: it
+ * is true for the minute it was taken and no longer. Nothing is cached by the API or stored by
+ * anything downstream.
+ */
+export interface GuildScoutReading {
+  guild: string;
+  trackedName: string | null;
+  /** The whole roster, so "6 of 82 online" reads as a quiet night rather than a small guild. */
+  memberCount: number;
+  onlineCount: number;
+  partyCount: number;
+  /**
+   * How many are in what reads as a match — 0 when nothing does.
+   *
+   * ⚠ **Inferred, never stated.** The largest instanced group, and only inside the GvG window
+   * (19:30–midnight VN). Nothing in the payload says GvG, so this must be worded as a guess. A
+   * scout taken outside the window always reports 0 — it shows who is online and their parties,
+   * and never claims a match.
+   */
+  matchCount: number;
+  takenUtc: string;
+  members: GuildScoutMember[];
+}
+
+/**
+ * Two guild rows that are probably one guild spelled two ways.
+ *
+ * ⚠ A suggestion, not a finding — two real guilds can be one character apart, so nothing merges
+ * without someone confirming it. `keep*` is the proposal (the row a sync can already see, else the
+ * one holding more matches); the merge works in either direction, so the panel can swap them.
+ *
+ * Only typos appear here. A rename produces two unrelated strings that no edit distance will pair,
+ * and the weekly name pass already reports those itself — it can see both spellings upstream. A
+ * typo is invisible to every sync, because both spellings are ours and neither resolves.
+ */
+export interface GuildDuplicate {
+  keepId: number;
+  keepName: string;
+  keepIdentified: boolean;
+  keepMatchCount: number;
+  foldId: number;
+  foldName: string;
+  foldIdentified: boolean;
+  foldMatchCount: number;
+  /** Why the pair is offered, in words meant to be shown — the reader's evidence. */
+  reason: string;
+}
+
+/** What a merge moved. */
+export interface GuildMerged {
+  survivorId: number;
+  survivorName: string;
+  mergedId: number;
+  mergedName: string;
+  matchesMoved: number;
+  gvgSidesMoved: number;
+  /** Every spelling the surviving row now answers to. This is what stops the pair re-forming on
+   *  the next import. */
+  aliasesKept: string[];
+  /** The survivor took the folded row's upstream identity, because it had none — so a row no sync
+   *  could see is now syncable. */
+  adoptedIdentity: boolean;
+}
+
+/** What a rename changed. `aliasKept` says the old spelling still resolves, which is what keeps
+ *  the next import from rebuilding the row under it. */
+export interface GuildRenamed {
+  id: number;
+  name: string;
+  previousName: string;
+  aliasKept: boolean;
+}
+
 /** Back-office API (Admin/Commander). The auth interceptor attaches the JWT;
  * the server re-checks role/escalation on every call. */
 @Injectable({ providedIn: 'root' })
@@ -499,6 +637,65 @@ export class BackofficeService {
   /** Hard-delete a match and its footage. */
   deleteMatch(id: number): Observable<{ deleted: number; footagesRemoved: number }> {
     return this.http.delete<{ deleted: number; footagesRemoved: number }>(apiUrl(`/commander/matches/${id}`));
+  }
+
+  // ── Opponent guilds (Commander) ───────────────────────────────────────────
+  /** Every opponent on record, identified or not — unidentified first, then by matches played.
+   *  Deliberately not the public opponents feed, which hides exactly the rows this panel fixes. */
+  getGuilds(): Observable<ManagedGuild[]> {
+    return this.http.get<ManagedGuild[]>(apiUrl('/commander/guilds'));
+  }
+
+  /**
+   * Attaches an upstream identity to a guild from its in-game number, making the row syncable on
+   * the next run. Audited.
+   *
+   * The number is the only guild identifier that can be resolved at run time — there is no name
+   * search upstream — so this is the one way a name-only row ever gains an identity.
+   * `409 club_id_taken` means another row already holds that guild, and names which.
+   */
+  identifyGuild(id: number, numberId: number): Observable<GuildIdentified> {
+    return this.http.post<GuildIdentified>(apiUrl(`/commander/guilds/${id}/identify`), { numberId });
+  }
+
+  /**
+   * Reads who is online in an opponent guild **right now**.
+   *
+   * ⚠ Never cached, here or server-side: a minute-old copy would put people in a fight they have
+   * already left. Refuses with `guild_not_identified` on a row that has no number yet.
+   */
+  scoutGuild(id: number): Observable<GuildScoutReading> {
+    return this.http.get<GuildScoutReading>(apiUrl(`/commander/guilds/${id}/scout`));
+  }
+
+  /** Pairs of rows that look like one guild spelled two ways. Suggestions only — see
+   *  {@link GuildDuplicate}. */
+  getGuildDuplicates(): Observable<GuildDuplicate[]> {
+    return this.http.get<GuildDuplicate[]>(apiUrl('/commander/guilds/duplicates'));
+  }
+
+  /**
+   * Folds `sourceId` into `id`, which survives. Moves the matches and GvG sides, keeps the folded
+   * row's spelling as an alias, and deletes it. Audited and transactional.
+   *
+   * ⚠ Refused rather than resolved when both rows record the same fixture: `409 match_collision`
+   * (or `gvg_collision`) names them, and which record to keep is a call about match history — one
+   * may carry footage the other does not. Delete one side first, then merge.
+   */
+  mergeGuild(id: number, sourceId: number): Observable<GuildMerged> {
+    return this.http.post<GuildMerged>(apiUrl(`/commander/guilds/${id}/merge`), { sourceId });
+  }
+
+  /**
+   * Corrects the spelling of a guild we only ever knew by the name somebody typed, keeping the old
+   * one as an alias.
+   *
+   * ⚠ Only for rows with no upstream identity — `409 name_is_synced` otherwise. On an identified
+   * row the weekly name pass owns the name and reads it from the game, so a typo there already
+   * corrects itself and a hand edit would be reverted within the week.
+   */
+  renameGuild(id: number, name: string): Observable<GuildRenamed> {
+    return this.http.patch<GuildRenamed>(apiUrl(`/commander/guilds/${id}/name`), { name });
   }
 
   // ── Scheduled messages (Admin) ────────────────────────────────────────────

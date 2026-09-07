@@ -52,7 +52,6 @@ type Draft = {
   imports: [FormsModule],
   template: `
     <section class="backoffice">
-      <h1>Members</h1>
       <p class="hint">
         Edit a member's details and permissions, then press <strong>Save</strong> on that row.
         Changes are audited server-side, and role changes are policy-bounded. IGN and UID come from
@@ -159,8 +158,8 @@ type Draft = {
     </section>
   `,
   styles: [`
-    .backoffice { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
-    h1 { margin-bottom: .25rem; }
+    /* Embedded in the Manage hub's panel, which supplies the page width and the heading. */
+    .backoffice { padding: .25rem 0 0; }
     .hint { opacity: .7; margin-bottom: 1rem; max-width: 70rem; }
     .grid { width: 100%; border-collapse: collapse; }
     .grid th, .grid td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: middle; }
