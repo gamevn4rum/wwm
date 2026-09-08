@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GameVN・Where Winds Meet</title>
+  <script>
+    // GitHub Pages SPA redirect
+    // Encodes the full path+search+hash into the query string so index.html
+    // can restore it after the redirect.
+    var l = window.location;
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      l.pathname.split('/').slice(0, 2).join('/') + // keep the repo base path
+      '/?p=' + encodeURIComponent(l.pathname.slice(1) + (l.search ? '&' + l.search.slice(1) : '')) +
+      (l.hash || '')
+    );
+  </script>
+</head>
+<body></body>
+</html>
