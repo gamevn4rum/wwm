@@ -124,6 +124,189 @@
         </details>
       }
 
+      <!-- ══ SCOREBOARD (collapsible) ══
+           The game's own end-of-match numbers. Absent for anything the nightly history sync has
+           not tied to a game record, which is every match older than the retained handles — so the
+           whole section is hidden rather than showing an empty table. -->
+      @if (scoreboardLoading()) {
+        <details class="mp-group">
+          <summary class="mp-group-summary">
+            <span class="mp-group-title">Scoreboard</span>
+            <span class="mp-group-chevron" aria-hidden="true"></span>
+          </summary>
+          <div class="mp-group-body">
+            <p class="mp-group-empty">Loading scoreboard…</p>
+          </div>
+        </details>
+      } @else if (scoreboard(); as board) {
+        <details class="mp-group" open>
+          <summary class="mp-group-summary">
+            <span class="mp-group-title">Scoreboard</span>
+            <span class="mp-group-count">{{ board.us.players.length + board.them.players.length }}</span>
+            <span class="mp-group-chevron" aria-hidden="true"></span>
+          </summary>
+          <div class="mp-group-body">
+
+            <!-- Match summary line -->
+            <dl class="mp-sb-facts">
+              <div class="mp-fact">
+                <dt>Result</dt>
+                <dd>
+                  @if (board.friendly) {
+                    <span class="mp-sb-friendly">Friendly</span>
+                  } @else if (board.won === true) {
+                    <span class="mp-sb-win">Win</span>
+                  } @else if (board.won === false) {
+                    <span class="mp-sb-loss">Loss</span>
+                  } @else {
+                    —
+                  }
+                </dd>
+              </div>
+              <div class="mp-fact">
+                <dt>Duration</dt>
+                <dd>{{ duration(board.foughtSeconds) }}</dd>
+              </div>
+              @if (board.tierName) {
+                <div class="mp-fact">
+                  <dt>Tier</dt>
+                  <dd>{{ board.tierName }}</dd>
+                </div>
+              }
+              @if (board.seasonNo != null) {
+                <div class="mp-fact">
+                  <dt>Season</dt>
+                  <dd>{{ board.seasonNo }}@if (board.round != null) {<span> · round {{ board.round }}</span>}</dd>
+                </div>
+              }
+              <!-- League points move only in a match that counts, so a friendly shows none. -->
+              @if (!board.friendly && board.us.scoreAfter != null) {
+                <div class="mp-fact">
+                  <dt>League points</dt>
+                  <dd>{{ board.us.scoreBefore }} → {{ board.us.scoreAfter }}</dd>
+                </div>
+              }
+              @if (board.us.funCoins != null) {
+                <div class="mp-fact">
+                  <dt>Fun Coins</dt>
+                  <dd>{{ compact(board.us.funCoins) }}</dd>
+                </div>
+              }
+            </dl>
+
+            <!-- Fortune Tree: the win condition for a match that goes the distance. -->
+            @if (board.us.treeMetres != null && board.them.treeMetres != null) {
+              <div class="mp-sb-tree">
+                <div class="mp-sb-tree-row">
+                  <span class="mp-sb-tree-label">Fortune Tree carried</span>
+                  <span class="mp-sb-tree-values">
+                    <strong [class.mp-sb-tree-lead]="treeLead() === 'us'">{{ metres(board.us.treeMetres) }}</strong>
+                    <span class="mp-sb-tree-vs">vs</span>
+                    <strong [class.mp-sb-tree-lead]="treeLead() === 'them'">{{ metres(board.them.treeMetres) }}</strong>
+                  </span>
+                </div>
+                @if (treeDisagrees()) {
+                  <p class="mp-sb-note">
+                    The other side carried it farther — this match was decided before time ran out,
+                    not on the tree.
+                  </p>
+                }
+              </div>
+            }
+
+            <!-- Goose health is recorded for the winner only, so it is shown only when present. -->
+            @if (board.us.gooseHpPercent != null || board.them.gooseHpPercent != null) {
+              <div class="mp-sb-tree-row">
+                <span class="mp-sb-tree-label">Goose remaining</span>
+                <span class="mp-sb-tree-values">
+                  <strong>{{ percent(board.us.gooseHpPercent) }}</strong>
+                  <span class="mp-sb-tree-vs">vs</span>
+                  <strong>{{ percent(board.them.gooseHpPercent) }}</strong>
+                </span>
+              </div>
+            }
+
+            <!-- Side switch -->
+            <div class="mp-sb-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                class="mp-sb-tab"
+                [class.is-active]="scoreboardSide() === 'us'"
+                [attr.aria-selected]="scoreboardSide() === 'us'"
+                (click)="showSide('us')"
+              >
+                {{ board.us.name }} ({{ board.us.players.length }})
+              </button>
+              <button
+                type="button"
+                role="tab"
+                class="mp-sb-tab"
+                [class.is-active]="scoreboardSide() === 'them'"
+                [attr.aria-selected]="scoreboardSide() === 'them'"
+                (click)="showSide('them')"
+              >
+                {{ board.them.name }} ({{ board.them.players.length }})
+              </button>
+            </div>
+
+            @if (scoreboardPlayers().length === 0) {
+              <p class="mp-group-empty">No players recorded for this side.</p>
+            } @else {
+              <div class="mp-sb-scroll">
+                <table class="mp-sb-table">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="mp-sb-name">Player</th>
+                      @for (col of scoreboardColumns; track col.key) {
+                        <th
+                          scope="col"
+                          class="mp-sb-num"
+                          [class.is-sorted]="scoreboardSort() === col.key"
+                          [attr.aria-sort]="scoreboardSort() === col.key ? 'descending' : 'none'"
+                        >
+                          <button type="button" [title]="col.title" (click)="onScoreboardSort(col.key)">
+                            {{ col.label }}
+                          </button>
+                        </th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (p of scoreboardPlayers(); track p.ign ?? $index) {
+                      <tr [class.is-mvp]="p.isMvp">
+                        <td class="mp-sb-name">
+                          @if (p.isMvp) {
+                            <span class="mp-sb-mvp" title="Best of the match">★</span>
+                          }
+                          @if (p.wonDuel) {
+                            <span class="mp-sb-duel" title="Won the mid-match duel">⚔</span>
+                          }
+                          <!-- A pid the gateway would not name shows nothing, never "Unknown". -->
+                          {{ p.ign ?? '—' }}
+                        </td>
+                        <td class="mp-sb-num">{{ compact(p.mvpScore) }}</td>
+                        <td class="mp-sb-num">{{ p.kills }}</td>
+                        <td class="mp-sb-num">{{ p.deaths }}</td>
+                        <td class="mp-sb-num">{{ p.assists }}</td>
+                        <td class="mp-sb-num">{{ compact(p.damageDealt) }}</td>
+                        <td class="mp-sb-num">{{ compact(p.damageTaken) }}</td>
+                        <td class="mp-sb-num">{{ compact(p.healingDone) }}</td>
+                        <td class="mp-sb-num">{{ compact(p.funCoins) }}</td>
+                        <td class="mp-sb-num">{{ metres(p.treeMetres) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <p class="mp-sb-legend">
+                A blank number is a real zero — the game omits anything that would be 0.
+              </p>
+            }
+          </div>
+        </details>
+      }
+
       <!-- ══ FOOTAGES (collapsible) — Footage Permission only ══ -->
       @if (ftpPermission()) {
         <details class="mp-group" open>

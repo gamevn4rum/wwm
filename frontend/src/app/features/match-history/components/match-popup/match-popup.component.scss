@@ -312,3 +312,169 @@
     max-width: 100%;
   }
 }
+
+/* ── Scoreboard ───────────────────────────────────────────────────────────── */
+
+.mp-sb-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-4);
+}
+
+.mp-sb-win { color: var(--color-secondary-dark); font-weight: 600; }
+.mp-sb-loss { color: var(--color-danger); font-weight: 600; }
+.mp-sb-friendly { color: var(--color-ink-soft); font-weight: 600; }
+
+.mp-sb-tree {
+  margin-bottom: var(--space-4);
+}
+
+.mp-sb-tree-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+}
+
+.mp-sb-tree-label {
+  color: var(--color-ink-soft);
+  font-size: 0.85rem;
+}
+
+.mp-sb-tree-values {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+/* Whoever carried it farther. Weight and colour only — the number stays readable if the
+   colour does not land, because this is the one figure people will argue about. */
+.mp-sb-tree-lead {
+  color: var(--color-primary-dark);
+}
+
+.mp-sb-tree-vs {
+  color: var(--color-ink-faint);
+  font-size: 0.8rem;
+}
+
+.mp-sb-note {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* ── Side tabs ────────────────────────────────────────────────────────────── */
+
+.mp-sb-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.mp-sb-tab {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-soft);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+  &:hover { border-color: var(--color-primary-light); }
+
+  &.is-active {
+    background: var(--color-primary-tint);
+    border-color: var(--color-primary-light);
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+}
+
+/* ── The table ────────────────────────────────────────────────────────────── */
+
+/* The one element allowed to scroll sideways: ten numeric columns will not fit a phone,
+   and stacking them would lose the comparison the table exists for. */
+.mp-sb-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mp-sb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  white-space: nowrap;
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--color-surface);
+    color: var(--color-ink-soft);
+    font-weight: 600;
+    text-align: right;
+  }
+
+  thead th button {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover { color: var(--color-primary-dark); }
+  }
+
+  thead th.is-sorted {
+    color: var(--color-primary-dark);
+  }
+
+  tbody tr.is-mvp {
+    background: var(--color-primary-tint);
+  }
+}
+
+.mp-sb-name {
+  text-align: left !important;
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  /* Keeps the name column readable while the numbers scroll under it. */
+  z-index: 1;
+}
+
+.is-mvp .mp-sb-name {
+  background: #f3e6d6;
+}
+
+.mp-sb-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-sb-mvp { color: var(--color-primary-dark); margin-right: 2px; }
+.mp-sb-duel { color: var(--color-accent-plum); margin-right: 2px; }
+
+.mp-sb-legend {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-faint);
+  font-size: 0.75rem;
+}
