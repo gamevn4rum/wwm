@@ -79,6 +79,7 @@ export interface Scoreboard {
 
 /** Columns the scoreboard can be ordered by. */
 export type ScoreboardSortKey =
+  | 'name'
   | 'mvp'
   | 'kills'
   | 'deaths'
@@ -88,6 +89,21 @@ export type ScoreboardSortKey =
   | 'healingDone'
   | 'funCoins'
   | 'treeMetres';
+
+/** Which way a column is ordered. */
+export type ScoreboardSortDir = 'asc' | 'desc';
+
+/**
+ * The direction a column sorts the FIRST time it is picked.
+ *
+ * Every stat reads "more is better", so they all open biggest-first and the top of the table is
+ * the best performance. The two exceptions are the ones where that is not what a reader wants:
+ * deaths, where fewest is the achievement, and the name, which is a lookup rather than a ranking
+ * and is only ever useful A-Z. Clicking the same column again reverses whichever it chose.
+ */
+export function defaultSortDir(key: ScoreboardSortKey): ScoreboardSortDir {
+  return key === 'deaths' || key === 'name' ? 'asc' : 'desc';
+}
 
 /**
  * 1,234,567 → "1.2M". Big damage numbers are the whole table, and printing them in full makes

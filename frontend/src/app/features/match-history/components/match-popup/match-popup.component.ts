@@ -12,8 +12,10 @@ import {
   Scoreboard,
   ScoreboardPlayer,
   ScoreboardSide,
+  ScoreboardSortDir,
   ScoreboardSortKey,
   compactNumber,
+  defaultSortDir,
   formatDuration,
 } from '../../scoreboard.model';
 
@@ -107,6 +109,9 @@ export class MatchPopupComponent {
 
   readonly scoreboardSort = signal<ScoreboardSortKey>('mvp');
 
+  /** Which way the chosen column is ordered. Every column can go both ways. */
+  readonly scoreboardSortDir = signal<ScoreboardSortDir>(defaultSortDir('mvp'));
+
   readonly scoreboardColumns: ReadonlyArray<{ key: ScoreboardSortKey; label: string; title: string }> = [
     { key: 'mvp', label: '★', title: 'Match score' },
     { key: 'kills', label: 'K', title: 'Kills' },
@@ -126,6 +131,10 @@ export class MatchPopupComponent {
       const match = this.popup.popupMatch();
       this.scoreboard.set(null);
       this.scoreboardSide.set('us');
+      // Back to the default order too, for the same reason the side resets: a new match is a new
+      // question, and inheriting "sorted by deaths, ascending" from the last one is a surprise.
+      this.scoreboardSort.set('mvp');
+      this.scoreboardSortDir.set(defaultSortDir('mvp'));
       if (!match) return;
 
       this.scoreboardLoading.set(true);
@@ -142,18 +151,33 @@ export class MatchPopupComponent {
     return this.scoreboardSide() === 'us' ? board.us : board.them;
   });
 
-  /** The active side's players, ordered by the chosen column, biggest first. */
+  /**
+   * The active side's players, ordered by the chosen column and direction.
+   *
+   * ⚠ Ties break on the name, always ascending and never reversed with the column. A stable,
+   * predictable order underneath the sort is what stops rows jumping about between two clicks when
+   * a whole column is zeroes — which is common, since the game omits a stat it would send as 0.
+   *
+   * ⚠ An unnamed player (the gateway would not name them) sorts last on the name column rather
+   * than first: an empty string would otherwise head the table, which reads as a player called
+   * nothing rather than as a missing name.
+   */
   readonly scoreboardPlayers = computed<ScoreboardPlayer[]>(() => {
     const side = this.activeSide();
     if (!side) return [];
     const key = this.scoreboardSort();
-    // Deaths are the one column where fewer is better, so it alone sorts ascending.
-    const ascending = key === 'deaths';
+    const sign = this.scoreboardSortDir() === 'asc' ? 1 : -1;
+
+    const byName = (a: ScoreboardPlayer, b: ScoreboardPlayer) => {
+      if (!a.ign || !b.ign) return (a.ign ? 0 : 1) - (b.ign ? 0 : 1);
+      return a.ign.localeCompare(b.ign);
+    };
+
     return [...side.players].sort((a, b) => {
+      if (key === 'name') return sign * byName(a, b);
       const left = key === 'mvp' ? a.mvpScore : a[key];
       const right = key === 'mvp' ? b.mvpScore : b[key];
-      if (left === right) return (a.ign ?? '').localeCompare(b.ign ?? '');
-      return ascending ? left - right : right - left;
+      return left === right ? byName(a, b) : sign * (left - right);
     });
   });
 
@@ -181,8 +205,33 @@ export class MatchPopupComponent {
     return (lead === 'us') !== board.won;
   });
 
+  /**
+   * Pick a column, or reverse the one already picked.
+   *
+   * The second click on the same header flips the direction; moving to a different column starts
+   * it at whichever way round that column is worth reading first (see `defaultSortDir`) rather
+   * than carrying the previous column's direction over, which would silently show a "worst first"
+   * table to someone who only changed which stat they were looking at.
+   */
   onScoreboardSort(key: ScoreboardSortKey): void {
+    if (this.scoreboardSort() === key) {
+      this.scoreboardSortDir.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
     this.scoreboardSort.set(key);
+    this.scoreboardSortDir.set(defaultSortDir(key));
+  }
+
+  /** '▲' / '▼' for the sorted column, and nothing for the rest. */
+  sortCaret(key: ScoreboardSortKey): string {
+    if (this.scoreboardSort() !== key) return '';
+    return this.scoreboardSortDir() === 'asc' ? '▲' : '▼';
+  }
+
+  /** What a screen reader is told about this column: 'ascending', 'descending' or 'none'. */
+  sortAria(key: ScoreboardSortKey): 'ascending' | 'descending' | 'none' {
+    if (this.scoreboardSort() !== key) return 'none';
+    return this.scoreboardSortDir() === 'asc' ? 'ascending' : 'descending';
   }
 
   showSide(side: 'us' | 'them'): void {

@@ -441,6 +441,14 @@
     cursor: pointer;
 
     &:hover { color: var(--color-primary-dark); }
+
+    /* Every header is a sort control now, including the name, so a keyboard user needs to see
+       which one they are on. :focus-visible only, to keep the ring off a mouse click. */
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-dark);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
   }
 
   thead th.is-sorted {
@@ -468,6 +476,16 @@
 .mp-sb-num {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Width is reserved whether or not a caret is showing, so moving the sort from one column to the
+   next does not shift every header beside it. */
+.mp-sb-caret {
+  display: inline-block;
+  width: 0.75em;
+  margin-left: 2px;
+  font-size: 0.7em;
+  vertical-align: 1px;
 }
 
 .mp-sb-mvp { color: var(--color-primary-dark); margin-right: 2px; }

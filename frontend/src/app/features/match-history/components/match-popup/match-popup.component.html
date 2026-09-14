@@ -257,16 +257,25 @@
                 <table class="mp-sb-table">
                   <thead>
                     <tr>
-                      <th scope="col" class="mp-sb-name">Player</th>
+                      <th
+                        scope="col"
+                        class="mp-sb-name"
+                        [class.is-sorted]="scoreboardSort() === 'name'"
+                        [attr.aria-sort]="sortAria('name')"
+                      >
+                        <button type="button" title="Player name" (click)="onScoreboardSort('name')">
+                          Player<span class="mp-sb-caret">{{ sortCaret('name') }}</span>
+                        </button>
+                      </th>
                       @for (col of scoreboardColumns; track col.key) {
                         <th
                           scope="col"
                           class="mp-sb-num"
                           [class.is-sorted]="scoreboardSort() === col.key"
-                          [attr.aria-sort]="scoreboardSort() === col.key ? 'descending' : 'none'"
+                          [attr.aria-sort]="sortAria(col.key)"
                         >
                           <button type="button" [title]="col.title" (click)="onScoreboardSort(col.key)">
-                            {{ col.label }}
+                            {{ col.label }}<span class="mp-sb-caret">{{ sortCaret(col.key) }}</span>
                           </button>
                         </th>
                       }
