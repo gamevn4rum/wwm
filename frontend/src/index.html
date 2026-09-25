@@ -11,14 +11,14 @@
     modal's screenshot button additionally *fetches* the Discord avatar and the
     Google Fonts files to inline them into the PNG, so those origins are in
     connect-src as well as img-src/font-src, and font-src allows data: because
-    that is the form the inlined fonts take. 'unsafe-inline'
-    for script is required by
-    the inline SPA-restore script and Angular's runtime; tighten with hashes if
-    you later remove inline scripts.
+    that is the form the inlined fonts take. script-src has no 'unsafe-inline':
+    the SPA-restore script is a file (public/spa-restore.js), and the build
+    inlines no script of its own (inlineCritical is off, so no onload handlers
+    either) — keep it that way, or add a hash rather than reopening inline script.
   -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com;
+    script-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' data: https://fonts.gstatic.com;
     img-src 'self' data: https://cdn.discordapp.com https://*.discordapp.com https://i.ytimg.com https://i.ibb.co;
@@ -37,19 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-  <script>
-    // Restore path encoded by 404.html for GitHub Pages SPA routing
-    (function () {
-      var params = new URLSearchParams(window.location.search);
-      var p = params.get('p');
-      if (p) {
-        var parts = p.split('&');
-        var path = '/' + decodeURIComponent(parts[0]);
-        var query = parts.length > 1 ? '?' + parts.slice(1).join('&') : '';
-        window.history.replaceState(null, null, path + query + window.location.hash);
-      }
-    })();
-  </script>
+  <!-- External, not inline, so script-src needs no 'unsafe-inline'. Classic and
+       un-deferred on purpose: it has to rewrite the URL before the router reads it. -->
+  <script src="spa-restore.js"></script>
 </head>
 <body>
   <app-root></app-root>

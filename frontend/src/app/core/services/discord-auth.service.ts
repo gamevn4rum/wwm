@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay } from 'rxjs/operators';
 import { apiUrl } from '../api';
@@ -74,7 +74,7 @@ export class DiscordAuthService {
   private initialized = false;
 
   /** Renew this long before the token expires. The access token lives an hour; the
-   *  server will keep renewing it for 30 days from the original Discord login. */
+   *  server will keep renewing it for 7 days from the original Discord login. */
   private readonly refreshMarginMs = 5 * 60 * 1000;
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private refreshInFlight: Observable<DiscordUserSession | null> | null = null;
@@ -146,7 +146,13 @@ export class DiscordAuthService {
         this.currentUserSubject.next(res.session);
         return res.session;
       }),
-      catchError(() => { this.logout(); return of(null); }),
+      // Only a refusal ends the session. A 429, a 5xx or a dropped connection says nothing about
+      // whether this person may still sign in, and logging out on those threw a valid session
+      // away — anyone able to exhaust the rate limit could sign the whole site out.
+      catchError((err: HttpErrorResponse) => {
+        if (err?.status === 401 || err?.status === 403) this.logout();
+        return of(null);
+      }),
       finalize(() => { this.refreshInFlight = null; }),
       shareReplay(1),
     );
@@ -180,7 +186,9 @@ export class DiscordAuthService {
       const state = query.get('state');
       sessionStorage.removeItem(this.stateKey);
       this.clearUrlQuery();
-      if (expected && state !== expected) { this.finish(null); return; }
+      // No stored state means this tab never started a login, so the code is someone else's:
+      // accepting it would sign this browser in as whoever sent the link (login CSRF).
+      if (!expected || state !== expected) { this.finish(null); return; }
 
       this.http.post<AuthResponse>(apiUrl('/auth/discord/exchange'),
         { code, redirectUri: document.baseURI }).pipe(
@@ -231,7 +239,21 @@ export class DiscordAuthService {
     const delay = expiry - Date.now() - this.refreshMarginMs;
     // setTimeout truncates delays past a 32-bit ms count; nothing we issue lasts that long.
     if (delay > 2 ** 31 - 1) return;
-    this.refreshTimer = setTimeout(() => this.refresh().subscribe(), Math.max(delay, 1000));
+    this.refreshTimer = setTimeout(() => this.refreshWhenVisible(), Math.max(delay, 1000));
+  }
+
+  /** The timer's renewal, deferred while the tab is hidden. Each renewal reads the Member row,
+   *  and the database bills the hours it is awake — a tab left open in the background renewing
+   *  every hour kept it waking around the clock for nobody. A hidden tab makes no requests, so
+   *  there is nothing to keep fresh: renew when it is looked at again, and the interceptor's 401
+   *  retry still covers anything that races the expiry. */
+  private refreshWhenVisible(): void {
+    if (document.visibilityState !== 'hidden') { this.refresh().subscribe(); return; }
+    document.addEventListener('visibilitychange', () => {
+      const token = this.getToken();
+      if (token && this.needsRefresh(token)) this.refresh().subscribe();
+      else if (token) this.scheduleRefresh(token);
+    }, { once: true });
   }
 
   /** True once the token is expired or close enough that a request would race it.

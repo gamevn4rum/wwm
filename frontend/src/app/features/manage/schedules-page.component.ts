@@ -349,7 +349,7 @@ export class SchedulesPageComponent {
   }
 
   /** The next time this schedule will fire, as a short VN-local label ("Today 20:00",
-   *  "Tomorrow 20:00", "Mon 20:00"). Fires at the next 15-min poll after this time. */
+   *  "Tomorrow 20:00", "Mon 20:00"). Fires at the next 5-min poll after this time. */
   nextRun(s: ScheduledMessage): string {
     if (s.dayOfWeek === ON_DEMAND) return 'on demand';
     const [hh, mm] = s.time.split(':').map(Number);
