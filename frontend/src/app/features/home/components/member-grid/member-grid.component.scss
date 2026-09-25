@@ -467,7 +467,7 @@
   color: var(--color-ink);
 }
 
-/* Sized in em so it tracks the label. The chip's layout must not depend on it: three of the nine
+/* Sized in em so it tracks the label. The chip's layout must not depend on it: two of the ten
    paths have no artwork, and flex + gap is what makes the space collapse cleanly when it is absent. */
 .ma-chip-icon {
   width: 1.15em;

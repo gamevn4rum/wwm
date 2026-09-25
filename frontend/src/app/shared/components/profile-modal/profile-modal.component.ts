@@ -9,6 +9,7 @@ import { DiscordAuthService, DiscordUserSession } from '../../../core/services/d
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
 import { PlayerProfile } from '../../../features/roster-stats/player-profile.model';
 import { PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
+import { Appearance, AppearanceService } from '../../../features/roster-stats/appearance.service';
 import { Gallery, GalleryPhoto, GalleryService } from '../../../features/roster-stats/gallery.service';
 import { InnerWayCatalogueService } from '../../../features/roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way-catalogue.model';
@@ -46,6 +47,7 @@ export class ProfileModalComponent implements OnInit {
   private readonly innerWayCatalogue = inject(InnerWayCatalogueService);
   private readonly setCatalogue = inject(SetCatalogueService);
   private readonly galleryService = inject(GalleryService);
+  private readonly appearanceService = inject(AppearanceService);
 
   /** The element rasterized by the screenshot button. */
   private readonly card = viewChild.required<ElementRef<HTMLElement>>('shotTarget');
@@ -57,6 +59,8 @@ export class ProfileModalComponent implements OnInit {
 
   /** The member's public in-game photos, or null until (or unless) they load. */
   readonly gallery = signal<Gallery | null>(null);
+  /** The member's in-game portrait and name card, or null until (or unless) they load. */
+  readonly appearance = signal<Appearance | null>(null);
   /** The photo open in the viewer. */
   readonly viewing = signal<GalleryPhoto | null>(null);
 
@@ -117,6 +121,7 @@ export class ProfileModalComponent implements OnInit {
         this.loading.set(false);
       });
       this.galleryService.get(ign).subscribe((g) => this.gallery.set(g));
+      this.appearanceService.get(ign).subscribe((a) => this.appearance.set(a));
     });
 
     this.innerWayCatalogue.getAll().subscribe((entries) => {
@@ -148,6 +153,17 @@ export class ProfileModalComponent implements OnInit {
     // The first Escape closes the photo, the second the modal.
     if (this.viewing()) { this.viewing.set(null); return; }
     this.close();
+  }
+
+  /** The name card behind the identity band, as a CSS value; null leaves the band plain. */
+  nameCardBackground(): string | null {
+    const src = this.appearanceService.nameCardSrc(this.appearance());
+    return src ? `url("${src}")` : null;
+  }
+
+  /** The in-game portrait, which stands in for the Discord avatar when there is one. */
+  portraitSrc(): string | null {
+    return this.appearanceService.portraitSrc(this.appearance());
   }
 
   openPhoto(photo: GalleryPhoto): void {

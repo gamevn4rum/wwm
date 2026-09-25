@@ -55,11 +55,20 @@
       @let p = prof?.detail;
 
       <!-- Identity ---------------------------------------------------------->
-      <header class="pm-identity" [class]="'pm-identity ' + rankClass()">
+      <!-- The member's own in-game name card sits behind the band when the official site has
+           art for it; without one the band is drawn exactly as before. -->
+      @let card = nameCardBackground();
+      <header class="pm-identity" [class]="'pm-identity ' + rankClass()"
+              [class.has-card]="!!card" [style.--pm-card]="card">
         <!-- "Hide player info" strips everything that identifies the person behind
              the character — avatar, Discord handle, role, region/server/language —
-             and keeps only the IGN and level. -->
-        @if (!hideInfo()) {
+             and keeps only the IGN and level. The in-game portrait is the character's,
+             not the person's, so it stays. -->
+        @if (portraitSrc(); as portrait) {
+          <div class="pm-avatar pm-avatar--portrait">
+            <img [src]="portrait" [alt]="prof?.ign || ''" crossorigin="anonymous" />
+          </div>
+        } @else if (!hideInfo()) {
           <div class="pm-avatar">
             <img [src]="user?.avatarUrl" [alt]="user?.username || ''" crossorigin="anonymous" />
           </div>

@@ -230,6 +230,29 @@
   &.rank-commander { --accent: var(--color-accent-plum); --accent-tint: var(--color-accent-plum-tint); }
   &.rank-creator,
   &.rank-admin { --accent: var(--color-secondary); --accent-tint: var(--color-secondary-tint); }
+
+  // The in-game name card as the band's background. A left-hand shade keeps the text legible on
+  // every card, light or dark, and the band turns into a framed panel so the art has an edge.
+  &.has-card {
+    padding: 1.1rem 1.2rem;
+    border-radius: 10px;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.34) 55%, rgba(0, 0, 0, 0.08) 100%),
+      var(--pm-card) center / cover no-repeat;
+
+    &::after { display: none; }
+
+    .pm-ign { color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55); }
+    .pm-handle, .pm-origin { color: rgba(255, 255, 255, 0.82); }
+    .pm-role { color: #fff; }
+    .pm-level {
+      background: rgba(0, 0, 0, 0.35);
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: none;
+    }
+    .pm-level-num, .pm-level-label { color: #fff; }
+  }
 }
 
 .pm-avatar {
@@ -244,6 +267,15 @@
   background: var(--accent-tint);
 
   img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  // The game's portrait art is already framed and transparent; it wants a ring, not a tint.
+  &--portrait {
+    width: 72px;
+    height: 72px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    outline: none;
+    background: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .pm-identity-text { min-width: 0; flex: 1; }

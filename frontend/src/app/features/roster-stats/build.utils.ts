@@ -127,12 +127,12 @@ export function martialArtColor(
  * The path's icon, hosted by us, or null for an art with no path.
  *
  * Built from the slug rather than sent by the API: the artwork lives in this repo under
- * `public/icons/paths/`, so the backend has no business knowing which files we shipped. It came off a
- * community wiki, and pointing live at that wiki made every profile depend on a host nobody here
+ * `public/icons/paths/`, so the backend has no business knowing which files we shipped. They are the
+ * official site's path badges (GUILD-API §38.8), saved here so no profile depends on a host nobody here
  * controls.
  *
- * ⚠ Returning a path is **not** a promise the file exists — three of the nine were never archived and
- * have no artwork. Callers must handle a load failure (see the profile modal's `onIconError`); the
+ * ⚠ Returning a path is **not** a promise the file exists — Kite and Draught postdate the official list
+ * and have no artwork. Callers must handle a load failure (see the profile modal's `onIconError`); the
  * colour and the label already carry the meaning without it.
  */
 export function martialArtIcon(pathSlug: string | null | undefined): string | null {
@@ -142,7 +142,7 @@ export function martialArtIcon(pathSlug: string | null | undefined): string | nu
 /**
  * Path icons the browser could not load, shared by every surface that draws them.
  *
- * Three of the nine paths have no artwork, so a miss is expected rather than exceptional. Module
+ * Two of the ten paths have no artwork, so a miss is expected rather than exceptional. Module
  * scope rather than per-component state on purpose: the member grid and the profile modal draw the
  * same icons, and a failure one of them already discovered should not have to be rediscovered — and
  * re-requested — by the other. A signal so reading it in a template makes the component redraw when
