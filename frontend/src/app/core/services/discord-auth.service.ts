@@ -115,6 +115,23 @@ export class DiscordAuthService {
     window.location.href = `https://discord.com/oauth2/authorize?${params.toString()}`;
   }
 
+  /** The person asked to sign out: end the session server-side too, then locally.
+   *  /auth/logout advances the member's session epoch, so every token issued before it —
+   *  including a copy lifted from this browser — is refused at its next renewal. Fired and
+   *  forgotten: signing out must never wait on, or fail because of, the network. The token is
+   *  attached here rather than by the interceptor because logout() clears it straight after. */
+  signOut(): void {
+    const token = this.getToken();
+    if (token) {
+      this.http.post(apiUrl('/auth/logout'), {}, { headers: { Authorization: `Bearer ${token}` } })
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
+    this.logout();
+  }
+
+  /** Drops the local session only — also what a refused renewal calls, where there is no
+   *  server session left to end. */
   logout(): void {
     // legacyTokenKey held a raw Discord access token under the old static path. Clearing it
     // costs one line and gets that token out of the browsers of anyone who logged in before

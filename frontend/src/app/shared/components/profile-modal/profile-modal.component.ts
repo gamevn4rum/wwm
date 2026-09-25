@@ -131,7 +131,7 @@ export class ProfileModalComponent implements OnInit {
    *  directly — this is the only place the action is reachable. */
   logout(): void {
     this.popupService.hide();
-    this.authService.logout();
+    this.authService.signOut();
     this.router.navigate(['/']);
   }
 
