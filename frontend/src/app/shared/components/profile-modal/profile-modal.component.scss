@@ -233,9 +233,12 @@
 
   // The in-game name card as the band's background. A left-hand shade keeps the text legible on
   // every card, light or dark, and the band turns into a framed panel so the art has an edge.
+  // Edge to edge: the negative margins cancel .pm-card's padding, so the art runs the full width
+  // of the card and meets its top edge, the way the game's own name card fills its frame.
   &.has-card {
-    padding: 1.1rem 1.2rem;
-    border-radius: 10px;
+    margin: -1.5rem -1.6rem 1.15rem;
+    padding: 1.6rem 1.6rem 1.4rem;
+    min-height: 150px;
     overflow: hidden;
     background:
       linear-gradient(90deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.34) 55%, rgba(0, 0, 0, 0.08) 100%),
