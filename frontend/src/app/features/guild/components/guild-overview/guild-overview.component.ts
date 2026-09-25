@@ -8,14 +8,13 @@ import { compactNumber, formatUnixDate } from '../../guild-format';
 /**
  * Whether the Guild War tiles render.
  *
- * Off since 2026-08-11: both boards came from the wwmdb relay, whose host stopped
- * resolving, so the rankings behind them are frozen at their last successful sweep. A
- * stale rank reads as a current one, which is worse than showing no tile at all.
- * Prosperity has a first-party source again (the game's own `rank_service`, found in a
- * client capture on 2026-09-25); the Guild War boards' names are still unknown — flip this
- * back when the backend reads them.
+ * Off from 2026-08-11 to 2026-09-25, while both boards were frozen at the last sweep of the
+ * dead wwmdb relay. Back on now that the backend reads them from the game itself (client
+ * captures, 2026-09-25): Ranked from the SEA Ranked board, the League from each guild's own
+ * placement. The backend removes a stale row rather than keeping it, so a tile only renders
+ * for a standing that is current.
  */
-const SHOW_GUILD_WAR = false;
+const SHOW_GUILD_WAR = true;
 
 /** One header tile. `sub` and `small` are optional presentation hints. */
 export interface OverviewTile {
@@ -118,16 +117,21 @@ export class GuildOverviewComponent implements OnInit {
       ['gw-league', 'GW League', r?.guildWar?.league],
     ] as const) : []) {
       if (entry?.rank == null) continue;
-      // Rank is the headline; the board's own metric (war points) rides the sub-line
-      // next to the field size, so the tile carries both.
-      const parts = [
-        entry.score != null ? `${compactNumber(entry.score)} pts` : null,
-        entry.total != null ? `of ${entry.total}` : null,
-      ].filter(Boolean);
+      // Rank is the headline; the sub-line says what the rank is out of. Ranked is a board of
+      // 500 and its score is the season's wins. The League has no board — a rank is within a
+      // tier and group — so its sub-line names the tier, which is what makes "#1" mean anything,
+      // and its score is League points.
+      const parts = key === 'gw-league'
+        ? [entry.board, entry.score != null ? `${entry.score} pts` : null]
+        : [
+            entry.score != null ? `${entry.score} wins` : null,
+            entry.total != null ? `of ${entry.total}` : null,
+          ];
+      const shown = parts.filter(Boolean);
       tiles.push({
         key, label,
         value: `#${entry.rank}`,
-        sub: parts.length ? parts.join(' · ') : undefined,
+        sub: shown.length ? shown.join(' · ') : undefined,
       });
     }
     return tiles;
