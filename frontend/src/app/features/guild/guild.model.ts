@@ -45,11 +45,21 @@ export interface GuildRankEntry {
  * Public data (no encryption): only our own standing, no UID/PID, no other guild.
  * `league` is null whenever the Guild War league table isn't published.
  */
+/** A guild's banner. Only `text` — the glyph the guild picked, an emoji or a character — is
+ *  drawable; the ids point into the game's own art. */
+export interface GuildFlag {
+  text: string | null;
+  iconId: number | null;
+  bgId: number | null;
+}
+
 export interface GuildRank {
   guildId: string;
   hostnum: number | null;
   prosperity: GuildRankEntry | null;
   guildWar: { ranked: GuildRankEntry | null; league: GuildRankEntry | null } | null;
+  /** Read live off the Prosperity board; null when it did not answer. */
+  flag?: GuildFlag | null;
 }
 
 export interface Guild {

@@ -10,9 +10,10 @@ import { compactNumber, formatUnixDate } from '../../guild-format';
  *
  * Off since 2026-08-11: both boards came from the wwmdb relay, whose host stopped
  * resolving, so the rankings behind them are frozen at their last successful sweep. A
- * stale rank reads as a current one, which is worse than showing no tile at all. The
- * first-party gateway does expose a `rank_service`, but its method names are unknown, so
- * there is no live source to switch to yet — flip this back when there is.
+ * stale rank reads as a current one, which is worse than showing no tile at all.
+ * Prosperity has a first-party source again (the game's own `rank_service`, found in a
+ * client capture on 2026-09-25); the Guild War boards' names are still unknown — flip this
+ * back when the backend reads them.
  */
 const SHOW_GUILD_WAR = false;
 
@@ -98,6 +99,12 @@ export class GuildOverviewComponent implements OnInit {
     ];
 
     const r = this.rank();
+    // The guild's own banner glyph, when it chose one. Leads the ranking tiles because it is
+    // who the numbers after it are about.
+    const flag = r?.flag?.text?.trim();
+    if (flag) {
+      tiles.push({ key: 'flag', label: 'Flag', value: flag });
+    }
     if (r?.prosperity?.score != null) {
       tiles.push({
         key: 'prosperity',
