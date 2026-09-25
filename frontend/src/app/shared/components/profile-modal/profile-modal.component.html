@@ -307,6 +307,29 @@
         }
       }
 
+      <!-- Gallery ------------------------------------------------------------>
+      <!-- pm-noshot: the photos live on the game's file store, and the screenshot would have to
+           inline every one of them cross-origin — slow at best, a failed capture at worst. -->
+      @if (gallery()?.photos?.length) {
+        <section class="pm-section pm-noshot">
+          <h3 class="pm-heading">
+            <span>GALLERY</span>
+            <span class="pm-count">{{ gallery()!.total }}</span>
+          </h3>
+          <ul class="pm-gallery">
+            @for (ph of gallery()!.photos; track ph.id) {
+              <li>
+                <button type="button" class="pm-photo" (click)="openPhoto(ph)"
+                        [attr.aria-label]="ph.title || 'Photo'">
+                  <img [src]="ph.thumbUrl" [alt]="ph.title || ''" loading="lazy"
+                       referrerpolicy="no-referrer" />
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
       <!-- Footer: mirrors the site footer, so a shared card is unmistakably ours. -->
       <footer class="pm-footer">
         <span class="pm-footer-rule"></span>
@@ -320,6 +343,33 @@
     </div>
   </div>
 </div>
+
+<!-- Photo viewer: the 1280 px view on screen, the original only on request. -->
+@if (viewing(); as ph) {
+  <div class="pm-viewer" (click)="closePhoto()" role="dialog" aria-modal="true">
+    <figure class="pm-viewer-body" (click)="$event.stopPropagation()">
+      <img [src]="ph.imageUrl" [alt]="ph.title || ''" referrerpolicy="no-referrer" />
+      <figcaption>
+        <span class="pm-viewer-title">
+          {{ ph.title || 'Untitled' }}
+          @if (ph.uploadedUnix) { · {{ formatDate(ph.uploadedUnix) }} }
+          @if (ph.width && ph.height) { · {{ ph.width }}×{{ ph.height }} }
+        </span>
+        <span class="pm-viewer-actions">
+          @if ((gallery()?.photos?.length ?? 0) > 1) {
+            <button type="button" (click)="stepPhoto(-1)" aria-label="Previous">◀</button>
+            <button type="button" (click)="stepPhoto(1)" aria-label="Next">▶</button>
+          }
+          <!-- Cross-origin, so browsers ignore `download` and open the file instead; it is the
+               full-size PNG either way, ready to save. -->
+          <a [href]="ph.originalUrl" [attr.download]="photoFileName(ph)" target="_blank"
+             rel="noopener noreferrer">ORIGINAL ↓</a>
+          <button type="button" (click)="closePhoto()" aria-label="Close">✕</button>
+        </span>
+      </figcaption>
+    </figure>
+  </div>
+}
 
 <!-- One gear card, used by both groups in a row. -->
 <ng-template #gearCard let-slot>

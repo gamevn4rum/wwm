@@ -174,7 +174,7 @@ read by the backend's `SheetSyncFn`, not from the browser. Two consequences wort
 
 A `Content-Security-Policy` meta tag in [`frontend/src/index.html`](frontend/src/index.html) allow-lists the external origins the app depends on — YouTube (footage player), the Discord CDN (avatars), Google Fonts, and image hosts.
 
-**Two gotchas.** `connect-src` must list the App Service origin (`apiBaseUrl`) — without it the browser blocks every API call, which presents exactly like a backend outage rather than a CSP problem. And event banners are hosted on [ImgBB](https://ibb.co) (`https://i.ibb.co`); images from a new host need that origin in `img-src`, or they are silently blocked.
+**Two gotchas.** `connect-src` must list the App Service origin (`apiBaseUrl`) — without it the browser blocks every API call, which presents exactly like a backend outage rather than a CSP problem. And event banners are hosted on [ImgBB](https://ibb.co) (`https://i.ibb.co`); images from a new host need that origin in `img-src`, or they are silently blocked. Members' in-game photos load straight from the game's file store (`https://*.fp.ps.easebar.com`), which is listed for the same reason.
 
 ---
 

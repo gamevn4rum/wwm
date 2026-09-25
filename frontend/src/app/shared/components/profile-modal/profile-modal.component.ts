@@ -9,6 +9,7 @@ import { DiscordAuthService, DiscordUserSession } from '../../../core/services/d
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
 import { PlayerProfile } from '../../../features/roster-stats/player-profile.model';
 import { PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
+import { Gallery, GalleryPhoto, GalleryService } from '../../../features/roster-stats/gallery.service';
 import { InnerWayCatalogueService } from '../../../features/roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';
@@ -44,6 +45,7 @@ export class ProfileModalComponent implements OnInit {
   private readonly profileService = inject(PlayerProfileService);
   private readonly innerWayCatalogue = inject(InnerWayCatalogueService);
   private readonly setCatalogue = inject(SetCatalogueService);
+  private readonly galleryService = inject(GalleryService);
 
   /** The element rasterized by the screenshot button. */
   private readonly card = viewChild.required<ElementRef<HTMLElement>>('shotTarget');
@@ -52,6 +54,11 @@ export class ProfileModalComponent implements OnInit {
   readonly profile = signal<PlayerProfile | null>(null);
   readonly loading = signal(true);
   readonly shot = signal<ShotState>('idle');
+
+  /** The member's public in-game photos, or null until (or unless) they load. */
+  readonly gallery = signal<Gallery | null>(null);
+  /** The photo open in the viewer. */
+  readonly viewing = signal<GalleryPhoto | null>(null);
 
   // ── Capture options ───────────────────────────────────────────────────────
   // These hide sections from the card itself, not just from the PNG, so the
@@ -109,6 +116,7 @@ export class ProfileModalComponent implements OnInit {
         this.profile.set(profile);
         this.loading.set(false);
       });
+      this.galleryService.get(ign).subscribe((g) => this.gallery.set(g));
     });
 
     this.innerWayCatalogue.getAll().subscribe((entries) => {
@@ -137,7 +145,32 @@ export class ProfileModalComponent implements OnInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    // The first Escape closes the photo, the second the modal.
+    if (this.viewing()) { this.viewing.set(null); return; }
     this.close();
+  }
+
+  openPhoto(photo: GalleryPhoto): void {
+    this.viewing.set(photo);
+  }
+
+  closePhoto(): void {
+    this.viewing.set(null);
+  }
+
+  /** Step through the album from the viewer, wrapping at either end. */
+  stepPhoto(delta: number): void {
+    const photos = this.gallery()?.photos ?? [];
+    const current = this.viewing();
+    if (!current || photos.length < 2) return;
+    const i = photos.findIndex((p) => p.id === current.id);
+    this.viewing.set(photos[(i + delta + photos.length) % photos.length]);
+  }
+
+  /** The original's download name — the game names nothing, so the member and the photo do. */
+  photoFileName(photo: GalleryPhoto): string {
+    const who = (this.profile()?.ign || 'photo').replace(/[^\w.-]+/g, '-');
+    return `${who}-${photo.id}.png`;
   }
 
   // ── Derived view data ─────────────────────────────────────────────────────
