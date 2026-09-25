@@ -95,12 +95,12 @@ limitation) with a proper server boundary, and adds back-office management:
 ## Architecture
 
 ```
-Google Sheet ─┐                    Azure Functions (timer)
-game API ─────┤  change-detect →   • SheetSyncFn      • StatsSyncFn
-              │                    • GuildSyncFn      • LiveStatsSyncFn
-              └──────────────┬───  • ManualSyncHttpFn (admin "sync now")
-                             ▼  (upsert only when changed)
-Angular SPA ───REST+JWT──▶ Azure SQL ◀── EF Core ── ASP.NET Core Minimal API (App Service)
+NetEase game API ──┐                Azure Functions (timer)
+                   │ change-detect → • GuildSyncFn     • LiveStatsSyncFn
+                   │                 • GvG history / league / market sweeps
+                   └────────────┬──  • ManualSyncHttpFn (admin "sync now")
+                                ▼  (upsert only when changed)
+Angular SPA ───REST+JWT──▶ Neon Postgres ◀── EF Core ── ASP.NET Core Minimal API (App Service)
 (GitHub Pages)                              • /api/public/*    anon, cached
                                             • /api/auth/*      Discord code → app JWT
                                             • /api/member/*    JWT (+ fp/ftp)
@@ -119,8 +119,8 @@ ng build (in frontend/)  →  frontend/docs/  →  force-pushed to gh-pages bran
 - **GitHub Pages** serves the `gh-pages` branch's `docs/` folder.
 - **SPA deep-link routing**: GitHub Pages 404s on any path other than `/`.
   `frontend/public/404.html` encodes the path into a `?p=` param and redirects to root;
-  `frontend/src/index.html` restores the real URL via `history.replaceState` before the
-  router runs — so deep links (e.g. `/wwm/schedule`) survive a refresh.
+  `frontend/public/spa-restore.js` (loaded un-deferred from `index.html`, so the CSP needs no
+  inline script) restores the real URL via `history.replaceState` before the router runs — so deep links (e.g. `/wwm/schedule`) survive a refresh.
 
 > **wwmdb is gone.** `wwmdb.vlt.fyi` stopped resolving on 2026-07-30. It was the only
 > source for player stats, the inner-way and gear-set catalogues, guild rosters, rankings
