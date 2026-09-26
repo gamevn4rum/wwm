@@ -130,7 +130,7 @@ export function martialArtColor(
  * `public/icons/paths/`, so the backend has no business knowing which files we shipped. They are the
  * official site's path badges (GUILD-API §38.8), saved here so no profile depends on a host nobody here
  * controls; Kite's and Draught's, which postdate that list, are cut from in-game screenshots
- * (discord-vault ).
+ * (discord-vault `tools/app-emoji/ingame.py`).
  *
  * ⚠ Returning a path is **not** a promise the file exists — a path newer than these files has no
  * artwork. Callers must handle a load failure (see the profile modal's `onIconError`); the
