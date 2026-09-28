@@ -469,9 +469,10 @@
 
 /* Sized in em so it tracks the label. The chip's layout must not depend on it: two of the ten
    paths have no artwork, and flex + gap is what makes the space collapse cleanly when it is absent. */
+// Big enough to read the badge's glyph, not just its colour: the chip grows to fit.
 .ma-chip-icon {
-  width: 1.15em;
-  height: 1.15em;
+  width: 2rem;
+  height: 2rem;
   object-fit: contain;
   flex: none;
 }
@@ -537,6 +538,27 @@
     border-color: var(--tier);
     box-shadow: 0 0 0 2px var(--tier);
   }
+}
+
+/* With card art: art on top, name centred beneath, tier pinned over the art's corner. */
+.inner-way-card--art {
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.3rem;
+  padding: 0.45rem 0.4rem 0.4rem;
+  text-align: center;
+
+  .iw-name { font-size: 0.72rem; line-height: 1.2; }
+  .iw-tier { position: absolute; top: 0.3rem; right: 0.3rem; }
+}
+
+.iw-art {
+  display: block;
+  width: 100%;
+  max-width: 72px;
+  aspect-ratio: 180 / 286;
+  object-fit: contain;
 }
 
 .iw-name {

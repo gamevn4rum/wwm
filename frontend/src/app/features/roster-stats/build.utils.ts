@@ -156,6 +156,25 @@ export function noteMartialArtIconFailed(url: string): void {
   deadMartialArtIcons.update((dead) => (dead.has(url) ? dead : new Set(dead).add(url)));
 }
 
+/**
+ * An inner way's card art, hosted by us under `public/icons/inner-ways/<game id>.webp`, or null
+ * when there is none to draw.
+ *
+ * The official site's glyph on its rarity's backdrop. Kite's and Draught's (601–604, 701–704), which
+ * the official list predates, carry the glyph from game8's card (discord-vault
+ * `tools/app-emoji/game8.txt`, the same source as the bot's emoji) laid on a backdrop recovered from
+ * the official cards of that rarity.
+ *
+ * ⚠ Like {@link martialArtIcon}, not a promise the file exists: an inner way newer than these files
+ * has none. A failed load is recorded with {@link noteMartialArtIconFailed} — the same set, since it
+ * is keyed by URL — and the caller falls back to the name alone.
+ */
+export function innerWayIcon(id: number | null | undefined): string | null {
+  if (id == null) return null;
+  const url = `icons/inner-ways/${id}.webp`;
+  return deadMartialArtIcons().has(url) ? null : url;
+}
+
 /** One of a member's martial arts, ready to draw. */
 export interface MartialArtChip {
   id: number;

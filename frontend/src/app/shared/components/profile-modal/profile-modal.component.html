@@ -237,8 +237,15 @@
             </h3>
             <ul class="pm-chips">
               @for (iw of p.innerWays; track iw.id) {
-                <li class="pm-chip" [class]="'pm-chip ' + tierClass(iw.tier)">
-                  <span class="pm-chip-name">{{ innerWayLabel(iw) }}</span>
+                <!-- The game's card art, name beneath. An inner way with no card (newer than
+                     the official list) is just its name, as before. -->
+                @let iwIcon = innerWayIcon(iw.id);
+                <li [class]="'pm-chip ' + tierClass(iw.tier)" [class.pm-chip-card]="iwIcon" [title]="innerWayLabel(iw)">
+                  @if (iwIcon) {
+                    <img class="pm-chip-art" [src]="iwIcon" alt="" decoding="async"
+                         (error)="onIconError(iwIcon)" />
+                  }
+                  <span class="pm-chip-name">{{ iwIcon ? innerWayName(iw) : innerWayLabel(iw) }}</span>
                   @if (iw.tier) { <span class="pm-chip-tier">T{{ iw.tier }}</span> }
                 </li>
               }

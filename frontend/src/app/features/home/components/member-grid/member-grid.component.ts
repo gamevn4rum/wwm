@@ -14,7 +14,7 @@ import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
 import { roleRank } from '../../../../core/services/discord-auth.service';
 import {
   ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
-  noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
+  innerWayIcon, noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
 } from '../../../roster-stats/build.utils';
 
 /** Only fully-upgraded inner ways count for the Formation filter. */
@@ -219,6 +219,7 @@ export class MemberGridComponent implements OnInit {
   readonly martialArts = martialArts;
   readonly martialArtBuild = martialArtBuild;
   readonly onIconError = noteMartialArtIconFailed;
+  readonly innerWayIcon = innerWayIcon;
 
   /** Account creation → "Since Dec 2025". */
   joinedLabel(createTime: number | null): string {
@@ -229,6 +230,11 @@ export class MemberGridComponent implements OnInit {
   }
 
   /** Static catalogue entry (path/weapon/effect tags) for a player's inner way, if known. */
+  /** The player's own name for it, else the catalogue's — the sweep can store a blank one. */
+  innerWayName(iw: { id: number | null; name: string }): string {
+    return iw.name?.trim() || this.innerWayInfo(iw.id)?.name || `#${iw.id}`;
+  }
+
   innerWayInfo(id: number | null): InnerWayCatalogueEntry | undefined {
     if (id == null) return undefined;
     return this.innerWaysById().get(id);

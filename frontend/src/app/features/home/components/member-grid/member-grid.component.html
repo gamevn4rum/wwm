@@ -235,14 +235,23 @@
                 </h3>
                 <div class="inner-ways-grid">
                   @for (iw of p.innerWays; track iw.id) {
+                    <!-- The game's card art, name beneath; an inner way with no card (newer than
+                         the official list) is just its name, as before. -->
+                    @let iwIcon = innerWayIcon(iw.id);
                     <button
                       type="button"
                       class="inner-way-card"
                       [class]="'inner-way-card ' + tierClass(iw.tier)"
+                      [class.inner-way-card--art]="iwIcon"
                       [class.selected]="openInnerWayId() === iw.id"
+                      [title]="innerWayName(iw)"
                       (click)="toggleInnerWayDetail(iw.id, $event)"
                     >
-                      <span class="iw-name">{{ iw.name }}</span>
+                      @if (iwIcon) {
+                        <img class="iw-art" [src]="iwIcon" alt="" decoding="async"
+                             (error)="onIconError(iwIcon)" />
+                      }
+                      <span class="iw-name">{{ innerWayName(iw) }}</span>
                       @if (iw.tier) { <span class="iw-tier">T{{ iw.tier }}</span> }
                     </button>
                   }
@@ -254,7 +263,7 @@
                     @let info = innerWayInfo(openIw.id);
                     <div class="iw-detail-panel mg-noshot" [class]="'iw-detail-panel mg-noshot ' + tierClass(openIw.tier)" (click)="$event.stopPropagation()">
                       <div class="iw-detail-header">
-                        <span class="iw-detail-name">{{ openIw.name }}</span>
+                        <span class="iw-detail-name">{{ innerWayName(openIw) }}</span>
                         @if (openIw.tier) { <span class="iw-tier">T{{ openIw.tier }}</span> }
                         <button type="button" class="iw-detail-close" aria-label="Close" (click)="closeInnerWayDetail()">
                           <svg viewBox="0 0 24 24" aria-hidden="true">

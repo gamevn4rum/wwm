@@ -17,7 +17,7 @@ import { SetCatalogueService } from '../../../features/roster-stats/set-catalogu
 import { SetCatalogueEntry } from '../../../features/roster-stats/set-catalogue.model';
 import {
   ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
-  noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
+  innerWayIcon, noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
 } from '../../../features/roster-stats/build.utils';
 import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from '../../../features/guild/guild-format';
 
@@ -100,6 +100,7 @@ export class ProfileModalComponent implements OnInit {
   readonly martialArts = martialArts;
   readonly martialArtBuild = martialArtBuild;
   readonly onIconError = noteMartialArtIconFailed;
+  readonly innerWayIcon = innerWayIcon;
   readonly visibleGear = visibleGear;
   readonly gearRows = gearRows;
   readonly compact = compactNumber;
@@ -218,9 +219,15 @@ export class ProfileModalComponent implements OnInit {
     return LANGUAGES[code.toLowerCase()] ?? code.toUpperCase();
   }
 
+  /** The player's own name for it, else the catalogue's — the sweep can store a blank one. */
+  innerWayName(iw: PlayerInnerWay): string {
+    return iw.name?.trim() || this.innerWayInfo(iw.id)?.name || `#${iw.id}`;
+  }
+
   innerWayLabel(iw: PlayerInnerWay): string {
     const path = this.innerWayInfo(iw.id)?.path?.name?.trim();
-    return path ? `${iw.name} · ${path}` : iw.name;
+    const name = this.innerWayName(iw);
+    return path ? `${name} · ${path}` : name;
   }
 
   /** Today's date on the card, so a shared screenshot carries its own as-of. */
@@ -245,7 +252,12 @@ export class ProfileModalComponent implements OnInit {
     this.shot.set('working');
     try {
       const card = this.card().nativeElement;
-      const fullHeight = card.scrollHeight;
+      // Less whatever `.pm-noshot` leaves out (the gallery): the library sizes the image from the
+      // live card, so a filtered node would otherwise come back as blank space above the footer.
+      // offsetHeight covers a section's own padding, which is all the spacing these carry.
+      const skipped = Array.from(card.querySelectorAll<HTMLElement>('.pm-noshot'))
+        .reduce((sum, n) => sum + n.offsetHeight, 0);
+      const fullHeight = card.scrollHeight - skipped;
       const blob = await toBlob(card, {
         // Shared with the member card so neither surface can end up sharper than the other; a
         // hard-coded 2 on each is how they diverged.

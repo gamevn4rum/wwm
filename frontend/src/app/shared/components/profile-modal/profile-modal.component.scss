@@ -486,9 +486,10 @@
 /* Sized in em so it tracks the label rather than needing its own breakpoint. The chip's layout must
    not depend on it: the icon is third-party and can vanish, and a gap that collapses cleanly is the
    whole point of flex + gap here. */
+// Big enough to read the badge's glyph, not just its colour: the chip grows to fit.
 .pm-art-icon {
-  width: 1.15em;
-  height: 1.15em;
+  width: 2rem;
+  height: 2rem;
   object-fit: contain;
   flex: none;
 }
@@ -634,6 +635,26 @@
   border: 1px solid var(--tier, var(--color-border));
   border-radius: var(--radius-sm);
   padding: 0.4rem 0.6rem;
+}
+
+/* With card art: art on top, name centred beneath, tier pinned over the art's corner. */
+.pm-chip-card {
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.3rem;
+  padding: 0.45rem 0.4rem 0.4rem;
+  text-align: center;
+
+  .pm-chip-tier { position: absolute; top: 0.3rem; right: 0.3rem; }
+}
+
+.pm-chip-art {
+  display: block;
+  width: 100%;
+  max-width: 72px;
+  aspect-ratio: 180 / 286;
+  object-fit: contain;
 }
 
 .pm-chip-tier {
