@@ -151,7 +151,17 @@
 .game-title-wrapper {
   position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+// The guild's banner glyph, left of the title and sized to its cap height.
+.guild-flag {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1;
+  color: #e9cf7a;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
 }
 
 .game-title {

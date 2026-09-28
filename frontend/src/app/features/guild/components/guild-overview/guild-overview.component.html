@@ -1,5 +1,4 @@
-<!-- Prosperity / Guild War tiles are appended only when the leaderboard lists us
-     (see tiles()). Nothing renders until the guild file resolves. -->
+<!-- Two rows of four (see tiles()). Nothing renders until the guild file resolves. -->
 @if (guild()) {
   <div class="guild-overview">
     @for (tile of tiles(); track tile.key) {

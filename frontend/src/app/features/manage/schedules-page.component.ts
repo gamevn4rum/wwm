@@ -100,7 +100,9 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
                   @if (s.mentionRoleId) {
                     <div class="ping mono">pings &#64;{{ s.mentionRoleId }}</div>
                   }
-                  {{ s.message }}
+                  <!-- Clipped to a few lines so a long post doesn't stretch its row; the full
+                       text is the tooltip, and Edit opens it whole. -->
+                  <div class="msg-text" [title]="s.message">{{ s.message }}</div>
                 </td>
                 <td>
                   <span class="pill" [class.on]="s.enabled" [class.off]="!s.enabled">
@@ -156,7 +158,11 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
     tr.disabled { opacity: .5; }
     .mono { font-family: monospace; }
     .channel { font-size: .8rem; opacity: .8; }
-    .msg { max-width: 320px; white-space: pre-wrap; word-break: break-word; }
+    .msg { max-width: 320px; }
+    .msg-text {
+      white-space: pre-wrap; word-break: break-word;
+      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+    }
     .msg .ping { font-size: .72rem; opacity: .7; margin-bottom: .15rem; }
     .actions { white-space: nowrap; display: flex; gap: .35rem; }
     .pill { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; }

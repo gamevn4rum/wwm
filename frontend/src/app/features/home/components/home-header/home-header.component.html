@@ -23,6 +23,10 @@
       <span class="divider-line"></span>
     </div>
     <div class="game-title-wrapper">
+      <!-- The guild's own banner glyph, when it chose one. -->
+      @if (flag(); as f) {
+        <span class="guild-flag" title="Guild flag">{{ f }}</span>
+      }
       <h1 class="game-title">
         <span class="title-game">Game</span><span class="title-vn">VN</span>
       </h1>
@@ -36,8 +40,7 @@
       <span class="divider-line short"></span>
     </div>
 
-    <!-- Guild headline numbers (members / founded / server / avg mastery, plus
-         Prosperity + Guild War rank when the boards list us). Lives here, in the
+    <!-- Guild headline numbers (standings on top, member averages below). Lives here, in the
          page header, rather than on the Guild page. Stop the click so the tiles
          don't trigger the header's routerLink to "/". -->
     <div class="header-overview" (click)="$event.stopPropagation()">
