@@ -240,9 +240,16 @@
     padding: 1.6rem 1.6rem 1.4rem;
     min-height: 150px;
     overflow: hidden;
-    background:
-      linear-gradient(90deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.34) 55%, rgba(0, 0, 0, 0.08) 100%),
-      var(--pm-card) center / cover no-repeat;
+    // The art is an <img> under the band (see the template for why), the shade a layer over it,
+    // and the band's own content above both.
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.34) 55%, rgba(0, 0, 0, 0.08) 100%);
+    }
+    > :not(.pm-identity-art) { position: relative; z-index: 2; }
 
     &::after { display: none; }
 
@@ -256,6 +263,16 @@
     }
     .pm-level-num, .pm-level-label { color: #fff; }
   }
+}
+
+.pm-identity-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .pm-avatar {

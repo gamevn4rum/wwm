@@ -76,8 +76,16 @@
       } @else if (roster().length > 0) {
         <div class="roster-grid">
           @for (entry of roster(); track entry.member.uid || entry.member.ign) {
-            <article class="roster-card" [class.is-online]="entry.online">
+            <!-- The member's in-game name card behind the head, fetched when the card nears the
+                 viewport (see loadNameCard). Without one the card is drawn exactly as before. -->
+            @let card = nameCards()[entry.member.ign];
+            <article class="roster-card" [class.is-online]="entry.online" [class.has-card]="!!card"
+                     (appInView)="loadNameCard(entry.member.ign)">
               <div class="member-head">
+                @if (card) {
+                  <img class="member-card-art" [src]="card" alt="" crossorigin="anonymous"
+                       decoding="async" (error)="dropNameCard(entry.member.ign)" />
+                }
                 <span class="member-avatar">
                   {{ initial(entry.member.ign) }}
                   @if (entry.online) {

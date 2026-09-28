@@ -57,9 +57,15 @@
       <!-- Identity ---------------------------------------------------------->
       <!-- The member's own in-game name card sits behind the band when the official site has
            art for it; without one the band is drawn exactly as before. -->
-      @let card = nameCardBackground();
+      <!-- An <img> with crossorigin, not a CSS background: a background is requested without an
+           Origin, so its answer carries no CORS header and is cached for a day; the screenshot's
+           own CORS fetch was then handed that copy and refused, and the card dropped out. -->
+      @let card = nameCardSrc();
       <header class="pm-identity" [class]="'pm-identity ' + rankClass()"
-              [class.has-card]="!!card" [style.--pm-card]="card">
+              [class.has-card]="!!card">
+        @if (card) {
+          <img class="pm-identity-art" [src]="card" alt="" crossorigin="anonymous" decoding="async" />
+        }
         <!-- "Hide player info" strips everything that identifies the person behind
              the character — avatar, Discord handle, role, region/server/language —
              and keeps only the IGN and level. The in-game portrait is the character's,

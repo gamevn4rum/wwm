@@ -156,10 +156,9 @@ export class ProfileModalComponent implements OnInit {
     this.close();
   }
 
-  /** The name card behind the identity band, as a CSS value; null leaves the band plain. */
-  nameCardBackground(): string | null {
-    const src = this.appearanceService.nameCardSrc(this.appearance());
-    return src ? `url("${src}")` : null;
+  /** The name card behind the identity band; null leaves the band plain. */
+  nameCardSrc(): string | null {
+    return this.appearanceService.nameCardSrc(this.appearance());
   }
 
   /** The in-game portrait, which stands in for the Discord avatar when there is one. */

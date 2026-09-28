@@ -1,4 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { AppearanceService } from '../roster-stats/appearance.service';
+import { InViewDirective } from '../../shared/directives/in-view.directive';
 import { GuildDataService, GuildLoad } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
@@ -23,13 +25,35 @@ type SortKey = 'ign' | 'level' | 'mastery' | 'elegance' | 'playtime' | 'lastSeen
 @Component({
   selector: 'app-guild-page',
   standalone: true,
-  imports: [],
+  imports: [InViewDirective],
   templateUrl: './guild-page.component.html',
   styleUrls: ['./guild-page.component.scss'],
 })
 export class GuildPageComponent implements OnInit {
   private readonly dataService = inject(GuildDataService);
   private readonly statsService = inject(PlayerStatsDataService);
+  private readonly appearance = inject(AppearanceService);
+
+  /**
+   * Each member's in-game name card, by IGN, once their card has scrolled into view: the image URL,
+   * or null for a member with none (or whose lookup failed; the card is then drawn as before).
+   * Absent until asked for, so the roster never fires one live read per member on page load.
+   */
+  readonly nameCards = signal<Readonly<Record<string, string | null>>>({});
+
+  loadNameCard(ign: string): void {
+    if (ign in this.nameCards()) return;
+    this.nameCards.update((m) => ({ ...m, [ign]: null }));
+    this.appearance.cached(ign).subscribe((a) => {
+      const src = this.appearance.nameCardSrc(a);
+      if (src) this.nameCards.update((m) => ({ ...m, [ign]: src }));
+    });
+  }
+
+  /** The art would not load: draw the card plain rather than over a broken image. */
+  dropNameCard(ign: string): void {
+    this.nameCards.update((m) => ({ ...m, [ign]: null }));
+  }
 
   readonly guild = signal<Guild | null>(null);
   readonly stats = signal<MatchedPlayerStats[]>([]);
