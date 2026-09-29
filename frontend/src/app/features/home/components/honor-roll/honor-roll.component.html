@@ -19,12 +19,26 @@
             @for (t of group.titles; track t.title) {
               <li class="plaque">
                 <span class="plaque-title">{{ t.title }}</span>
-                <ul class="plaque-names">
-                  @for (ign of t.igns; track ign) {
-                    <li>{{ ign }}</li>
+                <ul class="plates">
+                  @for (h of t.holders; track h.ign) {
+                    @let card = cardSrc(h);
+                    @let face = portraitSrc(h);
+                    <li class="plate" [class.has-card]="!!card">
+                      @if (card) {
+                        <img class="plate-card" [src]="card" alt="" decoding="async" (error)="drop(card)" />
+                      }
+                      <span class="plate-avatar">
+                        @if (face) {
+                          <img [src]="face" alt="" decoding="async" (error)="drop(face)" />
+                        } @else {
+                          {{ initial(h.ign) }}
+                        }
+                      </span>
+                      <span class="plate-ign">{{ h.ign }}</span>
+                    </li>
                   }
                   @if (t.unnamedCount > 0) {
-                    <li class="plaque-unnamed">
+                    <li class="plate-unnamed">
                       +{{ t.unnamedCount }} {{ t.unnamedCount === 1 ? 'member' : 'members' }} not named by the game
                     </li>
                   }
