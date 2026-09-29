@@ -38,41 +38,18 @@ $cinnabar: #9b2f24;
   padding: var(--space-5) 0;
 }
 
-.roll-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-// The activity name sits on a rule, like a section of a scroll.
-.group-name {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  font-family: var(--font-heading);
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--color-border-strong);
-  }
-}
-
-// Centred rather than a left-packed grid: a title held alone (a lone Steady Commander) sits in
-// the middle of its row like an award on a shelf, not stranded at the left edge.
+// Every plaque in one box, packed into columns so a squad of five and a lone holder sit together
+// without the gaps a row grid leaves under the short ones. Columns fill top to bottom, which keeps
+// the API's order (GvG League first) reading down the first column.
 .plaques {
   list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  // Each plaque its own height: a single holder beside a squad of four would otherwise be
-  // stretched into a mostly empty frame.
-  align-items: flex-start;
-  gap: var(--space-4);
+  columns: 240px;
+  column-gap: var(--space-4);
+  // No bottom padding: each plaque's own bottom margin already spaces the last one off the edge.
+  padding: var(--space-4) var(--space-4) 0;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 // A plaque: the title stamped in seal red the way the guild seal is — cream on vermilion — over
@@ -80,8 +57,8 @@ $cinnabar: #9b2f24;
 .plaque {
   display: flex;
   flex-direction: column;
-  flex: 0 1 250px;
-  min-width: 0;
+  break-inside: avoid;
+  margin-bottom: var(--space-4);
   padding: 5px;
   text-align: center;
   background: var(--color-surface);
@@ -191,6 +168,6 @@ $cinnabar: #9b2f24;
 
 @media (max-width: 480px) {
   .honor-roll { padding: var(--space-5) var(--space-4); }
-  .plaque { flex-basis: 100%; }
+  .plaques { padding: var(--space-3) var(--space-3) 0; }
   .plaque-title { font-size: 1.2rem; min-height: 3.6rem; }
 }

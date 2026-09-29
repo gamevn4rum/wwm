@@ -12,42 +12,39 @@
       <p class="roll-note">Honors couldn’t be loaded. Refresh the page to try again.</p>
     }
     @default {
-      @for (group of honors()!; track group.activity) {
-        <div class="roll-group">
-          <h3 class="group-name">{{ group.activity }}</h3>
-          <ul class="plaques">
-            @for (t of group.titles; track t.title) {
-              <li class="plaque">
-                <span class="plaque-title">{{ t.title }}</span>
-                <ul class="plates">
-                  @for (h of t.holders; track h.ign) {
-                    @let card = cardSrc(h);
-                    @let face = portraitSrc(h);
-                    <li class="plate" [class.has-card]="!!card">
-                      @if (card) {
-                        <img class="plate-card" [src]="card" alt="" decoding="async" (error)="drop(card)" />
+      @if (plaques().length > 0) {
+        <ul class="plaques">
+          @for (t of plaques(); track t.key) {
+            <li class="plaque">
+              <span class="plaque-title">{{ t.label }}</span>
+              <ul class="plates">
+                @for (h of t.holders; track h.ign) {
+                  @let card = cardSrc(h);
+                  @let face = portraitSrc(h);
+                  <li class="plate" [class.has-card]="!!card">
+                    @if (card) {
+                      <img class="plate-card" [src]="card" alt="" decoding="async" (error)="drop(card)" />
+                    }
+                    <span class="plate-avatar">
+                      @if (face) {
+                        <img [src]="face" alt="" decoding="async" (error)="drop(face)" />
+                      } @else {
+                        {{ initial(h.ign) }}
                       }
-                      <span class="plate-avatar">
-                        @if (face) {
-                          <img [src]="face" alt="" decoding="async" (error)="drop(face)" />
-                        } @else {
-                          {{ initial(h.ign) }}
-                        }
-                      </span>
-                      <span class="plate-ign">{{ h.ign }}</span>
-                    </li>
-                  }
-                  @if (t.unnamedCount > 0) {
-                    <li class="plate-unnamed">
-                      +{{ t.unnamedCount }} {{ t.unnamedCount === 1 ? 'member' : 'members' }} not named by the game
-                    </li>
-                  }
-                </ul>
-              </li>
-            }
-          </ul>
-        </div>
-      } @empty {
+                    </span>
+                    <span class="plate-ign">{{ h.ign }}</span>
+                  </li>
+                }
+                @if (t.unnamedCount > 0) {
+                  <li class="plate-unnamed">
+                    +{{ t.unnamedCount }} {{ t.unnamedCount === 1 ? 'member' : 'members' }} not named by the game
+                  </li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+      } @else {
         <p class="roll-note">No honors are held right now. They appear here when members win titles in GvG League, GvE, Breaking Army or Showdown.</p>
       }
     }
