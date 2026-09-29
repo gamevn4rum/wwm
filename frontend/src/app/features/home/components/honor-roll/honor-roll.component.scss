@@ -1,0 +1,129 @@
+:host { display: block; }
+
+// The one loud colour on the page: the vermilion of the guild seal, used only for the plaque
+// frames and titles so the honors read as awards rather than as another card grid.
+$cinnabar: #9b2f24;
+
+.honor-roll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+
+.roll-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.roll-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+
+.roll-sub,
+.roll-note {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+}
+
+.roll-note {
+  text-align: center;
+  padding: var(--space-5) 0;
+}
+
+.roll-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// The activity name sits on a rule, like a section of a scroll.
+.group-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border-strong);
+  }
+}
+
+// Centred rather than a left-packed grid: a title held alone (a lone Steady Commander) sits in
+// the middle of its row like an award on a shelf, not stranded at the left edge.
+.plaques {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+// A plaque: the title stamped in seal red the way the guild seal is — cream on vermilion — over
+// the holders' names on paper, the whole framed twice.
+.plaque {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 200px;
+  min-width: 0;
+  padding: 5px;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid rgba($cinnabar, 0.4);
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+}
+
+.plaque-title {
+  display: grid;
+  place-items: center;
+  min-height: 4.2rem;
+  padding: var(--space-3);
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #f7ecd9;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.12), transparent 60%),
+    $cinnabar;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px $cinnabar, inset 0 0 0 3px rgba(247, 236, 217, 0.55);
+}
+
+.plaque-names {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-2) var(--space-3);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.plaque-unnamed {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-ink-faint);
+}
+
+@media (max-width: 480px) {
+  .honor-roll { padding: var(--space-5) var(--space-4); }
+  .plaque { flex-basis: calc(50% - var(--space-2)); }
+  .plaque-title { font-size: 1.2rem; min-height: 3.6rem; }
+}

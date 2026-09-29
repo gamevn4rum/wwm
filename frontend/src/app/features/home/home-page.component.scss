@@ -1,1 +1,19 @@
 :host { display: block; width: 100%; }
+
+.home-video {
+  padding: var(--space-6) var(--space-6) 0;
+
+  iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .home-video { padding: var(--space-4) var(--space-4) 0; }
+}

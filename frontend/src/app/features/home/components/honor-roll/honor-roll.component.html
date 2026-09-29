@@ -1,0 +1,41 @@
+<section class="honor-roll" aria-labelledby="honor-roll-heading">
+  <header class="roll-head">
+    <h2 id="honor-roll-heading" class="roll-title">Honor members of the week</h2>
+    <p class="roll-sub">Titles our members hold in game right now. Each lasts about a week.</p>
+  </header>
+
+  @switch (honors()) {
+    @case (undefined) {
+      <p class="roll-note">Loading honors…</p>
+    }
+    @case (null) {
+      <p class="roll-note">Honors couldn’t be loaded. Refresh the page to try again.</p>
+    }
+    @default {
+      @for (group of honors()!; track group.activity) {
+        <div class="roll-group">
+          <h3 class="group-name">{{ group.activity }}</h3>
+          <ul class="plaques">
+            @for (t of group.titles; track t.title) {
+              <li class="plaque">
+                <span class="plaque-title">{{ t.title }}</span>
+                <ul class="plaque-names">
+                  @for (ign of t.igns; track ign) {
+                    <li>{{ ign }}</li>
+                  }
+                  @if (t.unnamedCount > 0) {
+                    <li class="plaque-unnamed">
+                      +{{ t.unnamedCount }} {{ t.unnamedCount === 1 ? 'member' : 'members' }} not named by the game
+                    </li>
+                  }
+                </ul>
+              </li>
+            }
+          </ul>
+        </div>
+      } @empty {
+        <p class="roll-note">No honors are held right now. They appear here when members win titles in GvG League, GvE, Breaking Army or Showdown.</p>
+      }
+    }
+  }
+</section>

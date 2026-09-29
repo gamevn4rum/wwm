@@ -1,1 +1,8 @@
-<!-- Nothing here yet — see HomePageComponent for what is meant to fill it. -->
+@if (videoSrc) {
+  <div class="home-video">
+    <iframe [src]="videoSrc" title="GameVN guild video"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+}
+<app-honor-roll></app-honor-roll>
