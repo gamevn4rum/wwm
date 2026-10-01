@@ -23,6 +23,22 @@ interface RosterEntry {
 
 type SortKey = 'ign' | 'level' | 'mastery' | 'elegance' | 'playtime' | 'lastSeen' | 'joined';
 
+/** GameVN, or our secondary guild GVN2. */
+type GuildKey = 'gvn' | 'gvn2';
+
+/** Everything one guild's block draws. */
+interface GuildView {
+  key: GuildKey;
+  guild: Guild;
+  /** The search text, trimmed and lower-cased — non-empty opens the former list. */
+  query: string;
+  sort: SortKey;
+  roster: RosterEntry[];
+  former: FormerMember[];
+  /** Members online now, or null until stats load. */
+  online: number | null;
+}
+
 @Component({
   selector: 'app-guild-page',
   standalone: true,
@@ -59,8 +75,9 @@ export class GuildPageComponent implements OnInit {
   readonly guild = signal<Guild | null>(null);
   readonly stats = signal<MatchedPlayerStats[]>([]);
   readonly status = signal<GuildLoad['status']>('loading');
-  readonly query = signal('');
-  readonly sort = signal<SortKey>('ign');
+  /** Search box and sort control per guild — each section filters only its own list. */
+  readonly queries = signal<Record<GuildKey, string>>({ gvn: '', gvn2: '' });
+  readonly sorts = signal<Record<GuildKey, SortKey>>({ gvn: 'ign', gvn2: 'ign' });
 
   /** Why the roster isn't on screen, or null when it is. A member-gated fetch has more
    *  than one way to come back empty, and the page used to show the same "not synced yet"
@@ -98,24 +115,39 @@ export class GuildPageComponent implements OnInit {
   });
 
 
-  /** How many of OUR members are online right now (null until stats load). The stats here include
-   *  GVN2's cards for its section, so they are left out of this GameVN figure. */
-  readonly onlineCount = computed<number | null>(() => {
-    const matched = this.stats().filter((m) => !m.secondaryGuild);
-    if (!matched.length) return null;
-    return matched.filter((m) => m.player.isOnline).length;
+  /**
+   * One block per guild we hold — GameVN, then GVN2 when the API sends it — each with its own
+   * identity card, search, sort and online count. GVN2 has no former members: the API never sends
+   * its departed.
+   */
+  readonly views = computed<GuildView[]>(() => {
+    const g = this.guild();
+    if (!g) return [];
+    const blocks: Array<[GuildKey, Guild]> = [['gvn', g]];
+    if (g.secondary) blocks.push(['gvn2', g.secondary]);
+    return blocks.map(([key, guild]) => {
+      const q = this.queries()[key].trim().toLowerCase();
+      // The stats carry both guilds' cards (getMatched(true)); each count reads its own.
+      const matched = this.stats().filter((m) => !!m.secondaryGuild === (key === 'gvn2'));
+      return {
+        key,
+        guild,
+        query: q,
+        sort: this.sorts()[key],
+        roster: this.entriesFor(guild, key),
+        // Filtered by the search box like the roster — a search that hid a name from one list and
+        // not the other would read as the name being missing. NOT re-sorted: the API sends them
+        // newest-leaver first, and the sort control ranks on live stats a departed member lacks.
+        former: (guild.formerMembers ?? []).filter((m) => !q || m.ign.toLowerCase().includes(q)),
+        online: matched.length ? matched.filter((m) => m.player.isOnline).length : null,
+      };
+    });
   });
 
-  /** Members joined with their stats, filtered by the search box and sorted. */
-  readonly roster = computed<RosterEntry[]>(() => this.entriesFor(this.guild()));
-
-  /** GVN2's members, the same way — searched by the same box, sorted by the same control. */
-  readonly secondaryRoster = computed<RosterEntry[]>(() => this.entriesFor(this.guild()?.secondary));
-
-  private entriesFor(g: Guild | null | undefined): RosterEntry[] {
-    if (!g) return [];
+  /** Members joined with their stats, filtered by that guild's search box and sorted. */
+  private entriesFor(g: Guild, key: GuildKey): RosterEntry[] {
     const byIgn = this.playersByIgn();
-    const q = this.query().trim().toLowerCase();
+    const q = this.queries()[key].trim().toLowerCase();
 
     const entries: RosterEntry[] = g.members
       .filter((m) => !q || m.ign.toLowerCase().includes(q))
@@ -129,14 +161,13 @@ export class GuildPageComponent implements OnInit {
         };
       });
 
-    const key = this.sort();
     // Descending for the numeric/recency sorts (biggest and most recent first),
     // ascending by name as the tie-break and default.
     const byName = (a: RosterEntry, b: RosterEntry) => a.member.ign.localeCompare(b.member.ign);
     const desc = (pick: (e: RosterEntry) => number) => (a: RosterEntry, b: RosterEntry) =>
       pick(b) - pick(a) || byName(a, b);
 
-    switch (key) {
+    switch (this.sorts()[key]) {
       case 'level':
         return entries.sort(desc((e) => e.player?.level ?? -1));
       case 'mastery':
@@ -156,21 +187,6 @@ export class GuildPageComponent implements OnInit {
     }
   }
 
-  /**
-   * Members who have left, drawn after the current roster.
-   *
-   * Filtered by the search box like the roster above — a search that hid a name from one list
-   * and not the other would read as the name being missing. Deliberately NOT re-sorted: the API
-   * sends them newest-leaver first, and the sort control above ranks on live stats that a
-   * departed member does not have.
-   */
-  readonly formerMembers = computed<FormerMember[]>(() => {
-    const g = this.guild();
-    if (!g) return [];
-    const q = this.query().trim().toLowerCase();
-    return g.formerMembers.filter((m) => !q || m.ign.toLowerCase().includes(q));
-  });
-
   ngOnInit(): void {
     this.dataService.getGuild().subscribe({
       next: (load) => {
@@ -187,12 +203,14 @@ export class GuildPageComponent implements OnInit {
     });
   }
 
-  onSearch(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
+  onSearch(key: GuildKey, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.queries.update((all) => ({ ...all, [key]: value }));
   }
 
-  onSort(event: Event): void {
-    this.sort.set((event.target as HTMLSelectElement).value as SortKey);
+  onSort(key: GuildKey, event: Event): void {
+    const value = (event.target as HTMLSelectElement).value as SortKey;
+    this.sorts.update((all) => ({ ...all, [key]: value }));
   }
 
   /** Most recent sign of life. `logoutTime` can be newer than `loginTime`

@@ -326,11 +326,23 @@
 // ─── Former-members divider ───────────────────────────────────────────────────
 // A labelled rule rather than a second <section>: this is the tail of the roster, not a
 // separate topic, and giving it section chrome would suggest otherwise.
+// It is the <summary> of a collapsed <details>: the chevron says it opens, and the native
+// marker is dropped so the rule still runs edge to edge.
 .former-header {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   margin: var(--space-6) 0 var(--space-4);
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker { display: none; }
+
+  &::before {
+    content: '▸';
+    color: var(--color-ink-soft);
+    transition: transform 0.15s ease;
+  }
 
   &::after {
     content: '';
@@ -339,6 +351,8 @@
     background: var(--color-border);
   }
 }
+
+.former[open] > .former-header::before { transform: rotate(90deg); }
 
 .former-title {
   margin: 0;
