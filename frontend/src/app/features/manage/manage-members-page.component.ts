@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   BackofficeService,
@@ -45,6 +45,9 @@ type Draft = {
  * server-side; the row survives so a rejoin restores everything, and the sweep un-stamps it the
  * moment they are back in the guild. Until then they are not a member, and this is the screen for
  * granting members access.
+ *
+ * **Each of our guilds gets its own table** — GameVN, then GVN2. GVN2 rows cannot be raised above
+ * Warrior or given FP/FTP; the controls are disabled here and the API refuses it regardless.
  */
 @Component({
   selector: 'app-manage-members-page',
@@ -64,6 +67,13 @@ type Draft = {
       } @else if (error()) {
         <p class="error">{{ error() }}</p>
       } @else {
+        @for (section of sections(); track section.key) {
+        @if (section.members.length > 0) {
+        <h3 class="section-title">{{ section.title }} <span class="count">{{ section.members.length }}</span></h3>
+        @if (section.key === 'gvn2') {
+          <p class="hint">GVN2 members can use the personal bot commands only. They are never
+            Commander/Admin and cannot hold FP/FTP.</p>
+        }
         <table class="grid">
           <thead>
             <tr>
@@ -83,7 +93,7 @@ type Draft = {
             </tr>
           </thead>
           <tbody>
-            @for (m of members(); track m.id) {
+            @for (m of section.members; track m.id) {
               <tr [class.saving]="busy() === m.id" [class.dirty]="isDirty(m)">
                 <td>{{ m.ign }}</td>
                 <td class="mono">{{ m.uid || '—' }}</td>
@@ -103,8 +113,8 @@ type Draft = {
                   <select [ngModel]="draftOf(m).role" (ngModelChange)="edit(m, { role: $event })"
                           [ngModelOptions]="{ standalone: true }">
                     <option value="Warrior">Warrior</option>
-                    <option value="Commander">Commander</option>
-                    <option value="Admin">Admin</option>
+                    <option value="Commander" [disabled]="m.secondaryGuild">Commander</option>
+                    <option value="Admin" [disabled]="m.secondaryGuild">Admin</option>
                   </select>
                 </td>
                 <td>
@@ -133,12 +143,12 @@ type Draft = {
                 </td>
                 <td class="mid">
                   <input type="checkbox" [ngModel]="draftOf(m).fp"
-                         (ngModelChange)="edit(m, { fp: $event })"
+                         (ngModelChange)="edit(m, { fp: $event })" [disabled]="!!m.secondaryGuild"
                          [ngModelOptions]="{ standalone: true }" />
                 </td>
                 <td class="mid">
                   <input type="checkbox" [ngModel]="draftOf(m).ftp"
-                         (ngModelChange)="edit(m, { ftp: $event })"
+                         (ngModelChange)="edit(m, { ftp: $event })" [disabled]="!!m.secondaryGuild"
                          [ngModelOptions]="{ standalone: true }" />
                 </td>
                 <td class="row-actions">
@@ -153,6 +163,8 @@ type Draft = {
             }
           </tbody>
         </table>
+        }
+        }
         @if (notice()) { <p class="notice">{{ notice() }}</p> }
       }
     </section>
@@ -161,6 +173,8 @@ type Draft = {
     /* Embedded in the Manage hub's panel, which supplies the page width and the heading. */
     .backoffice { padding: .25rem 0 0; }
     .hint { opacity: .7; margin-bottom: 1rem; max-width: 70rem; }
+    .section-title { margin: 1.5rem 0 .5rem; font-size: 1rem; }
+    .section-title .count { opacity: .6; font-weight: 400; margin-left: .35rem; }
     .grid { width: 100%; border-collapse: collapse; }
     .grid th, .grid td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: middle; }
     .grid th { font-size: .75rem; text-transform: uppercase; opacity: .6; font-weight: 600; }
@@ -190,6 +204,16 @@ export class ManageMembersPageComponent {
   private readonly backoffice = inject(BackofficeService);
 
   readonly members = signal<CommanderMember[]>([]);
+
+  /** One table per guild: GameVN first, then GVN2. A guild with nobody listed draws no table. */
+  protected readonly sections = computed(() => {
+    const all = this.members();
+    return [
+      { key: 'gvn', title: 'GameVN', members: all.filter((m) => !m.secondaryGuild) },
+      { key: 'gvn2', title: 'GVN2', members: all.filter((m) => !!m.secondaryGuild) },
+    ];
+  });
+
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly busy = signal<number | null>(null);
@@ -291,7 +315,9 @@ export class ManageMembersPageComponent {
         // The draft is kept on failure. Losing somebody's typing because the server said no is the
         // one thing worse than the rejection itself.
         this.notice.set(
-          err?.status === 403
+          err?.error?.error === 'secondary_guild_member'
+            ? 'GVN2 members cannot be Commander/Admin or hold FP/FTP.'
+            : err?.status === 403
             ? 'Not permitted (role-grant policy).'
             : err?.error?.error === 'discord_taken'
               ? 'That Discord handle belongs to another member.'

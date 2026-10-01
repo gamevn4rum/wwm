@@ -26,10 +26,17 @@ export class PlayerStatsDataService {
   private readonly records$: Observable<PlayerStatsRecord[]> =
     whileSignedIn(this.auth, () => this.load(), []);
 
-  /** Only members whose in-game profile was resolved. */
-  getMatched(): Observable<MatchedPlayerStats[]> {
+  /**
+   * Only members whose in-game profile was resolved — and only GameVN's unless asked.
+   *
+   * GVN2 members' cards ride on the same endpoint for the guild page's GVN2 section, and this is
+   * the one place every board (home grid, header tiles, roster stats) reads from, so leaving them
+   * out by default keeps them off all of those at once.
+   */
+  getMatched(includeSecondary = false): Observable<MatchedPlayerStats[]> {
     return this.records$.pipe(
-      map((records) => records.filter((r): r is MatchedPlayerStats => r.matched)),
+      map((records) => records.filter((r): r is MatchedPlayerStats =>
+        r.matched && (includeSecondary || !r.secondaryGuild))),
     );
   }
 

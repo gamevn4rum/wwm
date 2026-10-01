@@ -119,6 +119,8 @@ export interface MatchedPlayerStats {
   ign: string;
   matched: true;
   player: PlayerDetail;
+  /** A GVN2 member — drawn only in the guild page's GVN2 section, never on a board. */
+  secondaryGuild?: boolean;
 }
 
 export interface UnmatchedPlayerStats {

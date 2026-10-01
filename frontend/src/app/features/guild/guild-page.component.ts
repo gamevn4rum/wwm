@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { AppearanceService } from '../roster-stats/appearance.service';
 import { InViewDirective } from '../../shared/directives/in-view.directive';
 import { GuildDataService, GuildLoad } from './guild-data.service';
@@ -25,7 +26,7 @@ type SortKey = 'ign' | 'level' | 'mastery' | 'elegance' | 'playtime' | 'lastSeen
 @Component({
   selector: 'app-guild-page',
   standalone: true,
-  imports: [InViewDirective],
+  imports: [InViewDirective, NgTemplateOutlet],
   templateUrl: './guild-page.component.html',
   styleUrls: ['./guild-page.component.scss'],
 })
@@ -97,16 +98,21 @@ export class GuildPageComponent implements OnInit {
   });
 
 
-  /** How many members are online right now (null until stats load). */
+  /** How many of OUR members are online right now (null until stats load). The stats here include
+   *  GVN2's cards for its section, so they are left out of this GameVN figure. */
   readonly onlineCount = computed<number | null>(() => {
-    const matched = this.stats();
+    const matched = this.stats().filter((m) => !m.secondaryGuild);
     if (!matched.length) return null;
     return matched.filter((m) => m.player.isOnline).length;
   });
 
   /** Members joined with their stats, filtered by the search box and sorted. */
-  readonly roster = computed<RosterEntry[]>(() => {
-    const g = this.guild();
+  readonly roster = computed<RosterEntry[]>(() => this.entriesFor(this.guild()));
+
+  /** GVN2's members, the same way — searched by the same box, sorted by the same control. */
+  readonly secondaryRoster = computed<RosterEntry[]>(() => this.entriesFor(this.guild()?.secondary));
+
+  private entriesFor(g: Guild | null | undefined): RosterEntry[] {
     if (!g) return [];
     const byIgn = this.playersByIgn();
     const q = this.query().trim().toLowerCase();
@@ -148,7 +154,7 @@ export class GuildPageComponent implements OnInit {
       default:
         return entries.sort(byName);
     }
-  });
+  }
 
   /**
    * Members who have left, drawn after the current roster.
@@ -174,7 +180,8 @@ export class GuildPageComponent implements OnInit {
       },
       error: () => { this.status.set('error'); this.guild.set(null); },
     });
-    this.statsService.getMatched().subscribe({
+    // GVN2's cards too — this is the one page that draws them, in their own section.
+    this.statsService.getMatched(true).subscribe({
       next: (s) => this.stats.set(s),
       error: () => this.stats.set([]),
     });

@@ -76,6 +76,67 @@
       } @else if (roster().length > 0) {
         <div class="roster-grid">
           @for (entry of roster(); track entry.member.uid || entry.member.ign) {
+            <ng-container *ngTemplateOutlet="memberCard; context: { $implicit: entry }" />
+          }
+        </div>
+      }
+
+      <!-- Departed members, after the current roster. Their cards carry no stats: the live
+           sweep only covers current members, so every figure would be an em dash. What is
+           worth keeping is that they were here and when they left, which is the one field
+           the card shows in place of the join date. -->
+      @if (formerMembers().length > 0) {
+        <div class="former-header">
+          <h3 class="former-title">Former members</h3>
+          <span class="former-count">{{ formerMembers().length }}</span>
+        </div>
+        <div class="roster-grid">
+          @for (member of formerMembers(); track member.ign) {
+            <article class="roster-card is-former">
+              <div class="member-head">
+                <span class="member-avatar">{{ initial(member.ign) }}</span>
+                <div class="member-id">
+                  <span class="member-ign">{{ member.ign }}</span>
+                  <span class="member-school">{{ member.role || '—' }}</span>
+                </div>
+              </div>
+
+              <dl class="member-stats">
+                <div class="member-stat member-stat-wide">
+                  <dt>Left</dt>
+                  <dd>{{ formatLeaveDate(member.leaveDate) }}</dd>
+                </div>
+              </dl>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ══ GVN2 ══ -->
+    <!-- Our secondary guild, as its own section: current members only — its departed are not
+         listed anywhere. Same card as the roster above, searched by the same box. -->
+    @if (guild()!.secondary; as second) {
+      <section class="guild-section">
+        <div class="section-banner">
+          <h2 class="section-title">{{ second.name }}</h2>
+          <p class="section-sub">{{ secondaryRoster().length }} of {{ second.memberCount }} members</p>
+        </div>
+        @if (secondaryRoster().length > 0) {
+          <div class="roster-grid">
+            @for (entry of secondaryRoster(); track entry.member.uid || entry.member.ign) {
+              <ng-container *ngTemplateOutlet="memberCard; context: { $implicit: entry }" />
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+
+</div>
+
+<!-- One roster card, shared by the GameVN roster and the GVN2 section. -->
+<ng-template #memberCard let-entry>
             <!-- The member's in-game name card behind the head, fetched when the card nears the
                  viewport (see loadNameCard). Without one the card is drawn exactly as before. -->
             @let card = nameCards()[entry.member.ign];
@@ -124,42 +185,4 @@
                 </div>
               </dl>
             </article>
-          }
-        </div>
-      }
-
-      <!-- Departed members, after the current roster. Their cards carry no stats: the live
-           sweep only covers current members, so every figure would be an em dash. What is
-           worth keeping is that they were here and when they left, which is the one field
-           the card shows in place of the join date. -->
-      @if (formerMembers().length > 0) {
-        <div class="former-header">
-          <h3 class="former-title">Former members</h3>
-          <span class="former-count">{{ formerMembers().length }}</span>
-        </div>
-        <div class="roster-grid">
-          @for (member of formerMembers(); track member.ign) {
-            <article class="roster-card is-former">
-              <div class="member-head">
-                <span class="member-avatar">{{ initial(member.ign) }}</span>
-                <div class="member-id">
-                  <span class="member-ign">{{ member.ign }}</span>
-                  <span class="member-school">{{ member.role || '—' }}</span>
-                </div>
-              </div>
-
-              <dl class="member-stats">
-                <div class="member-stat member-stat-wide">
-                  <dt>Left</dt>
-                  <dd>{{ formatLeaveDate(member.leaveDate) }}</dd>
-                </div>
-              </dl>
-            </article>
-          }
-        </div>
-      }
-    </section>
-
-  }
-
-</div>
+</ng-template>

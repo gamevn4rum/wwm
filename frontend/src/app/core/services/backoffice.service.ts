@@ -27,6 +27,9 @@ export interface CommanderMember {
   /** Derived: has a Discord handle. False = "Unregistered". */
   registered: boolean;
   leaveDate: string | null;
+  /** A GVN2 member rather than GameVN — listed in its own section, and never Commander/Admin or
+   *  FP/FTP (the API refuses those). Absent against an older API. */
+  secondaryGuild?: boolean;
   /** tank | dps | healer, or null if they never said. The same three words the RSVP role menu and
    *  the tournament pools use, so the answers line up across all three. */
   combatRole: string | null;

@@ -78,4 +78,7 @@ export interface Guild {
   members: GuildMember[];
   /** Departed members, newest leaver first. Empty against an API older than this build. */
   formerMembers: FormerMember[];
+  /** Our secondary guild (GVN2), drawn as its own section — current members only, its departed
+   *  are not listed. Null/absent when the API holds no row for it. */
+  secondary?: Guild | null;
 }
