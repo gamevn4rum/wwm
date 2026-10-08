@@ -144,6 +144,18 @@ interface MergeOffer {
           </div>
         }
 
+        <!-- For guilds we have not played yet: a row is otherwise only born from Match History. -->
+        <div class="track">
+          <label for="track-uid">Track a new guild</label>
+          <input id="track-uid" class="mono" type="text" inputmode="numeric"
+                 [ngModel]="trackUid()" (ngModelChange)="editTrackUid($event)"
+                 (keydown.enter)="track()" placeholder="guild number" />
+          <button type="button" (click)="track()" [disabled]="!trackUid() || tracking()">
+            {{ tracking() ? '…' : 'Track' }}
+          </button>
+          <span class="quiet">for a guild we have not fought — its roster arrives on the next sync</span>
+        </div>
+
         <div class="toolbar">
           <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)"
                  placeholder="Filter by name or alias…" />
@@ -338,6 +350,10 @@ interface MergeOffer {
   styles: [`
     .backoffice { padding: .25rem 0 0; }
     .hint { opacity: .7; margin-bottom: 1rem; max-width: 70rem; }
+    .track { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    .track label { font-weight: 600; }
+    .track input { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
+      font: inherit; width: 11ch; }
     .toolbar { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; margin-bottom: .75rem; }
     .search { padding: .35rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
       font: inherit; min-width: 16rem; }
@@ -437,6 +453,10 @@ export class GuildsPanelComponent {
    *  runs: the pairs overlap (a row can appear in two), so a second merge could name a row the
    *  first one has already deleted. */
   readonly merging = signal<number | null>(null);
+
+  /** The number typed into "Track a new guild", digits only. */
+  readonly trackUid = signal('');
+  readonly tracking = signal(false);
 
   readonly search = signal('');
   readonly unidentifiedOnly = signal(false);
@@ -572,6 +592,56 @@ export class GuildsPanelComponent {
                   : err?.status === 403
                     ? 'Not permitted.'
                     : 'Lookup failed — the game API did not answer.');
+      },
+    });
+  }
+
+  // ── Tracking a guild we have not played ────────────────────────────────────
+
+  protected editTrackUid(value: string): void {
+    this.trackUid.set(value.replace(/\D/g, ''));
+  }
+
+  protected track(): void {
+    const numberId = Number(this.trackUid());
+    if (!this.trackUid() || this.tracking()) return;
+    if (!Number.isSafeInteger(numberId) || numberId <= 0) {
+      this.notice.set('That is not a guild number.');
+      return;
+    }
+
+    this.tracking.set(true);
+    this.notice.set(null);
+    this.backoffice.trackGuild(numberId).subscribe({
+      next: (res) => {
+        this.tracking.set(false);
+        this.trackUid.set('');
+        this.load();
+        this.notice.set(
+          `Now tracking ${res.name} — ${res.memberCount ?? '?'} members`
+          + `${res.level ? `, lv ${res.level}` : ''}. The roster arrives on the next sync.`);
+      },
+      error: (err) => {
+        this.tracking.set(false);
+        // Kept on failure, as on identify: the number came off a guild screen in game.
+        const e = err?.error;
+        this.notice.set(
+          e?.error === 'no_such_guild'
+            ? 'No guild carries that number — check the digits.'
+            : e?.error === 'already_tracked'
+              ? `That guild is already tracked as “${e.ownerName}”.`
+              : e?.error === 'name_taken'
+                ? `“${e.ownerName}” is already a row here, most likely this guild met in a match — `
+                  + 'enter the number on that row instead, so its matches stay with it.'
+                : e?.error === 'invalid_number'
+                  ? 'That is not a guild number.'
+                  : e?.error === 'signing_key_missing'
+                    ? 'The server cannot reach the game API (signing key missing).'
+                    : err?.status === 403
+                      ? 'Not permitted.'
+                      : 'Lookup failed — the game API did not answer.');
+        // Point the officer at the row the answer named.
+        if (e?.error === 'name_taken' || e?.error === 'already_tracked') this.search.set(e.ownerName ?? '');
       },
     });
   }

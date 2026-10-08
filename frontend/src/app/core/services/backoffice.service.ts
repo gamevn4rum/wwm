@@ -662,6 +662,17 @@ export class BackofficeService {
   }
 
   /**
+   * Starts tracking a guild we have never played: looks the number up and creates its row already
+   * identified, so the next sync reads its roster. Audited.
+   * `409 already_tracked` means a row holds that guild already; `409 name_taken` that a row (or
+   * alias) answers to its name — most likely the same guild met in a match, to identify instead.
+   * Both name the row.
+   */
+  trackGuild(numberId: number): Observable<GuildIdentified> {
+    return this.http.post<GuildIdentified>(apiUrl('/commander/guilds/track'), { numberId });
+  }
+
+  /**
    * Reads who is online in an opponent guild **right now**.
    *
    * ⚠ Never cached, here or server-side: a minute-old copy would put people in a fight they have
