@@ -139,6 +139,9 @@ interface MergeOffer {
                     {{ merging() === d.foldId ? '…' : 'Merge' }}
                   </button>
                 </span>
+                @if (mergeErrorFor(foldSide(d).id); as msg) {
+                  <p class="error merge-error">{{ msg }}</p>
+                }
               </div>
             }
           </div>
@@ -264,6 +267,9 @@ interface MergeOffer {
                         <button type="button" (click)="dismissOffer()"
                                 [disabled]="merging() !== null">Keep both</button>
                       </span>
+                      @if (mergeErrorFor(offer.rowId); as msg) {
+                        <p class="error merge-error">{{ msg }}</p>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -372,6 +378,9 @@ interface MergeOffer {
     .pair { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
     .side { display: inline-flex; flex-direction: column; }
     .arrow { opacity: .5; font-size: .8rem; }
+    /* Full width under the pair it is about: the page notice sits below the whole list, out of sight
+       of the button that was clicked. */
+    .merge-error { flex-basis: 100%; margin: .2rem 0 0; font-size: .85rem; }
     .reason { font-size: .78rem; opacity: .7; font-style: italic; }
     .dupe-actions { margin-left: auto; display: inline-flex; gap: .35rem; white-space: nowrap; }
     /* Merging deletes a row and cannot be undone from this panel, so the button says so. */
@@ -476,6 +485,9 @@ export class GuildsPanelComponent {
   /** The one outstanding "merge this into that?" question, or none. At most one, because it comes
    *  from a rename and a rename is one row at a time. */
   private readonly mergeOffer = signal<MergeOffer | null>(null);
+  /** Why the last merge was refused, keyed to the row it would have folded away, so it shows under
+   *  the pair or offer whose button was clicked rather than at the foot of the page. */
+  private readonly mergeError = signal<{ sourceId: number; message: string } | null>(null);
 
   readonly pending = computed(() => this.guilds().filter((g) => !g.identified).length);
 
@@ -805,6 +817,7 @@ export class GuildsPanelComponent {
   protected swap(d: GuildDuplicate): void {
     const key = this.pairKey(d);
     this.swapped.update((all) => ({ ...all, [key]: !all[key] }));
+    this.mergeError.set(null);
   }
 
   protected merge(d: GuildDuplicate): void {
@@ -819,9 +832,15 @@ export class GuildsPanelComponent {
    * the other does not — is the whole value of refusing rather than picking. It should not exist in
    * two wordings that can drift apart.
    */
+  protected mergeErrorFor(sourceId: number): string | null {
+    const e = this.mergeError();
+    return e?.sourceId === sourceId ? e.message : null;
+  }
+
   private mergeRows(survivorId: number, sourceId: number): void {
     this.merging.set(sourceId);
     this.notice.set(null);
+    this.mergeError.set(null);
     this.backoffice.mergeGuild(survivorId, sourceId).subscribe({
       next: (res) => {
         this.merging.set(null);
@@ -848,7 +867,7 @@ export class GuildsPanelComponent {
         // The offer is left standing on failure. Nothing was written, so the two rows are still
         // two rows and the question is still open — and on a collision the officer has something
         // to go and do first, then come back to.
-        this.notice.set(
+        this.mergeError.set({ sourceId, message: 
           err?.error?.error === 'match_collision'
             ? 'Both rows record the same match, so merging would lose one of the two records: '
               + `${err.error.detail}. Delete one of them in Match History first — one may have `
@@ -862,7 +881,7 @@ export class GuildsPanelComponent {
                   ? 'One of those rows is already gone — reloading.'
                   : err?.status === 403
                     ? 'Not permitted.'
-                    : 'Merge failed, and nothing was changed.');
+                    : 'Merge failed, and nothing was changed.' });
       },
     });
   }
