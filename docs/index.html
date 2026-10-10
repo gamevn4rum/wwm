@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!--
+    Content-Security-Policy: defense-in-depth to limit the blast radius of any
+    HTML injection (e.g. via the Events description). Test the live app after
+    changing this — the API origin, youtube-player, Discord CDN avatars and Google
+    Fonts all depend on the allow-lists below, and a missing connect-src entry
+    presents exactly like a backend outage rather than a CSP problem. The profile
+    modal's screenshot button additionally *fetches* the Discord avatar and the
+    Google Fonts files to inline them into the PNG, so those origins are in
+    connect-src as well as img-src/font-src, and font-src allows data: because
+    that is the form the inlined fonts take. script-src has no 'unsafe-inline':
+    the SPA-restore script is a file (public/spa-restore.js), and the build
+    inlines no script of its own (inlineCritical is off, so no onload handlers
+    either) — keep it that way, or add a hash rather than reopening inline script.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    img-src 'self' data: https://cdn.discordapp.com https://*.discordapp.com https://i.ytimg.com https://i.ibb.co https://*.fp.ps.easebar.com https://app-wwm-b4dffrbmdnfbcngj.southeastasia-01.azurewebsites.net;
+    connect-src 'self' https://app-wwm-b4dffrbmdnfbcngj.southeastasia-01.azurewebsites.net https://discord.com https://cdn.discordapp.com https://*.discordapp.com https://fonts.googleapis.com https://fonts.gstatic.com;
+    frame-src https://www.youtube.com https://www.youtube-nocookie.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+  <title>GameVN・Where Winds Meet</title>
+  <base href="/wwm/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="theme-color" content="#f6f0e3">
+  <meta name="description" content="Official companion for the GameVN Where Winds Meet guild — roster, schedule, match history and footage.">
+  <!--
+    Link previews (Discord, Facebook, Zalo, X…). Crawlers do not run the app, so these have to be
+    static, and absolute: a relative og:image is not fetched by most of them. Copied into
+    public/404.html too — GitHub Pages serves that page for every deep link (/wwm/schedule …).
+  -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GameVN・Where Winds Meet">
+  <meta property="og:title" content="GameVN・Where Winds Meet">
+  <meta property="og:description" content="The GameVN guild in Where Winds Meet — this week's honor members, guild events, schedule and match history.">
+  <meta property="og:url" content="https://gamevn4rum.github.io/wwm/">
+  <meta property="og:image" content="https://gamevn4rum.github.io/wwm/images/og-preview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Where Winds Meet artwork: builders raising a pagoda among blossoming trees">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GameVN・Where Winds Meet">
+  <meta name="twitter:description" content="The GameVN guild in Where Winds Meet — this week's honor members, guild events, schedule and match history.">
+  <meta name="twitter:image" content="https://gamevn4rum.github.io/wwm/images/og-preview.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=Noto+Serif+SC:wght@500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <!-- External, not inline, so script-src needs no 'unsafe-inline'. Classic and
+       un-deferred on purpose: it has to rewrite the URL before the router reads it. -->
+  <script src="spa-restore.js"></script>
+<link rel="stylesheet" href="styles-7SWJ32DK.css"></head>
+<body>
+  <app-root></app-root>
+<link rel="modulepreload" href="chunk-AKYASLIM.js"><link rel="modulepreload" href="chunk-PYAWW6NF.js"><link rel="modulepreload" href="chunk-KNLCQXOT.js"><link rel="modulepreload" href="chunk-U67BCI64.js"><link rel="modulepreload" href="chunk-7I7JNL3I.js"><link rel="modulepreload" href="chunk-Y2VXRX7L.js"><link rel="modulepreload" href="chunk-POUVK3BP.js"><link rel="modulepreload" href="chunk-XJ4HJOYU.js"><link rel="modulepreload" href="chunk-3NPACG3X.js"><link rel="modulepreload" href="chunk-EM6CYCDN.js"><script src="main-XBQ5NDQD.js" type="module"></script></body>
+</html>
