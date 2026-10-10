@@ -8,7 +8,8 @@ import { OpponentGuild, OpponentGuilds } from '../../features/match-history/oppo
 
 /**
  * Opponent guild directory — identity + member roster for every guild we hold an upstream
- * id for. Public rather than member-gated: it is other guilds' public data.
+ * id for. Member-gated: it was public, and one anonymous request handed a scraper every
+ * tracked guild's roster at once. Its only reader, Match History, already requires login.
  *
  * Fails closed to null, so an unreachable API means the match popup simply shows no guild
  * details instead of erroring.
@@ -22,7 +23,7 @@ export class OpponentGuildsService {
   private readonly http = inject(HttpClient);
 
   private readonly data = toSignal(
-    this.http.get<OpponentGuilds>(apiUrl('/public/guild/opponents')).pipe(
+    this.http.get<OpponentGuilds>(apiUrl('/member/guild/opponents')).pipe(
       catchError(() => of(null)),
       shareReplay(1),
     ),

@@ -1,4 +1,4 @@
-// Shape served by GET /api/public/guild/opponents
+// Shape served by GET /api/member/guild/opponents
 // from the wwmdb relay's `Guild {id, hostnum}` response — one record per opponent
 // guild we have faced. Public data (unencrypted), see SECURITY.md.
 
