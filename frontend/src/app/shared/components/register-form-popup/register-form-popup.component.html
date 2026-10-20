@@ -78,56 +78,33 @@
             }
           </div>
 
-          <!-- Role -->
+          <!-- Main role -->
           <div class="reg-field">
-            <label class="reg-label" for="reg-role">Role <span class="req">*</span></label>
+            <label class="reg-label" for="reg-main-role">Main Role <span class="req">*</span></label>
             <div class="reg-select-wrapper">
-              <select id="reg-role" class="reg-select" formControlName="combatRole">
+              <select id="reg-main-role" class="reg-select" formControlName="mainRole">
                 <option value="" disabled>Choose</option>
                 @for (r of combatRoles; track r.value) {
                   <option [value]="r.value">{{ r.label }}</option>
                 }
               </select>
             </div>
-            @if (form.controls.combatRole.invalid && form.controls.combatRole.touched) {
-              <span class="reg-error">Please choose a role.</span>
+            @if (form.controls.mainRole.invalid && form.controls.mainRole.touched) {
+              <span class="reg-error">Please choose your main role.</span>
             }
           </div>
 
-          <!-- Saturday -->
+          <!-- Sub role -->
           <div class="reg-field">
-            <label class="reg-label" for="reg-saturday">
-              Thứ Bảy — Available from? <span class="req">*</span>
-            </label>
+            <label class="reg-label" for="reg-sub-role">Sub Role</label>
             <div class="reg-select-wrapper">
-              <select id="reg-saturday" class="reg-select" formControlName="saturday">
-                <option value="" disabled>Choose</option>
-                @for (a of availability; track a) {
-                  <option [value]="a">{{ a }}</option>
+              <select id="reg-sub-role" class="reg-select" formControlName="subRole">
+                <option value="">None</option>
+                @for (r of subRoles(); track r.value) {
+                  <option [value]="r.value">{{ r.label }}</option>
                 }
               </select>
             </div>
-            @if (form.controls.saturday.invalid && form.controls.saturday.touched) {
-              <span class="reg-error">Please select your Saturday availability.</span>
-            }
-          </div>
-
-          <!-- Sunday -->
-          <div class="reg-field">
-            <label class="reg-label" for="reg-sunday">
-              Chủ Nhật — Available from? <span class="req">*</span>
-            </label>
-            <div class="reg-select-wrapper">
-              <select id="reg-sunday" class="reg-select" formControlName="sunday">
-                <option value="" disabled>Choose</option>
-                @for (a of availability; track a) {
-                  <option [value]="a">{{ a }}</option>
-                }
-              </select>
-            </div>
-            @if (form.controls.sunday.invalid && form.controls.sunday.touched) {
-              <span class="reg-error">Please select your Sunday availability.</span>
-            }
           </div>
 
           @if (error()) {

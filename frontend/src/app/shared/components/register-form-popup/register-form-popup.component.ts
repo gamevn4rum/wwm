@@ -22,8 +22,6 @@ const COMBAT_ROLES = [
   { value: 'healer', label: 'Healer' },
 ] as const;
 
-const AVAILABILITY = ['7h30+', '8h30+', '9h30+', '🚫'] as const;
-
 @Component({
   selector: 'app-register-form-popup',
   standalone: true,
@@ -36,7 +34,6 @@ export class RegisterFormPopupComponent {
   private readonly http = inject(HttpClient);
 
   readonly combatRoles      = COMBAT_ROLES;
-  readonly availability     = AVAILABILITY;
   readonly submitted        = signal(false);
   readonly submitting       = signal(false);
   readonly error            = signal<string | null>(null);
@@ -47,10 +44,24 @@ export class RegisterFormPopupComponent {
     discord:   new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
     uid:       new FormControl('', { validators: Validators.required, nonNullable: true }),
     ign:       new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
-    combatRole: new FormControl('', { validators: Validators.required, nonNullable: true }),
-    saturday:  new FormControl('', { validators: Validators.required, nonNullable: true }),
-    sunday:    new FormControl('', { validators: Validators.required, nonNullable: true }),
+    mainRole:  new FormControl('', { validators: Validators.required, nonNullable: true }),
+    // Optional: '' is "none", which is a real answer — some people play one seat only.
+    subRole:   new FormControl('', { nonNullable: true }),
   });
+
+  /** The sub role's choices: the main role is not offered again, since it would say nothing. */
+  subRoles(): readonly { value: string; label: string }[] {
+    const main = this.form.controls.mainRole.value;
+    return this.combatRoles.filter((r) => r.value !== main);
+  }
+
+  constructor() {
+    // Picking the sub role as the new main role leaves the sub pointing at an option that is no
+    // longer listed, so it is cleared rather than submitted invisibly.
+    this.form.controls.mainRole.valueChanges.subscribe((main) => {
+      if (this.form.controls.subRole.value === main) this.form.controls.subRole.setValue('');
+    });
+  }
 
   close(): void {
     this.popupService.hide();
@@ -77,9 +88,8 @@ export class RegisterFormPopupComponent {
         discord: v.discord,
         uid: v.uid,
         ign: v.ign,
-        combatRole: v.combatRole,
-        saturday: v.saturday,
-        sunday: v.sunday,
+        mainRole: v.mainRole,
+        subRole: v.subRole,
       }));
       this.submitted.set(true);
     } catch (err: unknown) {
@@ -107,6 +117,8 @@ export class RegisterFormPopupComponent {
         return 'Your in-game UID is required.';
       case 'discord_and_ign_required':
         return 'Your Discord username and in-game name are both required.';
+      case 'invalid_combat_role':
+        return 'Please pick a role from the list.';
       case 'field_too_long':
         return 'One of the fields is too long. Shorten it and try again.';
       default:

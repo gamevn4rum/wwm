@@ -7,12 +7,31 @@ import {
 } from '../../core/services/backoffice.service';
 import { UserRole } from '../../core/services/discord-auth.service';
 
-/** The three seats, matching the API's `CombatRole` ids and the RSVP role menu. */
+/** The three seats, matching the API's `CombatRole` ids and the RSVP role menu. Used for both the
+ *  main and the sub role. */
 const COMBAT_ROLES: readonly { value: string; label: string }[] = [
   { value: '', label: '—' },
   { value: 'tank', label: 'Tank' },
   { value: 'dps', label: 'DPS' },
   { value: 'healer', label: 'Healer' },
+];
+
+/** GvG side, matching the API's `MemberTeam` ids. */
+const TEAMS: readonly { value: string; label: string }[] = [
+  { value: '', label: '—' },
+  { value: 'attack', label: 'Công' },
+  { value: 'defense', label: 'Thủ' },
+  { value: 'flex', label: 'Flex' },
+];
+
+/** How the GameVN table can be ordered. IGN is the order the API sends. */
+type SortKey = 'ign' | 'joined' | 'discord' | 'mainRole' | 'team';
+const SORTS: readonly { value: SortKey; label: string }[] = [
+  { value: 'ign', label: 'IGN' },
+  { value: 'joined', label: 'Joined date' },
+  { value: 'discord', label: 'Discord' },
+  { value: 'mainRole', label: 'Main role' },
+  { value: 'team', label: 'Team' },
 ];
 
 /** One row's pending edits, held apart from the saved member until Save is pressed. */
@@ -22,7 +41,8 @@ type Draft = {
   fp: boolean;
   ftp: boolean;
   discord: string;
-  combatRole: string;
+  mainRole: string;
+  subRole: string;
   team: string;
 };
 
@@ -37,9 +57,8 @@ type Draft = {
  * and rewrites them on every pass, following in-game renames. A box for them would accept an edit
  * and lose it within the hour, which is worse than not offering one.
  *
- * **Saturday and Sunday are read-only for a different reason**: they are the member's own answer
- * about when they can play, so an officer editing them replaces a statement with a guess. They are
- * shown because they are worth seeing next to the rest of the row.
+ * **Joined** is when they joined GameVN in game, read from the guild roster — read-only for the same
+ * reason as IGN.
  *
  * **People who have left are not listed.** Leaving stamps a leave date and clears their login
  * server-side; the row survives so a rejoin restores everything, and the sweep un-stamps it the
@@ -47,7 +66,9 @@ type Draft = {
  * granting members access.
  *
  * **Each of our guilds gets its own table** — GameVN, then GVN2. GVN2 rows cannot be raised above
- * Warrior or given FP/FTP; the controls are disabled here and the API refuses it regardless.
+ * Warrior, and have no roles, team or FP/FTP: those columns are not drawn for them, and the API
+ * refuses them regardless. Only the GameVN table sorts; it sorts on saved values, so a row does not
+ * jump while it is being edited.
  */
 @Component({
   selector: 'app-manage-members-page',
@@ -70,9 +91,25 @@ type Draft = {
         @for (section of sections(); track section.key) {
         @if (section.members.length > 0) {
         <h3 class="section-title">{{ section.title }} <span class="count">{{ section.members.length }}</span></h3>
-        @if (section.key === 'gvn2') {
+        @if (section.primary) {
+          <div class="sort">
+            <label>
+              <span>Sort by</span>
+              <select [ngModel]="sortKey()" (ngModelChange)="sortKey.set($event)"
+                      [ngModelOptions]="{ standalone: true }">
+                @for (o of sorts; track o.value) {
+                  <option [value]="o.value">{{ o.label }}</option>
+                }
+              </select>
+            </label>
+            <button type="button" (click)="sortDesc.set(!sortDesc())"
+                    [title]="sortDesc() ? 'Descending' : 'Ascending'">
+              {{ sortDesc() ? '↓' : '↑' }}
+            </button>
+          </div>
+        } @else {
           <p class="hint">GVN2 members can use the personal bot commands only. They are never
-            Commander/Admin and cannot hold FP/FTP.</p>
+            Commander/Admin and have no roles, team or FP/FTP.</p>
         }
         <table class="grid">
           <thead>
@@ -81,14 +118,18 @@ type Draft = {
               <th>UID</th>
               <th>Discord</th>
               <th>Status</th>
+              @if (section.primary) { <th>Joined</th> }
               <th>Rank</th>
-              <th>Combat role</th>
-              <th>Team</th>
-              <th>Sat</th>
-              <th>Sun</th>
+              @if (section.primary) {
+                <th>Main role</th>
+                <th>Sub role</th>
+                <th>Team</th>
+              }
               <th>Login</th>
-              <th>FP</th>
-              <th>FTP</th>
+              @if (section.primary) {
+                <th>FP</th>
+                <th>FTP</th>
+              }
               <th></th>
             </tr>
           </thead>
@@ -109,6 +150,9 @@ type Draft = {
                     <span class="tag">Unregistered</span>
                   }
                 </td>
+                @if (section.primary) {
+                  <td class="quiet">{{ joinedLabel(m) }}</td>
+                }
                 <td>
                   <select [ngModel]="draftOf(m).role" (ngModelChange)="edit(m, { role: $event })"
                           [ngModelOptions]="{ standalone: true }">
@@ -117,40 +161,55 @@ type Draft = {
                     <option value="Admin" [disabled]="m.secondaryGuild">Admin</option>
                   </select>
                 </td>
-                <td>
-                  <select [ngModel]="draftOf(m).combatRole"
-                          (ngModelChange)="edit(m, { combatRole: $event })"
-                          [ngModelOptions]="{ standalone: true }">
-                    @for (r of combatRoles; track r.value) {
-                      <option [value]="r.value">{{ r.label }}</option>
-                    }
-                  </select>
-                </td>
-                <td>
-                  <input class="short" [ngModel]="draftOf(m).team"
-                         (ngModelChange)="edit(m, { team: $event })"
-                         [ngModelOptions]="{ standalone: true }" placeholder="—" />
-                </td>
-                <!-- Availability is the member's own answer from the register form, shown for
-                     context but not edited here: an officer overwriting when somebody said they can
-                     play replaces a statement with a guess. -->
-                <td class="quiet">{{ m.saturday || '—' }}</td>
-                <td class="quiet">{{ m.sunday || '—' }}</td>
+                @if (section.primary) {
+                  <td>
+                    <select [ngModel]="draftOf(m).mainRole"
+                            (ngModelChange)="edit(m, { mainRole: $event })"
+                            [ngModelOptions]="{ standalone: true }">
+                      @for (r of combatRoles; track r.value) {
+                        <option [value]="r.value">{{ r.label }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <select [ngModel]="draftOf(m).subRole"
+                            (ngModelChange)="edit(m, { subRole: $event })"
+                            [ngModelOptions]="{ standalone: true }">
+                      @for (r of combatRoles; track r.value) {
+                        <option [value]="r.value">{{ r.label }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <select [ngModel]="draftOf(m).team" (ngModelChange)="edit(m, { team: $event })"
+                            [ngModelOptions]="{ standalone: true }">
+                      @for (t of teams; track t.value) {
+                        <option [value]="t.value">{{ t.label }}</option>
+                      }
+                      <!-- A free-text team from before the dropdown, kept visible until replaced. -->
+                      @if (isLegacyTeam(m.team)) {
+                        <option [value]="m.team" disabled>{{ m.team }} (old)</option>
+                      }
+                    </select>
+                  </td>
+                }
                 <td class="mid">
                   <input type="checkbox" [ngModel]="draftOf(m).canLogin"
                          (ngModelChange)="edit(m, { canLogin: $event })"
                          [ngModelOptions]="{ standalone: true }" />
                 </td>
-                <td class="mid">
-                  <input type="checkbox" [ngModel]="draftOf(m).fp"
-                         (ngModelChange)="edit(m, { fp: $event })" [disabled]="!!m.secondaryGuild"
-                         [ngModelOptions]="{ standalone: true }" />
-                </td>
-                <td class="mid">
-                  <input type="checkbox" [ngModel]="draftOf(m).ftp"
-                         (ngModelChange)="edit(m, { ftp: $event })" [disabled]="!!m.secondaryGuild"
-                         [ngModelOptions]="{ standalone: true }" />
-                </td>
+                @if (section.primary) {
+                  <td class="mid">
+                    <input type="checkbox" [ngModel]="draftOf(m).fp"
+                           (ngModelChange)="edit(m, { fp: $event })"
+                           [ngModelOptions]="{ standalone: true }" />
+                  </td>
+                  <td class="mid">
+                    <input type="checkbox" [ngModel]="draftOf(m).ftp"
+                           (ngModelChange)="edit(m, { ftp: $event })"
+                           [ngModelOptions]="{ standalone: true }" />
+                  </td>
+                }
                 <td class="row-actions">
                   <button type="button" (click)="save(m)" [disabled]="!isDirty(m) || busy() === m.id">
                     {{ busy() === m.id ? '…' : 'Save' }}
@@ -175,6 +234,12 @@ type Draft = {
     .hint { opacity: .7; margin-bottom: 1rem; max-width: 70rem; }
     .section-title { margin: 1.5rem 0 .5rem; font-size: 1rem; }
     .section-title .count { opacity: .6; font-weight: 400; margin-left: .35rem; }
+    .sort { display: flex; gap: .4rem; align-items: center; margin-bottom: .6rem; }
+    .sort label { display: flex; gap: .4rem; align-items: center; }
+    .sort label span { font-size: .8rem; opacity: .7; }
+    .sort select { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
+      font: inherit; }
+    .sort button { padding: .3rem .6rem; }
     .grid { width: 100%; border-collapse: collapse; }
     .grid th, .grid td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: middle; }
     .grid th { font-size: .75rem; text-transform: uppercase; opacity: .6; font-weight: 600; }
@@ -183,7 +248,6 @@ type Draft = {
     .grid input[type=checkbox] { width: var(--checkbox-size); }
     .grid td.mid { text-align: center; }
     .mono { font-family: monospace; opacity: .8; }
-    .short { max-width: 7ch; }
     .quiet { opacity: .7; white-space: nowrap; }
     .tag { font-size: .72rem; padding: .1rem .4rem; border: 1px solid rgba(128,128,128,.45); border-radius: 999px; opacity: .75; white-space: nowrap; }
     .tag-on { border-color: rgba(124,148,115,.75); color: #5f7757; opacity: 1; }
@@ -205,12 +269,17 @@ export class ManageMembersPageComponent {
 
   readonly members = signal<CommanderMember[]>([]);
 
-  /** One table per guild: GameVN first, then GVN2. A guild with nobody listed draws no table. */
+  protected readonly sortKey = signal<SortKey>('ign');
+  protected readonly sortDesc = signal(false);
+
+  /** One table per guild: GameVN first, then GVN2. A guild with nobody listed draws no table. Only
+   *  GameVN is sorted; GVN2 keeps the API's IGN order. */
   protected readonly sections = computed(() => {
     const all = this.members();
     return [
-      { key: 'gvn', title: 'GameVN', members: all.filter((m) => !m.secondaryGuild) },
-      { key: 'gvn2', title: 'GVN2', members: all.filter((m) => !!m.secondaryGuild) },
+      { key: 'gvn', title: 'GameVN', primary: true,
+        members: this.sorted(all.filter((m) => !m.secondaryGuild)) },
+      { key: 'gvn2', title: 'GVN2', primary: false, members: all.filter((m) => !!m.secondaryGuild) },
     ];
   });
 
@@ -220,6 +289,8 @@ export class ManageMembersPageComponent {
   readonly notice = signal<string | null>(null);
 
   protected readonly combatRoles = COMBAT_ROLES;
+  protected readonly teams = TEAMS;
+  protected readonly sorts = SORTS;
 
   /** Pending edits by member id. A row absent from here has not been touched. */
   private readonly drafts = signal<Record<number, Draft>>({});
@@ -251,9 +322,50 @@ export class ManageMembersPageComponent {
       fp: m.fp,
       ftp: m.ftp,
       discord: m.discord ?? '',
-      combatRole: m.combatRole ?? '',
+      mainRole: m.mainRole ?? '',
+      subRole: m.subRole ?? '',
       team: m.team ?? '',
     };
+  }
+
+  /**
+   * The GameVN rows in the chosen order. Blanks sit at the bottom whichever way it runs — a list
+   * sorted by team should open on people who have one — and IGN breaks ties so the order is stable.
+   */
+  private sorted(list: CommanderMember[]): CommanderMember[] {
+    const key = this.sortKey();
+    const dir = this.sortDesc() ? -1 : 1;
+    const value = (m: CommanderMember): string | number | null => {
+      switch (key) {
+        case 'joined': return m.joinTime ?? null;
+        case 'discord': return m.discord?.trim().toLowerCase() || null;
+        case 'mainRole': return rank(COMBAT_ROLES, m.mainRole);
+        case 'team': return rank(TEAMS, m.team);
+        default: return m.ign.toLowerCase();
+      }
+    };
+    return [...list].sort((a, b) => {
+      const va = value(a);
+      const vb = value(b);
+      if (va === null || vb === null) {
+        if (va !== vb) return va === null ? 1 : -1;
+      } else if (va !== vb) {
+        return (va < vb ? -1 : 1) * dir;
+      }
+      return a.ign.localeCompare(b.ign);
+    });
+  }
+
+  protected joinedLabel(m: CommanderMember): string {
+    if (!m.joinTime) return '—';
+    const d = new Date(m.joinTime * 1000);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  }
+
+  /** A team value from the free-text days that is not one of the three. */
+  protected isLegacyTeam(team: string | null): boolean {
+    return !!team && !TEAMS.some((t) => t.value === team);
   }
 
   protected draftOf(m: CommanderMember): Draft {
@@ -298,7 +410,8 @@ export class ManageMembersPageComponent {
     if (draft.fp !== base.fp) patch.fp = draft.fp;
     if (draft.ftp !== base.ftp) patch.ftp = draft.ftp;
     if (draft.discord !== base.discord) patch.discord = draft.discord;
-    if (draft.combatRole !== base.combatRole) patch.combatRole = draft.combatRole;
+    if (draft.mainRole !== base.mainRole) patch.mainRole = draft.mainRole;
+    if (draft.subRole !== base.subRole) patch.subRole = draft.subRole;
     if (draft.team !== base.team) patch.team = draft.team;
 
     this.busy.set(m.id);
@@ -316,7 +429,7 @@ export class ManageMembersPageComponent {
         // one thing worse than the rejection itself.
         this.notice.set(
           err?.error?.error === 'secondary_guild_member'
-            ? 'GVN2 members cannot be Commander/Admin or hold FP/FTP.'
+            ? 'GVN2 members cannot be Commander/Admin, or have roles, team or FP/FTP.'
             : err?.status === 403
             ? 'Not permitted (role-grant policy).'
             : err?.error?.error === 'discord_taken'
@@ -325,8 +438,18 @@ export class ManageMembersPageComponent {
                 ? 'One of those values is too long.'
                 : err?.error?.error === 'invalid_combat_role'
                   ? 'That is not a valid combat role.'
-                  : 'Update failed.');
+                  : err?.error?.error === 'invalid_team'
+                    ? 'That is not a valid team.'
+                    : 'Update failed.');
       },
     });
   }
+}
+
+/** Position in an option list, so roles and teams sort in the dropdown's order rather than
+ *  alphabetically. Blank, or a value not in the list, is null. */
+function rank(options: readonly { value: string }[], value: string | null): number | null {
+  if (!value) return null;
+  const i = options.findIndex((o) => o.value === value);
+  return i < 0 ? null : i;
 }

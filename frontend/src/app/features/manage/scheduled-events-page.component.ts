@@ -136,6 +136,13 @@ type Trigger = 'schedule' | 'demand' | 'date';
           <button type="submit" [disabled]="saving()">
             {{ saving() ? 'Saving…' : editingId() === null ? 'Add event' : 'Save changes' }}
           </button>
+          @if (editingId() !== null) {
+            <!-- Saves first, so what goes out is what is on screen — not the last saved version. -->
+            <button type="button" (click)="saveAndPost()"
+                    [disabled]="saving() || posting() === editingId()">
+              {{ posting() === editingId() ? 'Posting…' : 'Save & post now' }}
+            </button>
+          }
         </div>
         @if (formError()) { <p class="error">{{ formError() }}</p> }
       </form>
@@ -411,7 +418,18 @@ export class ScheduledEventsPageComponent {
     });
   }
 
-  save(): void {
+  /** Save the edit, then post it — one step instead of Save followed by the row's Post now. Asks
+   *  first, because posting really does create the event in Discord. */
+  saveAndPost(): void {
+    const title = this.form.controls.title.value.trim() || 'this event';
+    if (!confirm(`Save changes and post "${title}" to Discord now? This creates a live event.`)) {
+      return;
+    }
+    this.save((saved) => this.postNow(saved));
+  }
+
+  /** @param then Runs with the saved row once the write lands — not on a refusal. */
+  save(then?: (saved: ScheduledEvent) => void): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       // Say which field, or a bad id reads as a Save button that simply doesn't work.
@@ -443,6 +461,7 @@ export class ScheduledEventsPageComponent {
         this.sort();
         this.saving.set(false);
         this.resetForm();
+        then?.(saved);
       },
       error: (err) => { this.saving.set(false); this.formError.set(this.describe(err)); },
     });

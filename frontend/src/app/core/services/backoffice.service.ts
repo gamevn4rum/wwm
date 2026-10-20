@@ -19,7 +19,7 @@ export interface CommanderMember {
   /** Opaque wwmdb pId, used by the stats sync. Officer-only. */
   pid: string | null;
   discord: string | null;
-  /** The permission rank. Not {@link combatRole}, which is how they play. */
+  /** The permission rank. Not {@link mainRole}, which is how they play. */
   role: UserRole;
   canLogin: boolean;
   fp: boolean;
@@ -32,11 +32,16 @@ export interface CommanderMember {
   secondaryGuild?: boolean;
   /** tank | dps | healer, or null if they never said. The same three words the RSVP role menu and
    *  the tournament pools use, so the answers line up across all three. */
-  combatRole: string | null;
+  mainRole: string | null;
+  /** Their second seat, from the same three. */
+  subRole: string | null;
+  /** attack | defense | flex (Công / Thủ / Flex). An older free-text value may still sit here
+   *  until an officer picks one. */
   team: string | null;
-  saturday: string | null;
-  sunday: string | null;
   notes: string | null;
+  /** Unix seconds they joined GameVN in game, from the guild roster. Null for GVN2 and for anyone
+   *  the roster has no date for. */
+  joinTime?: number | null;
 }
 
 /**
@@ -51,10 +56,9 @@ export interface MemberPatch {
   ftp?: boolean;
   role?: UserRole;
   discord?: string;
-  combatRole?: string;
+  mainRole?: string;
+  subRole?: string;
   team?: string;
-  saturday?: string;
-  sunday?: string;
   notes?: string;
 }
 
@@ -125,9 +129,10 @@ export interface Registration {
   discord: string;
   uid: string | null;
   ign: string;
-  combatRole: string | null;
-  saturday: string | null;
-  sunday: string | null;
+  /** tank | dps | healer — the seat they mainly want. */
+  mainRole: string | null;
+  /** Their second seat, or null for none. */
+  subRole: string | null;
   note: string | null;
   status: 'pending' | 'approved' | 'rejected';
   submittedUtc: string;

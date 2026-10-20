@@ -27,9 +27,8 @@ import { BackofficeService, Registration, RegistrationApprove } from '../../core
             </header>
             <dl class="fields">
               <div><dt>UID</dt><dd>{{ r.uid || '—' }}</dd></div>
-              <div><dt>Role</dt><dd>{{ roleLabel(r.combatRole) }}</dd></div>
-              <div><dt>Saturday</dt><dd>{{ r.saturday || '—' }}</dd></div>
-              <div><dt>Sunday</dt><dd>{{ r.sunday || '—' }}</dd></div>
+              <div><dt>Main role</dt><dd>{{ roleLabel(r.mainRole) }}</dd></div>
+              <div><dt>Sub role</dt><dd>{{ roleLabel(r.subRole) }}</dd></div>
               @if (r.note) { <div><dt>Note</dt><dd>{{ r.note }}</dd></div> }
             </dl>
             <footer class="grant">
