@@ -1,0 +1,131 @@
+<div class="gf-overlay" role="dialog" aria-modal="true" aria-label="Form GvG Team">
+  <div class="gf-panel" cdkDropListGroup>
+    <header class="gf-head">
+      <h2>Form GvG Team</h2>
+      <button type="button" class="gf-x" (click)="closed.emit()" aria-label="Đóng">×</button>
+    </header>
+
+    <div class="gf-scroll">
+      @if (loading()) {
+        <p class="gf-msg">Đang tải…</p>
+      } @else if (loadError()) {
+        <p class="gf-msg gf-err">{{ loadError() }}</p>
+      } @else {
+        <!-- ── Pool ─────────────────────────────────────────────────────────────── -->
+        <section class="gf-pool">
+          <div class="gf-pool-head">
+            <div>
+              <strong>{{ headline() }}</strong>
+              @if (startText()) { <span class="gf-when">{{ startText() }}</span> }
+            </div>
+            @if (!hasEvent()) {
+              <input class="gf-filter" type="search" placeholder="Lọc theo tên…"
+                     [ngModel]="filter()" (ngModelChange)="filter.set($event)" />
+            }
+          </div>
+
+          <div class="gf-chips" cdkDropList [cdkDropListData]="poolTarget" cdkDropListSortingDisabled
+               (cdkDropListDropped)="drop($event)">
+            @for (m of (hasEvent() ? going() : everyone()); track m.key) {
+              <div class="gf-drag" cdkDrag [cdkDragData]="m.key">
+                <app-gvg-chip [member]="m" />
+                <div *cdkDragPlaceholder class="gf-ph"></div>
+              </div>
+            } @empty {
+              <span class="gf-empty">
+                {{ hasEvent() ? 'Chưa có ai trả lời Có (hoặc tất cả đã được xếp).' : 'Không có thành viên nào phù hợp.' }}
+              </span>
+            }
+          </div>
+
+          @if (hasEvent()) {
+            <button type="button" class="gf-maybe-toggle" (click)="maybeOpen.set(!maybeOpen())"
+                    [attr.aria-expanded]="maybeOpen()">
+              {{ maybeOpen() ? '▾' : '▸' }} Có thể ({{ maybe().length }})
+            </button>
+            @if (maybeOpen()) {
+              <div class="gf-chips gf-chips-maybe" cdkDropList [cdkDropListData]="poolTarget"
+                   cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)">
+                @for (m of maybe(); track m.key) {
+                  <div class="gf-drag" cdkDrag [cdkDragData]="m.key">
+                    <app-gvg-chip [member]="m" />
+                    <div *cdkDragPlaceholder class="gf-ph"></div>
+                  </div>
+                } @empty {
+                  <span class="gf-empty">Không có ai.</span>
+                }
+              </div>
+            }
+          }
+        </section>
+
+        @if (note()) {
+          <p class="gf-note">{{ note() }}</p>
+        }
+
+        <!-- ── Boxes (this block is what Copy / Share photograph) ────────────────── -->
+        <section id="gvg-formation-shot" class="gf-shot">
+          <div class="gf-shot-title">
+            {{ shotTitle() }}
+            @if (startText()) { <span>{{ startText() }}</span> }
+          </div>
+          <div class="gf-boxes">
+            @for (box of boxes; track box.id) {
+              <div class="gf-box" [class]="'gf-box side-' + box.side">
+                <div class="gf-box-head">{{ box.label }}</div>
+                @for (i of slotIndexes; track i) {
+                  <div class="gf-row" [class.leader]="i === 0">
+                    <span class="gf-no">{{ i === 0 ? '★' : i + 1 }}</span>
+                    <div class="gf-slot" [class.hover]="hover() === hoverId(box.id, i)"
+                         cdkDropList [cdkDropListData]="slotTarget(box.id, i)" cdkDropListSortingDisabled
+                         (cdkDropListDropped)="drop($event)"
+                         (cdkDropListEntered)="hover.set(hoverId(box.id, i))"
+                         (cdkDropListExited)="hover.set(null)">
+                      @if (memberAt(box.id, i); as m) {
+                        <div class="gf-drag" cdkDrag [cdkDragData]="m.key">
+                          <app-gvg-chip [member]="m" [compact]="true" />
+                          <div *cdkDragPlaceholder class="gf-ph"></div>
+                        </div>
+                      } @else {
+                        <span class="gf-hint">{{ i === 0 ? 'Leader' : '' }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </div>
+
+    <footer class="gf-foot">
+      <div class="gf-foot-group">
+        <button type="button" class="gf-btn" (click)="clear()">Xóa hết</button>
+        <button type="button" class="gf-btn gf-btn-main" (click)="save()">Lưu</button>
+        @if (saveText()) { <span class="gf-status">{{ saveText() }}</span> }
+      </div>
+      <div class="gf-foot-group">
+        <button type="button" class="gf-btn" (click)="copy()" [disabled]="loading() || !!loadError() || copyState() === 'working'">
+          Copy to Clipboard
+        </button>
+        @if (copyText()) { <span class="gf-status" [class.gf-err]="copyState() === 'failed'">{{ copyText() }}</span> }
+      </div>
+      <div class="gf-foot-group">
+        <select class="gf-select" [ngModel]="channelId()" (ngModelChange)="onChannelChange($event)"
+                aria-label="Kênh Discord">
+          <option value="">Chọn kênh…</option>
+          @for (c of channels(); track c.id) {
+            <option [value]="c.id">#{{ c.name }}</option>
+          }
+        </select>
+        <button type="button" class="gf-btn gf-btn-main" (click)="share()"
+                [disabled]="!channelId() || loading() || !!loadError() || shareState() === 'working'"
+                title="Gửi ảnh đội hình hiện tại (không tự động lưu)">
+          Share
+        </button>
+        @if (shareText()) { <span class="gf-status" [class.gf-err]="shareState() === 'failed'">{{ shareText() }}</span> }
+      </div>
+    </footer>
+  </div>
+</div>

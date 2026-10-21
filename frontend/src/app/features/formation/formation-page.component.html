@@ -1,6 +1,19 @@
 <div class="page-fade">
+  @if (canForm()) {
+    <div class="form-bar">
+      <button type="button" class="form-gvg-btn" (click)="formOpen.set(true)">Form GvG Team</button>
+    </div>
+  }
+
   <!-- registeredOnly: Formation plans around people you can actually organise, so members with no
        app registration are left out here even though the homepage grid shows them with a badge.
        Members who have left need no flag — the roster endpoint no longer serves them. -->
   <app-member-grid [innerWayFilter]="true" [registeredOnly]="true"></app-member-grid>
+
+  <!-- Deferred: Commander-only, and it brings the drag-and-drop and capture code with it. -->
+  @if (formOpen()) {
+    @defer (on immediate) {
+      <app-gvg-formation-modal (closed)="formOpen.set(false)" />
+    }
+  }
 </div>
