@@ -1,20 +1,20 @@
 /** The six squad boxes of a GvG formation, in the order they are laid out. */
-export type BoxId = 'congA' | 'congB' | 'thuA' | 'thuB' | 'flexA' | 'flexB';
+export type BoxId = 'cong1' | 'cong2' | 'cong3' | 'thu1' | 'thu2' | 'thu3';
 
 export interface FormationBox {
   id: BoxId;
   label: string;
   /** Which colour family the box wears. */
-  side: 'cong' | 'thu' | 'flex';
+  side: 'cong' | 'thu';
 }
 
 export const FORMATION_BOXES: readonly FormationBox[] = [
-  { id: 'congA', label: 'Công A', side: 'cong' },
-  { id: 'congB', label: 'Công B', side: 'cong' },
-  { id: 'thuA', label: 'Thủ A', side: 'thu' },
-  { id: 'thuB', label: 'Thủ B', side: 'thu' },
-  { id: 'flexA', label: 'Flex A', side: 'flex' },
-  { id: 'flexB', label: 'Flex B', side: 'flex' },
+  { id: 'cong1', label: 'Công 1', side: 'cong' },
+  { id: 'cong2', label: 'Công 2', side: 'cong' },
+  { id: 'cong3', label: 'Công 3', side: 'cong' },
+  { id: 'thu1', label: 'Thủ 1', side: 'thu' },
+  { id: 'thu2', label: 'Thủ 2', side: 'thu' },
+  { id: 'thu3', label: 'Thủ 3', side: 'thu' },
 ];
 
 /** Slots per box. Slot 0 is the leader. */

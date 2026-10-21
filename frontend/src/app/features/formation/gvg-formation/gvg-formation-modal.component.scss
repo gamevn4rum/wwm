@@ -1,11 +1,10 @@
-// Slate-blue frame with solid Công / Thủ / Flex bands and a gold leader row — deliberately not the
+// Slate-blue frame with solid Công / Thủ bands and a gold leader row — deliberately not the
 // bronze/plum of the member cards or the grey of the Manage table, so it reads as its own tool.
 $slate: #6e88a8;
 $slate-dark: #4f6684;
 $gold: #c8912f;
 $cong: #b5533d;
 $thu: #4f6684;
-$flex: #5f7757;
 
 .gf-overlay {
   position: fixed;
@@ -185,10 +184,9 @@ $flex: #5f7757;
 
 .gf-boxes {
   display: grid;
-  // Three columns — Công, Thủ, Flex — with the A box over the B box in each.
+  // Three columns — 1, 2, 3 — with the Công row over the Thủ row.
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, auto);
-  grid-auto-flow: column;
   // Each box as tall as its own members, so a box with one name is not stretched to its neighbour's
   // height — in the picture that would put the empty space the trimmed rows were meant to remove
   // back at the bottom of the box.
@@ -205,7 +203,6 @@ $flex: #5f7757;
 
   &.side-cong { --band: #{$cong}; }
   &.side-thu { --band: #{$thu}; }
-  &.side-flex { --band: #{$flex}; }
 }
 
 .gf-box-head {
@@ -298,7 +295,7 @@ $flex: #5f7757;
 .gf-status { font-size: 0.8rem; color: #4f6684; }
 .gf-status.gf-err { color: #b5533d; }
 
-// Phones keep all three columns — Công, Thủ, Flex — and the chips inside them take two rows
+// Phones keep all three columns — 1, 2, 3 — and the chips inside them take two rows
 // (icons, then name; see the chip), which is what fits ~100px of width.
 @media (max-width: 640px) {
   .gf-overlay { padding: 0; }
