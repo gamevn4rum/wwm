@@ -25,8 +25,11 @@ export const SLOTS_PER_BOX = 6;
 export interface PoolMember {
   key: string;
   name: string;
+  /** Combat role (tank | dps | healer) — no longer drawn on the chip, kept for the tooltip. */
   mainRole: string | null;
-  subRole: string | null;
+  /** `MemberPath` ids — the two icons on the chip. */
+  mainPath: string | null;
+  subPath: string | null;
   team: string | null;
   onRoster: boolean;
 }

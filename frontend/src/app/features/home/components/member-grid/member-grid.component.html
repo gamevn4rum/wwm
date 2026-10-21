@@ -66,15 +66,22 @@
           [disabled]="!stats"
           (click)="toggle(player, $event)"
         >
-          <div class="badge-avatar">
-            <div class="avatar-placeholder">
-              <img
-                [src]="'icons/rank-' + player.rankIconKey + '.png'"
-                [alt]="player.rank"
-                (error)="onRankIconError($event)"
-              />
+          @if (pathIcons()) {
+            <div class="badge-paths">
+              <app-path-icon [slug]="player.mainPath" [size]="26" />
+              <app-path-icon [slug]="player.subPath" [size]="26" />
             </div>
-          </div>
+          } @else {
+            <div class="badge-avatar">
+              <div class="avatar-placeholder">
+                <img
+                  [src]="'icons/rank-' + player.rankIconKey + '.png'"
+                  [alt]="player.rank"
+                  (error)="onRankIconError($event)"
+                />
+              </div>
+            </div>
+          }
           <div class="badge-info">
             <span class="badge-name">{{ player.name }}</span>
             <span class="badge-rank">{{ player.rank.toUpperCase() }}</span>
@@ -96,15 +103,22 @@
           @let p = stats.player;
           <div class="badge-detail">
             <div class="detail-header">
-              <div class="badge-avatar detail-avatar">
-                <div class="avatar-placeholder">
-                  <img
-                    [src]="'icons/rank-' + player.rankIconKey + '.png'"
-                    [alt]="player.rank"
-                    (error)="onRankIconError($event)"
-                  />
+              @if (pathIcons()) {
+                <div class="badge-paths detail-paths">
+                  <app-path-icon [slug]="player.mainPath" [size]="32" />
+                  <app-path-icon [slug]="player.subPath" [size]="32" />
                 </div>
-              </div>
+              } @else {
+                <div class="badge-avatar detail-avatar">
+                  <div class="avatar-placeholder">
+                    <img
+                      [src]="'icons/rank-' + player.rankIconKey + '.png'"
+                      [alt]="player.rank"
+                      (error)="onRankIconError($event)"
+                    />
+                  </div>
+                </div>
+              }
               <div class="detail-identity">
                 <span class="detail-name">{{ p.name }}</span>
                 <span class="detail-sub">

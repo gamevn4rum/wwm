@@ -12,6 +12,7 @@ import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogu
 import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
 import { roleRank } from '../../../../core/services/discord-auth.service';
+import { PathIconComponent } from '../../../../shared/components/path-icon/path-icon.component';
 import {
   ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
   innerWayIcon, noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
@@ -30,7 +31,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
 @Component({
   selector: 'app-member-grid',
   standalone: true,
-  imports: [DecimalPipe, NgTemplateOutlet],
+  imports: [DecimalPipe, NgTemplateOutlet, PathIconComponent],
   templateUrl: './member-grid.component.html',
   styleUrls: ['./member-grid.component.scss'],
 })
@@ -42,6 +43,10 @@ export class MemberGridComponent implements OnInit {
 
   /** Show the inner-way path filter above the grid (Formation page). */
   readonly innerWayFilter = input(false);
+
+  /** Draw the member's two martial path icons where the rank icon would go. The Formation page
+   *  plans around how people play, which the rank icon says nothing about. */
+  readonly pathIcons = input(false);
 
   /**
    * Drop members who have not registered with the app (Formation page).

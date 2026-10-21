@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { martialPathOption } from '../../core/models/martial-path';
 import { BackofficeService, Registration, RegistrationApprove } from '../../core/services/backoffice.service';
 
 @Component({
@@ -28,7 +29,8 @@ import { BackofficeService, Registration, RegistrationApprove } from '../../core
             <dl class="fields">
               <div><dt>UID</dt><dd>{{ r.uid || '—' }}</dd></div>
               <div><dt>Main role</dt><dd>{{ roleLabel(r.mainRole) }}</dd></div>
-              <div><dt>Sub role</dt><dd>{{ roleLabel(r.subRole) }}</dd></div>
+              <div><dt>Main path</dt><dd>{{ pathLabel(r.mainPath) }}</dd></div>
+              <div><dt>Sub path</dt><dd>{{ pathLabel(r.subPath) }}</dd></div>
               @if (r.note) { <div><dt>Note</dt><dd>{{ r.note }}</dd></div> }
             </dl>
             <footer class="grant">
@@ -68,6 +70,10 @@ export class RegistrationsPageComponent {
   /** Title-cases the stored id for display; the ids themselves are lower case everywhere. */
   roleLabel(role: string | null): string {
     return role === 'tank' ? 'Tank' : role === 'dps' ? 'DPS' : role === 'healer' ? 'Healer' : '—';
+  }
+
+  pathLabel(path: string | null): string {
+    return martialPathOption(path)?.label ?? '—';
   }
 
   private readonly backoffice = inject(BackofficeService);

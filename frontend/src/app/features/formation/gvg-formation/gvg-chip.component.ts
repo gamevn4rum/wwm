@@ -1,21 +1,24 @@
 import { Component, input } from '@angular/core';
+import { martialPathOption } from '../../../core/models/martial-path';
+import { PathIconComponent } from '../../../shared/components/path-icon/path-icon.component';
 import { PoolMember } from './gvg-formation.models';
 
-const ROLE_LETTER: Record<string, string> = { tank: '🛡️', dps: '⚔️', healer: '⛑️' };
 const ROLE_LABEL: Record<string, string> = { tank: 'Tank', dps: 'DPS', healer: 'Healer' };
 const TEAM_LABEL: Record<string, string> = { attack: 'Công', defense: 'Thủ', flex: 'Flex' };
 
-/** A member as a chip: combat-role badge, name, and the sub role and team as quiet hints. */
+/** A member as a chip: their main and sub martial path icons, then the name, with the team as a
+ *  quiet hint. A path they have not got draws a "-" placeholder so the names stay aligned. */
 @Component({
   selector: 'app-gvg-chip',
   standalone: true,
+  imports: [PathIconComponent],
   template: `
-    <span class="chip" [class.off]="!member().onRoster" [title]="tooltip()">
-      <span class="role" [class]="'role r-' + (member().mainRole ?? 'none')">{{ letter(member().mainRole) }}</span>
+    <span class="chip" [class.off]="!member().onRoster" [class.compact]="compact()" [title]="tooltip()">
+      <span class="paths">
+        <app-path-icon [slug]="member().mainPath" [size]="20" />
+        <app-path-icon [slug]="member().subPath" [size]="20" />
+      </span>
       <span class="name">{{ member().name }}</span>
-      @if (member().subRole) {
-        <span class="sub" [class]="'sub r-' + member().subRole">{{ letter(member().subRole) }}</span>
-      }
       @if (!compact() && member().team) {
         <span class="team">{{ teamLabel(member().team) }}</span>
       }
@@ -31,34 +34,35 @@ const TEAM_LABEL: Record<string, string> = { attack: 'Công', defense: 'Thủ', 
       user-select: none; white-space: nowrap;
     }
     .chip.off { background: #f1f1ef; border-style: dashed; color: #6b6b66; }
-    .role {
-      flex: none; width: 20px; height: 20px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; line-height: 1; color: #9aa3ad; background: #eef1f5;
-    }
-    .role.r-tank { background: rgba(79, 102, 132, 0.18); }
-    .role.r-dps { background: rgba(192, 80, 47, 0.18); }
-    .role.r-healer { background: rgba(95, 119, 87, 0.2); }
-    .name { overflow: hidden; text-overflow: ellipsis; }
-    .sub {
-      flex: none; font-size: 0.68rem; line-height: 1; opacity: 0.75;
-    }
+    .paths { display: inline-flex; gap: 3px; flex: none; }
+    .name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .team { flex: none; font-size: 0.62rem; font-weight: 500; color: #8a8f96; letter-spacing: 0.02em; }
+
+    /* Phones: three boxes side by side leave a chip ~100px, so a boxed chip is two rows — the
+       icons on top, the name under them — instead of one that would crush the name. */
+    @media (max-width: 640px) {
+      .chip.compact {
+        flex-direction: column; align-items: flex-start; gap: 2px;
+        padding: 4px 7px; border-radius: 12px; width: 100%; box-sizing: border-box;
+        font-size: 0.76rem;
+      }
+      .chip.compact .name { max-width: 100%; }
+    }
   `],
 })
 export class GvgChipComponent {
   readonly member = input.required<PoolMember>();
-  /** Inside a box: the team hint is noise there. */
+  /** Inside a box: the team hint is noise there, and on a phone the chip takes two rows. */
   readonly compact = input(false);
 
-  letter(role: string | null): string { return role ? (ROLE_LETTER[role] ?? '?') : '–'; }
   teamLabel(team: string | null): string { return team ? (TEAM_LABEL[team] ?? '') : ''; }
 
   tooltip(): string {
     const m = this.member();
     const parts = [m.name];
-    if (m.mainRole) parts.push(`Main: ${ROLE_LABEL[m.mainRole] ?? m.mainRole}`);
-    if (m.subRole) parts.push(`Sub: ${ROLE_LABEL[m.subRole] ?? m.subRole}`);
+    if (m.mainPath) parts.push(`Main path: ${martialPathOption(m.mainPath)?.label ?? m.mainPath}`);
+    if (m.subPath) parts.push(`Sub path: ${martialPathOption(m.subPath)?.label ?? m.subPath}`);
+    if (m.mainRole) parts.push(`Role: ${ROLE_LABEL[m.mainRole] ?? m.mainRole}`);
     if (m.team) parts.push(`Team: ${TEAM_LABEL[m.team] ?? m.team}`);
     if (!m.onRoster) parts.push('Không có trong roster');
     return parts.join(' · ');

@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { firstValueFrom } from 'rxjs';
 import { RegisterPopupService } from '../../../core/services/register-popup.service';
 import { apiUrl } from '../../../core/api';
+import { MARTIAL_PATHS } from '../../../core/models/martial-path';
 
 /**
  * The three seats somebody can play.
@@ -45,23 +46,12 @@ export class RegisterFormPopupComponent {
     uid:       new FormControl('', { validators: Validators.required, nonNullable: true }),
     ign:       new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
     mainRole:  new FormControl('', { validators: Validators.required, nonNullable: true }),
-    // Optional: '' is "none", which is a real answer — some people play one seat only.
-    subRole:   new FormControl('', { nonNullable: true }),
+    // Optional: '' is "not sure" or "none", both real answers — a new member may not know yet.
+    mainPath:  new FormControl('', { nonNullable: true }),
+    subPath:   new FormControl('', { nonNullable: true }),
   });
 
-  /** The sub role's choices: the main role is not offered again, since it would say nothing. */
-  subRoles(): readonly { value: string; label: string }[] {
-    const main = this.form.controls.mainRole.value;
-    return this.combatRoles.filter((r) => r.value !== main);
-  }
-
-  constructor() {
-    // Picking the sub role as the new main role leaves the sub pointing at an option that is no
-    // longer listed, so it is cleared rather than submitted invisibly.
-    this.form.controls.mainRole.valueChanges.subscribe((main) => {
-      if (this.form.controls.subRole.value === main) this.form.controls.subRole.setValue('');
-    });
-  }
+  readonly pathChoices = MARTIAL_PATHS;
 
   close(): void {
     this.popupService.hide();
@@ -89,7 +79,8 @@ export class RegisterFormPopupComponent {
         uid: v.uid,
         ign: v.ign,
         mainRole: v.mainRole,
-        subRole: v.subRole,
+        mainPath: v.mainPath,
+        subPath: v.subPath,
       }));
       this.submitted.set(true);
     } catch (err: unknown) {

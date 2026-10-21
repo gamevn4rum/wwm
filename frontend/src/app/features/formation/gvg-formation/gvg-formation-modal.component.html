@@ -66,7 +66,7 @@
         <!-- ── Boxes (this block is what Copy / Share photograph) ────────────────── -->
         <section id="gvg-formation-shot" class="gf-shot">
           <div class="gf-shot-title">
-            {{ shotTitle() }}
+            <strong>{{ shotTitle() }}</strong>
             @if (startText()) { <span>{{ startText() }}</span> }
           </div>
           <div class="gf-boxes">
@@ -74,7 +74,7 @@
               <div class="gf-box" [class]="'gf-box side-' + box.side">
                 <div class="gf-box-head">{{ box.label }}</div>
                 @for (i of slotIndexes; track i) {
-                  <div class="gf-row" [class.leader]="i === 0">
+                  <div class="gf-row" [class.leader]="i === 0" [class.empty]="!memberAt(box.id, i)">
                     <span class="gf-no">{{ i === 0 ? '★' : i + 1 }}</span>
                     <div class="gf-slot" [class.hover]="hover() === hoverId(box.id, i)"
                          cdkDropList [cdkDropListData]="slotTarget(box.id, i)" cdkDropListSortingDisabled

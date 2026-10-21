@@ -6,6 +6,7 @@ import {
   MemberPatch,
 } from '../../core/services/backoffice.service';
 import { UserRole } from '../../core/services/discord-auth.service';
+import { MARTIAL_PATH_CHOICES } from '../../core/models/martial-path';
 
 /** The three seats, matching the API's `CombatRole` ids and the RSVP role menu. Used for both the
  *  main and the sub role. */
@@ -42,7 +43,8 @@ type Draft = {
   ftp: boolean;
   discord: string;
   mainRole: string;
-  subRole: string;
+  mainPath: string;
+  subPath: string;
   team: string;
 };
 
@@ -122,7 +124,8 @@ type Draft = {
               <th>Rank</th>
               @if (section.primary) {
                 <th>Main role</th>
-                <th>Sub role</th>
+                <th>Main path</th>
+                <th>Sub path</th>
                 <th>Team</th>
               }
               <th>Login</th>
@@ -172,11 +175,20 @@ type Draft = {
                     </select>
                   </td>
                   <td>
-                    <select [ngModel]="draftOf(m).subRole"
-                            (ngModelChange)="edit(m, { subRole: $event })"
+                    <select [ngModel]="draftOf(m).mainPath"
+                            (ngModelChange)="edit(m, { mainPath: $event })"
                             [ngModelOptions]="{ standalone: true }">
-                      @for (r of combatRoles; track r.value) {
-                        <option [value]="r.value">{{ r.label }}</option>
+                      @for (p of pathChoices; track p.value) {
+                        <option [value]="p.value">{{ p.label }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <select [ngModel]="draftOf(m).subPath"
+                            (ngModelChange)="edit(m, { subPath: $event })"
+                            [ngModelOptions]="{ standalone: true }">
+                      @for (p of pathChoices; track p.value) {
+                        <option [value]="p.value">{{ p.label }}</option>
                       }
                     </select>
                   </td>
@@ -289,6 +301,7 @@ export class ManageMembersPageComponent {
   readonly notice = signal<string | null>(null);
 
   protected readonly combatRoles = COMBAT_ROLES;
+  protected readonly pathChoices = MARTIAL_PATH_CHOICES;
   protected readonly teams = TEAMS;
   protected readonly sorts = SORTS;
 
@@ -323,7 +336,8 @@ export class ManageMembersPageComponent {
       ftp: m.ftp,
       discord: m.discord ?? '',
       mainRole: m.mainRole ?? '',
-      subRole: m.subRole ?? '',
+      mainPath: m.mainPath ?? '',
+      subPath: m.subPath ?? '',
       team: m.team ?? '',
     };
   }
@@ -411,7 +425,8 @@ export class ManageMembersPageComponent {
     if (draft.ftp !== base.ftp) patch.ftp = draft.ftp;
     if (draft.discord !== base.discord) patch.discord = draft.discord;
     if (draft.mainRole !== base.mainRole) patch.mainRole = draft.mainRole;
-    if (draft.subRole !== base.subRole) patch.subRole = draft.subRole;
+    if (draft.mainPath !== base.mainPath) patch.mainPath = draft.mainPath;
+    if (draft.subPath !== base.subPath) patch.subPath = draft.subPath;
     if (draft.team !== base.team) patch.team = draft.team;
 
     this.busy.set(m.id);

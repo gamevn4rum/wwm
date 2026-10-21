@@ -11,4 +11,7 @@ export interface RosterMember {
   role: string;
   notes: string;
   registered: boolean;
+  /** `MemberPath` ids; absent against an older API and null until someone sets them. */
+  mainPath?: string | null;
+  subPath?: string | null;
 }

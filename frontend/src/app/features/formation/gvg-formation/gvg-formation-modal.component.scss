@@ -144,22 +144,32 @@ $flex: #5f7757;
 .gf-shot {
   margin-top: 0.8rem;
   background: #f4f6f9;
-  padding: 0.6rem 0.2rem 0.2rem;
+  padding: 0;
 }
 
+// A banner, not a caption: it is what tells people in the channel which match this is.
 .gf-shot-title {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0 0.1rem 0.5rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: $slate-dark;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0 0 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  background: $slate-dark;
+  border-bottom: 4px solid $gold;
+  color: #fff;
+  text-align: center;
 
-  span { font: 500 0.8rem Inter, sans-serif; color: #6b7785; }
+  strong {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+  }
+
+  span { font: 600 0.9rem Inter, sans-serif; color: #e6edf6; }
 }
 
 .gf-boxes {
@@ -168,6 +178,10 @@ $flex: #5f7757;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, auto);
   grid-auto-flow: column;
+  // Each box as tall as its own members, so a box with one name is not stretched to its neighbour's
+  // height — in the picture that would put the empty space the trimmed rows were meant to remove
+  // back at the bottom of the box.
+  align-items: start;
   gap: 0.7rem;
 }
 
@@ -267,13 +281,18 @@ $flex: #5f7757;
 .gf-status { font-size: 0.8rem; color: #4f6684; }
 .gf-status.gf-err { color: #b5533d; }
 
-@media (max-width: 760px) {
-  .gf-boxes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-flow: row; }
-}
-
-@media (max-width: 520px) {
+// Phones keep all three columns — Công, Thủ, Flex — and the chips inside them take two rows
+// (icons, then name; see the chip), which is what fits ~100px of width.
+@media (max-width: 640px) {
   .gf-overlay { padding: 0; }
   .gf-panel { max-height: 100dvh; border-radius: 0; }
-  .gf-boxes { grid-template-columns: 1fr; }
+  .gf-scroll { padding: 0.6rem 0.5rem; }
+  .gf-boxes { gap: 0.4rem; }
+  .gf-box-head { font-size: 0.8rem; padding: 0.25rem 0.4rem; }
+  .gf-row { padding: 2px 3px; gap: 0.2rem; }
+  .gf-no { width: 0.8rem; font-size: 0.65rem; }
+  .gf-slot { border-radius: 12px; min-height: 44px; padding: 0; }
+  .gf-hint { padding-left: 0.3rem; font-size: 0.65rem; }
+  .gf-shot-title strong { font-size: 1.3rem; }
   .gf-filter { min-width: 0; width: 100%; }
 }

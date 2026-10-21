@@ -6,4 +6,6 @@ export interface Player {
   notes: string;
   /** False = on the roster but no Discord handle yet, i.e. "Unregistered". */
   registered: boolean;
+  mainPath: string | null;
+  subPath: string | null;
 }

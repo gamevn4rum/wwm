@@ -33,8 +33,10 @@ export interface CommanderMember {
   /** tank | dps | healer, or null if they never said. The same three words the RSVP role menu and
    *  the tournament pools use, so the answers line up across all three. */
   mainRole: string | null;
-  /** Their second seat, from the same three. */
-  subRole: string | null;
+  /** The martial path they mainly run — a `MemberPath` id (see core/models/martial-path.ts). */
+  mainPath: string | null;
+  /** A second path, same ids. */
+  subPath: string | null;
   /** attack | defense | flex (Công / Thủ / Flex). An older free-text value may still sit here
    *  until an officer picks one. */
   team: string | null;
@@ -57,7 +59,8 @@ export interface MemberPatch {
   role?: UserRole;
   discord?: string;
   mainRole?: string;
-  subRole?: string;
+  mainPath?: string;
+  subPath?: string;
   team?: string;
   notes?: string;
 }
@@ -131,8 +134,10 @@ export interface Registration {
   ign: string;
   /** tank | dps | healer — the seat they mainly want. */
   mainRole: string | null;
-  /** Their second seat, or null for none. */
-  subRole: string | null;
+  /** The martial path they run, or null. */
+  mainPath: string | null;
+  /** A second path, or null for none. */
+  subPath: string | null;
   note: string | null;
   status: 'pending' | 'approved' | 'rejected';
   submittedUtc: string;

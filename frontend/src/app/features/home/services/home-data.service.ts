@@ -33,6 +33,8 @@ export class HomeDataService {
             rankIconKey: rankIconKey(m.role),
             notes: m.notes,
             registered: m.registered,
+            mainPath: m.mainPath ?? null,
+            subPath: m.subPath ?? null,
           }))
           .filter((p) => p.name !== '');
 
