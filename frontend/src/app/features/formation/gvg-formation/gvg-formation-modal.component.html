@@ -5,8 +5,7 @@
       <button type="button" class="gf-x" (click)="closed.emit()" aria-label="Đóng">×</button>
     </header>
 
-    <div class="gf-scroll">
-      @if (loading()) {
+    @if (loading()) {
         <p class="gf-msg">Đang tải…</p>
       } @else if (loadError()) {
         <p class="gf-msg gf-err">{{ loadError() }}</p>
@@ -59,6 +58,9 @@
           }
         </section>
 
+        <!-- Everything below scrolls: the boxes and the buttons. The pool above stays put so a
+             name can be dragged in from any scroll position. -->
+        <div class="gf-scroll">
         @if (note()) {
           <p class="gf-note">{{ note() }}</p>
         }
@@ -96,8 +98,6 @@
             }
           </div>
         </section>
-      }
-    </div>
 
     <footer class="gf-foot">
       <div class="gf-foot-group">
@@ -127,5 +127,7 @@
         @if (shareText()) { <span class="gf-status" [class.gf-err]="shareState() === 'failed'">{{ shareText() }}</span> }
       </div>
     </footer>
+        </div>
+      }
   </div>
 </div>

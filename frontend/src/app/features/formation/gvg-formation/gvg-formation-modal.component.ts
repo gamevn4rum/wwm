@@ -211,37 +211,35 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   // ── Picture: copy and share ──────────────────────────────────────────────────────────────────
 
   /**
-   * Photographs the boxes without their empty rows. Those are removed from an off-screen clone
-   * rather than hidden on screen, so the commander's own view keeps every slot to drop on, and the
-   * picture is measured at its trimmed height — the same approach the member card's share uses. The
-   * rows keep their numbers, so a box with only slots 1 and 4 filled still reads as 1 and 4.
+   * Photographs the boxes without their empty rows. The live block is captured, with a class on it
+   * for the duration that hides the empty rows, so the picture is laid out and measured at its
+   * trimmed height. (An earlier version cloned the block off-screen and removed the rows there;
+   * that came out cropped to a sliver, where capturing the real element has always been fine.)
+   * The rows keep their numbers, so a box with only slots 1 and 4 filled still reads as 1 and 4.
    */
   private async capture(): Promise<Blob | null> {
     const el = document.getElementById('gvg-formation-shot');
     if (!el) return null;
 
-    const clone = el.cloneNode(true) as HTMLElement;
-    clone.removeAttribute('id');
-    clone.querySelectorAll('.gf-row.empty').forEach((row) => row.remove());
+    // Fetched before the rows are hidden, so they are gone only while the picture is rendered.
+    const fontEmbedCSS = await cardFontCss();
 
-    const host = document.createElement('div');
-    host.style.cssText =
-      `position: fixed; left: -10000px; top: 0; width: ${el.offsetWidth}px; pointer-events: none;`;
-    host.appendChild(clone);
-    document.body.appendChild(host);
+    el.classList.add('capturing');
     try {
-      const rect = clone.getBoundingClientRect();
-      const width = Math.ceil(rect.width);
-      const height = Math.ceil(rect.height);
-      return await toBlob(clone, {
+      // Reading the size forces the layout with the rows gone.
+      const width = Math.ceil(el.offsetWidth);
+      const height = Math.ceil(el.offsetHeight);
+      return await toBlob(el, {
         pixelRatio: captureScale(width, height),
         width,
         height,
         backgroundColor: '#f4f6f9',
-        fontEmbedCSS: await cardFontCss(),
+        fontEmbedCSS,
+        // The block's own margin would shift its content down inside the fixed-size picture.
+        style: { margin: '0' },
       });
     } finally {
-      host.remove();
+      el.classList.remove('capturing');
     }
   }
 

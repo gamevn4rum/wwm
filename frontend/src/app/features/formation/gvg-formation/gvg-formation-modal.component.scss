@@ -59,28 +59,39 @@ $flex: #5f7757;
 
 .gf-scroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 0.9rem 1rem;
+  padding: 0 1rem 0.9rem;
 }
 
 .gf-msg { text-align: center; padding: 2rem 0; color: #4f6684; }
 .gf-err { color: #b5533d; }
 
 // ── Pool ───────────────────────────────────────────────────────────────────────
+// The fixed top: it never scrolls with the boxes, so a name can be picked at any scroll position.
+// A long list (everyone, with no match coming) scrolls inside itself, under its own heading.
 .gf-pool {
+  flex: none;
+  margin: 0.7rem 1rem 0.6rem;
+  max-height: 34dvh;
+  overflow-y: auto;
   background: #fff;
   border: 1.5px solid rgba(79, 102, 132, 0.3);
   border-radius: 14px;
-  padding: 0.7rem 0.8rem;
+  padding: 0 0.8rem 0.7rem;
 }
 
 .gf-pool-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  padding: 0.6rem 0 0.4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
-  margin-bottom: 0.5rem;
   color: #2f3b4c;
 }
 
@@ -142,7 +153,7 @@ $flex: #5f7757;
 
 // ── Captured block ─────────────────────────────────────────────────────────────
 .gf-shot {
-  margin-top: 0.8rem;
+  margin-top: 0.2rem;
   background: #f4f6f9;
   padding: 0;
 }
@@ -250,6 +261,10 @@ $flex: #5f7757;
 
 .gf-hint { padding-left: 0.7rem; font: 600 0.72rem Inter, sans-serif; color: $gold; letter-spacing: 0.04em; }
 
+// Taken by Copy and Share: the rows nobody is in are dropped from the picture (and only from it —
+// they come back the moment the capture ends), and the numbers on the rest are left as they are.
+.gf-shot.capturing .gf-row.empty { display: none; }
+
 // ── Footer ─────────────────────────────────────────────────────────────────────
 .gf-foot {
   display: flex;
@@ -257,8 +272,10 @@ $flex: #5f7757;
   gap: 0.6rem 1.2rem;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 1rem;
-  border-top: 1.5px solid rgba(79, 102, 132, 0.25);
+  margin-top: 0.8rem;
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid rgba(79, 102, 132, 0.25);
+  border-radius: 12px;
   background: #fff;
 }
 
@@ -286,7 +303,8 @@ $flex: #5f7757;
 @media (max-width: 640px) {
   .gf-overlay { padding: 0; }
   .gf-panel { max-height: 100dvh; border-radius: 0; }
-  .gf-scroll { padding: 0.6rem 0.5rem; }
+  .gf-scroll { padding: 0 0.5rem 0.6rem; }
+  .gf-pool { margin: 0.5rem 0.5rem 0.4rem; max-height: 30dvh; }
   .gf-boxes { gap: 0.4rem; }
   .gf-box-head { font-size: 0.8rem; padding: 0.25rem 0.4rem; }
   .gf-row { padding: 2px 3px; gap: 0.2rem; }
