@@ -18,8 +18,10 @@ const CHANNEL_KEY = 'gv_gvg_share_channel';
 export class GvgFormationService {
   private readonly http = inject(HttpClient);
 
-  getPool(): Observable<FormationPool> {
-    return this.http.get<FormationPool>(apiUrl('/commander/gvg/formation-pool'));
+  /** `eventId` names the match to form for; without one the API picks the next one itself. */
+  getPool(eventId?: string | null): Observable<FormationPool> {
+    const query = eventId ? `?eventId=${encodeURIComponent(eventId)}` : '';
+    return this.http.get<FormationPool>(apiUrl(`/commander/gvg/formation-pool${query}`));
   }
 
   getChannels(): Observable<ShareChannel[]> {

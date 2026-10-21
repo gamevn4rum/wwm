@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit, computed, inject, output, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { toBlob } from 'html-to-image';
@@ -35,6 +35,10 @@ const ERROR_TEXT: Record<string, string> = {
 })
 export class GvgFormationModalComponent implements OnInit, OnDestroy {
   private readonly service = inject(GvgFormationService);
+
+  /** The match to form for. Empty — the page's own button — leaves the choice to the API, which
+   *  takes the next one. The embed route fills it from the RSVP post the link came from. */
+  readonly eventId = input<string | null>(null);
 
   readonly closed = output<void>();
 
@@ -116,7 +120,7 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     }).catch(() => this.channels.set([]));
 
     try {
-      const pool = await firstValueFrom(this.service.getPool());
+      const pool = await firstValueFrom(this.service.getPool(this.eventId()));
       this.pool.set(pool);
       this.restoreSaved();
     } catch (err) {

@@ -9,6 +9,15 @@ import { featureGuard } from './core/guards/feature.guard';
 
 export const routes: Routes = [
   {
+    // The bare "Form GvG Team" modal the Discord RSVP post links to. Deliberately outside
+    // MainLayoutComponent — this window holds the modal and nothing else.
+    path: 'embed/gvg-formation',
+    canActivate: [commanderGuard, featureGuard('page.formation')],
+    loadComponent: () =>
+      import('./features/formation/embed/formation-embed-page.component')
+        .then((m) => m.FormationEmbedPageComponent),
+  },
+  {
     path: '',
     component: MainLayoutComponent,
     children: [
