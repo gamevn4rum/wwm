@@ -12,7 +12,9 @@ export const routes: Routes = [
     // The bare "Form GvG Team" modal the Discord RSVP post links to. Deliberately outside
     // MainLayoutComponent — this window holds the modal and nothing else.
     path: 'embed/gvg-formation',
-    canActivate: [commanderGuard, featureGuard('page.formation')],
+    // No rank guard: a guard redirects, and in a window that holds only this modal the home page
+    // is not a useful answer. The page says why instead — see FormationEmbedPageComponent.access.
+    canActivate: [featureGuard('page.formation')],
     loadComponent: () =>
       import('./features/formation/embed/formation-embed-page.component')
         .then((m) => m.FormationEmbedPageComponent),
