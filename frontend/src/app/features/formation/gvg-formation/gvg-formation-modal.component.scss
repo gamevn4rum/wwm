@@ -24,7 +24,7 @@ $flex: #5f7757;
   border: 2px solid $slate;
   border-radius: var(--radius-lg, 20px);
   width: 100%;
-  max-width: 980px;
+  max-width: 860px;
   max-height: calc(100dvh - 2rem);
   display: flex;
   flex-direction: column;
@@ -164,7 +164,10 @@ $flex: #5f7757;
 
 .gf-boxes {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  // Three columns — Công, Thủ, Flex — with the A box over the B box in each.
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, auto);
+  grid-auto-flow: column;
   gap: 0.7rem;
 }
 
@@ -264,7 +267,11 @@ $flex: #5f7757;
 .gf-status { font-size: 0.8rem; color: #4f6684; }
 .gf-status.gf-err { color: #b5533d; }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
+  .gf-boxes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-flow: row; }
+}
+
+@media (max-width: 520px) {
   .gf-overlay { padding: 0; }
   .gf-panel { max-height: 100dvh; border-radius: 0; }
   .gf-boxes { grid-template-columns: 1fr; }

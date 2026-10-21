@@ -3,22 +3,23 @@
   width: 100%;
 }
 
-.form-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0 0 var(--space-3, 0.75rem);
-}
-
-.form-gvg-btn {
+.form-gvg-fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 900;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid #4f6684;
+  border-radius: 50%;
   background: #6e88a8;
   color: #fff;
-  border-radius: var(--radius-sm, 10px);
-  padding: 0.5rem 1.1rem;
-  font: 600 0.9rem Inter, sans-serif;
-  letter-spacing: 0.02em;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(79, 102, 132, 0.3);
+  box-shadow: 0 4px 14px rgba(36, 46, 60, 0.35);
+  transition: transform 120ms, background 120ms;
 
-  &:hover { background: #5d7797; }
+  &:hover { background: #5d7797; transform: translateY(-2px); }
 }

@@ -1,8 +1,13 @@
 <div class="page-fade">
   @if (canForm()) {
-    <div class="form-bar">
-      <button type="button" class="form-gvg-btn" (click)="formOpen.set(true)">Form GvG Team</button>
-    </div>
+    <button type="button" class="form-gvg-fab" (click)="formOpen.set(true)"
+            title="Form GvG Team" aria-label="Form GvG Team">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="9" cy="8" r="3" /><path d="M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+        <circle cx="17" cy="9" r="2.4" /><path d="M16 13.2c3 .1 5 2.2 5 5.3" />
+      </svg>
+    </button>
   }
 
   <!-- registeredOnly: Formation plans around people you can actually organise, so members with no

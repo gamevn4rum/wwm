@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { PoolMember } from './gvg-formation.models';
 
-const ROLE_LETTER: Record<string, string> = { tank: 'T', dps: 'D', healer: 'H' };
+const ROLE_LETTER: Record<string, string> = { tank: '🛡️', dps: '⚔️', healer: '⛑️' };
 const ROLE_LABEL: Record<string, string> = { tank: 'Tank', dps: 'DPS', healer: 'Healer' };
 const TEAM_LABEL: Record<string, string> = { attack: 'Công', defense: 'Thủ', flex: 'Flex' };
 
@@ -34,21 +34,15 @@ const TEAM_LABEL: Record<string, string> = { attack: 'Công', defense: 'Thủ', 
     .role {
       flex: none; width: 20px; height: 20px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.68rem; font-weight: 700; color: #fff; background: #9aa3ad;
+      font-size: 0.8rem; line-height: 1; color: #9aa3ad; background: #eef1f5;
     }
-    .role.r-tank { background: #4f6684; }
-    .role.r-dps { background: #c0502f; }
-    .role.r-healer { background: #5f7757; }
+    .role.r-tank { background: rgba(79, 102, 132, 0.18); }
+    .role.r-dps { background: rgba(192, 80, 47, 0.18); }
+    .role.r-healer { background: rgba(95, 119, 87, 0.2); }
     .name { overflow: hidden; text-overflow: ellipsis; }
     .sub {
-      flex: none; width: 16px; height: 16px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.58rem; font-weight: 700; background: #fff;
-      border: 1.5px solid currentColor;
+      flex: none; font-size: 0.68rem; line-height: 1; opacity: 0.75;
     }
-    .sub.r-tank { color: #4f6684; }
-    .sub.r-dps { color: #c0502f; }
-    .sub.r-healer { color: #5f7757; }
     .team { flex: none; font-size: 0.62rem; font-weight: 500; color: #8a8f96; letter-spacing: 0.02em; }
   `],
 })
