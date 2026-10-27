@@ -68,3 +68,32 @@ export function emptyLayout(): FormationLayout {
 export type DropTarget =
   | { kind: 'pool' }
   | { kind: 'slot'; box: BoxId; idx: number };
+
+/** The jobs a commander can pin on a placed member. One per member, none by default. */
+export type TaskId = 'chicken' | 'tree' | 'money';
+
+export interface TaskOption {
+  id: TaskId;
+  emoji: string;
+  label: string;
+}
+
+export const TASK_OPTIONS: readonly TaskOption[] = [
+  { id: 'chicken', emoji: '🐔', label: 'Gà' },
+  { id: 'tree', emoji: '🌳', label: 'Cây' },
+  { id: 'money', emoji: '💰', label: 'Tiền' },
+];
+
+/** Member key → task. Keyed by member, not by slot, so the job follows a name that is moved or
+ *  swapped into another box — "one per member" is what the commander assigned, not "one per seat". */
+export type FormationTasks = Record<string, TaskId>;
+
+export function taskOption(id: TaskId | null | undefined): TaskOption | null {
+  return id ? (TASK_OPTIONS.find((t) => t.id === id) ?? null) : null;
+}
+
+/** One rolling save: who is where, and what each of them is doing. */
+export interface SavedFormation {
+  layout: FormationLayout;
+  tasks: FormationTasks;
+}

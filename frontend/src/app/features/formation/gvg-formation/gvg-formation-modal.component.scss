@@ -258,9 +258,67 @@ $thu: #4f6684;
 
 .gf-hint { padding-left: 0.7rem; font: 600 0.72rem Inter, sans-serif; color: $gold; letter-spacing: 0.04em; }
 
+// ── Task badge ─────────────────────────────────────────────────────────────────
+// The one job this member has, at the end of their row. Fixed width, so the name beside it gets
+// the same space in every row whether or not anybody has been given anything yet.
+.gf-task {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1.5px solid color-mix(in srgb, var(--band) 35%, #fff);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 100ms, background 100ms;
+
+  &:hover, &.open { border-color: var(--band); background: color-mix(in srgb, var(--band) 12%, #fff); }
+  // Nobody assigned: a hollow ring, quiet enough not to read as a job of its own.
+  &.none { color: #b4bcc6; border-style: dashed; font-size: 0.7rem; }
+}
+
+.gf-task-menu {
+  position: fixed;
+  z-index: 10001;
+  width: 132px;
+  padding: 4px;
+  border: 1.5px solid $slate-dark;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(36, 46, 60, 0.22);
+}
+
+.gf-task-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.3rem 0.4rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font: 600 0.8rem Inter, sans-serif;
+  color: #2f3b4c;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: rgba(110, 136, 168, 0.16); }
+  &.on { background: rgba(200, 145, 47, 0.2); }
+}
+
+.gf-task-face { width: 1.1rem; text-align: center; font-size: 0.95rem; color: #6e7a88; }
+
 // Taken by Copy and Share: the rows nobody is in are dropped from the picture (and only from it —
 // they come back the moment the capture ends), and the numbers on the rest are left as they are.
 .gf-shot.capturing .gf-row.empty { display: none; }
+// An unassigned badge is a control, not a result: hidden rather than removed, so the names in the
+// picture stay in the same column as the rows that do carry a job.
+.gf-shot.capturing .gf-task.none { visibility: hidden; }
 
 // ── Footer ─────────────────────────────────────────────────────────────────────
 .gf-foot {
@@ -307,6 +365,7 @@ $thu: #4f6684;
   .gf-row { padding: 2px 3px; gap: 0.2rem; }
   .gf-no { width: 0.8rem; font-size: 0.65rem; }
   .gf-slot { border-radius: 12px; min-height: 44px; padding: 0; }
+  .gf-task { width: 20px; height: 20px; font-size: 0.72rem; }
   .gf-hint { padding-left: 0.3rem; font-size: 0.65rem; }
   .gf-shot-title strong { font-size: 1.3rem; }
   .gf-filter { min-width: 0; width: 100%; }

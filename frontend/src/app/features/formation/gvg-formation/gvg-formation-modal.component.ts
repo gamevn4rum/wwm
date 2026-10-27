@@ -9,8 +9,8 @@ import { cardFontCss } from '../../../core/utils/card-fonts';
 import { GvgChipComponent } from './gvg-chip.component';
 import { GvgFormationService } from './gvg-formation.service';
 import {
-  BoxId, DropTarget, FORMATION_BOXES, FormationLayout, FormationPool, PoolMember, SLOTS_PER_BOX,
-  ShareChannel, emptyLayout,
+  BoxId, DropTarget, FORMATION_BOXES, FormationLayout, FormationPool, FormationTasks, PoolMember,
+  SLOTS_PER_BOX, ShareChannel, TASK_OPTIONS, TaskId, emptyLayout, taskOption,
 } from './gvg-formation.models';
 
 type Busy = 'idle' | 'working' | 'done' | 'failed';
@@ -43,15 +43,19 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   readonly closed = output<void>();
 
   readonly boxes = FORMATION_BOXES;
+  readonly taskOptions = TASK_OPTIONS;
   readonly slotIndexes = Array.from({ length: SLOTS_PER_BOX }, (_, i) => i);
 
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);
   readonly pool = signal<FormationPool | null>(null);
   readonly layout = signal<FormationLayout>(emptyLayout());
+  readonly tasks = signal<FormationTasks>({});
   readonly filter = signal('');
   readonly maybeOpen = signal(false);
   readonly hover = signal<string | null>(null);
+  /** The open task dropdown: whose it is, and where on screen to draw it. */
+  readonly taskMenu = signal<{ key: string; x: number; y: number } | null>(null);
   readonly note = signal<string | null>(null);
 
   readonly channels = signal<ShareChannel[]>([]);
@@ -138,7 +142,19 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:keydown.escape')
-  onEscape(): void { this.closed.emit(); }
+  onEscape(): void {
+    if (this.taskMenu()) { this.closeTaskMenu(); return; }
+    this.closed.emit();
+  }
+
+  /** A press anywhere else puts the dropdown away; the badge itself stops the event. */
+  @HostListener('document:pointerdown')
+  onPointerDown(): void { this.closeTaskMenu(); }
+
+  /** The menu is pinned to the viewport, so anything that moves the badge under it — the boxes
+   *  scrolling (the template calls this too), the window resizing — has to put it away. */
+  @HostListener('window:resize')
+  onViewportMoved(): void { this.closeTaskMenu(); }
 
   memberAt(box: BoxId, idx: number): PoolMember | null {
     const key = this.layout()[box][idx];
@@ -179,19 +195,58 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
 
   clear(): void {
     this.layout.set(emptyLayout());
+    this.tasks.set({});
+    this.closeTaskMenu();
     this.saveText.set('');
+  }
+
+  // ── Tasks ────────────────────────────────────────────────────────────────────────────────────
+
+  taskOf(key: string): TaskId | null { return this.tasks()[key] ?? null; }
+
+  /** The badge face: the job's emoji, or a hollow ring for nobody-assigned-yet. */
+  taskEmoji(key: string): string { return taskOption(this.taskOf(key))?.emoji ?? '○'; }
+
+  taskLabel(key: string): string { return taskOption(this.taskOf(key))?.label ?? 'Chưa giao'; }
+
+  /**
+   * Opens the dropdown under the badge. Fixed to the viewport rather than positioned inside the
+   * row, because the box clips its own overflow and the boxes scroll — a menu drawn in the row
+   * would be cut off at the first box edge it reached.
+   */
+  openTaskMenu(ev: MouseEvent, key: string): void {
+    ev.stopPropagation();
+    if (this.taskMenu()?.key === key) { this.closeTaskMenu(); return; }
+    const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+    const width = 132;
+    const height = 4 * 30 + 8;
+    this.taskMenu.set({
+      key,
+      x: Math.min(rect.left, window.innerWidth - width - 8),
+      y: rect.bottom + height > window.innerHeight ? Math.max(8, rect.top - height) : rect.bottom + 4,
+    });
+  }
+
+  closeTaskMenu(): void { this.taskMenu.set(null); }
+
+  setTask(key: string, task: TaskId | null): void {
+    const next = { ...this.tasks() };
+    if (task) next[key] = task; else delete next[key];
+    this.tasks.set(next);
+    this.closeTaskMenu();
   }
 
   // ── Save ─────────────────────────────────────────────────────────────────────────────────────
 
   save(): void {
-    this.saveText.set(this.service.saveLayout(this.layout()) ? 'Đã lưu' : 'Không lưu được (trình duyệt chặn lưu trữ)');
+    const ok = this.service.saveFormation(this.layout(), this.tasks());
+    this.saveText.set(ok ? 'Đã lưu' : 'Không lưu được (trình duyệt chặn lưu trữ)');
     setTimeout(() => this.saveText.set(''), 3000);
   }
 
   /** Puts the saved layout back, dropping anyone who is not in this match's pool. */
   private restoreSaved(): void {
-    const saved = this.service.loadLayout();
+    const saved = this.service.loadSaved();
     if (!saved) return;
     const known = this.byKey();
     let dropped = 0;
@@ -199,7 +254,7 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     const seen = new Set<string>();
     for (const box of FORMATION_BOXES) {
       for (let i = 0; i < SLOTS_PER_BOX; i++) {
-        const key = saved[box.id][i];
+        const key = saved.layout[box.id][i];
         if (!key) continue;
         if (!known.has(key) || seen.has(key)) { dropped++; continue; }
         seen.add(key);
@@ -207,6 +262,9 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
       }
     }
     this.layout.set(layout);
+    // Only the jobs of the people who made it back in: a task map keyed by somebody no longer on
+    // the board would quietly reappear the next time they were placed.
+    this.tasks.set(Object.fromEntries(Object.entries(saved.tasks).filter(([key]) => seen.has(key))));
     if (dropped > 0) {
       this.note.set(`${dropped} người không đăng ký trận này đã được bỏ ra khỏi đội hình đã lưu.`);
     }
@@ -224,6 +282,7 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   private async capture(): Promise<Blob | null> {
     const el = document.getElementById('gvg-formation-shot');
     if (!el) return null;
+    this.closeTaskMenu();
 
     // Fetched before the rows are hidden, so they are gone only while the picture is rendered.
     const fontEmbedCSS = await cardFontCss();

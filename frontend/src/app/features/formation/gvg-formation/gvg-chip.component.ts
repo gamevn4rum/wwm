@@ -7,7 +7,8 @@ const ROLE_LABEL: Record<string, string> = { tank: 'Tank', dps: 'DPS', healer: '
 const TEAM_LABEL: Record<string, string> = { attack: 'Công', defense: 'Thủ', flex: 'Flex' };
 
 /** A member as a chip: their main and sub martial path icons, then the name, with the team as a
- *  quiet hint. A path they have not got draws a "-" placeholder so the names stay aligned. */
+ *  quiet hint. A path they have not got draws a "-" placeholder so the names stay aligned. A name
+ *  too long for its box is cut with an ellipsis — the tooltip still carries it in full. */
 @Component({
   selector: 'app-gvg-chip',
   standalone: true,
@@ -25,17 +26,20 @@ const TEAM_LABEL: Record<string, string> = { attack: 'Công', defense: 'Thủ', 
     </span>
   `,
   styles: [`
-    :host { display: block; min-width: 0; }
+    :host { display: block; min-width: 0; max-width: 100%; }
     .chip {
       display: flex; align-items: center; gap: 6px; min-width: 0;
       padding: 4px 10px 4px 5px; border-radius: 999px;
       background: #fff; border: 1.5px solid rgba(79, 102, 132, 0.35);
       font: 600 0.82rem/1.2 Inter, system-ui, sans-serif; color: #2f3b4c;
       user-select: none; white-space: nowrap;
+      /* A box is only as wide as a third of the panel, and the task badge takes a slice of the row
+         off that again — so the chip never grows past its slot, and the name gives way first. */
+      max-width: 100%; overflow: hidden;
     }
     .chip.off { background: #f1f1ef; border-style: dashed; color: #6b6b66; }
     .paths { display: inline-flex; gap: 3px; flex: none; }
-    .name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .team { flex: none; font-size: 0.62rem; font-weight: 500; color: #8a8f96; letter-spacing: 0.02em; }
 
     /* Phones: three boxes side by side leave a chip ~100px, so a boxed chip is two rows — the

@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { apiUrl } from '../../../core/api';
 import {
-  FORMATION_BOXES, FormationLayout, FormationPool, SLOTS_PER_BOX, ShareChannel, emptyLayout,
+  FORMATION_BOXES, FormationLayout, FormationPool, FormationTasks, SLOTS_PER_BOX, SavedFormation,
+  ShareChannel, TASK_OPTIONS, TaskId, emptyLayout,
 } from './gvg-formation.models';
 
 const LAYOUT_KEY = 'gv_gvg_formation_v1';
@@ -36,12 +37,17 @@ export class GvgFormationService {
     return this.http.post<{ messageId: string | null }>(apiUrl('/commander/gvg/formation/share'), body);
   }
 
-  /** The saved layout, or null when there is none or it cannot be read. */
-  loadLayout(): FormationLayout | null {
+  /** The saved layout and its tasks, or null when there is none or it cannot be read. A save
+   *  written before tasks existed has none, and reads back with an empty map rather than failing. */
+  loadSaved(): SavedFormation | null {
     try {
       const raw = localStorage.getItem(LAYOUT_KEY);
       if (!raw) return null;
-      const parsed = JSON.parse(raw) as { v?: number; boxes?: Record<string, unknown> };
+      const parsed = JSON.parse(raw) as {
+        v?: number;
+        boxes?: Record<string, unknown>;
+        tasks?: Record<string, unknown>;
+      };
       if (parsed?.v !== 1 || !parsed.boxes) return null;
       const layout = emptyLayout();
       for (const box of FORMATION_BOXES) {
@@ -52,17 +58,21 @@ export class GvgFormationService {
           layout[box.id][i] = typeof key === 'string' && key ? key : null;
         }
       }
-      return layout;
+      const tasks: FormationTasks = {};
+      for (const [key, task] of Object.entries(parsed.tasks ?? {})) {
+        if (TASK_OPTIONS.some((t) => t.id === task)) tasks[key] = task as TaskId;
+      }
+      return { layout, tasks };
     } catch {
       return null;
     }
   }
 
-  saveLayout(layout: FormationLayout): boolean {
+  saveFormation(layout: FormationLayout, tasks: FormationTasks): boolean {
     try {
       localStorage.setItem(
         LAYOUT_KEY,
-        JSON.stringify({ v: 1, savedAt: new Date().toISOString(), boxes: layout }),
+        JSON.stringify({ v: 1, savedAt: new Date().toISOString(), boxes: layout, tasks }),
       );
       return true;
     } catch {

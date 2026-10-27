@@ -60,7 +60,7 @@
 
         <!-- Everything below scrolls: the boxes and the buttons. The pool above stays put so a
              name can be dragged in from any scroll position. -->
-        <div class="gf-scroll">
+        <div class="gf-scroll" (scroll)="closeTaskMenu()">
         @if (note()) {
           <p class="gf-note">{{ note() }}</p>
         }
@@ -92,6 +92,14 @@
                         <span class="gf-hint">{{ i === 0 ? 'Leader' : '' }}</span>
                       }
                     </div>
+                    @if (memberAt(box.id, i); as m) {
+                      <button type="button" class="gf-task" [class.none]="!taskOf(m.key)"
+                              [class.open]="taskMenu()?.key === m.key"
+                              (click)="openTaskMenu($event, m.key)"
+                              [title]="'Nhiệm vụ: ' + taskLabel(m.key)"
+                              [attr.aria-label]="m.name + ' — nhiệm vụ: ' + taskLabel(m.key)"
+                              [attr.aria-expanded]="taskMenu()?.key === m.key">{{ taskEmoji(m.key) }}</button>
+                    }
                   </div>
                 }
               </div>
@@ -129,5 +137,22 @@
     </footer>
         </div>
       }
+
+    <!-- Fixed to the viewport, outside the boxes: they clip their own overflow and they scroll. -->
+    @if (taskMenu(); as menu) {
+      <div class="gf-task-menu" role="menu" [style.left.px]="menu.x" [style.top.px]="menu.y"
+           (pointerdown)="$event.stopPropagation()">
+        @for (t of taskOptions; track t.id) {
+          <button type="button" class="gf-task-opt" role="menuitemradio" [class.on]="taskOf(menu.key) === t.id"
+                  [attr.aria-checked]="taskOf(menu.key) === t.id" (click)="setTask(menu.key, t.id)">
+            <span class="gf-task-face">{{ t.emoji }}</span>{{ t.label }}
+          </button>
+        }
+        <button type="button" class="gf-task-opt" role="menuitemradio" [class.on]="!taskOf(menu.key)"
+                [attr.aria-checked]="!taskOf(menu.key)" (click)="setTask(menu.key, null)">
+          <span class="gf-task-face">○</span>Chưa giao
+        </button>
+      </div>
+    }
   </div>
 </div>
