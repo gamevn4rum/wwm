@@ -39,10 +39,11 @@ const BLURB: Record<ScheduledEventType, string> = {
     <section class="backoffice">
       <p class="hint">
         Which role gets pinged on each kind of event post. This is the only place these ids live —
-        the bot reads them from here rather than keeping a copy. The list holds the guild's own
-        <strong>Rainbow…</strong> roles; use <em>paste an ID</em> for anything else, or for a role
-        newer than the nightly list. Leave one on <em>— none —</em> for posts of that type to ping
-        nobody.
+        the bot reads them from here rather than keeping a copy. The list is the three roles the bot
+        manages — <strong>rainbow.Meet</strong>, <strong>wwm-1</strong>, <strong>wwm-2</strong> —
+        and nothing else can be chosen: the bot refuses to ping any other role, <strong>wwm-3</strong>
+        and <strong>rainbow.Chúa</strong> included. Leave one on <em>— none —</em> for posts of that
+        type to ping nobody.
       </p>
 
       <p class="hint sync">

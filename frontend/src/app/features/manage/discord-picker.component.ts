@@ -16,9 +16,14 @@ const CHANNEL_ICON: Record<string, string> = {
  * fallback honest rather than a workaround — the typed id and the picked one are the same value,
  * and switching between the two modes cannot lose what is already selected.
  *
- * The fallback is not optional garnish. The list is a cache refreshed nightly, so a channel made an
- * hour ago is not in it, and without a way to type an id the panel would be *less* capable than the
- * text box it replaced. It also carries the case where the directory has never synced at all.
+ * The fallback is not optional garnish — for channels. That list is a cache refreshed nightly, so a
+ * channel made an hour ago is not in it, and without a way to type an id the panel would be *less*
+ * capable than the text box it replaced. It also carries the case where the directory has never
+ * synced at all.
+ *
+ * ⚠ Roles have neither fallback, because they are no longer a cache of the server: the API serves
+ * exactly the three the bot manages, built from that list rather than filtered out of the nightly
+ * one, so it is never empty and a fourth id is never valid. See `pastable()`.
  *
  * That last case needs a word of its own, which is what `Sync the list` is for. A cache that has
  * never been filled — the hours between deploying this and the first nightly run, which is exactly
@@ -39,7 +44,7 @@ const CHANNEL_ICON: Record<string, string> = {
     },
   ],
   template: `
-    @if (typing() || directory.empty()) {
+    @if (pastable() && (typing() || unsynced())) {
       <span class="picker">
         <input
           type="text"
@@ -49,7 +54,7 @@ const CHANNEL_ICON: Record<string, string> = {
           [disabled]="disabled()"
           [ngModel]="value()"
           (ngModelChange)="write($event)" />
-        @if (!directory.empty()) {
+        @if (!unsynced()) {
           <button type="button" class="link" (click)="typing.set(false)">choose from list</button>
         } @else {
           <button
@@ -91,7 +96,9 @@ const CHANNEL_ICON: Record<string, string> = {
             <option [value]="value()">{{ value() }} (not in the list)</option>
           }
         </select>
-        <button type="button" class="link" (click)="typing.set(true)">paste an ID</button>
+        @if (pastable()) {
+          <button type="button" class="link" (click)="typing.set(true)">paste an ID</button>
+        }
       </span>
     }
   `,
@@ -112,6 +119,31 @@ export class DiscordPickerComponent implements ControlValueAccessor {
   protected readonly directory = inject(DiscordDirectoryService);
 
   readonly kind = input.required<'channel' | 'role'>();
+
+  /**
+   * Whether an id can be typed instead of picked. Channels: yes — the list is a nightly cache, so
+   * one made an hour ago is not in it, and without this the panel would be less capable than the
+   * text box it replaced.
+   *
+   * Roles: no. The role list is not a cache of the server any more but the three the bot manages
+   * (the API builds it from that ladder, so it is the same three whether or not the directory has
+   * ever synced). A typed id would be a fourth option the API refuses with `role_not_managed` —
+   * an escape hatch onto a locked door.
+   */
+  protected pastable(): boolean { return this.kind() === 'channel'; }
+
+  /**
+   * Whether this picker's own list has never been filled.
+   *
+   * ⚠ This picker's list, not the directory as a whole. The directory's `empty()` is true only when
+   * channels *and* roles are both empty, and roles are now served from a fixed list that is never
+   * empty — so asking it would hide the "sync the list" prompt from the channel picker in exactly
+   * the case the prompt exists for: the hours between a deploy and the first nightly sync.
+   */
+  protected unsynced(): boolean {
+    if (!this.directory.loaded()) return false;
+    return (this.kind() === 'channel' ? this.directory.channels() : this.directory.roles()).length === 0;
+  }
   readonly placeholder = input('e.g. 123456789012345678');
   readonly blankLabel = input('— none —');
 
