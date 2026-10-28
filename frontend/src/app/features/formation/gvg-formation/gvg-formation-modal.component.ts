@@ -24,7 +24,7 @@ const ERROR_TEXT: Record<string, string> = {
 
 /**
  * "Form GvG Team": the commander drags the people who said yes (or everyone, when no match is
- * coming) into six boxes of six, saves the layout in this browser, and copies or posts the picture.
+ * coming) into six boxes of six, saves the layout for every commander to share, and copies or posts the picture.
  */
 @Component({
   selector: 'app-gvg-formation-modal',
@@ -66,6 +66,7 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   readonly shareState = signal<Busy>('idle');
   readonly shareText = signal('');
   readonly saveText = signal('');
+  readonly saving = signal(false);
 
   private noteTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -126,7 +127,7 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     try {
       const pool = await firstValueFrom(this.service.getPool(this.eventId()));
       this.pool.set(pool);
-      this.restoreSaved();
+      await this.restoreSaved();
     } catch (err) {
       this.loadError.set(err instanceof HttpErrorResponse && err.status === 403
         ? 'Bạn không có quyền (cần Commander trở lên).'
@@ -238,15 +239,35 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
 
   // ── Save ─────────────────────────────────────────────────────────────────────────────────────
 
-  save(): void {
-    const ok = this.service.saveFormation(this.layout(), this.tasks());
-    this.saveText.set(ok ? 'Đã lưu' : 'Không lưu được (trình duyệt chặn lưu trữ)');
+  /** Saves to the server, where it replaces the match's shared formation for every commander. */
+  async save(): Promise<void> {
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.saveText.set('Đang lưu…');
+    try {
+      await this.service.saveFormation(this.pool()?.event?.eventId ?? null, this.layout(), this.tasks());
+      this.saveText.set('Đã lưu cho cả đội');
+    } catch {
+      this.saveText.set('Không lưu được');
+    } finally {
+      this.saving.set(false);
+    }
     setTimeout(() => this.saveText.set(''), 3000);
   }
 
-  /** Puts the saved layout back, dropping anyone who is not in this match's pool. */
-  private restoreSaved(): void {
-    const saved = this.service.loadSaved();
+  /**
+   * Puts the shared formation back, dropping anyone who is not in this match's pool — their slot is
+   * left empty. For a match nobody has saved yet this is the most recent formation of any match. A
+   * failed read leaves an empty board: the commander can still build one and save it.
+   */
+  private async restoreSaved(): Promise<void> {
+    let saved;
+    try {
+      saved = await this.service.loadSaved(this.pool()?.event?.eventId ?? null);
+    } catch {
+      this.note.set('Không tải được đội hình đã lưu.');
+      return;
+    }
     if (!saved) return;
     const known = this.byKey();
     let dropped = 0;
@@ -265,9 +286,15 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     // Only the jobs of the people who made it back in: a task map keyed by somebody no longer on
     // the board would quietly reappear the next time they were placed.
     this.tasks.set(Object.fromEntries(Object.entries(saved.tasks).filter(([key]) => seen.has(key))));
-    if (dropped > 0) {
-      this.note.set(`${dropped} người không đăng ký trận này đã được bỏ ra khỏi đội hình đã lưu.`);
-    }
+
+    const when = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(new Date(/[zZ]|[+-]\d\d:\d\d$/.test(saved.savedAtUtc) ? saved.savedAtUtc : `${saved.savedAtUtc}Z`));
+    const parts = [saved.inherited
+      ? `Lấy đội hình gần nhất làm mẫu (${saved.savedBy}, ${when}); bấm Lưu để chốt cho trận này.`
+      : `Đội hình đã lưu bởi ${saved.savedBy} lúc ${when}.`];
+    if (dropped > 0) parts.push(`${dropped} người không đăng ký trận này đã được bỏ ra.`);
+    this.note.set(parts.join(' '));
   }
 
   // ── Picture: copy and share ──────────────────────────────────────────────────────────────────

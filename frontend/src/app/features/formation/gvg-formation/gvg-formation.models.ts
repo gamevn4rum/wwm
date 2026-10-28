@@ -92,8 +92,21 @@ export function taskOption(id: TaskId | null | undefined): TaskOption | null {
   return id ? (TASK_OPTIONS.find((t) => t.id === id) ?? null) : null;
 }
 
-/** One rolling save: who is where, and what each of them is doing. */
+/** The shared save: who is where, what each of them is doing, and who saved it when. `inherited`
+ *  means it was saved for an earlier match and is only the starting point for this one. */
 export interface SavedFormation {
   layout: FormationLayout;
   tasks: FormationTasks;
+  savedBy: string;
+  savedAtUtc: string;
+  inherited: boolean;
+}
+
+/** `SavedFormation` as the API sends it, before it is checked. */
+export interface SavedFormationDto {
+  boxes?: Record<string, unknown>;
+  tasks?: Record<string, unknown>;
+  savedBy: string;
+  savedAtUtc: string;
+  inherited?: boolean;
 }

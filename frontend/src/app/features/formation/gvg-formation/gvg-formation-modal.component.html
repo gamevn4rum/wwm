@@ -110,7 +110,7 @@
     <footer class="gf-foot">
       <div class="gf-foot-group">
         <button type="button" class="gf-btn" (click)="clear()">Xóa hết</button>
-        <button type="button" class="gf-btn gf-btn-main" (click)="save()">Lưu</button>
+        <button type="button" class="gf-btn gf-btn-main" (click)="save()" [disabled]="loading() || !!loadError() || saving()">Lưu</button>
         @if (saveText()) { <span class="gf-status">{{ saveText() }}</span> }
       </div>
       <div class="gf-foot-group">
