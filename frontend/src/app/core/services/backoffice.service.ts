@@ -491,6 +491,11 @@ export interface GuildScoutMember {
   level: number | null;
   firstArt: string | null;
   secondArt: string | null;
+  /** Each art's own path, which is what its icon is drawn from. Null for an art no path covers,
+   *  and the two differ whenever the pair is mixed — unlike {@link pathSlug}, which is the pair's
+   *  and goes null the moment they differ. */
+  firstArtSlug: string | null;
+  secondArtSlug: string | null;
   /** The art family — set even when the two arts form no complete path. */
   family: string | null;
   /** The branch within the family ("Splendor", "Umbra"), or null for a mixed pair. */

@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { martialPathIcon, martialPathOption } from '../../core/models/martial-path';
 import {
   BackofficeService,
   GuildDuplicate,
@@ -99,7 +100,12 @@ const BOXED_FROM = 12;
  * Keyed on the family name the API sends, so a new *path* in an existing family needs nothing here.
  * A new FAMILY falls through to a box of its own rather than being dropped — see `scoutGroups`.
  */
-const FAMILY_BOXES: readonly string[] = ['Bellstrike', 'Stonesplit', 'Silkbind', 'Bamboocut'];
+const FAMILY_BOXES: readonly { name: string; icon: string }[] = [
+  { name: 'Bellstrike', icon: 'bellstrike-splendor' },
+  { name: 'Stonesplit', icon: 'stonesplit-might' },
+  { name: 'Silkbind', icon: 'silkbind-jade' },
+  { name: 'Bamboocut', icon: 'bamboocut-wind' },
+];
 
 /**
  * One block of the scout reading: a family box, the leftovers, or — below the threshold — the whole
@@ -109,11 +115,25 @@ interface ScoutGroup {
   /** Null for the single ungrouped list: it is the answer, not a part of one. */
   label: string | null;
   members: GuildScoutMember[];
+  /** The badge that heads the box, in place of the family's name — one of the family's paths, so
+   *  it is the family's artwork and not that branch's claim. The name stays on the tooltip, and a
+   *  group with no badge (Mixed, the leftovers, a family newer than these files) keeps its text. */
+  icon?: string;
   /** Shown across the row rather than in the grid of boxes. */
   wide?: boolean;
   /** What to say when the box is empty, or null to leave it out entirely. */
   empty?: string;
   title?: string;
+}
+
+/** One of a member's two arts, as the line draws it: a badge where there is artwork, the art's
+ *  own name where there is not. The tooltip always names both the art and its path, because an
+ *  icon alone cannot say which of a path's two arts this is. */
+interface ScoutArt {
+  name: string;
+  slug: string | null;
+  icon: string | null;
+  title: string;
 }
 
 interface MergeOffer {
@@ -413,8 +433,13 @@ interface MergeOffer {
                           @for (group of scoutGroups(); track group.label ?? '') {
                             <section class="group" [class.wide]="group.wide">
                               @if (group.label) {
-                                <h4 [title]="group.title ?? ''">
-                                  {{ group.label }}
+                                <h4 [title]="group.title ?? group.label">
+                                  @if (group.icon && !dead().has(group.icon)) {
+                                    <img class="fam" [src]="familyIcon(group.icon)"
+                                         [alt]="group.label" (error)="iconFailed(group.icon)" />
+                                  } @else {
+                                    {{ group.label }}
+                                  }
                                   <span class="quiet">{{ group.members.length }}</span>
                                 </h4>
                               }
@@ -424,15 +449,24 @@ interface MergeOffer {
                                     <li [class.in-match]="m.inMatch">
                                       <span class="ign">{{ m.ign }}</span>
                                       @if (m.level) { <span class="lv">lv {{ m.level }}</span> }
-                                      <span class="arts">
-                                        {{ m.firstArt || '—' }}@if (m.secondArt) { + {{ m.secondArt }} }
-                                      </span>
-                                      @if (m.path) {
-                                        <span class="pill">{{ m.family }} · {{ m.path }}</span>
-                                      } @else if (m.family) {
+                                      @for (a of arts(m); track $index) {
+                                        @if (a.icon) {
+                                          <img class="art" [src]="a.icon" [alt]="a.name" [title]="a.title"
+                                               (error)="iconFailed(a.slug)" />
+                                        } @else {
+                                          <span class="arts" [title]="a.title">{{ a.name }}</span>
+                                        }
+                                      }
+                                      <!-- Only when neither art drew a badge: with the icons up, the
+                                           box is the family and the badges are the paths, so the pill
+                                           repeated both. -->
+                                      @if (m.family && !arts(m).some((a) => a.icon)) {
                                         <span class="pill">{{ m.family }}</span>
                                       }
-                                      @if (m.partyNumber) {
+                                      <!-- Dropped for anyone in the match: they are all in the one
+                                           instance the match is read from, so the number says nothing
+                                           a reader of this box does not already know. -->
+                                      @if (m.partyNumber && !m.inMatch) {
                                         <span class="pill pill-party" title="Sharing an instance — a hint, not a confirmed party">
                                           group {{ m.partyNumber }} of {{ m.partySize }}
                                         </span>
@@ -539,11 +573,13 @@ interface MergeOffer {
     .scout header .taken { margin-left: auto; opacity: .6; font-size: .8rem; font-variant-numeric: tabular-nums; }
     .verdict { margin: .3rem 0 .6rem; opacity: .85; }
     .verdict-match { color: #9a6a3f; }
+    /* Narrower than it was: a line is a name, a level and two badges now, not a name and two art
+       names, so the old 23rem column was mostly empty space. */
     .online { list-style: none; margin: 0; padding: 0; display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr)); gap: .25rem .75rem; }
+      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: .25rem .75rem; }
     /* Ungrouped, the groups wrapper is a passthrough — one section, no heading, the list as it
        was. Only the boxed state lays anything out. */
-    .groups.boxed { display: grid; grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+    .groups.boxed { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
       gap: .5rem; }
     .boxed .group { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; padding: .4rem .6rem .5rem; }
     .boxed .group.wide { grid-column: 1 / -1; }
@@ -552,7 +588,7 @@ interface MergeOffer {
     /* One name per line inside a box: the box is already the column. The wide group is not a box
        and goes back to filling the row. */
     .boxed .online { grid-template-columns: 1fr; }
-    .boxed .group.wide .online { grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr)); }
+    .boxed .group.wide .online { grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
     .none { margin: 0; font-style: italic; }
     .online li { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap;
       padding: .25rem .4rem; border-radius: 6px; }
@@ -560,6 +596,12 @@ interface MergeOffer {
     .ign { font-weight: 600; }
     .lv { opacity: .6; font-size: .8rem; }
     .arts { opacity: .75; font-size: .84rem; }
+    /* The badges sit on the text baseline like the words they replaced, so a line of icons and a
+       line that fell back to names are the same height. */
+    .art { width: 20px; height: 20px; border-radius: 50%; object-fit: contain;
+      align-self: center; flex: none; }
+    .boxed .group h4 .fam { width: 22px; height: 22px; border-radius: 50%; object-fit: contain;
+      vertical-align: middle; }
     .pill { font-size: .7rem; padding: .05rem .4rem; border-radius: 999px;
       border: 1px solid rgba(128,128,128,.4); opacity: .7; white-space: nowrap; }
     .pill-party { border-color: rgba(110,130,160,.6); }
@@ -1045,15 +1087,16 @@ export class GuildsPanelComponent {
 
     const inMatch = s.members.filter((m) => m.inMatch);
     const groups: ScoutGroup[] = FAMILY_BOXES.map((family) => ({
-      label: family,
-      title: `${family} — the family, both of its paths`,
-      members: inMatch.filter((m) => m.family === family),
+      label: family.name,
+      icon: family.icon,
+      title: `${family.name} — the family, both of its paths`,
+      members: inMatch.filter((m) => m.family === family.name),
       empty: 'Nobody in the match.',
     }));
 
     // A family the API knows and this build does not — a new one would otherwise vanish into
     // Mixed, which is the one bucket that means something specific.
-    const known = new Set(FAMILY_BOXES);
+    const known = new Set(FAMILY_BOXES.map((f) => f.name));
     for (const family of [...new Set(inMatch.map((m) => m.family).filter((f): f is string => !!f))]
       .filter((f) => !known.has(f))
       .sort())
@@ -1080,6 +1123,43 @@ export class GuildsPanelComponent {
 
     return groups;
   });
+
+  /**
+   * Path badges the browser could not load, by slug — a path too new for these files, or a file
+   * that did not ship. Recorded once and read in the template, so a miss falls back to the name
+   * and is not re-requested on every redraw.
+   */
+  protected readonly dead = signal<ReadonlySet<string>>(new Set());
+
+  protected iconFailed(slug: string | null | undefined): void {
+    if (!slug) return;
+    this.dead.update((d) => (d.has(slug) ? d : new Set(d).add(slug)));
+  }
+
+  protected familyIcon(slug: string): string | null { return martialPathIcon(slug); }
+
+  /**
+   * A member's arts as badges. Both are drawn even when they share a path — two icons is two arts,
+   * which is what the line is saying — and an art with no path, or whose badge failed, keeps its
+   * name so nothing is ever lost to a missing file.
+   */
+  protected arts(m: GuildScoutMember): ScoutArt[] {
+    const dead = this.dead();
+    return [
+      { name: m.firstArt, slug: m.firstArtSlug },
+      { name: m.secondArt, slug: m.secondArtSlug },
+    ]
+      .filter((a) => a.name || a.slug)
+      .map((a) => {
+        const path = martialPathOption(a.slug)?.label ?? null;
+        return {
+          name: a.name ?? path ?? '—',
+          slug: a.slug,
+          icon: a.slug && !dead.has(a.slug) ? martialPathIcon(a.slug) : null,
+          title: [a.name, path].filter(Boolean).join(' · ') || 'Art unknown',
+        };
+      });
+  }
 
   protected toggleScout(g: ManagedGuild): void {
     if (this.expanded() === g.id) {
