@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   BackofficeService,
   GuildDuplicate,
+  GuildScoutMember,
   GuildScoutReading,
   ManagedGuild,
 } from '../../core/services/backoffice.service';
@@ -56,6 +57,20 @@ import {
  * payload actually says "GvG". A scout taken at any other hour is answered in full — everyone
  * online, and their parties — and simply never claims a match. That is not a failure, and the panel
  * says so rather than leaving an empty space where a match count would be.
+ *
+ * **A match bigger than one squad is boxed by family.** Past {@link BOXED_FROM} people the flat
+ * list stops answering the question anybody scouts for — not "who is in there" but "what is in
+ * there" — so the people in the match are drawn in a box per martial-art family and the counts can
+ * be read off the headings. This is `/gscout`'s arrangement, and deliberately the same one: an
+ * officer reading the card in Discord and an officer reading this panel should not have to hold two
+ * shapes of the same answer in their head. Below the threshold the single list is still the better
+ * read, and nothing changes.
+ *
+ * **Delete is for a row that is only a name.** No UID, nothing recorded against it: the row
+ * create-on-first-seen built from a spelling that turned out to be nobody. It is offered nowhere
+ * else, because everywhere else the fix is a merge — and the button is drawn only on the rows that
+ * qualify rather than drawn everywhere and refused, so it never reads as the tidier way to be rid
+ * of a guild whose matches are in the way.
  */
 /**
  * A rename the API refused because another row owns the name, turned into the merge it implies.
@@ -64,6 +79,52 @@ import {
  * API named as its owner. Deriving it from the drafts instead would leave it standing after the name
  * is edited again — so it is dropped then (see `editName`).
  */
+/**
+ * How many in a match before it is drawn as boxes instead of one list.
+ *
+ * Twelve is a squad. Up to that, the reading is a list of people and reads best as one; past it,
+ * it is a force, and what an officer wants off it is its shape — how much Stonesplit is coming,
+ * whether the Silkbind count means healers. Boxing earlier would split a single squad across five
+ * headings for no gain.
+ */
+const BOXED_FROM = 12;
+
+/**
+ * The four martial-art families, in the order the guild says them, with the guild's own name for
+ * each.
+ *
+ * ⚠ **Bellstrike is labelled Umbra**, which is the guild's usage, not the API's: Umbra is strictly
+ * one of Bellstrike's two paths (Splendor is the other), and a Splendor player does sit in this
+ * box. The guild's own vocabulary already works this way — the mixed-pair filing the API accepts is
+ * `umbra-mix`, never `bellstrike-mix` — so the heading matches how the fight is actually called.
+ * The family is on the heading's tooltip for anyone reading it the API's way, and every member's
+ * own pill still names their real family and path.
+ *
+ * Keyed on the family name the API sends, so a new *path* in an existing family needs nothing here.
+ * A new FAMILY falls through to a box of its own rather than being dropped — see `scoutGroups`.
+ */
+const FAMILY_BOXES: readonly { family: string; label: string }[] = [
+  { family: 'Bellstrike', label: 'Umbra' },
+  { family: 'Stonesplit', label: 'Stonesplit' },
+  { family: 'Silkbind', label: 'Silkbind' },
+  { family: 'Bamboocut', label: 'Bamboocut' },
+];
+
+/**
+ * One block of the scout reading: a family box, the leftovers, or — below the threshold — the whole
+ * reading with no heading at all.
+ */
+interface ScoutGroup {
+  /** Null for the single ungrouped list: it is the answer, not a part of one. */
+  label: string | null;
+  members: GuildScoutMember[];
+  /** Shown across the row rather than in the grid of boxes. */
+  wide?: boolean;
+  /** What to say when the box is empty, or null to leave it out entirely. */
+  empty?: string;
+  title?: string;
+}
+
 interface MergeOffer {
   /** The row that folds away: the one whose Rename was refused. */
   rowId: number;
@@ -244,6 +305,16 @@ interface MergeOffer {
                           [title]="g.identified ? 'Read who is online right now' : 'Needs a UID first'">
                     {{ scouting() === g.id ? '…' : expanded() === g.id ? 'Hide' : 'Scout' }}
                   </button>
+                  <!-- Only on the rows it is for. Drawn everywhere and disabled, it would read as
+                       the quick way to be rid of a guild whose matches are in the way — which is a
+                       merge, or nothing at all. -->
+                  @if (canDelete(g)) {
+                    <button type="button" class="danger" (click)="askDelete(g)"
+                            [disabled]="deleting() !== null"
+                            title="No UID and no matches — this row is only a name">
+                      Delete
+                    </button>
+                  }
                 </td>
               </tr>
 
@@ -268,6 +339,39 @@ interface MergeOffer {
                                 [disabled]="merging() !== null">Keep both</button>
                       </span>
                       @if (mergeErrorFor(offer.rowId); as msg) {
+                        <p class="error merge-error">{{ msg }}</p>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+
+              <!-- Asked on the row for the same reason, and asked at all because the button sits
+                   beside Scout: a click is cheap and a row is gone for good. -->
+              @if (deleteOffer() === g.id) {
+                <tr class="offer-row">
+                  <td colspan="5">
+                    <div class="offer">
+                      <p class="offer-q">Delete <strong>{{ g.name }}</strong>?</p>
+                      <p class="offer-why">
+                        Nothing is recorded against this row — no matches, no UID — so this removes
+                        a name and nothing else.
+                        @if (g.aliases.length) {
+                          Its {{ g.aliases.length === 1 ? 'alias' : 'aliases' }}
+                          ({{ g.aliases.join(', ') }}) go with it and will resolve to nothing.
+                        }
+                        Unlike a merge, no spelling is kept: if Match History meets this name again
+                        the row is simply built again.
+                      </p>
+                      <span class="offer-actions">
+                        <button type="button" class="danger" (click)="confirmDelete(g)"
+                                [disabled]="deleting() !== null">
+                          {{ deleting() === g.id ? '…' : 'Delete' }}
+                        </button>
+                        <button type="button" (click)="dismissDelete()"
+                                [disabled]="deleting() !== null">Keep it</button>
+                      </span>
+                      @if (deleteErrorFor(g.id); as msg) {
                         <p class="error merge-error">{{ msg }}</p>
                       }
                     </div>
@@ -311,32 +415,49 @@ interface MergeOffer {
                           </p>
                         }
 
-                        @if (s.members.length) {
-                          <ul class="online">
-                            @for (m of s.members; track m.ign) {
-                              <li [class.in-match]="m.inMatch">
-                                <span class="ign">{{ m.ign }}</span>
-                                @if (m.level) { <span class="lv">lv {{ m.level }}</span> }
-                                <span class="arts">
-                                  {{ m.firstArt || '—' }}@if (m.secondArt) { + {{ m.secondArt }} }
-                                </span>
-                                @if (m.path) {
-                                  <span class="pill">{{ m.family }} · {{ m.path }}</span>
-                                } @else if (m.family) {
-                                  <span class="pill">{{ m.family }}</span>
-                                }
-                                @if (m.partyNumber) {
-                                  <span class="pill pill-party" title="Sharing an instance — a hint, not a confirmed party">
-                                    group {{ m.partyNumber }} of {{ m.partySize }}
-                                  </span>
-                                }
-                                @if (m.instanced) {
-                                  <span class="pill pill-inst" title="On an instance server, not in the open world">instanced</span>
-                                }
-                              </li>
-                            }
-                          </ul>
-                        }
+                        <!-- One loop for both arrangements: below the threshold it runs once, over
+                             a group with no heading, so the flat list and the boxes cannot drift
+                             into two different renderings of a member. -->
+                        <div class="groups" [class.boxed]="boxed()">
+                          @for (group of scoutGroups(); track group.label ?? '') {
+                            <section class="group" [class.wide]="group.wide">
+                              @if (group.label) {
+                                <h4 [title]="group.title ?? ''">
+                                  {{ group.label }}
+                                  <span class="quiet">{{ group.members.length }}</span>
+                                </h4>
+                              }
+                              @if (group.members.length) {
+                                <ul class="online">
+                                  @for (m of group.members; track m.ign) {
+                                    <li [class.in-match]="m.inMatch">
+                                      <span class="ign">{{ m.ign }}</span>
+                                      @if (m.level) { <span class="lv">lv {{ m.level }}</span> }
+                                      <span class="arts">
+                                        {{ m.firstArt || '—' }}@if (m.secondArt) { + {{ m.secondArt }} }
+                                      </span>
+                                      @if (m.path) {
+                                        <span class="pill">{{ m.family }} · {{ m.path }}</span>
+                                      } @else if (m.family) {
+                                        <span class="pill">{{ m.family }}</span>
+                                      }
+                                      @if (m.partyNumber) {
+                                        <span class="pill pill-party" title="Sharing an instance — a hint, not a confirmed party">
+                                          group {{ m.partyNumber }} of {{ m.partySize }}
+                                        </span>
+                                      }
+                                      @if (m.instanced) {
+                                        <span class="pill pill-inst" title="On an instance server, not in the open world">instanced</span>
+                                      }
+                                    </li>
+                                  }
+                                </ul>
+                              } @else if (group.empty) {
+                                <p class="quiet none">{{ group.empty }}</p>
+                              }
+                            </section>
+                          }
+                        </div>
                       </div>
                     }
                   </td>
@@ -429,6 +550,19 @@ interface MergeOffer {
     .verdict-match { color: #9a6a3f; }
     .online { list-style: none; margin: 0; padding: 0; display: grid;
       grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr)); gap: .25rem .75rem; }
+    /* Ungrouped, the groups wrapper is a passthrough — one section, no heading, the list as it
+       was. Only the boxed state lays anything out. */
+    .groups.boxed { display: grid; grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+      gap: .5rem; }
+    .boxed .group { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; padding: .4rem .6rem .5rem; }
+    .boxed .group.wide { grid-column: 1 / -1; }
+    .boxed .group h4 { margin: 0 0 .3rem; font-size: .8rem; text-transform: uppercase;
+      letter-spacing: .03em; opacity: .75; }
+    /* One name per line inside a box: the box is already the column. The wide group is not a box
+       and goes back to filling the row. */
+    .boxed .online { grid-template-columns: 1fr; }
+    .boxed .group.wide .online { grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr)); }
+    .none { margin: 0; font-style: italic; }
     .online li { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap;
       padding: .25rem .4rem; border-radius: 6px; }
     .online li.in-match { background: rgba(173,122,76,.14); }
@@ -476,6 +610,11 @@ export class GuildsPanelComponent {
   readonly scout = signal<GuildScoutReading | null>(null);
   readonly scoutError = signal<string | null>(null);
 
+  /** The row whose "Delete this?" is open, or none. One at a time, like the merge offer. */
+  readonly deleteOffer = signal<number | null>(null);
+  /** The row a delete is in flight for. */
+  readonly deleting = signal<number | null>(null);
+
   /** Typed-but-unsaved UIDs by row id. Absent means the row shows what is stored. */
   private readonly uidDrafts = signal<Record<number, string>>({});
   /** Typed-but-unsaved names, same arrangement. */
@@ -488,6 +627,9 @@ export class GuildsPanelComponent {
   /** Why the last merge was refused, keyed to the row it would have folded away, so it shows under
    *  the pair or offer whose button was clicked rather than at the foot of the page. */
   private readonly mergeError = signal<{ sourceId: number; message: string } | null>(null);
+  /** Why the last delete was refused, keyed to the row — shown under the question that was asked,
+   *  for the same reason the merge error is. */
+  private readonly deleteError = signal<{ rowId: number; message: string } | null>(null);
 
   readonly pending = computed(() => this.guilds().filter((g) => !g.identified).length);
 
@@ -888,6 +1030,66 @@ export class GuildsPanelComponent {
 
   // ── Scouting ───────────────────────────────────────────────────────────────
 
+  /** Whether the current reading is a match big enough to be drawn as boxes. */
+  protected readonly boxed = computed(() => (this.scout()?.matchCount ?? 0) > BOXED_FROM);
+
+  /**
+   * The reading, cut into what the panel draws.
+   *
+   * Below the threshold that is one unlabelled group holding everybody — the list as it has always
+   * been. Above it, one box per family holding **the people in the match and nobody else**, and
+   * the rest of the guild collapsed into a wide group at the bottom. That split is the point: who
+   * is in the fight and who is standing in a city are not the same fact, and a scout read a minute
+   * before a GvG is being read for the first one.
+   *
+   * ⚠ An empty family box is kept. "Nobody on Stonesplit tonight" is a fact worth seeing before a
+   * fight, and a heading that quietly disappears looks exactly like one nobody thought to draw.
+   * Mixed is the one box that is dropped when empty — it is a leftover, not a family, so its
+   * absence says nothing.
+   */
+  protected readonly scoutGroups = computed<ScoutGroup[]>(() => {
+    const s = this.scout();
+    if (!s) return [];
+    if (!this.boxed()) return [{ label: null, members: s.members }];
+
+    const inMatch = s.members.filter((m) => m.inMatch);
+    const groups: ScoutGroup[] = FAMILY_BOXES.map(({ family, label }) => ({
+      label,
+      title: `${family} — the family, both of its paths`,
+      members: inMatch.filter((m) => m.family === family),
+      empty: 'Nobody in the match.',
+    }));
+
+    // A family the API knows and this build does not — a new one would otherwise vanish into
+    // Mixed, which is the one bucket that means something specific.
+    const known = new Set(FAMILY_BOXES.map((b) => b.family));
+    for (const family of [...new Set(inMatch.map((m) => m.family).filter((f): f is string => !!f))]
+      .filter((f) => !known.has(f))
+      .sort())
+      groups.push({ label: family, members: inMatch.filter((m) => m.family === family) });
+
+    // Two arts drawn from two different families: on no path, and on no family either.
+    const mixed = inMatch.filter((m) => !m.family);
+    if (mixed.length) {
+      groups.push({
+        label: 'Mixed',
+        title: 'Two arts from two different families — on no single path, and no single family',
+        members: mixed,
+      });
+    }
+
+    const elsewhere = s.members.filter((m) => !m.inMatch);
+    if (elsewhere.length) {
+      groups.push({
+        label: 'Online, not in the match',
+        members: elsewhere,
+        wide: true,
+      });
+    }
+
+    return groups;
+  });
+
   protected toggleScout(g: ManagedGuild): void {
     if (this.expanded() === g.id) {
       // Collapsing drops the reading rather than parking it. Re-opening must take a fresh one:
@@ -920,5 +1122,89 @@ export class GuildsPanelComponent {
               : 'The game API did not answer. Try again in a moment.');
       },
     });
+  }
+
+  // ── Deleting a row that is only a name ─────────────────────────────────────
+
+  /**
+   * Whether this row is one the panel offers to delete: no UID, and nothing recorded against it.
+   *
+   * The same two conditions the API checks, repeated here rather than trusted to it — the button
+   * has to be drawn or not drawn before anything is clicked, and a Delete that is always there and
+   * sometimes refused teaches the opposite of what the rule is.
+   */
+  protected canDelete(g: ManagedGuild): boolean {
+    return !g.identified && g.numberId === null && g.matchCount === 0;
+  }
+
+  protected deleteErrorFor(rowId: number): string | null {
+    const e = this.deleteError();
+    return e?.rowId === rowId ? e.message : null;
+  }
+
+  protected askDelete(g: ManagedGuild): void {
+    this.deleteOffer.set(g.id);
+    this.deleteError.set(null);
+    this.notice.set(null);
+  }
+
+  /** Left alone. Nothing was written, so there is nothing to say about it. */
+  protected dismissDelete(): void {
+    this.deleteOffer.set(null);
+    this.deleteError.set(null);
+  }
+
+  protected confirmDelete(g: ManagedGuild): void {
+    this.deleting.set(g.id);
+    this.deleteError.set(null);
+    this.backoffice.deleteGuild(g.id).subscribe({
+      next: (res) => {
+        this.deleting.set(null);
+        this.deleteOffer.set(null);
+        // A draft still keyed to the row is a draft for a row that no longer exists.
+        this.nameDrafts.update((all) => {
+          const { [g.id]: _dropped, ...rest } = all;
+          return rest;
+        });
+        this.load();
+        this.notice.set(
+          `Deleted ${res.name}.`
+          + (res.aliasesDropped.length
+            ? ` ${res.aliasesDropped.map((a) => `“${a}”`).join(', ')} no longer `
+              + `${res.aliasesDropped.length === 1 ? 'resolves' : 'resolve'} to anything.`
+            : '')
+          + ' Match History will build the row again if it meets the name.');
+      },
+      error: (err) => {
+        this.deleting.set(null);
+        const e = err?.error;
+        // The question is left standing: nothing was written, and on a refusal the officer has
+        // something to go and look at first — the counts name what is on the row.
+        this.deleteError.set({ rowId: g.id, message:
+          e?.error === 'guild_has_records'
+            ? `This row holds ${this.records(e)} — merge it onto the right guild instead, or `
+              + 'delete those in Match History first.'
+            : e?.error === 'guild_identified'
+              ? 'This row carries a guild number now, so it is a guild a sync owns. Reloading.'
+              : e?.error === 'our_guild'
+                ? 'That row is one of ours, which is never deleted.'
+                : e?.error === 'guild_not_found'
+                  ? 'That row is already gone — reloading.'
+                  : err?.status === 403
+                    ? 'Not permitted.'
+                    : 'Delete failed, and nothing was changed.' });
+        // The row's state is not what this panel thought it was, so stop showing the old one.
+        if (e?.error === 'guild_not_found' || e?.error === 'guild_identified') this.load();
+      },
+    });
+  }
+
+  /** The counts a `guild_has_records` refusal came back with, in words. */
+  private records(e: { matches?: number; gvgSides?: number; gvgMatches?: number }): string {
+    const parts: string[] = [];
+    if (e.matches) parts.push(`${e.matches} ${e.matches === 1 ? 'match' : 'matches'}`);
+    if (e.gvgSides) parts.push(`${e.gvgSides} GvG ${e.gvgSides === 1 ? 'side' : 'sides'}`);
+    if (e.gvgMatches) parts.push(`${e.gvgMatches} GvG ${e.gvgMatches === 1 ? 'match' : 'matches'}`);
+    return parts.length ? parts.join(' and ') : 'records';
   }
 }

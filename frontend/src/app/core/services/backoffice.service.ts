@@ -574,6 +574,14 @@ export interface GuildMerged {
   adoptedIdentity: boolean;
 }
 
+/** What a delete removed. `aliasesDropped` are spellings that resolved to this row and now resolve
+ *  to nothing — unlike a merge, a delete keeps none of them. */
+export interface GuildDeleted {
+  deleted: number;
+  name: string;
+  aliasesDropped: string[];
+}
+
 /** What a rename changed. `aliasKept` says the old spelling still resolves, which is what keeps
  *  the next import from rebuilding the row under it. */
 export interface GuildRenamed {
@@ -720,6 +728,19 @@ export class BackofficeService {
    */
   renameGuild(id: number, name: string): Observable<GuildRenamed> {
     return this.http.patch<GuildRenamed>(apiUrl(`/commander/guilds/${id}/name`), { name });
+  }
+
+  /**
+   * Removes a row that is only a name — no UID, and nothing recorded against it.
+   *
+   * ⚠ Refused on anything else: `409 guild_identified` for a row carrying a number, and
+   * `409 guild_has_records` (with the counts) for one holding matches or GvG sides. A duplicate of
+   * a guild we do hold is a merge, not a delete — this is for a spelling that turned out to be
+   * nobody. Nothing is kept as an alias, so if Match History meets that name again the row is
+   * simply built again.
+   */
+  deleteGuild(id: number): Observable<GuildDeleted> {
+    return this.http.delete<GuildDeleted>(apiUrl(`/commander/guilds/${id}`));
   }
 
   // ── Scheduled messages (Admin) ────────────────────────────────────────────
