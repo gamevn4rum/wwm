@@ -90,25 +90,16 @@ import {
 const BOXED_FROM = 12;
 
 /**
- * The four martial-art families, in the order the guild says them, with the guild's own name for
- * each.
+ * The four martial-art families, in the order the guild says them.
  *
- * ⚠ **Bellstrike is labelled Umbra**, which is the guild's usage, not the API's: Umbra is strictly
- * one of Bellstrike's two paths (Splendor is the other), and a Splendor player does sit in this
- * box. The guild's own vocabulary already works this way — the mixed-pair filing the API accepts is
- * `umbra-mix`, never `bellstrike-mix` — so the heading matches how the fight is actually called.
- * The family is on the heading's tooltip for anyone reading it the API's way, and every member's
- * own pill still names their real family and path.
+ * A box is a FAMILY, never a path: Bellstrike holds Splendor and Umbra alike, and a pair of arts
+ * drawn from two branches of one family is still that family (the member's own pill is where the
+ * branch is read). Only a pair drawn from two families falls to Mixed.
  *
  * Keyed on the family name the API sends, so a new *path* in an existing family needs nothing here.
  * A new FAMILY falls through to a box of its own rather than being dropped — see `scoutGroups`.
  */
-const FAMILY_BOXES: readonly { family: string; label: string }[] = [
-  { family: 'Bellstrike', label: 'Umbra' },
-  { family: 'Stonesplit', label: 'Stonesplit' },
-  { family: 'Silkbind', label: 'Silkbind' },
-  { family: 'Bamboocut', label: 'Bamboocut' },
-];
+const FAMILY_BOXES: readonly string[] = ['Bellstrike', 'Stonesplit', 'Silkbind', 'Bamboocut'];
 
 /**
  * One block of the scout reading: a family box, the leftovers, or — below the threshold — the whole
@@ -1053,8 +1044,8 @@ export class GuildsPanelComponent {
     if (!this.boxed()) return [{ label: null, members: s.members }];
 
     const inMatch = s.members.filter((m) => m.inMatch);
-    const groups: ScoutGroup[] = FAMILY_BOXES.map(({ family, label }) => ({
-      label,
+    const groups: ScoutGroup[] = FAMILY_BOXES.map((family) => ({
+      label: family,
       title: `${family} — the family, both of its paths`,
       members: inMatch.filter((m) => m.family === family),
       empty: 'Nobody in the match.',
@@ -1062,7 +1053,7 @@ export class GuildsPanelComponent {
 
     // A family the API knows and this build does not — a new one would otherwise vanish into
     // Mixed, which is the one bucket that means something specific.
-    const known = new Set(FAMILY_BOXES.map((b) => b.family));
+    const known = new Set(FAMILY_BOXES);
     for (const family of [...new Set(inMatch.map((m) => m.family).filter((f): f is string => !!f))]
       .filter((f) => !known.has(f))
       .sort())
