@@ -10,6 +10,6 @@ export const footageGuard: CanActivateFn = () => {
   // Wait for the session to be verified against Discord + the Members
   // sheet — fp/ftp are never trusted from a synchronous/cached snapshot.
   return auth.initializeAuthState().pipe(
-    map((user) => (user?.ftp === true ? true : router.createUrlTree(['/'])))
+    map((user) => (user?.ftp === true && user?.fp === true ? true : router.createUrlTree(['/'])))
   );
 };

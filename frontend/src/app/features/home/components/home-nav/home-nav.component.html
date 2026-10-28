@@ -52,7 +52,7 @@
           </a>
         }
 
-        @if (user.ftp && config.isOn('page.footages')) {
+        @if (user.ftp && user.fp && config.isOn('page.footages')) {
           <a class="nav-btn nav-btn--bronze" routerLink="/footages" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
             <span class="nav-icon">
               <img src="icons/icon-footages.png" alt="Footages" class="nav-icon-img" />

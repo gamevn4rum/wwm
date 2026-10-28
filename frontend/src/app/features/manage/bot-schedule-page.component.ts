@@ -4,8 +4,8 @@ import { ScheduledEventsPageComponent } from './scheduled-events-page.component'
 import { PingRolesPanelComponent } from './ping-roles-panel.component';
 
 /**
- * Admin "Bot schedule" hub: the two things the bot posts on a timer — plain scheduled messages,
- * and recurring RSVP events — each in its own collapsible panel, so one nav entry covers both.
+ * Admin "Bot schedule" hub: the two things the bot posts on a timer — recurring RSVP events,
+ * and plain scheduled messages — each in its own collapsible panel, so one nav entry covers both.
  * The panels are the existing standalone components, embedded rather than routed to.
  *
  * A third panel sits under them for the role each event type pings, which is settings rather than
@@ -20,20 +20,20 @@ import { PingRolesPanelComponent } from './ping-roles-panel.component';
       <h1>Bot schedule</h1>
       <p class="intro">Everything the bot posts on a timer. Times are Vietnam (UTC+7).</p>
 
-      <details class="panel" open>
-        <summary>
-          <span class="name">Scheduled messages</span>
-          <span class="tag">plain text</span>
-        </summary>
-        <div class="body"><app-schedules-page /></div>
-      </details>
-
       <details class="panel">
         <summary>
           <span class="name">Scheduled events</span>
           <span class="tag">recurring /gvg</span>
         </summary>
         <div class="body"><app-scheduled-events-page /></div>
+      </details>
+
+      <details class="panel" open>
+        <summary>
+          <span class="name">Scheduled messages</span>
+          <span class="tag">plain text</span>
+        </summary>
+        <div class="body"><app-schedules-page /></div>
       </details>
 
       <details class="panel">
