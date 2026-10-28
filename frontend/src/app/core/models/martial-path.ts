@@ -11,6 +11,10 @@
  * backdrop (`discord-vault tools/app-emoji/mix.py`), which keeps the family readable and says "not
  * one path" without a second shape to learn. ⚠ They are drawn for a path an officer SET; the API
  * never derives a mix, so nothing the scout reads can land on one.
+ *
+ * ⚠ `umbra-mix` reads "Bellstrike Mix": it was first named for the path it leans on and then
+ * renamed for its family, as its two siblings always were, and the id stayed as it was stored —
+ * members are filed under it, its artwork is named by it, and so is the bot's uploaded badge.
  */
 export interface MartialPathOption {
   value: string;
@@ -33,7 +37,7 @@ export const MARTIAL_PATHS: readonly MartialPathOption[] = [
   { value: 'silkbind-jade', label: 'Silkbind - Jade', initials: 'SJ', hasIcon: true },
   { value: 'silkbind-deluge', label: 'Silkbind - Deluge', initials: 'SD', hasIcon: true },
   { value: 'silkbind-wings', label: 'Silkbind - Wings', initials: 'W', hasIcon: true },
-  { value: 'umbra-mix', label: 'Umbra Mix', initials: 'UM', hasIcon: true },
+  { value: 'umbra-mix', label: 'Bellstrike Mix', initials: 'BeM', hasIcon: true },
   { value: 'bamboocut-mix', label: 'Bamboocut Mix', initials: 'BM', hasIcon: true },
   { value: 'silkbind-mix', label: 'Silkbind Mix', initials: 'SM', hasIcon: true },
 ];
