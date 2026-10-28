@@ -1,10 +1,16 @@
 /**
  * The martial paths a member can be filed under, matching the API's `MemberPath` ids.
  *
- * The ten real paths are the slugs the artwork is named by (`public/icons/paths/<slug>.png`, with a
- * 54px copy under `small/`). Wings has no artwork yet and no art ids, so the API can never derive
- * it — an officer sets it. The three mixes are the guild's own way of filing a member holding arts
- * from two paths; they have no artwork either. All four draw a lettered placeholder instead.
+ * The eleven real paths are the slugs the artwork is named by (`public/icons/paths/<slug>.png`,
+ * with a 54px copy under `small/`). Wings' badge is cut from an in-game screenshot, the official
+ * site naming an image it has not published; its two art ids arrived with the official list on
+ * 2026-10-28, so the API derives it like any other path now.
+ *
+ * The three mixes are the guild's own way of filing a member holding arts from two paths of one
+ * family, so the game has no badge for them: each wears the badge of a path of that family on a red
+ * backdrop (`discord-vault tools/app-emoji/mix.py`), which keeps the family readable and says "not
+ * one path" without a second shape to learn. ⚠ They are drawn for a path an officer SET; the API
+ * never derives a mix, so nothing the scout reads can land on one.
  */
 export interface MartialPathOption {
   value: string;
@@ -26,10 +32,10 @@ export const MARTIAL_PATHS: readonly MartialPathOption[] = [
   { value: 'bamboocut-draught', label: 'Bamboocut - Draught', initials: 'BG', hasIcon: true },
   { value: 'silkbind-jade', label: 'Silkbind - Jade', initials: 'SJ', hasIcon: true },
   { value: 'silkbind-deluge', label: 'Silkbind - Deluge', initials: 'SD', hasIcon: true },
-  { value: 'silkbind-wings', label: 'Silkbind - Wings', initials: 'W', hasIcon: false },
-  { value: 'umbra-mix', label: 'Umbra Mix', initials: 'UM', hasIcon: false },
-  { value: 'bamboocut-mix', label: 'Bamboocut Mix', initials: 'BM', hasIcon: false },
-  { value: 'silkbind-mix', label: 'Silkbind Mix', initials: 'SM', hasIcon: false },
+  { value: 'silkbind-wings', label: 'Silkbind - Wings', initials: 'W', hasIcon: true },
+  { value: 'umbra-mix', label: 'Umbra Mix', initials: 'UM', hasIcon: true },
+  { value: 'bamboocut-mix', label: 'Bamboocut Mix', initials: 'BM', hasIcon: true },
+  { value: 'silkbind-mix', label: 'Silkbind Mix', initials: 'SM', hasIcon: true },
 ];
 
 /** For a `<select>`: "—" first, then every path. */
