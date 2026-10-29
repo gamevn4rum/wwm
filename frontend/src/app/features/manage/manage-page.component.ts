@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { ManageMembersPageComponent } from './manage-members-page.component';
 import { GuildsPanelComponent } from './guilds-panel.component';
+import { RsvpDisplayPanelComponent } from './rsvp-display-panel.component';
 
 /**
  * The Manage hub: the two rosters an officer maintains — our own members, and the opponent guilds
- * we play — each in its own collapsible panel, so one nav entry covers both.
+ * we play — each in its own collapsible panel, so one nav entry covers both, with the one event-post
+ * setting that is a commander's rather than an admin's under them.
  *
  * They share a page rather than a nav entry each because they are the same job seen from two sides:
  * who we field, and who we face. Members is open by default because it is the one opened daily;
@@ -17,7 +19,7 @@ import { GuildsPanelComponent } from './guilds-panel.component';
 @Component({
   selector: 'app-manage-page',
   standalone: true,
-  imports: [ManageMembersPageComponent, GuildsPanelComponent],
+  imports: [ManageMembersPageComponent, GuildsPanelComponent, RsvpDisplayPanelComponent],
   template: `
     <section class="wrap">
       <h1>Manage</h1>
@@ -37,6 +39,14 @@ import { GuildsPanelComponent } from './guilds-panel.component';
           <span class="tag">opponent UIDs &amp; scouting</span>
         </summary>
         <div class="body"><app-guilds-panel /></div>
+      </details>
+
+      <details class="panel">
+        <summary>
+          <span class="name">Event posts</span>
+          <span class="tag">combat role or martial paths</span>
+        </summary>
+        <div class="body"><app-rsvp-display-panel /></div>
       </details>
     </section>
   `,

@@ -380,6 +380,19 @@ export type ScheduledEventPatch = Partial<ScheduledEventCreate>;
 export const USE_TYPE_DEFAULT_ROLE = 'default';
 
 /** The role one event type's posts call out, when the template doesn't override it. */
+/**
+ * What an event post marks a responder with — the guild's setting, not a per-event one.
+ *
+ * `paths` false, the default, is the combat role (🛡️ / ⚔️ / ➕) the posts have always shown. True
+ * swaps it for the responder's two martial path badges on the columns a commander fields from.
+ * The "Không" column keeps the combat role either way.
+ */
+export interface RsvpDisplay {
+  paths: boolean;
+  updatedBy: string | null;
+  updatedUtc: string | null;
+}
+
 export interface EventPingRole {
   eventType: ScheduledEventType;
   /** Null or empty means posts of this type ping nobody — a real setting, not an unset one. */
@@ -900,6 +913,15 @@ export class BackofficeService {
   /** Re-reads the lists from Discord now, and answers with the refreshed directory. */
   refreshDiscordDirectory(): Observable<DiscordDirectory> {
     return this.http.post<DiscordDirectory>(apiUrl('/admin/discord/directory/refresh'), {});
+  }
+
+  getRsvpDisplay(): Observable<RsvpDisplay> {
+    return this.http.get<RsvpDisplay>(apiUrl('/commander/rsvp-display'));
+  }
+
+  /** A PUT: the setting has two positions and both are a choice, so there is no "leave it". */
+  setRsvpDisplay(paths: boolean): Observable<RsvpDisplay> {
+    return this.http.put<RsvpDisplay>(apiUrl('/commander/rsvp-display'), { paths });
   }
 
   getPingRoles(): Observable<EventPingRole[]> {
