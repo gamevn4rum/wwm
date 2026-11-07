@@ -211,6 +211,13 @@
           @if (error()) {
             <p class="mf-error" role="alert">{{ error() }}</p>
           }
+          @if (duplicateOffered()) {
+            <div class="mf-actions">
+              <button type="button" class="mf-btn-action" [disabled]="submitting()" (click)="onSubmit(true)">
+                ADD AS ANOTHER GAME
+              </button>
+            </div>
+          }
 
           <div class="mf-actions">
             <button type="button" class="mf-btn-cancel" (click)="close()">CANCEL</button>

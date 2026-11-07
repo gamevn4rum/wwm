@@ -39,6 +39,9 @@ export interface MatchRecord {
   season: string;
   /** Clips for this match. Empty unless the caller has footage permission. */
   footages: FootageEntry[];
+  /** Which meeting with this opponent, of this type, that day — 1 unless they met more than
+   *  once. Optional only so an API that predates it still type-checks as "the first". */
+  game?: number;
 }
 
 /** Numeric seasons sort by magnitude; anything non-numeric (or blank) sorts last. */

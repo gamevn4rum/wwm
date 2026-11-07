@@ -105,7 +105,9 @@ export class SeasonMatchHistoryComponent {
   private toNode(m: MatchRecord): TimelineNode {
     const { label, timestamp } = dateToTimeline(m.date);
     return {
-      id:        slugId(m.date, m.opponent),
+      // The row id as well: one opponent can be met twice in a day, and two nodes sharing an id
+      // collide in the timeline.
+      id:        `${slugId(m.date, m.opponent)}-${m.id}`,
       timestamp,
       label,
       opponent:  m.opponent,

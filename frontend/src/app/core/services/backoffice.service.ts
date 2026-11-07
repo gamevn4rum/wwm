@@ -452,6 +452,9 @@ export interface MatchCreate {
   /** Omitted/null for a match with no agreed result yet. */
   result?: MatchResult | null;
   season: number;
+  /** The commander confirmed this is a further match against that opponent that day. Without
+   *  it the API refuses such a create as `duplicate_match` — the double-entry guard. */
+  anotherGame?: boolean;
 }
 
 /** Every field optional: null/absent leaves it alone. The one exception is `result`,

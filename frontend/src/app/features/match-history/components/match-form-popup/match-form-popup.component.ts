@@ -73,6 +73,9 @@ export class MatchFormPopupComponent {
   readonly loadingOptions = signal(true);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
+  /** Set when a create was refused because that opponent already has a match of this type that
+   *  day — the form then offers to add this one as the next game instead. */
+  readonly duplicateOffered = signal(false);
 
   readonly allOpponents = signal<string[]>([]);
   readonly seasons = signal<number[]>([]);
@@ -250,7 +253,7 @@ export class MatchFormPopupComponent {
     if (!target.closest('.mf-combo')) this.opponentListOpen.set(false);
   }
 
-  async onSubmit(): Promise<void> {
+  async onSubmit(anotherGame = false): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -258,6 +261,7 @@ export class MatchFormPopupComponent {
 
     this.submitting.set(true);
     this.error.set(null);
+    this.duplicateOffered.set(false);
 
     const v = this.form.getRawValue();
     const body = {
@@ -273,7 +277,7 @@ export class MatchFormPopupComponent {
       await firstValueFrom(
         editing
           ? this.backoffice.patchMatch(editing.id, body)
-          : this.backoffice.createMatch({ ...body, result: body.result || null }),
+          : this.backoffice.createMatch({ ...body, result: body.result || null, anotherGame }),
       );
       // Match fields first, then the link boxes — a failure there leaves the dialog open
       // on its own message rather than throwing away the typed links.
@@ -282,9 +286,16 @@ export class MatchFormPopupComponent {
       this.popup.close();
     } catch (err: unknown) {
       this.error.set(this.describeError(err));
+      // Only a create can be turned into "another game"; an edit moves onto the next free game
+      // number by itself, so a duplicate refusal there means a genuine race, not this question.
+      this.duplicateOffered.set(!this.editing() && !anotherGame && this.errorCode(err) === 'duplicate_match');
     } finally {
       this.submitting.set(false);
     }
+  }
+
+  private errorCode(err: unknown): string | undefined {
+    return (err as { error?: { error?: string } })?.error?.error;
   }
 
   // ── Footage ────────────────────────────────────────────────────────────────
@@ -390,7 +401,10 @@ export class MatchFormPopupComponent {
     const code = (err as { error?: { error?: string } })?.error?.error;
     switch (code) {
       case 'duplicate_match':
-        return 'A match against this opponent on this date, of this type, already exists.';
+        return this.editing()
+          ? 'Someone else saved a match against this opponent on this date at the same moment. Try again.'
+          : 'A match against this opponent on this date, of this type, is already recorded. '
+            + 'If you played them again that day, add this one as another game.';
       case 'invalid_type':
         return 'Pick a valid match type.';
       case 'invalid_result':

@@ -50,7 +50,7 @@
       <span class="row-title">League</span>
     </div>
     <div class="match-cards-grid">
-      @for (card of leagueMatches(); track card.opponent + card.date) {
+      @for (card of leagueMatches(); track card.id) {
         <div class="match-card"
              [class]="'card-status-' + resolveStatus(card.status)"
              (click)="openPopup(card)">
@@ -63,7 +63,7 @@
           }
           <div class="card-content">
             <div class="card-top">
-              <span class="card-date">{{ formatDate(card.date) }}</span>
+              <span class="card-date">{{ formatDate(card.date) }}@if ((card.game ?? 1) > 1) { · Game {{ card.game }} }</span>
             </div>
             <div class="card-middle">
               <span class="card-opponent">{{ card.opponent }}</span>
@@ -93,7 +93,7 @@
       <span class="row-title">Ranked</span>
     </div>
     <div class="match-cards-grid">
-      @for (card of rankedMatches(); track card.opponent + card.date) {
+      @for (card of rankedMatches(); track card.id) {
         <div class="match-card"
              [class]="'card-status-' + resolveStatus(card.status)"
              (click)="openPopup(card)">
@@ -106,7 +106,7 @@
           }
           <div class="card-content">
             <div class="card-top">
-              <span class="card-date">{{ formatDate(card.date) }}</span>
+              <span class="card-date">{{ formatDate(card.date) }}@if ((card.game ?? 1) > 1) { · Game {{ card.game }} }</span>
             </div>
             <div class="card-middle">
               <span class="card-opponent">{{ card.opponent }}</span>
@@ -136,7 +136,7 @@
       <span class="row-title">Scrim</span>
     </div>
     <div class="match-cards-grid">
-      @for (card of scrimMatches(); track card.opponent + card.date) {
+      @for (card of scrimMatches(); track card.id) {
         <div class="match-card"
              [class]="'card-status-' + resolveStatus(card.status)"
              (click)="openPopup(card)">
@@ -149,7 +149,7 @@
           }
           <div class="card-content">
             <div class="card-top">
-              <span class="card-date">{{ formatDate(card.date) }}</span>
+              <span class="card-date">{{ formatDate(card.date) }}@if ((card.game ?? 1) > 1) { · Game {{ card.game }} }</span>
             </div>
             <div class="card-middle">
               <span class="card-opponent">{{ card.opponent }}</span>
