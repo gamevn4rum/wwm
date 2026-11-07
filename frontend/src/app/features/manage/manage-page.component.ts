@@ -54,6 +54,7 @@ import { RsvpDisplayPanelComponent } from './rsvp-display-panel.component';
     /* Wider than Bot schedule's hub: the members table carries thirteen columns, and squeezing it
        to that page's 1040px put every select on two lines. */
     .wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+    @media (max-width: 600px) { .wrap { padding: 1rem .5rem; } .body { padding: 0 .5rem .75rem !important; } summary { padding: .7rem .75rem !important; } }
     h1 { margin-bottom: .25rem; }
     .intro { opacity: .7; margin-bottom: 1.25rem; }
     .panel { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }

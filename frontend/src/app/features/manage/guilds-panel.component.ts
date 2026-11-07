@@ -576,10 +576,10 @@ interface MergeOffer {
     /* Narrower than it was: a line is a name, a level and two badges now, not a name and two art
        names, so the old 23rem column was mostly empty space. */
     .online { list-style: none; margin: 0; padding: 0; display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: .25rem .75rem; }
+      grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr)); gap: .25rem .75rem; }
     /* Ungrouped, the groups wrapper is a passthrough — one section, no heading, the list as it
        was. Only the boxed state lays anything out. */
-    .groups.boxed { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    .groups.boxed { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
       gap: .5rem; }
     .boxed .group { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; padding: .4rem .6rem .5rem; }
     .boxed .group.wide { grid-column: 1 / -1; }
@@ -588,7 +588,7 @@ interface MergeOffer {
     /* One name per line inside a box: the box is already the column. The wide group is not a box
        and goes back to filling the row. */
     .boxed .online { grid-template-columns: 1fr; }
-    .boxed .group.wide .online { grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
+    .boxed .group.wide .online { grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr)); }
     .none { margin: 0; font-style: italic; }
     .online li { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap;
       padding: .25rem .4rem; border-radius: 6px; }

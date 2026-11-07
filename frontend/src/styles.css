@@ -352,3 +352,19 @@ input[type="checkbox"]:indeterminate::after {
     transition: none;
   }
 }
+
+/* Phones: wide tables (Manage, Bot schedule, scoreboards) scroll sideways inside their own box
+   instead of squashing every column or pushing the whole page wider than the screen. Inputs keep
+   a usable width, since the tables' own styles let them shrink to nothing. */
+@media (max-width: 760px) {
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table th, table td { white-space: nowrap; }
+  table td input:not([type=checkbox]):not([type=radio]),
+  table td select { min-width: 7rem !important; }
+  table td textarea { min-width: 14rem !important; }
+}

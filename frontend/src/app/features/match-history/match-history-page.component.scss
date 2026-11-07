@@ -231,3 +231,10 @@
 .season-panel-body {
   padding: var(--space-4);
 }
+
+@media (max-width: 600px) {
+  .match-history-page { padding: var(--space-4) var(--space-3) var(--space-5); }
+  .chronicle-title { font-size: 1.4rem; letter-spacing: .08em; }
+  .season-panel-body { padding: var(--space-2); }
+  .add-match-btn { align-self: stretch; }
+}
