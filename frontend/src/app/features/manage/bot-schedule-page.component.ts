@@ -2,23 +2,26 @@ import { Component } from '@angular/core';
 import { SchedulesPageComponent } from './schedules-page.component';
 import { ScheduledEventsPageComponent } from './scheduled-events-page.component';
 import { PingRolesPanelComponent } from './ping-roles-panel.component';
+import { ScoutWatchPanelComponent } from './scout-watch-panel.component';
 
 /**
- * Admin "Bot schedule" hub: the two things the bot posts on a timer — recurring RSVP events,
+ * Admin "Bot management" hub (was "Bot schedule"): the two things the bot posts on a timer — recurring RSVP events,
  * and plain scheduled messages — each in its own collapsible panel, so one nav entry covers both.
  * The panels are the existing standalone components, embedded rather than routed to.
  *
  * A third panel sits under them for the role each event type pings, which is settings rather than
  * schedule — but it is what the other two mean by "default", so it belongs where they are.
+ *
+ * The fourth is the Scout list: the guilds the GvG panel's Scout button reports on every minute.
  */
 @Component({
   selector: 'app-bot-schedule-page',
   standalone: true,
-  imports: [SchedulesPageComponent, ScheduledEventsPageComponent, PingRolesPanelComponent],
+  imports: [SchedulesPageComponent, ScheduledEventsPageComponent, PingRolesPanelComponent, ScoutWatchPanelComponent],
   template: `
     <section class="wrap">
-      <h1>Bot schedule</h1>
-      <p class="intro">Everything the bot posts on a timer. Times are Vietnam (UTC+7).</p>
+      <h1>Bot management</h1>
+      <p class="intro">What the bot posts on a timer, and what it watches. Times are Vietnam (UTC+7).</p>
 
       <details class="panel">
         <summary>
@@ -42,6 +45,14 @@ import { PingRolesPanelComponent } from './ping-roles-panel.component';
           <span class="tag">who gets mentioned</span>
         </summary>
         <div class="body"><app-ping-roles-panel /></div>
+      </details>
+
+      <details class="panel">
+        <summary>
+          <span class="name">Scout list</span>
+          <span class="tag">GvG panel · up to 20 guilds</span>
+        </summary>
+        <div class="body"><app-scout-watch-panel /></div>
       </details>
     </section>
   `,

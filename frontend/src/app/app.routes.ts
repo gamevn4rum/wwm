@@ -81,7 +81,7 @@ export const routes: Routes = [
           import('./features/manage/events-page.component').then((m) => m.ManageEventsPageComponent),
       },
       {
-        path: 'manage/bot-schedule',
+        path: 'manage/bot-management',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/manage/bot-schedule-page.component').then((m) => m.BotSchedulePageComponent),
@@ -96,8 +96,9 @@ export const routes: Routes = [
       // `manage` route deliberately: the router would fall through to them anyway, but relying on
       // that is a subtlety, and a redirect listed after the route it redirects to reads wrongly.
       { path: 'manage/members', redirectTo: 'manage', pathMatch: 'full' },
-      { path: 'manage/schedules', redirectTo: 'manage/bot-schedule', pathMatch: 'full' },
-      { path: 'manage/scheduled-events', redirectTo: 'manage/bot-schedule', pathMatch: 'full' },
+      { path: 'manage/bot-schedule', redirectTo: 'manage/bot-management', pathMatch: 'full' },
+      { path: 'manage/schedules', redirectTo: 'manage/bot-management', pathMatch: 'full' },
+      { path: 'manage/scheduled-events', redirectTo: 'manage/bot-management', pathMatch: 'full' },
       {
         // Members and opponent guilds, as two collapsible panels. Last of the `manage/*` group so
         // every specific route above matches first — this one takes the bare segment.

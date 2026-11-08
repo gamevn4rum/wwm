@@ -13,7 +13,7 @@ import { RsvpDisplayPanelComponent } from './rsvp-display-panel.component';
  * Guilds is a task you go looking for, usually right after a match against somebody new.
  *
  * The panels are the standalone components themselves, embedded rather than routed to — the same
- * arrangement Bot schedule uses. Each keeps its own loading and error state, so a failure in one
+ * arrangement Bot management uses. Each keeps its own loading and error state, so a failure in one
  * leaves the other usable.
  */
 @Component({
@@ -51,7 +51,7 @@ import { RsvpDisplayPanelComponent } from './rsvp-display-panel.component';
     </section>
   `,
   styles: [`
-    /* Wider than Bot schedule's hub: the members table carries thirteen columns, and squeezing it
+    /* Wider than Bot management's hub: the members table carries thirteen columns, and squeezing it
        to that page's 1040px put every select on two lines. */
     .wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
     @media (max-width: 600px) { .wrap { padding: 1rem .5rem; } .body { padding: 0 .5rem .75rem !important; } summary { padding: .7rem .75rem !important; } }

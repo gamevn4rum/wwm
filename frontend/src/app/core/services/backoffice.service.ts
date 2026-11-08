@@ -469,6 +469,15 @@ export type MatchPatch = Partial<Omit<MatchCreate, 'result'>> & { result?: Match
  * the panel is really about: false means the guild sync skips the row entirely and there is nothing
  * to scout.
  */
+/** One guild on the GvG panel's Scout list: a guild number, or a tracked guild's name. */
+export interface ScoutWatchGuild {
+  query: string;
+  /** Our name for a guild given by number, when we track it. */
+  trackedName: string | null;
+  addedBy: string | null;
+  addedUtc: string;
+}
+
 export interface ManagedGuild {
   id: number;
   /** The spelling Match History files them under — not necessarily their name in game now. */
@@ -936,5 +945,14 @@ export class BackofficeService {
   setPingRole(eventType: ScheduledEventType, roleId: string | null): Observable<EventPingRole> {
     return this.http.put<EventPingRole>(
       apiUrl(`/admin/ping-roles/${eventType}`), { roleId });
+  }
+
+  getScoutWatch(): Observable<ScoutWatchGuild[]> {
+    return this.http.get<ScoutWatchGuild[]>(apiUrl('/admin/scout-watch'));
+  }
+
+  /** The whole list in order — it replaces what is stored. */
+  setScoutWatch(queries: string[]): Observable<ScoutWatchGuild[]> {
+    return this.http.put<ScoutWatchGuild[]>(apiUrl('/admin/scout-watch'), { queries });
   }
 }

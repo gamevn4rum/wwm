@@ -387,7 +387,7 @@ type UrlField = (typeof URL_FIELDS)[number];
       .warn {
         color: #b5533d;
       }
-      /* Same collapsible dressing as the Bot schedule panels. */
+      /* Same collapsible dressing as the Bot management panels. */
       details.panel {
         border: 1px solid rgba(128, 128, 128, 0.3);
         border-radius: 8px;
