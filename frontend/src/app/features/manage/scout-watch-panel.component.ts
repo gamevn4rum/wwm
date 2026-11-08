@@ -21,7 +21,7 @@ const NUMBER = /^\d{4,15}$/;
     <section class="backoffice">
       <p class="hint">
         Press <strong>🔭 Scout</strong> on the <code>/gmpanel</code> panel and the bot posts these
-        guilds' GvG status every minute (In match ✅ / Not in match ❌), until Stop or 22:00.
+        guilds' GvG status every minute (Battling... ✅ / Idling... ❌ / N/A), until Stop or 22:00.
         Order here is the order in the report.
       </p>
 
