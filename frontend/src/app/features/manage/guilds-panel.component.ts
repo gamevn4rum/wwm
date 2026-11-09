@@ -774,8 +774,8 @@ export class GuildsPanelComponent {
                 + 'guild — merge them instead.'
               : err?.error?.error === 'invalid_number'
                 ? 'That is not a guild number.'
-                : err?.error?.error === 'signing_key_missing'
-                  ? 'The server cannot reach the game API (signing key missing).'
+                : ['token_required', 'signing_key_missing'].includes(err?.error?.error)
+                  ? 'This needs a live read from the game, and no relay token is live. Try again while the relay is running.'
                   : err?.status === 403
                     ? 'Not permitted.'
                     : 'Lookup failed — the game API did not answer.');
@@ -822,8 +822,8 @@ export class GuildsPanelComponent {
                   + 'enter the number on that row instead, so its matches stay with it.'
                 : e?.error === 'invalid_number'
                   ? 'That is not a guild number.'
-                  : e?.error === 'signing_key_missing'
-                    ? 'The server cannot reach the game API (signing key missing).'
+                  : ['token_required', 'signing_key_missing'].includes(e?.error)
+                    ? 'This needs a live read from the game, and no relay token is live. Try again while the relay is running.'
                     : err?.status === 403
                       ? 'Not permitted.'
                       : 'Lookup failed — the game API did not answer.');
@@ -1188,8 +1188,8 @@ export class GuildsPanelComponent {
         this.scoutError.set(
           err?.error?.error === 'guild_not_identified'
             ? 'This guild has no UID yet — enter its number first.'
-            : err?.error?.error === 'signing_key_missing'
-              ? 'The server cannot reach the game API (signing key missing).'
+            : ['token_required', 'signing_key_missing'].includes(err?.error?.error)
+              ? 'This needs a live read from the game, and no relay token is live. Try again while the relay is running.'
               : 'The game API did not answer. Try again in a moment.');
       },
     });
