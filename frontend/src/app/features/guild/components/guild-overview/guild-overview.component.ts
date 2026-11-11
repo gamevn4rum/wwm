@@ -60,18 +60,21 @@ export class GuildOverviewComponent implements OnInit {
    */
   readonly tiles = computed<OverviewTile[]>(() => {
     const g = this.guild();
-    const masteries = this.stats()
+    // Current members only: someone who left keeps their row, frozen at the day they went, and
+    // averaging those in dragged both figures well under what /gvn reports.
+    const current = this.stats().filter((m) => !m.former);
+    const masteries = current
       .map((m) => m.player.weaponMasteryMax)
-      .filter((v): v is number => v != null);
+      .filter((v): v is number => v != null && v > 0);
     const avgMastery = masteries.length
       ? masteries.reduce((a, b) => a + b, 0) / masteries.length
       : null;
 
     // Average lifetime playtime across the members we have stats for. Cumulative
     // seconds upstream, shown in whole hours.
-    const playtimes = this.stats()
+    const playtimes = current
       .map((m) => m.player.onlineTime)
-      .filter((v): v is number => v != null);
+      .filter((v): v is number => v != null && v > 0);
     const avgPlaytimeHours = playtimes.length
       ? Math.round(playtimes.reduce((a, b) => a + b, 0) / playtimes.length / 3600)
       : null;

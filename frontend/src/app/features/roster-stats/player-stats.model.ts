@@ -121,6 +121,8 @@ export interface MatchedPlayerStats {
   player: PlayerDetail;
   /** A GVN2 member — drawn only in the guild page's GVN2 section, never on a board. */
   secondaryGuild?: boolean;
+  /** Left the guild — their figures froze when they did, so guild averages leave them out. */
+  former?: boolean;
 }
 
 export interface UnmatchedPlayerStats {
