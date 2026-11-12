@@ -100,7 +100,7 @@
 
         <!-- Expanded detail -->
         @if (isExpanded(player) && stats) {
-          @let p = stats.player;
+          @let p = detailFor(player)!.player;
           <div class="badge-detail">
             <div class="detail-header">
               @if (pathIcons()) {

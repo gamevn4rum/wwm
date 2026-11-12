@@ -16,7 +16,8 @@ export interface GuildMember {
  *
  * Comes from a different source than `GuildMember`: the in-game roster drops anyone who
  * leaves and keeps no record of them, so the leave date is ours — an admin sets it on the
- * Members table. No uid/pid, because there are no live stats to look up for someone gone.
+ * Members table. No pid or stats — the sweep covers current members only — but the game UID,
+ * which outlasts a name change.
  */
 export interface FormerMember {
   ign: string;
@@ -24,6 +25,8 @@ export interface FormerMember {
   /** `yyyy-MM-dd`. A plain date string, not a timestamp: the column has no time of day, and
    *  parsing it as one would let the browser's timezone shift it onto the wrong day. */
   leaveDate: string;
+  /** Game UID, when the Members row has one. */
+  uid?: string | null;
 }
 
 /** Our placement on one in-game leaderboard (GET /api/public/guild/rank). */

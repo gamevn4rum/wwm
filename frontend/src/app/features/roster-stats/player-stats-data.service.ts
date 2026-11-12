@@ -40,6 +40,18 @@ export class PlayerStatsDataService {
     );
   }
 
+  /**
+   * One member's full build — gear, set bonuses and combat totals. The roster list leaves gear out
+   * (the whole roster's gear is too heavy to read at once), so a card asks for it when opened.
+   * Null when it could not be read; the card then shows what the list carried.
+   */
+  getBuild(ign: string): Observable<MatchedPlayerStats | null> {
+    return this.http.get<PlayerStatsRecord>(apiUrl(`/member/player-stats/${encodeURIComponent(ign)}/build`)).pipe(
+      map((r) => (r.matched ? (r as MatchedPlayerStats) : null)),
+      catchError(() => of(null)),
+    );
+  }
+
   private load(): Observable<PlayerStatsRecord[]> {
     return this.http.get<PlayerStatsRecord[]>(apiUrl('/member/player-stats')).pipe(
       catchError(() => of<PlayerStatsRecord[]>([])),

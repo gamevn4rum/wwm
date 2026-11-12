@@ -58,13 +58,24 @@ export class GuildPageComponent implements OnInit {
    */
   readonly nameCards = signal<Readonly<Record<string, string | null>>>({});
 
+  /** Each member's in-game portrait, by IGN, from the same appearance read as the name card. Null
+   *  (initial drawn instead) for a portrait newer than the official site's art list. */
+  readonly portraits = signal<Readonly<Record<string, string | null>>>({});
+
   loadNameCard(ign: string): void {
     if (ign in this.nameCards()) return;
     this.nameCards.update((m) => ({ ...m, [ign]: null }));
     this.appearance.cached(ign).subscribe((a) => {
       const src = this.appearance.nameCardSrc(a);
       if (src) this.nameCards.update((m) => ({ ...m, [ign]: src }));
+      const face = this.appearance.portraitSrc(a);
+      if (face) this.portraits.update((m) => ({ ...m, [ign]: face }));
     });
+  }
+
+  /** The portrait would not load: fall back to the initial. */
+  dropPortrait(ign: string): void {
+    this.portraits.update((m) => ({ ...m, [ign]: null }));
   }
 
   /** The art would not load: draw the card plain rather than over a broken image. */

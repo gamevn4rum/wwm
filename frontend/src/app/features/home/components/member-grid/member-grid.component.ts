@@ -190,6 +190,25 @@ export class MemberGridComponent implements OnInit {
     return this.statsByIgn().get(player.name.toLowerCase());
   }
 
+  /** Full builds (with gear) fetched as cards are opened, by lowercased IGN. */
+  private readonly builds = signal<ReadonlyMap<string, MatchedPlayerStats>>(new Map());
+  private readonly buildsAsked = new Set<string>();
+
+  /** What an open card draws: the full build once it has arrived, the list's record until then. */
+  detailFor(player: Player): MatchedPlayerStats | undefined {
+    return this.builds().get(player.name.toLowerCase()) ?? this.statsFor(player);
+  }
+
+  private loadBuild(player: Player): void {
+    const key = player.name.toLowerCase();
+    if (this.buildsAsked.has(key)) return;
+    this.buildsAsked.add(key);
+    this.playerStatsService.getBuild(player.name).subscribe((rec) => {
+      if (rec) this.builds.update((m) => new Map(m).set(key, rec));
+      else this.buildsAsked.delete(key); // a failed read may be retried on the next open
+    });
+  }
+
   isExpanded(player: Player): boolean {
     return this.expandedId() === player.id;
   }
@@ -199,6 +218,7 @@ export class MemberGridComponent implements OnInit {
     const next = this.isExpanded(player) ? null : player.id;
     const card = (event.currentTarget as HTMLElement)?.closest('.member-badge');
 
+    if (next) this.loadBuild(player);
     const apply = () => this.expandedId.set(next);
     // View Transitions morph the reflow (cards sliding to make room) for free.
     const doc = document as Document & { startViewTransition?: (cb: () => void) => void };

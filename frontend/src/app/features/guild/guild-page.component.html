@@ -103,6 +103,9 @@
                     <div class="member-id">
                       <span class="member-ign">{{ member.ign }}</span>
                       <span class="member-school">{{ member.role || '—' }}</span>
+                      @if (member.uid) {
+                        <span class="member-uid">UID {{ member.uid }}</span>
+                      }
                     </div>
                   </div>
 
@@ -135,8 +138,14 @@
                   <img class="member-card-art" [src]="card" alt="" crossorigin="anonymous"
                        decoding="async" (error)="dropNameCard(entry.member.ign)" />
                 }
+                @let face = portraits()[entry.member.ign];
                 <span class="member-avatar">
-                  {{ initial(entry.member.ign) }}
+                  @if (face) {
+                    <img class="member-portrait" [src]="face" alt="" decoding="async"
+                         (error)="dropPortrait(entry.member.ign)" />
+                  } @else {
+                    {{ initial(entry.member.ign) }}
+                  }
                   @if (entry.online) {
                     <span class="member-dot" aria-hidden="true"></span>
                   }
@@ -144,6 +153,9 @@
                 <div class="member-id">
                   <span class="member-ign">{{ entry.member.ign }}</span>
                   <span class="member-school">{{ entry.player?.school || '—' }}</span>
+                  @if (entry.player?.numberId) {
+                    <span class="member-uid">UID {{ entry.player!.numberId }}</span>
+                  }
                 </div>
                 <span class="member-level">
                   {{ entry.player?.level != null ? 'Lv ' + entry.player!.level : '—' }}
