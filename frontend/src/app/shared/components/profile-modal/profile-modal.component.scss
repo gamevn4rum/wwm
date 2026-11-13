@@ -633,8 +633,8 @@
 // Four equipped inner ways, so four boxes across. Tier reads as the fill —
 // gold T5, purple T4, blue T3 — from the global ramp in styles.css.
 .pm-chips {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.45rem;
   list-style: none;
 }
@@ -659,19 +659,35 @@
   position: relative;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: center;
+  width: 72px;
   gap: 0.3rem;
-  padding: 0.45rem 0.4rem 0.4rem;
+  padding: 0.3rem 0.3rem 0.35rem;
   text-align: center;
+  font-size: 0.62rem;
+  line-height: 1.15;
 
   .pm-chip-tier { position: absolute; top: 0.3rem; right: 0.3rem; }
 }
 
-.pm-chip-art {
+.pm-chip-frame {
+  position: relative;
   display: block;
-  width: 100%;
-  max-width: 72px;
+  width: 60px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+.pm-chip-art {
+  // The card art is a 180×286 pentagon; the square shows its middle 144 px (x 18–162,
+  // y 58–202), which clears the pointed top and keeps the glyph centred.
+  position: absolute;
+  left: -12.5%;
+  top: -40.3%;
+  width: 125%;
+  max-width: none;
   aspect-ratio: 180 / 286;
-  object-fit: contain;
 }
 
 .pm-chip-tier {

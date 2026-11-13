@@ -82,7 +82,7 @@ export const routes: Routes = [
       },
       {
         path: 'manage/bot-management',
-        canActivate: [adminGuard],
+        canActivate: [commanderGuard],
         loadComponent: () =>
           import('./features/manage/bot-schedule-page.component').then((m) => m.BotSchedulePageComponent),
       },

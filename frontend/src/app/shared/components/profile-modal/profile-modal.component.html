@@ -248,8 +248,10 @@
                 @let iwIcon = innerWayIcon(iw.id);
                 <li [class]="'pm-chip ' + tierClass(iw.tier)" [class.pm-chip-card]="iwIcon" [title]="innerWayLabel(iw)">
                   @if (iwIcon) {
-                    <img class="pm-chip-art" [src]="iwIcon" alt="" decoding="async"
-                         (error)="onIconError(iwIcon)" />
+                    <span class="pm-chip-frame">
+                      <img class="pm-chip-art" [src]="iwIcon" alt="" decoding="async"
+                           (error)="onIconError(iwIcon)" />
+                    </span>
                   }
                   <span class="pm-chip-name">{{ iwIcon ? innerWayName(iw) : innerWayLabel(iw) }}</span>
                   @if (iw.tier) { <span class="pm-chip-tier">T{{ iw.tier }}</span> }

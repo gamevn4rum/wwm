@@ -262,8 +262,10 @@
                       (click)="toggleInnerWayDetail(iw.id, $event)"
                     >
                       @if (iwIcon) {
-                        <img class="iw-art" [src]="iwIcon" alt="" decoding="async"
-                             (error)="onIconError(iwIcon)" />
+                        <span class="iw-art-frame">
+                          <img class="iw-art" [src]="iwIcon" alt="" decoding="async"
+                               (error)="onIconError(iwIcon)" />
+                        </span>
                       }
                       <span class="iw-name">{{ innerWayName(iw) }}</span>
                       @if (iw.tier) { <span class="iw-tier">T{{ iw.tier }}</span> }

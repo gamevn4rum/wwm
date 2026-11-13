@@ -513,13 +513,10 @@
 
 /* A member equips four inner ways, so they line up as four boxes in one row. */
 .inner-ways-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: var(--space-2);
-
-  @media (max-width: 640px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 /* Tier is carried by the fill, not just a rule: gold T5, purple T4, blue T3.
@@ -558,16 +555,32 @@
   padding: 0.45rem 0.4rem 0.4rem;
   text-align: center;
 
-  .iw-name { font-size: 0.72rem; line-height: 1.2; }
+  width: 72px;
+  align-items: center;
+  padding: 0.3rem 0.3rem 0.35rem;
+
+  .iw-name { font-size: 0.62rem; line-height: 1.15; }
   .iw-tier { position: absolute; top: 0.3rem; right: 0.3rem; }
 }
 
-.iw-art {
+.iw-art-frame {
+  position: relative;
   display: block;
-  width: 100%;
-  max-width: 72px;
+  width: 60px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+.iw-art {
+  // The card art is a 180×286 pentagon; the square shows its middle 144 px (x 18–162,
+  // y 58–202), which clears the pointed top and keeps the glyph centred.
+  position: absolute;
+  left: -12.5%;
+  top: -40.3%;
+  width: 125%;
+  max-width: none;
   aspect-ratio: 180 / 286;
-  object-fit: contain;
 }
 
 .iw-name {
