@@ -1,199 +1,146 @@
 # Security Notes
 
-This is an Angular SPA on GitHub Pages, but it is **no longer a static site in the
-sense that mattered here**: since 2026-07-30 it holds no data of its own and reads
-everything from the .NET backend's API, which is where the trust boundary now lives.
+Last reviewed **2026-11-21**: a full audit of this SPA, the .NET backend (`wwm-backend`)
+and the Discord bot (`discord-vault`), followed by library updates in all three.
 
-## The core limitation — fixed 2026-07-30
+## How the trust model works
 
-**Historical, kept because it explains why the backend exists and why some
-credentials must be treated as burned.**
+This is an Angular SPA on GitHub Pages. It holds **no data of its own**: since 2026-07-30
+everything is read from the .NET backend's API, and that is where the trust boundary
+sits. Anything in the bundle is readable by every visitor, so the bundle carries nothing
+secret. The only configuration it holds is the API's hostname (`environment.prod.ts`).
 
-A static site cannot keep data secret from its viewers. Anything the browser needs in
-order to work — API keys, the AES decryption key, the data itself — is downloaded to
-every visitor and readable from DevTools. Encrypting `data/*.enc` and gating routes with
-a Discord login were **UI conveniences, not confidentiality controls**. A visitor who
-never logged in could:
+- **Login.** Discord OAuth authorization-code flow. The SPA generates `state` with
+  `crypto.randomUUID()`, keeps it in `sessionStorage`, and refuses a callback whose
+  `state` is missing or different (login CSRF). It strips `?code=` from the URL before
+  the exchange. The backend swaps the code using the client secret, which only the
+  server holds. It then mints a short-lived app JWT (1 hour, HS256, issuer/audience/key
+  all checked).
+- **Identity is the Discord user id** (since 2026-11-21), not the username. Usernames
+  are released on rename, so whoever registered an old name used to inherit that
+  member's row and role. Members now carry `DiscordUserId`:
+  - Login matches the id first. It links a row found by username only if that row is
+    not linked yet.
+  - The bot sends the interaction user's id as `X-Discord-User-Id`, and every bot
+    permission check resolves the caller through `CallerIdentity`.
+  - An officer changing a member's handle clears the link.
+- **Sessions.** `/auth/refresh` renews an expired token for up to 7 days after the
+  original Discord login. Every renewal re-reads the member row, so disabling or
+  demoting someone takes effect at their next renewal. **Sign-out calls
+  `/auth/logout`**, which bumps the member's `SessionEpoch`. That ends every session
+  they hold, on every device, within one access-token lifetime.
+- **The token** is kept in `localStorage`. The interceptor attaches it only to URLs
+  under `apiBaseUrl`. Font, image and screenshot fetches never carry it.
+- **Route guards are cosmetic.** They decide what the SPA renders. Every gated page loads
+  its data from the API, which re-checks the JWT and the role on each request.
+- **The public projection is deliberately thin:** IGN, role, officer notes and a derived
+  `registered` flag. It carries no Discord handles, UIDs or PIDs. Notes are public **by
+  design**, so officers should write nothing in them they would not post on the home
+  page.
 
-1. Open the JS bundle and copy `dataEncryptionKey`.
-2. `fetch('data/members.enc')` and decrypt it locally with that key.
+## Browser-side controls
 
-That was verified against the live site: the key in the bundle decrypted `members.enc`
-into the full roster (Discord handles, IGNs, weapons, availability). The route guards
-never protected it — they only decided what the SPA rendered, which the user's own
-browser controls anyway.
+- **CSP** as a `<meta>` tag in `src/index.html` (GitHub Pages cannot send headers):
+  - `default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`.
+  - Scripts from `'self'` and YouTube only. The build inlines no script; keep it that way.
+  - `connect-src` allows the API, the Discord CDN and Google Fonts. The profile modal's
+    screenshot (`html-to-image`) fetches the avatar and fonts to inline them.
+  - `style-src 'unsafe-inline'` is required by Angular.
+- **XSS.** The only `[innerHTML]` sinks are event articles (the public feed and the
+  Manage preview).
+  - Both go through `sanitize(SecurityContext.HTML, …)`, with image URLs
+    attribute-escaped first.
+  - Since 2026-11-21, author-written `class` attributes are also stripped. Tailwind
+    utilities are global, so `class="fixed inset-0 z-50"` could otherwise lay a
+    full-page link over `/schedule`.
+  - The only `bypassSecurityTrustResourceUrl` builds a YouTube embed URL from a
+    hard-coded id checked against `[A-Za-z0-9_-]{11}`.
+  - Player-supplied names are only ever interpolated as text.
+- **Clickjacking.** `public/spa-restore.js` carries a JavaScript framebuster. It is
+  best-effort, because a meta CSP cannot set `frame-ancestors`.
+- **Dev login.** The `/auth/dev` bypass runs only in a non-production build served from
+  `localhost`. The backend also refuses it unless `DEV_AUTH_ENABLED` is set and the
+  environment is not Production.
 
-**What replaced it.** The gated data now sits behind the API: the server holds the
-Discord client secret, mints a short-lived app JWT, and re-checks it on every request.
-The public projection is deliberately thin — IGN, role, notes and a derived `registered`
-flag; no Discord handles, no UIDs, no PIDs — so the "treat everything published as
-public" rule still holds, it just applies to a much smaller surface. `frontend/data/`,
-the `.enc` files and `dataEncryptionKey` are gone from the app entirely.
+## Backend controls (summary; details in `wwm-backend`)
 
-**What that does not undo.** Anything ever published stays published. The AES key was
-public by design, the roster it decrypted was readable for as long as it shipped, and
-both remain in this repo's git history until it is rewritten — see
-[`HISTORY-SCRUB.md`](HISTORY-SCRUB.md), which also carries the rotation checklist that
-matters whether or not you rewrite.
+- **Startup guards.** Production refuses to start without a ≥32-character
+  `JWT_SIGNING_KEY` or `CORS_ALLOWED_ORIGINS`.
+- **CORS and headers.** CORS is an explicit origin list, with no credentials, plus a
+  middleware that rejects unknown `Origin`s. HSTS, the HTTPS redirect, `nosniff`,
+  `X-Frame-Options: DENY` and `Referrer-Policy` are all set.
+- **Rate limits** per IP: 120/min globally, 10/min on `/auth/*`, 5/min on `/register`.
+- **Bot and internal calls** authenticate with `X-Bot-Key` / `ADMIN_KEY` in headers,
+  compared in constant time. An empty key fails closed.
+- **Roles.** Only an Admin may edit, retire or re-link a Commander/Admin row. Since
+  2026-11-21 that applies to the bot's `/gmemadd` and `/gmemkick` paths as well as the
+  site's member editor.
+- **SQL** is parameterised throughout. Image proxies fetch by id against host and path
+  allow-lists. Unhandled exceptions return a generic `server_error`.
+- **Footage links** filed from the bot must be YouTube videos. They are stored in
+  canonical form, and the bot's public post sets `AllowedMentions.None`.
 
-## Owner actions — completed (verified 2026-07-09)
+## CI / supply chain
 
-The high-priority owner actions from the original review are done and were
-verified against the live services:
+- `deploy.yml` runs only on `push` to `main` and on `workflow_dispatch`. It has no
+  `pull_request_target`, no `${{ github.event.* }}` inside `run:`, and no repo secrets.
+- `actions/checkout` uses `persist-credentials: false`, so the `contents: write` token
+  is **not** in `.git/config` while `npm ci` runs dependency install scripts. Only the
+  final push step receives it.
+- Dependencies are kept current. On 2026-11-21: Angular 22, TypeScript 6.0 (the newest
+  Angular 22 supports), and `npm audit` showed 0 vulnerabilities. Re-run `npm audit` after
+  every dependency change.
 
-1. **The exposed Google API key `AIzaSy…Z57M` is dead.** The Sheets API now
-   rejects it (`API_KEY_INVALID`). The old value still sits in git history,
-   which is harmless now; history rewriting remains optional cleanup.
-2. **The sheet is private.** Anonymous export of the spreadsheet returns 401.
-   It is shared only with the sync service account (Viewer). The spreadsheet ID
-   in old commits no longer grants anyone access.
-3. **Sync uses a service account** (`GOOGLE_SERVICE_ACCOUNT_JSON` secret) —
-   `sync-sheets.yml` runs succeed against the private sheet. The legacy
-   `GOOGLE_API_KEY` fallback was removed from the workflow; the corresponding
-   repo secret can be deleted.
-4. **The `DATA_ENCRYPTION_KEY` secret provides no confidentiality** because it
-   ships to the browser. Keep it only as light obfuscation; do not rely on it.
-   Rotating it does not change the exposure. Real per-user access control needs
-   the Apps Script gateway (`scripts/apps-script-gateway.gs`) wired into the
-   app — this is the main remaining item.
+## Open items / accepted risks
 
-## Fixes already applied in this repo
+- **The refresh credential is the access token itself, held in `localStorage`.** Any XSS
+  or malicious extension that reads it gets up to 7 days of renewals, unless the member
+  signs out (epoch bump) or is disabled. Stronger options:
+  - a rotating, opaque refresh token in an HttpOnly cookie on the API origin, with the
+    access token held only in memory;
+  - a shorter grace period for renewing expired tokens.
+- **One shared `ADMIN_KEY`** guards the Functions triggers, the game-token intake and
+  the capture hook. Giving the token intake its own key would limit the damage if a
+  local relay or capture machine were compromised.
+- **Registration review is the safeguard for unclaimed rows.**
+  - An applicant can match an unclaimed roster row by IGN alone, and the public roster
+    shows which rows are unclaimed.
+  - Approval can fall back to the self-declared Discord handle.
+  - Officers should confirm identity before approving.
+- **Security headers.** A real CSP header with `frame-ancestors` and reporting needs a
+  host that can send headers. One option is Cloudflare in front of a custom domain (see
+  the note below).
+- **CSP `script-src` trusts the whole `www.youtube.com` origin.** No bypass is known, but
+  a nonce or `strict-dynamic` policy would be tighter. `connect-src https://discord.com`
+  looks unused.
+- **Git history.** The purged paths (`backend/`, `data/`, `frontend/data/`, `*.enc`) have
+  no objects left in any local branch. Whether GitHub has garbage-collected the old
+  commits can only be confirmed by GitHub Support. See [`HISTORY-SCRUB.md`](HISTORY-SCRUB.md).
 
-- **Removed the Google API key from the browser entirely.** The app is now
-  static-only: the four data services (`events`, `schedule`, `members`,
-  `match-history`) read the prebuilt `data/*.json` / `data/*.enc` files and no
-  longer fall back to the live Sheets API from the client. `googleApiKey` and
-  `defaultSpreadsheetId` were dropped from both `environment.ts` files and from
-  the `deploy.yml` injection step, so no API key ships in the bundle anymore.
-  (`fetch-data.js` in `sync-sheets.yml` authenticates server-side with the
-  service account; nothing Google-related reaches a browser.)
-- **Removed the stale `data/footages.json`.** The Footages tab was merged into
-  Match History and its URLs are published only as `match-history.enc`, but the
-  old plaintext export (member names + footage URLs) was still tracked and
-  served from the live site, bypassing that encryption.
-- **Deleted the public `/sheet` debug route** and its `SheetComponent` /
-  `SheetDataService` / `GoogleSheetsApiService`, which live-queried the Sheets
-  API (tab `Sheet1`) with the bundled key on demand.
-- **Closed the stored XSS in the Events list.** `buildDescription()` no longer
-  calls `bypassSecurityTrustHtml`; the sheet-authored description now runs
-  through Angular's HTML sanitizer (`sanitize(SecurityContext.HTML, …)`), and
-  the interpolated image URLs are attribute-escaped. Safe markup survives;
-  `<script>` / `onerror` / other injection is stripped.
-- **Added a `Content-Security-Policy`** meta tag in `src/index.html` as
-  defense-in-depth. **Test the live app after deploying** — it allow-lists
-  YouTube, the Discord CDN and Google Fonts.
+**If the API moves behind Cloudflare** (custom domain), lock the Azure origin so it
+cannot be reached directly: allow only Cloudflare's IP ranges, or require a secret header
+added by a Transform Rule. Then switch the rate limiter to `CF-Connecting-IP`. Without
+that change, every visitor shares the few Cloudflare edge IPs' rate-limit buckets.
+Update `environment.prod.ts` and the CSP's `connect-src`/`img-src` together.
 
-Failure behaviour is now **fail-closed**: if a data file is missing or a
-decryption fails, the app renders empty data instead of silently calling Google.
+## History
 
-## Review 2026-07-26 (UID/PID adoption + Guild page)
-
-Re-checked after the Members sheet gained `UID`/`PID` columns and the roster/stats
-pipelines were extended. **Still in place, verified against `origin/gh-pages`:**
-
-- No secret in the deployed bundle beyond the (known, unavoidable) data key — no
-  `AIzaSy…`, `service_account`, `private_key`, `client_secret`, sheet id.
-- No plaintext data on the published branch: `docs/data/` carries only the `.enc`
-  files plus the intentionally-public `events/schedule/inner-ways/sets` JSON. No
-  `members.json` / `player-stats.json` / `guild.json` ever reaches it.
-- The only `innerHTML` sink (Events description) still routes through
-  `sanitizer.sanitize(SecurityContext.HTML, …)`; no `bypassSecurityTrust*` anywhere.
-- No client-side Sheets API path: no `sheets.googleapis.com`, `googleApiKey` or
-  `spreadsheetId` in `src/`. Data services still fail closed to empty.
-- Workflows interpolate no `github.event.*` into `run:` blocks, echo no secrets, and
-  use no `pull_request_target`.
-- Backend go-live guards intact (unchanged): prod refuses to start without a ≥32-char
-  `JWT_SIGNING_KEY` or `CORS_ALLOWED_ORIGINS`; global 120/min + register 5/min rate
-  limits; `RESTRICT_TO_FRONTEND` on by default.
-
-**Closed in this review:**
-
-- **`UID`/`PID` are no longer exported.** `fetch-data.js` now drops them from
-  `members.json` (`OMITTED_COLUMNS`) before anything is written, so they never reach
-  `members.enc`. This matters more than the other columns: the Register flow treats a
-  matching **IGN + UID as proof you are that member**, and published data is readable
-  by everyone — shipping the pair would have let any visitor claim any not-yet-
-  registered roster row. The backend still gets both columns; it reads the sheet
-  directly with the service account.
-- **`POST /api/public/register` no longer scans the Members table.** The roster gate
-  now matches the UID with indexed equality on its two spellings (bare and
-  zero-padded). An unauthenticated route that loaded every member per request is a
-  cheap way to hammer a serverless DB that bills for being woken.
-
-**Data files added since (2026-07-26, leaderboards + newcomer detection):**
-
-- `data/guild-rank.json` — **public by design, unencrypted.** Carries only our own
-  standing on public leaderboards (board name, rank, score, entry count, timestamp).
-  No UID/PID, and no other guild's rows.
-- `data/hall-of-fame.json` — **public by design, unencrypted.** Member IGNs (already
-  public via `guild.enc`) plus their public leaderboard placements: board, rank,
-  score, field size. No UID/PID, nothing account-shaped.
-- `data/new-members.json` — guild members not yet on the Members sheet, **with their
-  UID and PID**. Gitignored and never encrypted/published, and the sync logs only
-  their IGNs (already public via `guild.enc`). This repo is public, so its Actions
-  logs, job summaries and artifacts are world-readable — an IGN+UID pair is what the
-  Register flow accepts as proof of identity, so it must not appear in any of them.
-  Closing the loop properly (writing newcomers straight into the private sheet) needs
-  the sync service account promoted from Viewer to Editor.
-
-**Data files added since (2026-07-27, opponent guilds):**
-
-- `data/opponent-guild-ids.json` — the hand-maintained `Match History Opponent name
-  → {id, hostnum}` map driving the sync below. Public ids only, no PII.
-- `data/guild-opponents.json` — **public by design, unencrypted.** Identity + member
-  roster (pId, IGN, join date) for every opponent guild we have faced, refreshed
-  twice a day. It carries **other guilds' member pIds**, which `guild.enc` already
-  does for our own roster — and unlike ours these cannot be turned against the
-  Register flow, which matches IGN+UID against the *Members sheet*. Nothing here is
-  about our members, and it is the same data wwmdb serves publicly on its own guild
-  pages. `fetch-opponent-guilds.js` builds it from a strict allow-list (only
-  `{id, numberId, name, hostnum, level, createTime, members[{id,name,joinTime}]}`),
-  so an upstream field the relay adds later cannot leak in unnoticed.
-
-**Accepted / still true — not fixed, know these:**
-
-- **The static site still cannot enforce the registration gate.** The in-app check is
-  UX only; the Google Form endpoint accepts unauthenticated POSTs from anywhere, and
-  its Discord field is self-declared and unverified (nothing proves the submitter owns
-  that handle), so anyone can submit any Discord/IGN/UID and an officer must verify.
-  There is no rate limit available on a static host — if registration spam
-  becomes a problem, use the Google Form's own "limit to 1 response / require
-  sign-in" settings, or wait for the backend (5/min limiter already written).
-- **`guild.enc` still publishes every member's pId**, so PID is only withheld from
-  `members.enc`, not globally. `fetch-player-stats.js` needs the pIds in the local
-  `guild.json`, but the *published* copy does not — stripping them in
-  `encrypt-data.js` (and re-keying the Guild page's `@for` off IGN) would close it.
-- **`player-stats.enc` now carries activity data** — `isOnline`, `loginTime`,
-  `logoutTime`, `onlineTime`, `eleganceScore` — so when each member last played, and
-  their total playtime, are publicly readable. This is the same data wwmdb already
-  shows publicly, and it drives the Guild page's "last seen"/online state, but it is a
-  deliberate publication of per-member activity: drop the fields from `shapePlayer`
-  if that is not wanted.
-- **CSP `connect-src` now also allows `https://docs.google.com`** — required for the
-  static Register form, whose POST was silently CSP-blocked in production. It widens
-  the exfiltration channel a hypothetical XSS could use; `form-action 'self'` and the
-  sanitizer are the compensating controls.
-- **CSP `connect-src` also allows the Discord CDN and Google Fonts** — the profile
-  modal's screenshot button rasterizes the card with `html-to-image`, which *fetches*
-  the avatar and the font files to inline them into the PNG. Both origins were already
-  trusted for loading (`img-src` / `font-src` / `style-src`); this lets the page read
-  them, which is the same widening trade-off as the bullet above. `font-src` also
-  allows `data:`, because inlined fonts arrive as data URIs — fonts are inert content,
-  not script. Removing any of this doesn't break the modal — only the screenshot's
-  avatar and typography.
-
-## Minor notes
-
-- The Discord OAuth uses the implicit grant (`response_type=token`) and stores
-  the token in `localStorage`. This is acceptable for a public client with the
-  `identify` scope, but the token is readable by any XSS (see above). Closing
-  the XSS is what makes this safe.
-- The Guild page publishes `data/guild.enc` (guild identity + member IGN/join
-  date roster), pulled from the wwmdb relay by `scripts/fetch-guild.js`. Same
-  public-data caveat as the roster: `.enc` is a UI convenience, not
-  confidentiality. Player stats (`scripts/fetch-player-stats.js`) now resolve
-  each member via their guild **pId** rather than an IGN search. Both scripts
-  strip anything account/email-shaped at ingestion (a recursive deny-list in
-  fetch-guild.js, a strict allow-list in fetch-player-stats.js), so the upstream
-  NetEase account email is never written to `data/` — honouring the "filter it
-  out before the JSON is written" rule above.
+- **Until 2026-07-30 the site was static.** Data shipped as `data/*.enc` files, whose
+  AES key was in the bundle. Encryption and route guards were UI conveniences, not
+  confidentiality: the bundled key was verified to decrypt the full roster. The
+  backend replaced all of it. Anything published back then stays published, and the
+  old key and roster remain in git history until it is rewritten.
+- **Owner actions completed (verified 2026-07-09):**
+  - The exposed Google API key (`AIzaSy…Z57M`) is dead.
+  - The sheet is private, shared only with the sync service account.
+  - Sync authenticates with that service account. `DATA_ENCRYPTION_KEY` and the
+    `GOOGLE_API_KEY` secret are obsolete.
+- **Earlier fixes** (2026-07, static era):
+  - Removed the bundled Google API key and the `/sheet` debug route.
+  - Dropped the stale plaintext `footages.json`.
+  - Sanitized event descriptions instead of using `bypassSecurityTrustHtml`.
+  - Stopped exporting UID/PID, because IGN + UID is what registration accepts as proof
+    of identity.
+  - Added the CSP.
+- **OAuth** moved from the implicit grant (`response_type=token`) to the
+  authorization-code flow with the backend.
