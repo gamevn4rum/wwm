@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   BackofficeService,
@@ -91,190 +91,339 @@ type Draft = {
         <p class="error">{{ error() }}</p>
       } @else {
         @for (section of sections(); track section.key) {
-        @if (section.members.length > 0) {
-        <h3 class="section-title">{{ section.title }} <span class="count">{{ section.members.length }}</span></h3>
-        @if (section.primary) {
-          <div class="sort">
-            <label>
-              <span>Sort by</span>
-              <select [ngModel]="sortKey()" (ngModelChange)="sortKey.set($event)"
-                      [ngModelOptions]="{ standalone: true }">
-                @for (o of sorts; track o.value) {
-                  <option [value]="o.value">{{ o.label }}</option>
-                }
-              </select>
-            </label>
-            <button type="button" (click)="sortDesc.set(!sortDesc())"
-                    [title]="sortDesc() ? 'Descending' : 'Ascending'">
-              {{ sortDesc() ? '↓' : '↑' }}
-            </button>
-          </div>
-        } @else {
-          <p class="hint">GVN2 members can use the personal bot commands only. They are never
-            Commander/Admin and have no roles, team or FP/FTP.</p>
-        }
-        <table class="grid">
-          <thead>
-            <tr>
-              <th>IGN</th>
-              <th>UID</th>
-              <th>Discord</th>
-              <th>Status</th>
-              @if (section.primary) { <th>Joined</th> }
-              <th>Rank</th>
-              @if (section.primary) {
-                <th>Main role</th>
-                <th>Main path</th>
-                <th>Sub path</th>
-                <th>Team</th>
-              }
-              <th>Login</th>
-              @if (section.primary) {
-                <th>FP</th>
-                <th>FTP</th>
-              }
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (m of section.members; track m.id) {
-              <tr [class.saving]="busy() === m.id" [class.dirty]="isDirty(m)">
-                <td>{{ m.ign }}</td>
-                <td class="mono">{{ m.uid || '—' }}</td>
-                <td>
-                  <input class="mono" [ngModel]="draftOf(m).discord"
-                         (ngModelChange)="edit(m, { discord: $event })"
-                         [ngModelOptions]="{ standalone: true }" placeholder="—" />
-                </td>
-                <td>
-                  @if (m.registered) {
-                    <span class="tag tag-on">Registered</span>
-                  } @else {
-                    <span class="tag">Unregistered</span>
-                  }
-                </td>
-                @if (section.primary) {
-                  <td class="quiet">{{ joinedLabel(m) }}</td>
-                }
-                <td>
-                  <select [ngModel]="draftOf(m).role" (ngModelChange)="edit(m, { role: $event })"
-                          [ngModelOptions]="{ standalone: true }">
-                    <option value="Warrior">Warrior</option>
-                    <option value="Commander" [disabled]="m.secondaryGuild">Commander</option>
-                    <option value="Admin" [disabled]="m.secondaryGuild">Admin</option>
+          @if (section.members.length > 0) {
+            <h3 class="section-title">
+              {{ section.title }} <span class="count">{{ section.members.length }}</span>
+            </h3>
+            @if (section.primary) {
+              <div class="sort">
+                <label>
+                  <span>Sort by</span>
+                  <select
+                    [ngModel]="sortKey()"
+                    (ngModelChange)="sortKey.set($event)"
+                    [ngModelOptions]="{ standalone: true }"
+                  >
+                    @for (o of sorts; track o.value) {
+                      <option [value]="o.value">{{ o.label }}</option>
+                    }
                   </select>
-                </td>
-                @if (section.primary) {
-                  <td>
-                    <select [ngModel]="draftOf(m).mainRole"
-                            (ngModelChange)="edit(m, { mainRole: $event })"
-                            [ngModelOptions]="{ standalone: true }">
-                      @for (r of combatRoles; track r.value) {
-                        <option [value]="r.value">{{ r.label }}</option>
-                      }
-                    </select>
-                  </td>
-                  <td>
-                    <select [ngModel]="draftOf(m).mainPath"
-                            (ngModelChange)="edit(m, { mainPath: $event })"
-                            [ngModelOptions]="{ standalone: true }">
-                      @for (p of pathChoices; track p.value) {
-                        <option [value]="p.value">{{ p.label }}</option>
-                      }
-                    </select>
-                  </td>
-                  <td>
-                    <select [ngModel]="draftOf(m).subPath"
-                            (ngModelChange)="edit(m, { subPath: $event })"
-                            [ngModelOptions]="{ standalone: true }">
-                      @for (p of pathChoices; track p.value) {
-                        <option [value]="p.value">{{ p.label }}</option>
-                      }
-                    </select>
-                  </td>
-                  <td>
-                    <select [ngModel]="draftOf(m).team" (ngModelChange)="edit(m, { team: $event })"
-                            [ngModelOptions]="{ standalone: true }">
-                      @for (t of teams; track t.value) {
-                        <option [value]="t.value">{{ t.label }}</option>
-                      }
-                      <!-- A free-text team from before the dropdown, kept visible until replaced. -->
-                      @if (isLegacyTeam(m.team)) {
-                        <option [value]="m.team" disabled>{{ m.team }} (old)</option>
-                      }
-                    </select>
-                  </td>
-                }
-                <td class="mid">
-                  <input type="checkbox" [ngModel]="draftOf(m).canLogin"
-                         (ngModelChange)="edit(m, { canLogin: $event })"
-                         [ngModelOptions]="{ standalone: true }" />
-                </td>
-                @if (section.primary) {
-                  <td class="mid">
-                    <input type="checkbox" [ngModel]="draftOf(m).fp"
-                           (ngModelChange)="edit(m, { fp: $event })"
-                           [ngModelOptions]="{ standalone: true }" />
-                  </td>
-                  <td class="mid">
-                    <input type="checkbox" [ngModel]="draftOf(m).ftp"
-                           (ngModelChange)="edit(m, { ftp: $event })"
-                           [ngModelOptions]="{ standalone: true }" />
-                  </td>
-                }
-                <td class="row-actions">
-                  <button type="button" (click)="save(m)" [disabled]="!isDirty(m) || busy() === m.id">
-                    {{ busy() === m.id ? '…' : 'Save' }}
-                  </button>
-                  @if (isDirty(m)) {
-                    <button type="button" class="link" (click)="revert(m)">Revert</button>
-                  }
-                </td>
-              </tr>
+                </label>
+                <button
+                  type="button"
+                  (click)="sortDesc.set(!sortDesc())"
+                  [title]="sortDesc() ? 'Descending' : 'Ascending'"
+                >
+                  {{ sortDesc() ? '↓' : '↑' }}
+                </button>
+              </div>
+            } @else {
+              <p class="hint">
+                GVN2 members can use the personal bot commands only. They are never Commander/Admin
+                and have no roles, team or FP/FTP.
+              </p>
             }
-          </tbody>
-        </table>
+            <table class="grid">
+              <thead>
+                <tr>
+                  <th>IGN</th>
+                  <th>UID</th>
+                  <th>Discord</th>
+                  <th>Status</th>
+                  @if (section.primary) {
+                    <th>Joined</th>
+                  }
+                  <th>Rank</th>
+                  @if (section.primary) {
+                    <th>Main role</th>
+                    <th>Main path</th>
+                    <th>Sub path</th>
+                    <th>Team</th>
+                  }
+                  <th>Login</th>
+                  @if (section.primary) {
+                    <th>FP</th>
+                    <th>FTP</th>
+                  }
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of section.members; track m.id) {
+                  <tr [class.saving]="busy() === m.id" [class.dirty]="isDirty(m)">
+                    <td>{{ m.ign }}</td>
+                    <td class="mono">{{ m.uid || '—' }}</td>
+                    <td>
+                      <input
+                        class="mono"
+                        [ngModel]="draftOf(m).discord"
+                        (ngModelChange)="edit(m, { discord: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="—"
+                      />
+                    </td>
+                    <td>
+                      @if (m.registered) {
+                        <span class="tag tag-on">Registered</span>
+                      } @else {
+                        <span class="tag">Unregistered</span>
+                      }
+                    </td>
+                    @if (section.primary) {
+                      <td class="quiet">{{ joinedLabel(m) }}</td>
+                    }
+                    <td>
+                      <select
+                        [ngModel]="draftOf(m).role"
+                        (ngModelChange)="edit(m, { role: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                      >
+                        <option value="Warrior">Warrior</option>
+                        <option value="Commander" [disabled]="m.secondaryGuild">Commander</option>
+                        <option value="Admin" [disabled]="m.secondaryGuild">Admin</option>
+                      </select>
+                    </td>
+                    @if (section.primary) {
+                      <td>
+                        <select
+                          [ngModel]="draftOf(m).mainRole"
+                          (ngModelChange)="edit(m, { mainRole: $event })"
+                          [ngModelOptions]="{ standalone: true }"
+                        >
+                          @for (r of combatRoles; track r.value) {
+                            <option [value]="r.value">{{ r.label }}</option>
+                          }
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          [ngModel]="draftOf(m).mainPath"
+                          (ngModelChange)="edit(m, { mainPath: $event })"
+                          [ngModelOptions]="{ standalone: true }"
+                        >
+                          @for (p of pathChoices; track p.value) {
+                            <option [value]="p.value">{{ p.label }}</option>
+                          }
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          [ngModel]="draftOf(m).subPath"
+                          (ngModelChange)="edit(m, { subPath: $event })"
+                          [ngModelOptions]="{ standalone: true }"
+                        >
+                          @for (p of pathChoices; track p.value) {
+                            <option [value]="p.value">{{ p.label }}</option>
+                          }
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          [ngModel]="draftOf(m).team"
+                          (ngModelChange)="edit(m, { team: $event })"
+                          [ngModelOptions]="{ standalone: true }"
+                        >
+                          @for (t of teams; track t.value) {
+                            <option [value]="t.value">{{ t.label }}</option>
+                          }
+                          <!-- A free-text team from before the dropdown, kept visible until replaced. -->
+                          @if (isLegacyTeam(m.team)) {
+                            <option [value]="m.team" disabled>{{ m.team }} (old)</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td class="mid">
+                      <input
+                        type="checkbox"
+                        [ngModel]="draftOf(m).canLogin"
+                        (ngModelChange)="edit(m, { canLogin: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                      />
+                    </td>
+                    @if (section.primary) {
+                      <td class="mid">
+                        <input
+                          type="checkbox"
+                          [ngModel]="draftOf(m).fp"
+                          (ngModelChange)="edit(m, { fp: $event })"
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      </td>
+                      <td class="mid">
+                        <input
+                          type="checkbox"
+                          [ngModel]="draftOf(m).ftp"
+                          (ngModelChange)="edit(m, { ftp: $event })"
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      </td>
+                    }
+                    <td class="row-actions">
+                      <button
+                        type="button"
+                        (click)="save(m)"
+                        [disabled]="!isDirty(m) || busy() === m.id"
+                      >
+                        {{ busy() === m.id ? '…' : 'Save' }}
+                      </button>
+                      @if (isDirty(m)) {
+                        <button type="button" class="link" (click)="revert(m)">Revert</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         }
+        @if (notice()) {
+          <p class="notice">{{ notice() }}</p>
         }
-        @if (notice()) { <p class="notice">{{ notice() }}</p> }
       }
     </section>
   `,
-  styles: [`
-    /* Embedded in the Manage hub's panel, which supplies the page width and the heading. */
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .7; margin-bottom: 1rem; max-width: 70rem; }
-    .section-title { margin: 1.5rem 0 .5rem; font-size: 1rem; }
-    .section-title .count { opacity: .6; font-weight: 400; margin-left: .35rem; }
-    .sort { display: flex; gap: .4rem; align-items: center; margin-bottom: .6rem; }
-    .sort label { display: flex; gap: .4rem; align-items: center; }
-    .sort label span { font-size: .8rem; opacity: .7; }
-    .sort select { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; }
-    .sort button { padding: .3rem .6rem; }
-    .grid { width: 100%; border-collapse: collapse; }
-    .grid th, .grid td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: middle; }
-    .grid th { font-size: .75rem; text-transform: uppercase; opacity: .6; font-weight: 600; }
-    .grid input, .grid select { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4);
-      border-radius: 6px; font: inherit; width: 100%; box-sizing: border-box; min-width: 0; }
-    .grid input[type=checkbox] { width: var(--checkbox-size); }
-    .grid td.mid { text-align: center; }
-    .mono { font-family: monospace; opacity: .8; }
-    .quiet { opacity: .7; white-space: nowrap; }
-    .tag { font-size: .72rem; padding: .1rem .4rem; border: 1px solid rgba(128,128,128,.45); border-radius: 999px; opacity: .75; white-space: nowrap; }
-    .tag-on { border-color: rgba(124,148,115,.75); color: #5f7757; opacity: 1; }
-    tr.saving { opacity: .5; }
-    /* An unsaved row is marked, because a table full of inputs otherwise gives no sign that a Save
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      /* Embedded in the Manage hub's panel, which supplies the page width and the heading. */
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.7;
+        margin-bottom: 1rem;
+        max-width: 70rem;
+      }
+      .section-title {
+        margin: 1.5rem 0 0.5rem;
+        font-size: 1rem;
+      }
+      .section-title .count {
+        opacity: 0.6;
+        font-weight: 400;
+        margin-left: 0.35rem;
+      }
+      .sort {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        margin-bottom: 0.6rem;
+      }
+      .sort label {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+      }
+      .sort label span {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+      .sort select {
+        padding: 0.3rem 0.45rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+      }
+      .sort button {
+        padding: 0.3rem 0.6rem;
+      }
+      .grid {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .grid th,
+      .grid td {
+        text-align: left;
+        padding: 0.45rem 0.6rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        vertical-align: middle;
+      }
+      .grid th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+      }
+      .grid input,
+      .grid select {
+        padding: 0.3rem 0.45rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+      .grid input[type='checkbox'] {
+        width: var(--checkbox-size);
+      }
+      .grid td.mid {
+        text-align: center;
+      }
+      .mono {
+        font-family: monospace;
+        opacity: 0.8;
+      }
+      .quiet {
+        opacity: 0.7;
+        white-space: nowrap;
+      }
+      .tag {
+        font-size: 0.72rem;
+        padding: 0.1rem 0.4rem;
+        border: 1px solid rgba(128, 128, 128, 0.45);
+        border-radius: 999px;
+        opacity: 0.75;
+        white-space: nowrap;
+      }
+      .tag-on {
+        border-color: rgba(124, 148, 115, 0.75);
+        color: #5f7757;
+        opacity: 1;
+      }
+      tr.saving {
+        opacity: 0.5;
+      }
+      /* An unsaved row is marked, because a table full of inputs otherwise gives no sign that a Save
        is still owed on a row that has scrolled out of view. */
-    tr.dirty { background: rgba(173,122,76,.08); }
-    .row-actions { display: flex; gap: .35rem; align-items: center; white-space: nowrap; }
-    button { padding: .35rem .9rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; cursor: pointer; background: transparent; color: inherit; }
-    button:disabled { cursor: default; opacity: .5; }
-    button.link { border: none; padding: .35rem .2rem; text-decoration: underline; opacity: .7; }
-    .error { color: #dc3545; }
-    .notice { margin-top: .75rem; opacity: .8; }
-  `],
+      tr.dirty {
+        background: rgba(173, 122, 76, 0.08);
+      }
+      .row-actions {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+        white-space: nowrap;
+      }
+      button {
+        padding: 0.35rem 0.9rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        cursor: pointer;
+        background: transparent;
+        color: inherit;
+      }
+      button:disabled {
+        cursor: default;
+        opacity: 0.5;
+      }
+      button.link {
+        border: none;
+        padding: 0.35rem 0.2rem;
+        text-decoration: underline;
+        opacity: 0.7;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .notice {
+        margin-top: 0.75rem;
+        opacity: 0.8;
+      }
+    `,
+  ],
 })
 export class ManageMembersPageComponent {
   private readonly backoffice = inject(BackofficeService);
@@ -289,9 +438,18 @@ export class ManageMembersPageComponent {
   protected readonly sections = computed(() => {
     const all = this.members();
     return [
-      { key: 'gvn', title: 'GameVN', primary: true,
-        members: this.sorted(all.filter((m) => !m.secondaryGuild)) },
-      { key: 'gvn2', title: 'GVN2', primary: false, members: all.filter((m) => !!m.secondaryGuild) },
+      {
+        key: 'gvn',
+        title: 'GameVN',
+        primary: true,
+        members: this.sorted(all.filter((m) => !m.secondaryGuild)),
+      },
+      {
+        key: 'gvn2',
+        title: 'GVN2',
+        primary: false,
+        members: all.filter((m) => !!m.secondaryGuild),
+      },
     ];
   });
 
@@ -351,11 +509,16 @@ export class ManageMembersPageComponent {
     const dir = this.sortDesc() ? -1 : 1;
     const value = (m: CommanderMember): string | number | null => {
       switch (key) {
-        case 'joined': return m.joinTime ?? null;
-        case 'discord': return m.discord?.trim().toLowerCase() || null;
-        case 'mainRole': return rank(COMBAT_ROLES, m.mainRole);
-        case 'team': return rank(TEAMS, m.team);
-        default: return m.ign.toLowerCase();
+        case 'joined':
+          return m.joinTime ?? null;
+        case 'discord':
+          return m.discord?.trim().toLowerCase() || null;
+        case 'mainRole':
+          return rank(COMBAT_ROLES, m.mainRole);
+        case 'team':
+          return rank(TEAMS, m.team);
+        default:
+          return m.ign.toLowerCase();
       }
     };
     return [...list].sort((a, b) => {
@@ -446,16 +609,17 @@ export class ManageMembersPageComponent {
           err?.error?.error === 'secondary_guild_member'
             ? 'GVN2 members cannot be Commander/Admin, or have roles, team or FP/FTP.'
             : err?.status === 403
-            ? 'Not permitted (role-grant policy).'
-            : err?.error?.error === 'discord_taken'
-              ? 'That Discord handle belongs to another member.'
-              : err?.error?.error === 'field_too_long'
-                ? 'One of those values is too long.'
-                : err?.error?.error === 'invalid_combat_role'
-                  ? 'That is not a valid combat role.'
-                  : err?.error?.error === 'invalid_team'
-                    ? 'That is not a valid team.'
-                    : 'Update failed.');
+              ? 'Not permitted (role-grant policy).'
+              : err?.error?.error === 'discord_taken'
+                ? 'That Discord handle belongs to another member.'
+                : err?.error?.error === 'field_too_long'
+                  ? 'One of those values is too long.'
+                  : err?.error?.error === 'invalid_combat_role'
+                    ? 'That is not a valid combat role.'
+                    : err?.error?.error === 'invalid_team'
+                      ? 'That is not a valid team.'
+                      : 'Update failed.',
+        );
       },
     });
   }

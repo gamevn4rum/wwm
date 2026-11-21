@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { BackofficeService, RsvpDisplay } from '../../core/services/backoffice.service';
 
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
@@ -41,8 +41,13 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
         <p class="error">{{ error() }}</p>
       } @else {
         <div class="choices">
-          <button type="button" class="choice" [class.picked]="!paths()" [disabled]="saving()"
-                  (click)="choose(false)">
+          <button
+            type="button"
+            class="choice"
+            [class.picked]="!paths()"
+            [disabled]="saving()"
+            (click)="choose(false)"
+          >
             <span class="mark">🛡️ ⚔️ ➕</span>
             <span class="name">Combat role <em>(default)</em></span>
             <span class="blurb">
@@ -51,8 +56,13 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
             </span>
           </button>
 
-          <button type="button" class="choice" [class.picked]="paths()" [disabled]="saving()"
-                  (click)="choose(true)">
+          <button
+            type="button"
+            class="choice"
+            [class.picked]="paths()"
+            [disabled]="saving()"
+            (click)="choose(true)"
+          >
             <span class="mark">main + sub</span>
             <span class="name">Martial paths</span>
             <span class="blurb">
@@ -72,29 +82,84 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
       }
     </section>
   `,
-  styles: [`
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .75; margin-bottom: 1rem; line-height: 1.5; }
-    .choices { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .choice {
-      flex: 1 1 18rem; text-align: left; cursor: pointer; padding: .9rem 1rem;
-      display: flex; flex-direction: column; gap: .35rem;
-      border: 1px solid rgba(128,128,128,.4); border-radius: 8px; background: transparent;
-      color: inherit; font: inherit;
-    }
-    .choice:hover:not(:disabled) { background: rgba(128,128,128,.1); }
-    .choice:disabled { opacity: .6; cursor: default; }
-    .choice.picked { border-color: #1F8B4C; background: rgba(31,139,76,.12); }
-    .mark { font-size: .95rem; letter-spacing: .1em; opacity: .85; }
-    .name { font-weight: 700; }
-    .name em { font-weight: 500; font-size: .76rem; opacity: .6; font-style: normal; }
-    .blurb { font-size: .76rem; opacity: .7; line-height: 1.45; }
-    .meta { font-size: .74rem; margin-top: .9rem; }
-    .who-when { opacity: .55; }
-    .ok { color: #28a745; }
-    .bad { color: #dc3545; }
-    .error { color: #dc3545; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.75;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+      }
+      .choices {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .choice {
+        flex: 1 1 18rem;
+        text-align: left;
+        cursor: pointer;
+        padding: 0.9rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 8px;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+      }
+      .choice:hover:not(:disabled) {
+        background: rgba(128, 128, 128, 0.1);
+      }
+      .choice:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .choice.picked {
+        border-color: #1f8b4c;
+        background: rgba(31, 139, 76, 0.12);
+      }
+      .mark {
+        font-size: 0.95rem;
+        letter-spacing: 0.1em;
+        opacity: 0.85;
+      }
+      .name {
+        font-weight: 700;
+      }
+      .name em {
+        font-weight: 500;
+        font-size: 0.76rem;
+        opacity: 0.6;
+        font-style: normal;
+      }
+      .blurb {
+        font-size: 0.76rem;
+        opacity: 0.7;
+        line-height: 1.45;
+      }
+      .meta {
+        font-size: 0.74rem;
+        margin-top: 0.9rem;
+      }
+      .who-when {
+        opacity: 0.55;
+      }
+      .ok {
+        color: #28a745;
+      }
+      .bad {
+        color: #dc3545;
+      }
+      .error {
+        color: #dc3545;
+      }
+    `,
+  ],
 })
 export class RsvpDisplayPanelComponent {
   private readonly backoffice = inject(BackofficeService);
@@ -112,8 +177,14 @@ export class RsvpDisplayPanelComponent {
 
   ngOnInit(): void {
     this.backoffice.getRsvpDisplay().subscribe({
-      next: (s) => { this.setting.set(s); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load the setting.'); this.loading.set(false); },
+      next: (s) => {
+        this.setting.set(s);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load the setting.');
+        this.loading.set(false);
+      },
     });
   }
 

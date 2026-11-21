@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MemberGridComponent } from '../home/components/member-grid/member-grid.component';
 import { GvgFormationModalComponent } from './gvg-formation/gvg-formation-modal.component';
@@ -9,6 +9,7 @@ import { DiscordAuthService, isCommanderRole } from '../../core/services/discord
   standalone: true,
   imports: [MemberGridComponent, GvgFormationModalComponent],
   templateUrl: './formation-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./formation-page.component.scss'],
 })
 export class FormationPageComponent {

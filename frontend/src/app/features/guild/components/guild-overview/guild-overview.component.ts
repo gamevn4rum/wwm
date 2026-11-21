@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { GuildDataService } from '../../guild-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats } from '../../../roster-stats/player-stats.model';
@@ -40,6 +47,7 @@ export interface OverviewTile {
   standalone: true,
   imports: [],
   templateUrl: './guild-overview.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./guild-overview.component.scss'],
 })
 export class GuildOverviewComponent implements OnInit {
@@ -96,7 +104,8 @@ export class GuildOverviewComponent implements OnInit {
     const tiles: OverviewTile[] = [
       { key: 'members', label: 'Members', value: String(g?.memberCount ?? 0) },
       {
-        key: 'prosperity', label: 'Prosperity',
+        key: 'prosperity',
+        label: 'Prosperity',
         value: prosperity ? compactNumber(prosperity.score!) : '—',
         sub: prosperity?.rank != null ? `#${prosperity.rank} of ${prosperity.total}` : undefined,
       },
@@ -104,11 +113,20 @@ export class GuildOverviewComponent implements OnInit {
       this.guildWarTile('gw-league', 'Guild League', SHOW_GUILD_WAR ? r?.guildWar?.league : null),
       { key: 'founded', label: 'Founded', value: formatUnixDate(g?.createTime), small: true },
       {
-        key: 'playtime', label: 'Avg Playtime',
+        key: 'playtime',
+        label: 'Avg Playtime',
         value: avgPlaytimeHours != null ? `${avgPlaytimeHours.toLocaleString('en-GB')}h` : '—',
       },
-      { key: 'mastery', label: 'Avg Mastery', value: avgMastery != null ? compactNumber(avgMastery) : '—' },
-      { key: 'elegance', label: 'Avg Elegance', value: avgElegance != null ? compactNumber(avgElegance) : '—' },
+      {
+        key: 'mastery',
+        label: 'Avg Mastery',
+        value: avgMastery != null ? compactNumber(avgMastery) : '—',
+      },
+      {
+        key: 'elegance',
+        label: 'Avg Elegance',
+        value: avgElegance != null ? compactNumber(avgElegance) : '—',
+      },
     ];
     return tiles;
   });
@@ -119,16 +137,26 @@ export class GuildOverviewComponent implements OnInit {
    * tier and group — so its sub-line names the tier, which is what makes "#1" mean anything,
    * and its score is League points.
    */
-  private guildWarTile(key: string, label: string, entry: GuildRankEntry | null | undefined): OverviewTile {
+  private guildWarTile(
+    key: string,
+    label: string,
+    entry: GuildRankEntry | null | undefined,
+  ): OverviewTile {
     if (entry?.rank == null) return { key, label, value: '—' };
-    const parts = key === 'gw-league'
-      ? [entry.board, entry.score != null ? `${entry.score} pts` : null]
-      : [
-          entry.score != null ? `${entry.score} wins` : null,
-          entry.total != null ? `of ${entry.total}` : null,
-        ];
+    const parts =
+      key === 'gw-league'
+        ? [entry.board, entry.score != null ? `${entry.score} pts` : null]
+        : [
+            entry.score != null ? `${entry.score} wins` : null,
+            entry.total != null ? `of ${entry.total}` : null,
+          ];
     const shown = parts.filter(Boolean);
-    return { key, label, value: `#${entry.rank}`, sub: shown.length ? shown.join(' · ') : undefined };
+    return {
+      key,
+      label,
+      value: `#${entry.rank}`,
+      sub: shown.length ? shown.join(' · ') : undefined,
+    };
   }
 
   ngOnInit(): void {

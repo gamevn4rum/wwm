@@ -1,8 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  DiscordAuthService, DiscordUserSession, isAdminRole, isCommanderRole,
+  DiscordAuthService,
+  DiscordUserSession,
+  isAdminRole,
+  isCommanderRole,
 } from '../../../../core/services/discord-auth.service';
 import { ConfigService } from '../../../../core/services/config.service';
 
@@ -11,6 +14,7 @@ import { ConfigService } from '../../../../core/services/config.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, AsyncPipe],
   templateUrl: './home-nav.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home-nav.component.scss'],
 })
 export class HomeNavComponent {
@@ -19,6 +23,10 @@ export class HomeNavComponent {
   readonly currentUser$ = this.authService.currentUser$;
   readonly authResolved$ = this.authService.authResolved$;
 
-  isCommander(user: DiscordUserSession): boolean { return isCommanderRole(user.role); }
-  isAdmin(user: DiscordUserSession): boolean { return isAdminRole(user.role); }
+  isCommander(user: DiscordUserSession): boolean {
+    return isCommanderRole(user.role);
+  }
+  isAdmin(user: DiscordUserSession): boolean {
+    return isAdminRole(user.role);
+  }
 }

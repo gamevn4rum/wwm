@@ -1,5 +1,4 @@
 <div class="guild-page page-fade">
-
   <!-- ══ PAGE HEADER ══ -->
   <!-- The aggregate tiles that used to sit here now live in the site header
        (app-guild-overview, under .header-center) — they're guild-level identity,
@@ -15,11 +14,9 @@
   @if (notice(); as message) {
     <p class="guild-loading">{{ message }}</p>
   } @else {
-
     <!-- One block per guild we hold: GameVN, then GVN2. Each has its own identity card, search
          and sort, so filtering one roster never hides names in the other. -->
     @for (view of views(); track view.key) {
-
       <!-- ══ IDENTITY CARD ══ -->
       <!-- Members / Founded / Server live in the header tiles (GameVN's), so this card carries
            only what they don't: crest, name, guild level, live state. -->
@@ -50,13 +47,19 @@
       <section class="guild-section">
         <div class="section-banner">
           <h2 class="section-title">ROSTER</h2>
-          <p class="section-sub">{{ view.roster.length }} of {{ view.guild.memberCount }} members</p>
+          <p class="section-sub">
+            {{ view.roster.length }} of {{ view.guild.memberCount }} members
+          </p>
         </div>
 
         <div class="roster-toolbar">
           <label class="roster-sort">
             <span class="roster-sort-label">Sort</span>
-            <select [value]="view.sort" (change)="onSort(view.key, $event)" aria-label="Sort members">
+            <select
+              [value]="view.sort"
+              (change)="onSort(view.key, $event)"
+              aria-label="Sort members"
+            >
               @for (opt of sortOptions; track opt.key) {
                 <option [value]="opt.key">{{ opt.label }}</option>
               }
@@ -122,67 +125,80 @@
         }
       </section>
     }
-
   }
-
 </div>
 <!-- One roster card, shared by the GameVN roster and the GVN2 section. -->
 <ng-template #memberCard let-entry>
-            <!-- The member's in-game name card behind the head, fetched when the card nears the
+  <!-- The member's in-game name card behind the head, fetched when the card nears the
                  viewport (see loadNameCard). Without one the card is drawn exactly as before. -->
-            @let card = nameCards()[entry.member.ign];
-            <article class="roster-card" [class.is-online]="entry.online" [class.has-card]="!!card"
-                     (appInView)="loadNameCard(entry.member.ign)">
-              <div class="member-head">
-                @if (card) {
-                  <img class="member-card-art" [src]="card" alt="" crossorigin="anonymous"
-                       decoding="async" (error)="dropNameCard(entry.member.ign)" />
-                }
-                @let face = portraits()[entry.member.ign];
-                <span class="member-avatar">
-                  @if (face) {
-                    <img class="member-portrait" [src]="face" alt="" decoding="async"
-                         (error)="dropPortrait(entry.member.ign)" />
-                  } @else {
-                    {{ initial(entry.member.ign) }}
-                  }
-                  @if (entry.online) {
-                    <span class="member-dot" aria-hidden="true"></span>
-                  }
-                </span>
-                <div class="member-id">
-                  <span class="member-ign">{{ entry.member.ign }}</span>
-                  <span class="member-school">{{ entry.player?.school || '—' }}</span>
-                  @if (entry.player?.numberId) {
-                    <span class="member-uid">UID {{ entry.player!.numberId }}</span>
-                  }
-                </div>
-                <span class="member-level">
-                  {{ entry.player?.level != null ? 'Lv ' + entry.player!.level : '—' }}
-                </span>
-              </div>
+  @let card = nameCards()[entry.member.ign];
+  <article
+    class="roster-card"
+    [class.is-online]="entry.online"
+    [class.has-card]="!!card"
+    (appInView)="loadNameCard(entry.member.ign)"
+  >
+    <div class="member-head">
+      @if (card) {
+        <img
+          class="member-card-art"
+          [src]="card"
+          alt=""
+          crossorigin="anonymous"
+          decoding="async"
+          (error)="dropNameCard(entry.member.ign)"
+        />
+      }
+      @let face = portraits()[entry.member.ign];
+      <span class="member-avatar">
+        @if (face) {
+          <img
+            class="member-portrait"
+            [src]="face"
+            alt=""
+            decoding="async"
+            (error)="dropPortrait(entry.member.ign)"
+          />
+        } @else {
+          {{ initial(entry.member.ign) }}
+        }
+        @if (entry.online) {
+          <span class="member-dot" aria-hidden="true"></span>
+        }
+      </span>
+      <div class="member-id">
+        <span class="member-ign">{{ entry.member.ign }}</span>
+        <span class="member-school">{{ entry.player?.school || '—' }}</span>
+        @if (entry.player?.numberId) {
+          <span class="member-uid">UID {{ entry.player!.numberId }}</span>
+        }
+      </div>
+      <span class="member-level">
+        {{ entry.player?.level != null ? 'Lv ' + entry.player!.level : '—' }}
+      </span>
+    </div>
 
-              <dl class="member-stats">
-                <div class="member-stat">
-                  <dt>Mastery</dt>
-                  <dd>{{ compact(entry.player?.weaponMasteryMax) }}</dd>
-                </div>
-                <div class="member-stat">
-                  <dt>Elegance</dt>
-                  <dd>{{ compact(entry.player?.eleganceScore) }}</dd>
-                </div>
-                <div class="member-stat">
-                  <dt>Playtime</dt>
-                  <dd>{{ playtime(entry.player?.onlineTime) }}</dd>
-                </div>
-                <div class="member-stat">
-                  <dt>Last online</dt>
-                  <dd [class.dd-online]="entry.online">{{ lastSeenLabel(entry) }}</dd>
-                </div>
-                <div class="member-stat member-stat-wide">
-                  <dt>Joined</dt>
-                  <dd>{{ formatDate(entry.member.joinTime) }}</dd>
-                </div>
-              </dl>
-            </article>
+    <dl class="member-stats">
+      <div class="member-stat">
+        <dt>Mastery</dt>
+        <dd>{{ compact($safeNavigationMigration(entry.player?.weaponMasteryMax)) }}</dd>
+      </div>
+      <div class="member-stat">
+        <dt>Elegance</dt>
+        <dd>{{ compact($safeNavigationMigration(entry.player?.eleganceScore)) }}</dd>
+      </div>
+      <div class="member-stat">
+        <dt>Playtime</dt>
+        <dd>{{ playtime($safeNavigationMigration(entry.player?.onlineTime)) }}</dd>
+      </div>
+      <div class="member-stat">
+        <dt>Last online</dt>
+        <dd [class.dd-online]="entry.online">{{ lastSeenLabel(entry) }}</dd>
+      </div>
+      <div class="member-stat member-stat-wide">
+        <dt>Joined</dt>
+        <dd>{{ formatDate(entry.member.joinTime) }}</dd>
+      </div>
+    </dl>
+  </article>
 </ng-template>

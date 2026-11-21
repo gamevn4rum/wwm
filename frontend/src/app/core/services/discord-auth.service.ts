@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, ReplaySubject, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay } from 'rxjs/operators';
 import { apiUrl } from '../api';
+import { environment } from '../../../environments/environment';
 
 export type UserRole = 'Admin' | 'Creator' | 'Commander' | 'Warrior';
 
@@ -167,9 +168,10 @@ export class DiscordAuthService {
   }
 
   private init(): void {
-    if (window.location.hostname === 'localhost') {
+    if (!environment.production && window.location.hostname === 'localhost') {
       // Dev bypass: ask the backend for an Admin session. Requires DEV_AUTH_ENABLED and a
-      // non-Production environment, so this is a 404 against the deployed API.
+      // non-Production environment, so this is a 404 against the deployed API. Also gated on a
+      // dev build, so a prod bundle served from localhost never asks the prod API for Admin.
       this.http.post<AuthResponse>(apiUrl('/auth/dev'), {}).pipe(
         catchError(() => of(null)),
       ).subscribe((res) => {

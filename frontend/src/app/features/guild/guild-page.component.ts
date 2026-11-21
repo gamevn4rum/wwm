@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { AppearanceService } from '../roster-stats/appearance.service';
 import { InViewDirective } from '../../shared/directives/in-view.directive';
@@ -7,9 +14,12 @@ import { PlayerStatsDataService } from '../roster-stats/player-stats-data.servic
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
 import { FormerMember, Guild, GuildMember } from './guild.model';
 import {
-  compactNumber, formatIsoDate, formatUnixDate, playtimeLabel, relativeTime,
+  compactNumber,
+  formatIsoDate,
+  formatUnixDate,
+  playtimeLabel,
+  relativeTime,
 } from './guild-format';
-
 
 /** A roster member joined with their in-game profile (absent until stats load,
  *  or permanently for a member the relay couldn't resolve). */
@@ -44,6 +54,7 @@ interface GuildView {
   standalone: true,
   imports: [InViewDirective, NgTemplateOutlet],
   templateUrl: './guild-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./guild-page.component.scss'],
 })
 export class GuildPageComponent implements OnInit {
@@ -102,7 +113,9 @@ export class GuildPageComponent implements OnInit {
       case 'error':
         return 'Couldn’t load the guild roster just now. Try again in a moment.';
       default:
-        return this.guild() ? null : 'Guild data isn’t available yet — check back after the next sync.';
+        return this.guild()
+          ? null
+          : 'Guild data isn’t available yet — check back after the next sync.';
     }
   });
 
@@ -124,7 +137,6 @@ export class GuildPageComponent implements OnInit {
     for (const rec of this.stats()) map.set(rec.ign.toLowerCase(), rec.player);
     return map;
   });
-
 
   /**
    * One block per guild we hold — GameVN, then GVN2 when the API sends it — each with its own
@@ -205,7 +217,10 @@ export class GuildPageComponent implements OnInit {
         // Empty name = the sync hasn't produced a guild yet, which isn't a failure.
         this.guild.set(load.status === 'ok' && load.guild.name ? load.guild : null);
       },
-      error: () => { this.status.set('error'); this.guild.set(null); },
+      error: () => {
+        this.status.set('error');
+        this.guild.set(null);
+      },
     });
     // GVN2's cards too — this is the one page that draws them, in their own section.
     this.statsService.getMatched(true).subscribe({

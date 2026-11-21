@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { DiscordAuthService, isCommanderRole } from '../../../core/services/discord-auth.service';
@@ -36,17 +36,35 @@ type Access = 'checking' | 'anonymous' | 'denied' | 'allowed';
       }
     }
   `,
-  styles: [`
-    :host { display: block; min-height: 100vh; }
-    .fe-msg {
-      display: flex; flex-direction: column; gap: 1rem; align-items: center; justify-content: center;
-      min-height: 100vh; margin: 0; padding: 1.5rem; text-align: center;
-    }
-    .fe-btn {
-      padding: 0.6rem 1.2rem; border: 0; border-radius: 0.4rem;
-      background: #5865f2; color: #fff; font: inherit; cursor: pointer;
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: block;
+        min-height: 100vh;
+      }
+      .fe-msg {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 1.5rem;
+        text-align: center;
+      }
+      .fe-btn {
+        padding: 0.6rem 1.2rem;
+        border: 0;
+        border-radius: 0.4rem;
+        background: #5865f2;
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+    `,
+  ],
 })
 export class FormationEmbedPageComponent {
   readonly auth = inject(DiscordAuthService);
@@ -63,8 +81,9 @@ export class FormationEmbedPageComponent {
 
   constructor() {
     firstValueFrom(this.auth.initializeAuthState())
-      .then((user) => this.access.set(
-        !user ? 'anonymous' : isCommanderRole(user.role) ? 'allowed' : 'denied'))
+      .then((user) =>
+        this.access.set(!user ? 'anonymous' : isCommanderRole(user.role) ? 'allowed' : 'denied'),
+      )
       .catch(() => this.access.set('anonymous'));
   }
 

@@ -44,7 +44,26 @@ export function buildEventHtml(
   // formatting, the content-image class — survives; <script>, onerror/onclick and the rest are
   // stripped. That is what stops an author, or anything that reaches the description column,
   // from running JS in every visitor's browser.
-  return sanitizer.sanitize(SecurityContext.HTML, substituteImages(description, images)) ?? '';
+  const safe = sanitizer.sanitize(SecurityContext.HTML, substituteImages(description, images)) ?? '';
+  return stripAuthorClasses(safe);
+}
+
+/**
+ * Drop every `class` except the content-image one the substitution adds.
+ *
+ * Angular's sanitizer keeps `class`, and Tailwind utilities are global — so an author could write
+ * `<a class="fixed inset-0 z-50" href="…">` and lay a full-page link over the public feed.
+ * Authors never need their own classes here; only the substituted images do.
+ */
+function stripAuthorClasses(html: string): string {
+  if (!html || typeof document === 'undefined') return html;
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html; // already sanitized; a <template> is inert, nothing loads or runs
+  for (const el of Array.from(tpl.content.querySelectorAll('[class]'))) {
+    if (el.tagName === 'IMG' && el.getAttribute('class') === CONTENT_IMG_CLASS) continue;
+    el.removeAttribute('class');
+  }
+  return tpl.innerHTML;
 }
 
 /**

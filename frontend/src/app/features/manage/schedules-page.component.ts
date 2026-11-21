@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   BackofficeService,
@@ -21,16 +21,18 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
   template: `
     <section class="backoffice">
       <p class="hint">
-        The bot posts these to a Discord channel on a weekly schedule. Set <strong>Trigger</strong>
-        to <strong>On demand</strong> for a message the timer never sends on its own — only the
-        <strong>Send now</strong> button posts it. Channels come from the events category; use
-        <em>paste an ID</em> for anything outside it or newer than the nightly list.
+        The bot posts these to a Discord channel on a weekly schedule. Set
+        <strong>Trigger</strong> to <strong>On demand</strong> for a message the timer never sends
+        on its own — only the <strong>Send now</strong> button posts it. Channels come from the
+        events category; use <em>paste an ID</em> for anything outside it or newer than the nightly
+        list.
       </p>
 
       <!-- Add / edit form -->
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
         <div class="row">
-          <label>Trigger
+          <label
+            >Trigger
             <select formControlName="trigger">
               <option value="schedule">On a schedule</option>
               <option value="demand">On demand</option>
@@ -38,29 +40,48 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
           </label>
           <!-- An on-demand message has no day and no time: the Send now button is its clock. -->
           @if (scheduled) {
-            <label>Day
+            <label
+              >Day
               <select formControlName="dayOfWeek">
-                @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+                @for (d of days; track d.value) {
+                  <option [value]="d.value">{{ d.label }}</option>
+                }
               </select>
             </label>
-            <label>Time
+            <label
+              >Time
               <input type="time" formControlName="time" />
             </label>
           }
-          <label class="grow">Channel
-            <app-discord-picker kind="channel" blankLabel="— choose a channel —"
-              formControlName="channelId" />
+          <label class="grow"
+            >Channel
+            <app-discord-picker
+              kind="channel"
+              blankLabel="— choose a channel —"
+              formControlName="channelId"
+            />
           </label>
         </div>
         <div class="row">
-          <label class="grow">Mention role
-            <app-discord-picker kind="role" blankLabel="— none — (ping nobody)"
-              placeholder="blank = ping nobody" formControlName="mentionRoleId" />
+          <label class="grow"
+            >Mention role
+            <app-discord-picker
+              kind="role"
+              blankLabel="— none — (ping nobody)"
+              placeholder="blank = ping nobody"
+              formControlName="mentionRoleId"
+            />
             <small>Posted as its own line above the message, so it actually notifies.</small>
           </label>
         </div>
-        <label>Message
-          <textarea formControlName="message" rows="2" maxlength="2000" placeholder="What the bot should post…"></textarea>
+        <label
+          >Message
+          <textarea
+            formControlName="message"
+            rows="2"
+            maxlength="2000"
+            placeholder="What the bot should post…"
+          ></textarea>
         </label>
         <div class="row bottom">
           <label class="chk"><input type="checkbox" formControlName="enabled" /> Enabled</label>
@@ -72,7 +93,9 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
             {{ saving() ? 'Saving…' : editingId() === null ? 'Add schedule' : 'Save changes' }}
           </button>
         </div>
-        @if (formError()) { <p class="error">{{ formError() }}</p> }
+        @if (formError()) {
+          <p class="error">{{ formError() }}</p>
+        }
       </form>
 
       @if (loading()) {
@@ -84,7 +107,15 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
       } @else {
         <table class="grid">
           <thead>
-            <tr><th>Day</th><th>Time</th><th>Next run</th><th>Channel</th><th>Message</th><th>State</th><th></th></tr>
+            <tr>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Next run</th>
+              <th>Channel</th>
+              <th>Message</th>
+              <th>State</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody>
             @for (s of schedules(); track s.id) {
@@ -113,19 +144,31 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
                   <button (click)="sendNow(s)" [disabled]="sending() === s.id || busy() === s.id">
                     {{ sending() === s.id ? 'Sending…' : 'Send now' }}
                   </button>
-                  <button (click)="toggle(s)" [disabled]="busy() === s.id">{{ s.enabled ? 'Disable' : 'Enable' }}</button>
+                  <button (click)="toggle(s)" [disabled]="busy() === s.id">
+                    {{ s.enabled ? 'Disable' : 'Enable' }}
+                  </button>
                   <button (click)="startEdit(s)" [disabled]="busy() === s.id">Edit</button>
                   @if (confirmingId() === s.id) {
-                    <button class="danger" (click)="remove(s)" [disabled]="busy() === s.id">Confirm</button>
+                    <button class="danger" (click)="remove(s)" [disabled]="busy() === s.id">
+                      Confirm
+                    </button>
                     <button class="ghost" (click)="confirmingId.set(null)">No</button>
                   } @else {
-                    <button class="danger" (click)="confirmingId.set(s.id)" [disabled]="busy() === s.id">Delete</button>
+                    <button
+                      class="danger"
+                      (click)="confirmingId.set(s.id)"
+                      [disabled]="busy() === s.id"
+                    >
+                      Delete
+                    </button>
                   }
                 </td>
               </tr>
               @if (sendResult()[s.id]; as r) {
                 <tr class="result-row">
-                  <td colspan="7"><span [class.ok]="r.ok" [class.bad]="!r.ok">{{ r.text }}</span></td>
+                  <td colspan="7">
+                    <span [class.ok]="r.ok" [class.bad]="!r.ok">{{ r.text }}</span>
+                  </td>
                 </tr>
               }
             }
@@ -134,48 +177,171 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
       }
     </section>
   `,
-  styles: [`
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .75; margin-bottom: 1rem; line-height: 1.5; }
-    .sched-form { display: flex; flex-direction: column; gap: .6rem; padding: 1rem;
-      border: 1px solid rgba(128,128,128,.3); border-radius: 8px; margin-bottom: 1.5rem; }
-    .sched-form .row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
-    .sched-form label { display: flex; flex-direction: column; gap: .25rem; font-size: .82rem; font-weight: 600; }
-    .sched-form small { font-weight: 400; opacity: .65; font-size: .74rem; }
-    .sched-form .grow { flex: 1; min-width: 200px; }
-    .sched-form input, .sched-form select, .sched-form textarea {
-      padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; font: inherit; }
-    .sched-form textarea { resize: vertical; }
-    .row.bottom { align-items: center; }
-    .chk { flex-direction: row; align-items: center; gap: .4rem; font-weight: 600; }
-    .spacer { flex: 1; }
-    button { padding: .4rem .85rem; cursor: pointer; border-radius: 6px; border: 1px solid rgba(128,128,128,.4); background: transparent; }
-    button:disabled { opacity: .5; cursor: default; }
-    .danger { color: #dc3545; border-color: #dc3545; }
-    .ghost { opacity: .7; }
-    .grid { width: 100%; border-collapse: collapse; }
-    .grid th, .grid td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
-    tr.disabled { opacity: .5; }
-    .mono { font-family: monospace; }
-    .channel { font-size: .8rem; opacity: .8; }
-    .msg { max-width: 320px; }
-    .msg-text {
-      white-space: pre-wrap; word-break: break-word;
-      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
-    }
-    .msg .ping { font-size: .72rem; opacity: .7; margin-bottom: .15rem; }
-    .actions { white-space: nowrap; display: flex; gap: .35rem; }
-    .pill { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; }
-    .pill.on { background: rgba(40,167,69,.2); color: #28a745; }
-    .pill.off { background: rgba(220,53,69,.2); color: #dc3545; }
-    .timing .next { font-size: .82rem; }
-    .timing .last { font-size: .72rem; opacity: .6; margin-top: .15rem; }
-    .result-row td { border-bottom: 1px solid rgba(128,128,128,.25); padding-top: 0; }
-    .result-row span { font-size: .8rem; }
-    .result-row .ok { color: #28a745; }
-    .result-row .bad { color: #dc3545; }
-    .error { color: #dc3545; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.75;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+      }
+      .sched-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 1rem;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+      }
+      .sched-form .row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .sched-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+      .sched-form small {
+        font-weight: 400;
+        opacity: 0.65;
+        font-size: 0.74rem;
+      }
+      .sched-form .grow {
+        flex: 1;
+        min-width: 200px;
+      }
+      .sched-form input,
+      .sched-form select,
+      .sched-form textarea {
+        padding: 0.45rem 0.6rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+      }
+      .sched-form textarea {
+        resize: vertical;
+      }
+      .row.bottom {
+        align-items: center;
+      }
+      .chk {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 600;
+      }
+      .spacer {
+        flex: 1;
+      }
+      button {
+        padding: 0.4rem 0.85rem;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        background: transparent;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .danger {
+        color: #dc3545;
+        border-color: #dc3545;
+      }
+      .ghost {
+        opacity: 0.7;
+      }
+      .grid {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .grid th,
+      .grid td {
+        text-align: left;
+        padding: 0.5rem 0.6rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        vertical-align: top;
+      }
+      tr.disabled {
+        opacity: 0.5;
+      }
+      .mono {
+        font-family: monospace;
+      }
+      .channel {
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+      .msg {
+        max-width: 320px;
+      }
+      .msg-text {
+        white-space: pre-wrap;
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        overflow: hidden;
+      }
+      .msg .ping {
+        font-size: 0.72rem;
+        opacity: 0.7;
+        margin-bottom: 0.15rem;
+      }
+      .actions {
+        white-space: nowrap;
+        display: flex;
+        gap: 0.35rem;
+      }
+      .pill {
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+      }
+      .pill.on {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+      }
+      .pill.off {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+      }
+      .timing .next {
+        font-size: 0.82rem;
+      }
+      .timing .last {
+        font-size: 0.72rem;
+        opacity: 0.6;
+        margin-top: 0.15rem;
+      }
+      .result-row td {
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        padding-top: 0;
+      }
+      .result-row span {
+        font-size: 0.8rem;
+      }
+      .result-row .ok {
+        color: #28a745;
+      }
+      .result-row .bad {
+        color: #dc3545;
+      }
+      .error {
+        color: #dc3545;
+      }
+    `,
+  ],
 })
 export class SchedulesPageComponent {
   private readonly backoffice = inject(BackofficeService);
@@ -211,10 +377,16 @@ export class SchedulesPageComponent {
     // Not required: it is hidden for an on-demand message, and a hidden control that blocks submit
     // is a form with no visible reason not to save. save() reports an empty one when it matters.
     time: new FormControl('20:00', { nonNullable: true }),
-    channelId: new FormControl('', { validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)], nonNullable: true }),
+    channelId: new FormControl('', {
+      validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)],
+      nonNullable: true,
+    }),
     // Optional, so no `required` — but a non-id typed into it would post a broken mention, hence
     // the same digits-only shape the channel takes.
-    mentionRoleId: new FormControl('', { validators: Validators.pattern(/^\d{1,24}$/), nonNullable: true }),
+    mentionRoleId: new FormControl('', {
+      validators: Validators.pattern(/^\d{1,24}$/),
+      nonNullable: true,
+    }),
     message: new FormControl('', { validators: Validators.required, nonNullable: true }),
     enabled: new FormControl(true, { nonNullable: true }),
   });
@@ -226,8 +398,14 @@ export class SchedulesPageComponent {
 
   ngOnInit(): void {
     this.backoffice.getSchedules().subscribe({
-      next: (s) => { this.schedules.set(s); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load schedules.'); this.loading.set(false); },
+      next: (s) => {
+        this.schedules.set(s);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load schedules.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -251,8 +429,11 @@ export class SchedulesPageComponent {
     this.form.setValue({
       trigger: onDemand ? 'demand' : 'schedule',
       dayOfWeek: onDemand ? 1 : s.dayOfWeek,
-      time: s.time, channelId: s.channelId, mentionRoleId: s.mentionRoleId ?? '',
-      message: s.message, enabled: s.enabled,
+      time: s.time,
+      channelId: s.channelId,
+      mentionRoleId: s.mentionRoleId ?? '',
+      message: s.message,
+      enabled: s.enabled,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -261,8 +442,13 @@ export class SchedulesPageComponent {
     this.editingId.set(null);
     this.formError.set(null);
     this.form.reset({
-      trigger: 'schedule', dayOfWeek: 1, time: '20:00', channelId: '', mentionRoleId: '',
-      message: '', enabled: true,
+      trigger: 'schedule',
+      dayOfWeek: 1,
+      time: '20:00',
+      channelId: '',
+      mentionRoleId: '',
+      message: '',
+      enabled: true,
     });
   }
 
@@ -275,7 +461,8 @@ export class SchedulesPageComponent {
           ? 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).'
           : this.form.controls.mentionRoleId.invalid
             ? 'Mention role must be the numeric role id (right-click the role → Copy Role ID).'
-            : 'A message is required.');
+            : 'A message is required.',
+      );
       return;
     }
     const raw = this.form.getRawValue();
@@ -300,11 +487,13 @@ export class SchedulesPageComponent {
       enabled: raw.enabled,
     };
     const id = this.editingId();
-    const req = id === null ? this.backoffice.createSchedule(body) : this.backoffice.patchSchedule(id, body);
+    const req =
+      id === null ? this.backoffice.createSchedule(body) : this.backoffice.patchSchedule(id, body);
     req.subscribe({
       next: (saved) => {
         this.schedules.update((list) =>
-          id === null ? [...list, saved] : list.map((s) => (s.id === saved.id ? saved : s)));
+          id === null ? [...list, saved] : list.map((s) => (s.id === saved.id ? saved : s)),
+        );
         this.sort();
         this.saving.set(false);
         this.resetForm();
@@ -319,7 +508,10 @@ export class SchedulesPageComponent {
   toggle(s: ScheduledMessage): void {
     this.busy.set(s.id);
     this.backoffice.patchSchedule(s.id, { enabled: !s.enabled }).subscribe({
-      next: (u) => { this.schedules.update((l) => l.map((x) => (x.id === u.id ? u : x))); this.busy.set(null); },
+      next: (u) => {
+        this.schedules.update((l) => l.map((x) => (x.id === u.id ? u : x)));
+        this.busy.set(null);
+      },
       error: () => this.busy.set(null),
     });
   }
@@ -343,10 +535,13 @@ export class SchedulesPageComponent {
     this.sending.set(s.id);
     this.backoffice.sendScheduleNow(s.id).subscribe({
       next: (r) => {
-        this.setResult(s.id, r.ok, r.ok ? 'Sent ✓' : r.error ?? 'Send failed.');
+        this.setResult(s.id, r.ok, r.ok ? 'Sent ✓' : (r.error ?? 'Send failed.'));
         this.sending.set(null);
       },
-      error: () => { this.setResult(s.id, false, 'Request failed. Try again.'); this.sending.set(null); },
+      error: () => {
+        this.setResult(s.id, false, 'Request failed. Try again.');
+        this.sending.set(null);
+      },
     });
   }
 
@@ -391,20 +586,28 @@ export class SchedulesPageComponent {
 
   private sort(): void {
     this.schedules.update((l) =>
-      [...l].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.time.localeCompare(b.time)));
+      [...l].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.time.localeCompare(b.time)),
+    );
   }
 
   private describe(err: unknown): string {
     const code = (err as { error?: { error?: string } })?.error?.error;
     switch (code) {
-      case 'invalid_day': return 'Pick a valid day.';
-      case 'invalid_time': return 'Enter a valid time.';
-      case 'invalid_channel': return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
-      case 'message_required': return 'A message is required.';
-      case 'invalid_role': return 'Mention role must be the numeric role id (right-click the role → Copy Role ID).';
+      case 'invalid_day':
+        return 'Pick a valid day.';
+      case 'invalid_time':
+        return 'Enter a valid time.';
+      case 'invalid_channel':
+        return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
+      case 'message_required':
+        return 'A message is required.';
+      case 'invalid_role':
+        return 'Mention role must be the numeric role id (right-click the role → Copy Role ID).';
       // The mention is posted as part of the message, so it spends the same 2000 characters.
-      case 'message_too_long': return 'That message is too long (2000 characters max, including the mention line).';
-      default: return 'Save failed. Please try again.';
+      case 'message_too_long':
+        return 'That message is too long (2000 characters max, including the mention line).';
+      default:
+        return 'Save failed. Please try again.';
     }
   }
 }

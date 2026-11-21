@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { SchedulesPageComponent } from './schedules-page.component';
 import { ScheduledEventsPageComponent } from './scheduled-events-page.component';
 import { PingRolesPanelComponent } from './ping-roles-panel.component';
@@ -17,11 +17,18 @@ import { ScoutWatchPanelComponent } from './scout-watch-panel.component';
 @Component({
   selector: 'app-bot-schedule-page',
   standalone: true,
-  imports: [SchedulesPageComponent, ScheduledEventsPageComponent, PingRolesPanelComponent, ScoutWatchPanelComponent],
+  imports: [
+    SchedulesPageComponent,
+    ScheduledEventsPageComponent,
+    PingRolesPanelComponent,
+    ScoutWatchPanelComponent,
+  ],
   template: `
     <section class="wrap">
       <h1>Bot management</h1>
-      <p class="intro">What the bot posts on a timer, and what it watches. Times are Vietnam (UTC+7).</p>
+      <p class="intro">
+        What the bot posts on a timer, and what it watches. Times are Vietnam (UTC+7).
+      </p>
 
       <details class="panel">
         <summary>
@@ -56,27 +63,76 @@ import { ScoutWatchPanelComponent } from './scout-watch-panel.component';
       </details>
     </section>
   `,
-  styles: [`
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 1.5rem; }
-    @media (max-width: 600px) { .wrap { padding: 1rem .5rem; } .body { padding: 0 .5rem .75rem !important; } summary { padding: .7rem .75rem !important; } }
-    h1 { margin-bottom: .25rem; }
-    .intro { opacity: .7; margin-bottom: 1.25rem; }
-    .panel { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
-    summary {
-      list-style: none; cursor: pointer; user-select: none;
-      display: flex; align-items: center; gap: .6rem;
-      padding: .8rem 1rem; font-weight: 700; font-size: 1.05rem;
-      background: rgba(128,128,128,.08);
-    }
-    summary::-webkit-details-marker { display: none; }
-    /* Rotating disclosure caret, so the panel state is obvious. */
-    summary::before {
-      content: '▸'; display: inline-block; transition: transform .15s ease; opacity: .7; font-size: .9rem;
-    }
-    details[open] > summary::before { transform: rotate(90deg); }
-    summary:hover { background: rgba(128,128,128,.14); }
-    .tag { font-weight: 500; font-size: .74rem; opacity: .6; }
-    .body { padding: 0 1rem 1rem; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      @media (max-width: 600px) {
+        .wrap {
+          padding: 1rem 0.5rem;
+        }
+        .body {
+          padding: 0 0.5rem 0.75rem !important;
+        }
+        summary {
+          padding: 0.7rem 0.75rem !important;
+        }
+      }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+      .intro {
+        opacity: 0.7;
+        margin-bottom: 1.25rem;
+      }
+      .panel {
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+      }
+      summary {
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.8rem 1rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        background: rgba(128, 128, 128, 0.08);
+      }
+      summary::-webkit-details-marker {
+        display: none;
+      }
+      /* Rotating disclosure caret, so the panel state is obvious. */
+      summary::before {
+        content: '▸';
+        display: inline-block;
+        transition: transform 0.15s ease;
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+      details[open] > summary::before {
+        transform: rotate(90deg);
+      }
+      summary:hover {
+        background: rgba(128, 128, 128, 0.14);
+      }
+      .tag {
+        font-weight: 500;
+        font-size: 0.74rem;
+        opacity: 0.6;
+      }
+      .body {
+        padding: 0 1rem 1rem;
+      }
+    `,
+  ],
 })
 export class BotSchedulePageComponent {}

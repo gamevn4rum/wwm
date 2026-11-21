@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   BackofficeService,
@@ -41,9 +41,9 @@ const BLURB: Record<ScheduledEventType, string> = {
         Which role gets pinged on each kind of event post. This is the only place these ids live —
         the bot reads them from here rather than keeping a copy. The list is the three roles the bot
         manages — <strong>rainbow.Meet</strong>, <strong>wwm-1</strong>, <strong>wwm-2</strong> —
-        and nothing else can be chosen: the bot refuses to ping any other role, <strong>wwm-3</strong>
-        and <strong>rainbow.Chúa</strong> included. Leave one on <em>— none —</em> for posts of that
-        type to ping nobody.
+        and nothing else can be chosen: the bot refuses to ping any other role,
+        <strong>wwm-3</strong> and <strong>rainbow.Chúa</strong> included. Leave one on
+        <em>— none —</em> for posts of that type to ping nobody.
       </p>
 
       <p class="hint sync">
@@ -74,7 +74,8 @@ const BLURB: Record<ScheduledEventType, string> = {
                   kind="role"
                   blankLabel="— none — (ping nobody)"
                   placeholder="blank = ping nobody"
-                  [formControlName]="t" />
+                  [formControlName]="t"
+                />
                 <button type="button" (click)="save(t)" [disabled]="saving() === t || !changed(t)">
                   {{ saving() === t ? 'Saving…' : 'Save' }}
                 </button>
@@ -92,31 +93,100 @@ const BLURB: Record<ScheduledEventType, string> = {
       }
     </section>
   `,
-  styles: [`
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .75; margin-bottom: 1rem; line-height: 1.5; }
-    .role-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
-      padding: .7rem 0; border-bottom: 1px solid rgba(128,128,128,.25); }
-    .role-row:last-child { border-bottom: none; }
-    .who { display: flex; flex-direction: column; gap: .2rem; min-width: 260px; flex: 1; }
-    .type { font-weight: 700; padding: .1rem .5rem; border-radius: 6px; align-self: flex-start;
-      background: rgba(31,139,76,.18); color: #1F8B4C; font-size: .8rem; }
-    .blurb { font-size: .74rem; opacity: .7; }
-    .edit { display: flex; gap: .4rem; align-items: center; }
-    .edit app-discord-picker { width: 17rem; }
-    .sync { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; font-size: .78rem;
-      margin-top: -.4rem; }
-    .sync .when { opacity: .65; }
-    .sync button { padding: .25rem .7rem; font-size: .74rem; }
-    button { padding: .4rem .85rem; cursor: pointer; border-radius: 6px;
-      border: 1px solid rgba(128,128,128,.4); background: transparent; }
-    button:disabled { opacity: .5; cursor: default; }
-    .meta { font-size: .74rem; min-width: 190px; }
-    .who-when { opacity: .55; }
-    .ok { color: #28a745; }
-    .bad { color: #dc3545; }
-    .error { color: #dc3545; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.75;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+      }
+      .role-row {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+      }
+      .role-row:last-child {
+        border-bottom: none;
+      }
+      .who {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 260px;
+        flex: 1;
+      }
+      .type {
+        font-weight: 700;
+        padding: 0.1rem 0.5rem;
+        border-radius: 6px;
+        align-self: flex-start;
+        background: rgba(31, 139, 76, 0.18);
+        color: #1f8b4c;
+        font-size: 0.8rem;
+      }
+      .blurb {
+        font-size: 0.74rem;
+        opacity: 0.7;
+      }
+      .edit {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+      }
+      .edit app-discord-picker {
+        width: 17rem;
+      }
+      .sync {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+        flex-wrap: wrap;
+        font-size: 0.78rem;
+        margin-top: -0.4rem;
+      }
+      .sync .when {
+        opacity: 0.65;
+      }
+      .sync button {
+        padding: 0.25rem 0.7rem;
+        font-size: 0.74rem;
+      }
+      button {
+        padding: 0.4rem 0.85rem;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        background: transparent;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .meta {
+        font-size: 0.74rem;
+        min-width: 190px;
+      }
+      .who-when {
+        opacity: 0.55;
+      }
+      .ok {
+        color: #28a745;
+      }
+      .bad {
+        color: #dc3545;
+      }
+      .error {
+        color: #dc3545;
+      }
+    `,
+  ],
 })
 export class PingRolesPanelComponent {
   private readonly backoffice = inject(BackofficeService);
@@ -146,7 +216,10 @@ export class PingRolesPanelComponent {
         for (const row of rows) this.form.controls[row.eventType].setValue(row.roleId ?? '');
         this.loading.set(false);
       },
-      error: () => { this.error.set('Failed to load ping roles.'); this.loading.set(false); },
+      error: () => {
+        this.error.set('Failed to load ping roles.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -178,9 +251,12 @@ export class PingRolesPanelComponent {
       error: (err) => {
         const code = (err as { error?: { error?: string } })?.error?.error;
         this.setResult(
-          type, false,
-          code === 'invalid_role' ? 'That is not a role id — copy it with Copy Role ID.'
-            : 'Save failed. Please try again.');
+          type,
+          false,
+          code === 'invalid_role'
+            ? 'That is not a role id — copy it with Copy Role ID.'
+            : 'Save failed. Please try again.',
+        );
         this.saving.set(null);
       },
     });

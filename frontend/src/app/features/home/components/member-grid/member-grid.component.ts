@@ -1,4 +1,13 @@
-import { Component, HostListener, computed, inject, input, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { toBlob } from 'html-to-image';
 import { cardFontCss } from '../../../../core/utils/card-fonts';
@@ -6,7 +15,11 @@ import { captureScale } from '../../../../core/utils/card-shot';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';
-import { MatchedPlayerStats, PlayerDetail, PlayerInnerWay } from '../../../roster-stats/player-stats.model';
+import {
+  MatchedPlayerStats,
+  PlayerDetail,
+  PlayerInnerWay,
+} from '../../../roster-stats/player-stats.model';
 import { InnerWayCatalogueService } from '../../../roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../roster-stats/set-catalogue.service';
@@ -14,8 +27,17 @@ import { SetCatalogueEntry } from '../../../roster-stats/set-catalogue.model';
 import { roleRank } from '../../../../core/services/discord-auth.service';
 import { PathIconComponent } from '../../../../shared/components/path-icon/path-icon.component';
 import {
-  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
-  innerWayIcon, noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
+  ActiveSetEffect,
+  computeActiveSetEffects,
+  gearRows,
+  isEffectAffix,
+  martialArtBuild,
+  martialArts,
+  innerWayIcon,
+  noteMartialArtIconFailed,
+  schoolColor,
+  tierClass,
+  visibleGear,
 } from '../../../roster-stats/build.utils';
 
 /** Only fully-upgraded inner ways count for the Formation filter. */
@@ -33,6 +55,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
   standalone: true,
   imports: [DecimalPipe, NgTemplateOutlet, PathIconComponent],
   templateUrl: './member-grid.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./member-grid.component.scss'],
 })
 export class MemberGridComponent implements OnInit {
@@ -119,8 +142,9 @@ export class MemberGridComponent implements OnInit {
     // A copy: `players()` holds the service's own shared array, and sorting it in place would
     // reorder it for every other subscriber. Ties break on name so the order inside a role is the
     // same on every load — the roster order it would otherwise fall back to is not stable.
-    return [...filtered].sort((a, b) =>
-      roleRank(a.rank) - roleRank(b.rank) || a.name.localeCompare(b.name));
+    return [...filtered].sort(
+      (a, b) => roleRank(a.rank) - roleRank(b.rank) || a.name.localeCompare(b.name),
+    );
   });
 
   /** The distinct paths a player has a tier-5 inner way on. */
@@ -147,7 +171,7 @@ export class MemberGridComponent implements OnInit {
 
   onPathFilter(event: Event): void {
     this.pathFilter.set((event.target as HTMLSelectElement).value);
-    this.expandedId.set(null);      // a collapsed card may have just been filtered out
+    this.expandedId.set(null); // a collapsed card may have just been filtered out
     this.openInnerWayId.set(null);
   }
 
@@ -303,7 +327,11 @@ export class MemberGridComponent implements OnInit {
     return idx;
   }
 
-  activeUprankIndex(innerWayId: number | null, entry: InnerWayCatalogueEntry, playerLevel: number | null): number {
+  activeUprankIndex(
+    innerWayId: number | null,
+    entry: InnerWayCatalogueEntry,
+    playerLevel: number | null,
+  ): number {
     if (innerWayId == null) return 0;
     return this.activeUprankTab().get(innerWayId) ?? this.defaultUprankTab(entry, playerLevel);
   }
@@ -329,11 +357,16 @@ export class MemberGridComponent implements OnInit {
   shotLabel(player: Player): string {
     if (this.shotPlayerId() !== player.id) return 'SHARE';
     switch (this.shotState()) {
-      case 'working':    return 'CAPTURING…';
-      case 'copied':     return 'COPIED';
-      case 'downloaded': return 'SAVED';
-      case 'failed':     return 'FAILED';
-      default:           return 'SHARE';
+      case 'working':
+        return 'CAPTURING…';
+      case 'copied':
+        return 'COPIED';
+      case 'downloaded':
+        return 'SAVED';
+      case 'failed':
+        return 'FAILED';
+      default:
+        return 'SHARE';
     }
   }
 
@@ -357,7 +390,9 @@ export class MemberGridComponent implements OnInit {
 
     // The whole badge, not just `.badge-detail`: the rank class lives here and
     // carries --accent, which the chips and gear borders are coloured from.
-    const badge = (event.currentTarget as HTMLElement)?.closest('.member-badge') as HTMLElement | null;
+    const badge = (event.currentTarget as HTMLElement)?.closest(
+      '.member-badge',
+    ) as HTMLElement | null;
     if (!badge) return;
 
     this.shotPlayerId.set(player.id);
@@ -379,8 +414,7 @@ export class MemberGridComponent implements OnInit {
 
       // Off-screen but laid out: display:none would give every child zero size.
       // Pinned to the original's width so the gear grid wraps identically.
-      host.style.cssText =
-        `position: fixed; left: -10000px; top: 0; width: ${badge.offsetWidth}px; pointer-events: none;`;
+      host.style.cssText = `position: fixed; left: -10000px; top: 0; width: ${badge.offsetWidth}px; pointer-events: none;`;
       host.appendChild(clone);
       document.body.appendChild(host);
 
@@ -398,13 +432,17 @@ export class MemberGridComponent implements OnInit {
         pixelRatio: captureScale(shotWidth, shotHeight),
         width: shotWidth,
         height: shotHeight,
-        backgroundColor: getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-surface').trim() || '#ffffff',
+        backgroundColor:
+          getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim() ||
+          '#ffffff',
         // Curated font set — see card-fonts.ts for why we don't let the library
         // discover them itself.
         fontEmbedCSS: await cardFontCss(),
       });
-      if (!blob) { this.shotState.set('failed'); return; }
+      if (!blob) {
+        this.shotState.set('failed');
+        return;
+      }
 
       // Clipboard image writes must stay in the click's task; a rejection falls
       // back to downloading the same blob.

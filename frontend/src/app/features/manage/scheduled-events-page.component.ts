@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   BackofficeService,
@@ -40,19 +40,23 @@ type Trigger = 'schedule' | 'demand' | 'date';
         <strong>Trigger</strong> to <strong>On demand</strong> for an event the timer never posts on
         its own: only the <strong>Post now</strong> button posts it, and it then starts at the next
         <em>Starts at</em> after you press. Set it to <strong>On a specific date</strong> to fix the
-        event's start on a future calendar date (its <em>Start date</em> + <em>Starts at</em>): it too
-        is posted with the <strong>Post now</strong> button — press it whenever you want the form up,
-        now or days ahead — and the event still starts on that fixed date.
+        event's start on a future calendar date (its <em>Start date</em> + <em>Starts at</em>): it
+        too is posted with the <strong>Post now</strong> button — press it whenever you want the
+        form up, now or days ahead — and the event still starts on that fixed date.
       </p>
 
       <form class="sched-form" [formGroup]="form" (ngSubmit)="save()">
         <div class="row">
-          <label>Type
+          <label
+            >Type
             <select formControlName="eventType">
-              @for (t of eventTypes; track t) { <option [value]="t">{{ t }}</option> }
+              @for (t of eventTypes; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
             </select>
           </label>
-          <label>Trigger
+          <label
+            >Trigger
             <select formControlName="trigger">
               <option value="schedule">On a schedule</option>
               <option value="date">On a specific date</option>
@@ -63,47 +67,71 @@ type Trigger = 'schedule' | 'demand' | 'date';
                event's start date — it's posted on demand with the Post now button, so it has no post
                time. On demand: no day, no post time — the button is its clock. -->
           @if (scheduled) {
-            <label>Day
+            <label
+              >Day
               <select formControlName="dayOfWeek">
-                @for (d of days; track d.value) { <option [value]="d.value">{{ d.label }}</option> }
+                @for (d of days; track d.value) {
+                  <option [value]="d.value">{{ d.label }}</option>
+                }
               </select>
             </label>
           }
           @if (dated) {
-            <label>Start date
+            <label
+              >Start date
               <input type="date" formControlName="specificDate" [min]="minDate" />
             </label>
           }
           @if (scheduled) {
-            <label>Post time
+            <label
+              >Post time
               <input type="time" formControlName="time" />
             </label>
           }
-          <label class="grow">Channel
-            <app-discord-picker kind="channel" blankLabel="— choose a channel —"
-              formControlName="channelId" />
+          <label class="grow"
+            >Channel
+            <app-discord-picker
+              kind="channel"
+              blankLabel="— choose a channel —"
+              formControlName="channelId"
+            />
           </label>
         </div>
-        <label>Title
-          <input type="text" formControlName="title" maxlength="200" placeholder="Heading of the event post…" />
+        <label
+          >Title
+          <input
+            type="text"
+            formControlName="title"
+            maxlength="200"
+            placeholder="Heading of the event post…"
+          />
         </label>
         <div class="row">
           <!-- Clock times for both triggers: an on-demand event resolves its start against the
                moment the button is pressed, so it needs no post time to count from. -->
-          <label>Starts at
+          <label
+            >Starts at
             <input type="time" formControlName="startTime" />
           </label>
-          <label>RSVP closes at (blank = at start)
+          <label
+            >RSVP closes at (blank = at start)
             <input type="time" formControlName="closeTime" />
           </label>
-          <label>Capacity
-            <input type="number" formControlName="capacity" min="1" placeholder="blank = unlimited" />
+          <label
+            >Capacity
+            <input
+              type="number"
+              formControlName="capacity"
+              min="1"
+              placeholder="blank = unlimited"
+            />
           </label>
         </div>
         <div class="row">
           <!-- Three states, because "use the type's role" and "ping nobody" are different answers
                and a blank text box can only mean one of them. -->
-          <label>Mention role
+          <label
+            >Mention role
             <select formControlName="roleMode">
               <option value="default">Default for this type</option>
               <option value="none">Ping nobody</option>
@@ -111,20 +139,32 @@ type Trigger = 'schedule' | 'demand' | 'date';
             </select>
           </label>
           @if (customRole) {
-            <label class="grow">Role
-              <app-discord-picker kind="role" blankLabel="— choose a role —"
-                formControlName="mentionRoleId" />
+            <label class="grow"
+              >Role
+              <app-discord-picker
+                kind="role"
+                blankLabel="— choose a role —"
+                formControlName="mentionRoleId"
+              />
             </label>
           } @else {
             <p class="side-note">
-              {{ roleMode === 'default'
-                ? 'Whatever this event type pings — set below, under Event ping roles.'
-                : 'This template posts with no mention, whatever its type pings.' }}
+              {{
+                roleMode === 'default'
+                  ? 'Whatever this event type pings — set below, under Event ping roles.'
+                  : 'This template posts with no mention, whatever its type pings.'
+              }}
             </p>
           }
         </div>
-        <label>Notes
-          <textarea formControlName="notes" rows="2" maxlength="1000" placeholder="Extra detail shown on the post (optional)…"></textarea>
+        <label
+          >Notes
+          <textarea
+            formControlName="notes"
+            rows="2"
+            maxlength="1000"
+            placeholder="Extra detail shown on the post (optional)…"
+          ></textarea>
         </label>
 
         <div class="row bottom">
@@ -138,13 +178,18 @@ type Trigger = 'schedule' | 'demand' | 'date';
           </button>
           @if (editingId() !== null) {
             <!-- Saves first, so what goes out is what is on screen — not the last saved version. -->
-            <button type="button" (click)="saveAndPost()"
-                    [disabled]="saving() || posting() === editingId()">
+            <button
+              type="button"
+              (click)="saveAndPost()"
+              [disabled]="saving() || posting() === editingId()"
+            >
               {{ posting() === editingId() ? 'Posting…' : 'Save & post now' }}
             </button>
           }
         </div>
-        @if (formError()) { <p class="error">{{ formError() }}</p> }
+        @if (formError()) {
+          <p class="error">{{ formError() }}</p>
+        }
       </form>
 
       @if (loading()) {
@@ -156,12 +201,21 @@ type Trigger = 'schedule' | 'demand' | 'date';
       } @else {
         <table class="grid">
           <thead>
-            <tr><th>Type</th><th>When</th><th>Event</th><th>Channel</th><th>State</th><th></th></tr>
+            <tr>
+              <th>Type</th>
+              <th>When</th>
+              <th>Event</th>
+              <th>Channel</th>
+              <th>State</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody>
             @for (s of events(); track s.id) {
               <tr [class.disabled]="!s.enabled">
-                <td><span class="type">{{ s.eventType }}</span></td>
+                <td>
+                  <span class="type">{{ s.eventType }}</span>
+                </td>
                 <td class="timing">
                   <div>{{ whenLabel(s) }}</div>
                   <div class="next">next: {{ s.enabled ? nextRun(s) : '—' }}</div>
@@ -181,19 +235,31 @@ type Trigger = 'schedule' | 'demand' | 'date';
                   <button (click)="postNow(s)" [disabled]="posting() === s.id || busy() === s.id">
                     {{ posting() === s.id ? 'Posting…' : 'Post now' }}
                   </button>
-                  <button (click)="toggle(s)" [disabled]="busy() === s.id">{{ s.enabled ? 'Disable' : 'Enable' }}</button>
+                  <button (click)="toggle(s)" [disabled]="busy() === s.id">
+                    {{ s.enabled ? 'Disable' : 'Enable' }}
+                  </button>
                   <button (click)="startEdit(s)" [disabled]="busy() === s.id">Edit</button>
                   @if (confirmingId() === s.id) {
-                    <button class="danger" (click)="remove(s)" [disabled]="busy() === s.id">Confirm</button>
+                    <button class="danger" (click)="remove(s)" [disabled]="busy() === s.id">
+                      Confirm
+                    </button>
                     <button class="ghost" (click)="confirmingId.set(null)">No</button>
                   } @else {
-                    <button class="danger" (click)="confirmingId.set(s.id)" [disabled]="busy() === s.id">Delete</button>
+                    <button
+                      class="danger"
+                      (click)="confirmingId.set(s.id)"
+                      [disabled]="busy() === s.id"
+                    >
+                      Delete
+                    </button>
                   }
                 </td>
               </tr>
               @if (postResult()[s.id]; as r) {
                 <tr class="result-row">
-                  <td colspan="6"><span [class.ok]="r.ok" [class.bad]="!r.ok">{{ r.text }}</span></td>
+                  <td colspan="6">
+                    <span [class.ok]="r.ok" [class.bad]="!r.ok">{{ r.text }}</span>
+                  </td>
                 </tr>
               }
             }
@@ -202,48 +268,183 @@ type Trigger = 'schedule' | 'demand' | 'date';
       }
     </section>
   `,
-  styles: [`
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .75; margin-bottom: 1rem; line-height: 1.5; }
-    .sched-form { display: flex; flex-direction: column; gap: .6rem; padding: 1rem;
-      border: 1px solid rgba(128,128,128,.3); border-radius: 8px; margin-bottom: 1.5rem; }
-    .sched-form .row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
-    .sched-form label { display: flex; flex-direction: column; gap: .25rem; font-size: .82rem; font-weight: 600; }
-    .sched-form .grow { flex: 1; min-width: 180px; }
-    .sched-form input, .sched-form select, .sched-form textarea {
-      padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; font: inherit; }
-    .sched-form input[type=number] { width: 11rem; }
-    .side-note { font-size: .74rem; opacity: .65; margin: 0 0 .45rem; flex: 1; min-width: 180px; }
-    .sched-form textarea { resize: vertical; }
-    .row.bottom { align-items: center; }
-    .chk { flex-direction: row; align-items: center; gap: .4rem; font-weight: 600; }
-    .spacer { flex: 1; }
-    button { padding: .4rem .85rem; cursor: pointer; border-radius: 6px; border: 1px solid rgba(128,128,128,.4); background: transparent; }
-    button:disabled { opacity: .5; cursor: default; }
-    .danger { color: #dc3545; border-color: #dc3545; }
-    .ghost { opacity: .7; }
-    .grid { width: 100%; border-collapse: collapse; }
-    .grid th, .grid td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
-    tr.disabled { opacity: .5; }
-    .mono { font-family: monospace; }
-    .channel { font-size: .8rem; opacity: .8; }
-    .type { font-weight: 700; padding: .1rem .5rem; border-radius: 6px; background: rgba(31,139,76,.18); color: #1F8B4C; font-size: .8rem; }
-    .timing { font-size: .82rem; }
-    .timing .next { font-size: .74rem; opacity: .75; margin-top: .15rem; }
-    .timing .last { font-size: .72rem; opacity: .55; }
-    .msg { max-width: 300px; }
-    .msg .title { font-weight: 600; }
-    .msg .detail { font-size: .74rem; opacity: .7; margin-top: .15rem; }
-    .actions { white-space: nowrap; display: flex; gap: .35rem; flex-wrap: wrap; }
-    .pill { padding: .1rem .5rem; border-radius: 999px; font-size: .78rem; }
-    .pill.on { background: rgba(40,167,69,.2); color: #28a745; }
-    .pill.off { background: rgba(220,53,69,.2); color: #dc3545; }
-    .result-row td { border-bottom: 1px solid rgba(128,128,128,.25); padding-top: 0; }
-    .result-row span { font-size: .8rem; }
-    .result-row .ok { color: #28a745; }
-    .result-row .bad { color: #dc3545; }
-    .error { color: #dc3545; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.75;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+      }
+      .sched-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 1rem;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+      }
+      .sched-form .row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .sched-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+      .sched-form .grow {
+        flex: 1;
+        min-width: 180px;
+      }
+      .sched-form input,
+      .sched-form select,
+      .sched-form textarea {
+        padding: 0.45rem 0.6rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+      }
+      .sched-form input[type='number'] {
+        width: 11rem;
+      }
+      .side-note {
+        font-size: 0.74rem;
+        opacity: 0.65;
+        margin: 0 0 0.45rem;
+        flex: 1;
+        min-width: 180px;
+      }
+      .sched-form textarea {
+        resize: vertical;
+      }
+      .row.bottom {
+        align-items: center;
+      }
+      .chk {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 600;
+      }
+      .spacer {
+        flex: 1;
+      }
+      button {
+        padding: 0.4rem 0.85rem;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        background: transparent;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .danger {
+        color: #dc3545;
+        border-color: #dc3545;
+      }
+      .ghost {
+        opacity: 0.7;
+      }
+      .grid {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .grid th,
+      .grid td {
+        text-align: left;
+        padding: 0.5rem 0.6rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        vertical-align: top;
+      }
+      tr.disabled {
+        opacity: 0.5;
+      }
+      .mono {
+        font-family: monospace;
+      }
+      .channel {
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+      .type {
+        font-weight: 700;
+        padding: 0.1rem 0.5rem;
+        border-radius: 6px;
+        background: rgba(31, 139, 76, 0.18);
+        color: #1f8b4c;
+        font-size: 0.8rem;
+      }
+      .timing {
+        font-size: 0.82rem;
+      }
+      .timing .next {
+        font-size: 0.74rem;
+        opacity: 0.75;
+        margin-top: 0.15rem;
+      }
+      .timing .last {
+        font-size: 0.72rem;
+        opacity: 0.55;
+      }
+      .msg {
+        max-width: 300px;
+      }
+      .msg .title {
+        font-weight: 600;
+      }
+      .msg .detail {
+        font-size: 0.74rem;
+        opacity: 0.7;
+        margin-top: 0.15rem;
+      }
+      .actions {
+        white-space: nowrap;
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .pill {
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+      }
+      .pill.on {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+      }
+      .pill.off {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+      }
+      .result-row td {
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        padding-top: 0;
+      }
+      .result-row span {
+        font-size: 0.8rem;
+      }
+      .result-row .ok {
+        color: #28a745;
+      }
+      .result-row .bad {
+        color: #dc3545;
+      }
+      .error {
+        color: #dc3545;
+      }
+    `,
+  ],
 })
 export class ScheduledEventsPageComponent {
   private readonly backoffice = inject(BackofficeService);
@@ -294,14 +495,20 @@ export class ScheduledEventsPageComponent {
     // hidden control that blocks submit is a form with no visible reason not to save. normalize()
     // reports an empty one where it matters and substitutes midnight where it doesn't.
     time: new FormControl('10:00', { nonNullable: true }),
-    channelId: new FormControl('', { validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)], nonNullable: true }),
+    channelId: new FormControl('', {
+      validators: [Validators.required, Validators.pattern(/^\d{1,24}$/)],
+      nonNullable: true,
+    }),
     title: new FormControl('', { validators: Validators.required, nonNullable: true }),
     startTime: new FormControl('18:00', { nonNullable: true }),
     closeTime: new FormControl('', { nonNullable: true }),
     capacity: new FormControl<number | null>(null),
     roleMode: new FormControl<RoleMode>('default', { nonNullable: true }),
     // Only read when roleMode is 'custom'; the other two modes say what they mean on their own.
-    mentionRoleId: new FormControl('', { validators: Validators.pattern(/^\d{1,24}$/), nonNullable: true }),
+    mentionRoleId: new FormControl('', {
+      validators: Validators.pattern(/^\d{1,24}$/),
+      nonNullable: true,
+    }),
     notes: new FormControl('', { nonNullable: true }),
     enabled: new FormControl(true, { nonNullable: true }),
   });
@@ -338,8 +545,14 @@ export class ScheduledEventsPageComponent {
     });
 
     this.backoffice.getScheduledEvents().subscribe({
-      next: (s) => { this.events.set(s); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load scheduled events.'); this.loading.set(false); },
+      next: (s) => {
+        this.events.set(s);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load scheduled events.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -394,7 +607,9 @@ export class ScheduledEventsPageComponent {
       closeTime: s.closeTime ?? '',
       roleMode: ScheduledEventsPageComponent.roleModeOf(s.mentionRoleId),
       mentionRoleId: s.mentionRoleId ?? '',
-      capacity: s.capacity, notes: s.notes, enabled: s.enabled,
+      capacity: s.capacity,
+      notes: s.notes,
+      enabled: s.enabled,
     });
 
     // An on-demand template saved before start times were clock times has none to show — its old
@@ -403,8 +618,9 @@ export class ScheduledEventsPageComponent {
     this.formError.set(
       s.startTime === null
         ? 'This template still uses the older “minutes after posting” start. Set a start time to ' +
-          'convert it; until then it keeps posting as it does now.'
-        : null);
+            'convert it; until then it keeps posting as it does now.'
+        : null,
+    );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -412,9 +628,20 @@ export class ScheduledEventsPageComponent {
     this.editingId.set(null);
     this.formError.set(null);
     this.form.reset({
-      eventType: 'GvG', trigger: 'schedule', dayOfWeek: 6, specificDate: '', time: '10:00',
-      channelId: '', title: '', startTime: '18:00', closeTime: '', roleMode: 'default',
-      mentionRoleId: '', capacity: null, notes: '', enabled: true,
+      eventType: 'GvG',
+      trigger: 'schedule',
+      dayOfWeek: 6,
+      specificDate: '',
+      time: '10:00',
+      channelId: '',
+      title: '',
+      startTime: '18:00',
+      closeTime: '',
+      roleMode: 'default',
+      mentionRoleId: '',
+      capacity: null,
+      notes: '',
+      enabled: true,
     });
   }
 
@@ -438,7 +665,8 @@ export class ScheduledEventsPageComponent {
           ? 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).'
           : this.form.controls.mentionRoleId.invalid
             ? 'Role ID must be the numeric role id (right-click the role → Copy Role ID).'
-            : 'A title is required.');
+            : 'A title is required.',
+      );
       return;
     }
     const body = this.normalize(this.form.getRawValue());
@@ -448,22 +676,27 @@ export class ScheduledEventsPageComponent {
     const id = this.editingId();
     // A create has no stored value to leave alone, so null says "use the type's role" there all by
     // itself. The "default" word is only needed to overwrite an override that already exists.
-    const req = id === null
-      ? this.backoffice.createScheduledEvent({
-          ...body,
-          mentionRoleId: body.mentionRoleId === USE_TYPE_DEFAULT_ROLE ? null : body.mentionRoleId,
-        })
-      : this.backoffice.patchScheduledEvent(id, body);
+    const req =
+      id === null
+        ? this.backoffice.createScheduledEvent({
+            ...body,
+            mentionRoleId: body.mentionRoleId === USE_TYPE_DEFAULT_ROLE ? null : body.mentionRoleId,
+          })
+        : this.backoffice.patchScheduledEvent(id, body);
     req.subscribe({
       next: (saved) => {
         this.events.update((list) =>
-          id === null ? [...list, saved] : list.map((s) => (s.id === saved.id ? saved : s)));
+          id === null ? [...list, saved] : list.map((s) => (s.id === saved.id ? saved : s)),
+        );
         this.sort();
         this.saving.set(false);
         this.resetForm();
         then?.(saved);
       },
-      error: (err) => { this.saving.set(false); this.formError.set(this.describe(err)); },
+      error: (err) => {
+        this.saving.set(false);
+        this.formError.set(this.describe(err));
+      },
     });
   }
 
@@ -472,9 +705,20 @@ export class ScheduledEventsPageComponent {
    * time can be blank about; everything else the API validates and `describe()` translates.
    */
   private normalize(raw: {
-    eventType: ScheduledEventType; trigger: Trigger; dayOfWeek: number; specificDate: string;
-    time: string; channelId: string; title: string; startTime: string; closeTime: string;
-    roleMode: RoleMode; mentionRoleId: string; capacity: number | null; notes: string; enabled: boolean;
+    eventType: ScheduledEventType;
+    trigger: Trigger;
+    dayOfWeek: number;
+    specificDate: string;
+    time: string;
+    channelId: string;
+    title: string;
+    startTime: string;
+    closeTime: string;
+    roleMode: RoleMode;
+    mentionRoleId: string;
+    capacity: number | null;
+    notes: string;
+    enabled: boolean;
   }): ScheduledEventCreate | null {
     const onDemand = raw.trigger === 'demand';
     const dated = raw.trigger === 'date';
@@ -515,8 +759,8 @@ export class ScheduledEventsPageComponent {
       closeTime: raw.closeTime === '' ? null : raw.closeTime,
       // Never null: on an edit that would mean "leave it as it was", so dropping an override back
       // to the type's role has to be said out loud.
-      mentionRoleId: raw.roleMode === 'default' ? USE_TYPE_DEFAULT_ROLE
-        : raw.roleMode === 'none' ? '' : role,
+      mentionRoleId:
+        raw.roleMode === 'default' ? USE_TYPE_DEFAULT_ROLE : raw.roleMode === 'none' ? '' : role,
       capacity: num(raw.capacity),
       notes: raw.notes ?? '',
       enabled: raw.enabled,
@@ -529,7 +773,10 @@ export class ScheduledEventsPageComponent {
   toggle(s: ScheduledEvent): void {
     this.busy.set(s.id);
     this.backoffice.patchScheduledEvent(s.id, { enabled: !s.enabled }).subscribe({
-      next: (u) => { this.events.update((l) => l.map((x) => (x.id === u.id ? u : x))); this.busy.set(null); },
+      next: (u) => {
+        this.events.update((l) => l.map((x) => (x.id === u.id ? u : x)));
+        this.busy.set(null);
+      },
       error: () => this.busy.set(null),
     });
   }
@@ -554,10 +801,13 @@ export class ScheduledEventsPageComponent {
     this.backoffice.postScheduledEventNow(s.id).subscribe({
       next: (r) => {
         const ok = r.slug ? `Posted ✓ (${r.slug})` : 'Posted ✓';
-        this.setResult(s.id, r.ok, r.ok ? ok : r.error ?? 'Post failed.');
+        this.setResult(s.id, r.ok, r.ok ? ok : (r.error ?? 'Post failed.'));
         this.posting.set(null);
       },
-      error: () => { this.setResult(s.id, false, 'Request failed. Try again.'); this.posting.set(null); },
+      error: () => {
+        this.setResult(s.id, false, 'Request failed. Try again.');
+        this.posting.set(null);
+      },
     });
   }
 
@@ -597,28 +847,44 @@ export class ScheduledEventsPageComponent {
 
   private sort(): void {
     this.events.update((l) =>
-      [...l].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.time.localeCompare(b.time)));
+      [...l].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.time.localeCompare(b.time)),
+    );
   }
 
   private describe(err: unknown): string {
     const code = (err as { error?: { error?: string } })?.error?.error;
     switch (code) {
-      case 'invalid_day': return 'Pick a valid day.';
-      case 'invalid_date': return 'Pick a valid date (YYYY-MM-DD).';
-      case 'invalid_time': return 'Enter a valid post time.';
-      case 'invalid_type': return 'Pick a valid type.';
-      case 'invalid_title': return 'A title is required (max 200 characters).';
-      case 'invalid_channel': return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
-      case 'invalid_role': return 'Role ID must be the numeric role id (right-click the role → Copy Role ID).';
-      case 'notes_too_long': return 'Notes are too long (1000 characters max).';
-      case 'invalid_capacity': return 'Capacity must be between 1 and 10000.';
-      case 'invalid_start_time': return 'Enter a valid start time.';
-      case 'invalid_close_time': return 'Enter a valid RSVP-close time — or leave it blank to close at the start.';
-      case 'close_after_start': return 'RSVPs must close no later than the event starts.';
+      case 'invalid_day':
+        return 'Pick a valid day.';
+      case 'invalid_date':
+        return 'Pick a valid date (YYYY-MM-DD).';
+      case 'invalid_time':
+        return 'Enter a valid post time.';
+      case 'invalid_type':
+        return 'Pick a valid type.';
+      case 'invalid_title':
+        return 'A title is required (max 200 characters).';
+      case 'invalid_channel':
+        return 'Channel ID must be the numeric id (Developer Mode → Copy Channel ID).';
+      case 'invalid_role':
+        return 'Role ID must be the numeric role id (right-click the role → Copy Role ID).';
+      case 'notes_too_long':
+        return 'Notes are too long (1000 characters max).';
+      case 'invalid_capacity':
+        return 'Capacity must be between 1 and 10000.';
+      case 'invalid_start_time':
+        return 'Enter a valid start time.';
+      case 'invalid_close_time':
+        return 'Enter a valid RSVP-close time — or leave it blank to close at the start.';
+      case 'close_after_start':
+        return 'RSVPs must close no later than the event starts.';
       case 'close_before_post':
-        return 'RSVPs would close before the form is even posted. Pick a close time between the ' +
-          'post time and the start.';
-      default: return 'Save failed. Please try again.';
+        return (
+          'RSVPs would close before the form is even posted. Pick a close time between the ' +
+          'post time and the start.'
+        );
+      default:
+        return 'Save failed. Please try again.';
     }
   }
 }

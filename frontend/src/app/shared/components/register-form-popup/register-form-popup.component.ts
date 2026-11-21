@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -28,27 +28,34 @@ const COMBAT_ROLES = [
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './register-form-popup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./register-form-popup.component.scss'],
 })
 export class RegisterFormPopupComponent {
   private readonly popupService = inject(RegisterPopupService);
   private readonly http = inject(HttpClient);
 
-  readonly combatRoles      = COMBAT_ROLES;
-  readonly submitted        = signal(false);
-  readonly submitting       = signal(false);
-  readonly error            = signal<string | null>(null);
+  readonly combatRoles = COMBAT_ROLES;
+  readonly submitted = signal(false);
+  readonly submitting = signal(false);
+  readonly error = signal<string | null>(null);
 
   readonly form = new FormGroup({
     // Required in both modes: the backend stores it on the Registration and the
     // Google Form now carries a matching field.
-    discord:   new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
-    uid:       new FormControl('', { validators: Validators.required, nonNullable: true }),
-    ign:       new FormControl('', { validators: [Validators.required, Validators.minLength(2)], nonNullable: true }),
-    mainRole:  new FormControl('', { validators: Validators.required, nonNullable: true }),
+    discord: new FormControl('', {
+      validators: [Validators.required, Validators.minLength(2)],
+      nonNullable: true,
+    }),
+    uid: new FormControl('', { validators: Validators.required, nonNullable: true }),
+    ign: new FormControl('', {
+      validators: [Validators.required, Validators.minLength(2)],
+      nonNullable: true,
+    }),
+    mainRole: new FormControl('', { validators: Validators.required, nonNullable: true }),
     // Optional: '' is "not sure" or "none", both real answers — a new member may not know yet.
-    mainPath:  new FormControl('', { nonNullable: true }),
-    subPath:   new FormControl('', { nonNullable: true }),
+    mainPath: new FormControl('', { nonNullable: true }),
+    subPath: new FormControl('', { nonNullable: true }),
   });
 
   readonly pathChoices = MARTIAL_PATHS;
@@ -74,14 +81,16 @@ export class RegisterFormPopupComponent {
       // message the applicant sees. There is deliberately no client-side pre-check: it
       // would need UIDs, and the public roster withholds them precisely because the
       // IGN+UID pair is what the gate accepts as proof of identity.
-      await firstValueFrom(this.http.post(apiUrl('/public/register'), {
-        discord: v.discord,
-        uid: v.uid,
-        ign: v.ign,
-        mainRole: v.mainRole,
-        mainPath: v.mainPath,
-        subPath: v.subPath,
-      }));
+      await firstValueFrom(
+        this.http.post(apiUrl('/public/register'), {
+          discord: v.discord,
+          uid: v.uid,
+          ign: v.ign,
+          mainRole: v.mainRole,
+          mainPath: v.mainPath,
+          subPath: v.subPath,
+        }),
+      );
       this.submitted.set(true);
     } catch (err: unknown) {
       this.error.set(this.describeError(err));

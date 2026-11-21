@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FootagesDataService } from './footages-data.service';
@@ -10,6 +17,7 @@ import { FootageVideoCardComponent } from './components/footage-video-card.compo
   standalone: true,
   imports: [FormsModule, FootageVideoCardComponent],
   templateUrl: './footages-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./footages-page.component.scss'],
 })
 export class FootagesPageComponent implements OnInit {
@@ -26,7 +34,9 @@ export class FootagesPageComponent implements OnInit {
   readonly matchTypeOptions: MatchType[] = ['League', 'Ranked', 'Scrim'];
 
   readonly opponentOptions = computed(() =>
-    Array.from(new Set(this.allFootages().map((f) => f.opponent))).sort((a, b) => a.localeCompare(b))
+    Array.from(new Set(this.allFootages().map((f) => f.opponent))).sort((a, b) =>
+      a.localeCompare(b),
+    ),
   );
 
   /**
@@ -36,7 +46,9 @@ export class FootagesPageComponent implements OnInit {
    * known at compile time.
    */
   readonly uploaderOptions = computed(() =>
-    Array.from(new Set(this.allFootages().map((f) => f.uploader))).sort((a, b) => a.localeCompare(b))
+    Array.from(new Set(this.allFootages().map((f) => f.uploader))).sort((a, b) =>
+      a.localeCompare(b),
+    ),
   );
 
   readonly filteredFootages = computed(() => {
@@ -79,4 +91,3 @@ export class FootagesPageComponent implements OnInit {
     this.selectedUploader.set((value || 'All') as 'All' | UploaderKey);
   }
 }
-

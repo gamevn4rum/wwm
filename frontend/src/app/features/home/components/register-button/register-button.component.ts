@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DiscordAuthService } from '../../../../core/services/discord-auth.service';
 import { RegisterPopupService } from '../../../../core/services/register-popup.service';
 import { ConfigService } from '../../../../core/services/config.service';
@@ -9,6 +9,7 @@ import { ConfigService } from '../../../../core/services/config.service';
   standalone: true,
   imports: [AsyncPipe],
   templateUrl: './register-button.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./register-button.component.scss'],
 })
 export class RegisterButtonComponent {

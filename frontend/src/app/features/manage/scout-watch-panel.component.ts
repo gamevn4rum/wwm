@@ -1,7 +1,18 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { BackofficeService, ManagedGuild, ScoutWatchGuild } from '../../core/services/backoffice.service';
+import {
+  BackofficeService,
+  ManagedGuild,
+  ScoutWatchGuild,
+} from '../../core/services/backoffice.service';
 
 const MAX = 20;
 const NUMBER = /^\d{4,15}$/;
@@ -35,8 +46,17 @@ const NUMBER = /^\d{4,15}$/;
             <li>
               <span class="name">{{ label(q) }}</span>
               <span class="ctl">
-                <button type="button" (click)="move(i, -1)" [disabled]="i === 0" aria-label="Move up">↑</button>
-                <button type="button" (click)="move(i, 1)" [disabled]="last" aria-label="Move down">↓</button>
+                <button
+                  type="button"
+                  (click)="move(i, -1)"
+                  [disabled]="i === 0"
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+                <button type="button" (click)="move(i, 1)" [disabled]="last" aria-label="Move down">
+                  ↓
+                </button>
                 <button type="button" (click)="remove(i)" aria-label="Remove">✕</button>
               </span>
             </li>
@@ -52,11 +72,20 @@ const NUMBER = /^\d{4,15}$/;
               <option [value]="g.name">{{ g.name }}</option>
             }
           </select>
-          <button type="button" (click)="add(pick); pick = ''" [disabled]="!pick || full()">Add</button>
+          <button type="button" (click)="add(pick); pick = ''" [disabled]="!pick || full()">
+            Add
+          </button>
           <span class="or">or</span>
-          <input [(ngModel)]="number" placeholder="guild number, e.g. 10005661" inputmode="numeric"
-                 [disabled]="full()" (keydown.enter)="addNumber()" />
-          <button type="button" (click)="addNumber()" [disabled]="!number.trim() || full()">Add</button>
+          <input
+            [(ngModel)]="number"
+            placeholder="guild number, e.g. 10005661"
+            inputmode="numeric"
+            [disabled]="full()"
+            (keydown.enter)="addNumber()"
+          />
+          <button type="button" (click)="addNumber()" [disabled]="!number.trim() || full()">
+            Add
+          </button>
         </div>
 
         <div class="save">
@@ -71,30 +100,102 @@ const NUMBER = /^\d{4,15}$/;
       }
     </section>
   `,
-  styles: [`
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .75; margin-bottom: 1rem; line-height: 1.5; }
-    .list { margin: 0 0 1rem; padding-left: 1.6rem; }
-    .list li { padding: .35rem 0; border-bottom: 1px solid rgba(128,128,128,.2); }
-    .list li:not(.empty) { display: flex; align-items: center; gap: .6rem; }
-    .list li.empty { list-style: none; margin-left: -1.6rem; opacity: .6; }
-    .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-    .ctl { display: flex; gap: .25rem; }
-    .ctl button { padding: .15rem .5rem; }
-    .add, .save { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .75rem; }
-    .add select { min-width: 12rem; max-width: 100%; }
-    .add input { width: 14rem; max-width: 100%; }
-    .or { opacity: .6; font-size: .85rem; }
-    select, input { padding: .35rem .5rem; border-radius: 6px; border: 1px solid rgba(128,128,128,.4);
-      background: transparent; color: inherit; }
-    button { padding: .4rem .85rem; cursor: pointer; border-radius: 6px;
-      border: 1px solid rgba(128,128,128,.4); background: transparent; color: inherit; }
-    button.primary { font-weight: 700; }
-    button:disabled { opacity: .5; cursor: default; }
-    .count { opacity: .6; font-size: .85rem; }
-    .ok { color: #28a745; }
-    .bad { color: #dc3545; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.75;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+      }
+      .list {
+        margin: 0 0 1rem;
+        padding-left: 1.6rem;
+      }
+      .list li {
+        padding: 0.35rem 0;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+      }
+      .list li:not(.empty) {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .list li.empty {
+        list-style: none;
+        margin-left: -1.6rem;
+        opacity: 0.6;
+      }
+      .name {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .ctl {
+        display: flex;
+        gap: 0.25rem;
+      }
+      .ctl button {
+        padding: 0.15rem 0.5rem;
+      }
+      .add,
+      .save {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+      }
+      .add select {
+        min-width: 12rem;
+        max-width: 100%;
+      }
+      .add input {
+        width: 14rem;
+        max-width: 100%;
+      }
+      .or {
+        opacity: 0.6;
+        font-size: 0.85rem;
+      }
+      select,
+      input {
+        padding: 0.35rem 0.5rem;
+        border-radius: 6px;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        background: transparent;
+        color: inherit;
+      }
+      button {
+        padding: 0.4rem 0.85rem;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        background: transparent;
+        color: inherit;
+      }
+      button.primary {
+        font-weight: 700;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .count {
+        opacity: 0.6;
+        font-size: 0.85rem;
+      }
+      .ok {
+        color: #28a745;
+      }
+      .bad {
+        color: #dc3545;
+      }
+    `,
+  ],
 })
 export class ScoutWatchPanelComponent implements OnInit {
   private readonly backoffice = inject(BackofficeService);
@@ -112,19 +213,35 @@ export class ScoutWatchPanelComponent implements OnInit {
   number = '';
 
   readonly full = computed(() => this.draft().length >= MAX);
-  readonly dirty = computed(() => this.draft().join('\n') !== this.stored().map((s) => s.query).join('\n'));
+  readonly dirty = computed(
+    () =>
+      this.draft().join('\n') !==
+      this.stored()
+        .map((s) => s.query)
+        .join('\n'),
+  );
   readonly pickable = computed(() => {
     const taken = new Set(this.draft().map((q) => q.toLowerCase()));
     return this.guilds()
-      .filter((g) => g.identified && !taken.has(g.name.toLowerCase())
-        && !(g.numberId != null && taken.has(String(g.numberId))))
+      .filter(
+        (g) =>
+          g.identified &&
+          !taken.has(g.name.toLowerCase()) &&
+          !(g.numberId != null && taken.has(String(g.numberId))),
+      )
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   ngOnInit(): void {
     this.backoffice.getScoutWatch().subscribe({
-      next: (rows) => { this.apply(rows); this.loading.set(false); },
-      error: () => { this.loadError.set('Failed to load the scout list.'); this.loading.set(false); },
+      next: (rows) => {
+        this.apply(rows);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadError.set('Failed to load the scout list.');
+        this.loading.set(false);
+      },
     });
     // Only feeds the picker; a failure leaves number entry working.
     this.backoffice.getGuilds().subscribe({ next: (g) => this.guilds.set(g), error: () => {} });
@@ -132,8 +249,9 @@ export class ScoutWatchPanelComponent implements OnInit {
 
   /** A number shows our name for it when we track that guild. */
   label(q: string): string {
-    const known = this.stored().find((s) => s.query === q)?.trackedName
-      ?? this.guilds().find((g) => g.numberId != null && String(g.numberId) === q)?.name;
+    const known =
+      this.stored().find((s) => s.query === q)?.trackedName ??
+      this.guilds().find((g) => g.numberId != null && String(g.numberId) === q)?.name;
     return known ? `${known} (#${q})` : NUMBER.test(q) ? `#${q}` : q;
   }
 
@@ -181,9 +299,12 @@ export class ScoutWatchPanelComponent implements OnInit {
         const err = e.error?.error;
         this.result.set({
           ok: false,
-          text: err === 'unknown_guild' ? `"${e.error.query}" is not a tracked guild — add it by number instead.`
-            : err === 'too_many' ? `At most ${MAX} guilds.`
-            : 'Save failed.',
+          text:
+            err === 'unknown_guild'
+              ? `"${e.error.query}" is not a tracked guild — add it by number instead.`
+              : err === 'too_many'
+                ? `At most ${MAX} guilds.`
+                : 'Save failed.',
         });
       },
     });

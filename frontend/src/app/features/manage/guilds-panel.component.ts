@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { martialPathIcon, martialPathOption } from '../../core/models/martial-path';
@@ -168,7 +168,9 @@ interface MergeOffer {
         <!-- Above the list on purpose: a duplicate pair is work to do, not a property of a row. -->
         @if (duplicates().length) {
           <div class="dupes">
-            <h3>Possible duplicates <span class="quiet">{{ duplicates().length }}</span></h3>
+            <h3>
+              Possible duplicates <span class="quiet">{{ duplicates().length }}</span>
+            </h3>
             <p class="dupes-hint">
               Rows whose names are close enough to be one guild spelled two ways — a typo, or a
               stray space. Merging moves the matches onto the kept row, keeps the other spelling as
@@ -188,7 +190,8 @@ interface MergeOffer {
                     <strong>{{ keepSide(d).name }}</strong>
                     <span class="quiet">
                       keep · {{ keepSide(d).identified ? 'tracked' : 'no UID' }} ·
-                      {{ keepSide(d).matches }} {{ keepSide(d).matches === 1 ? 'match' : 'matches' }}
+                      {{ keepSide(d).matches }}
+                      {{ keepSide(d).matches === 1 ? 'match' : 'matches' }}
                     </span>
                   </span>
                   <span class="arrow" aria-hidden="true">◀</span>
@@ -196,7 +199,8 @@ interface MergeOffer {
                     <strong>{{ foldSide(d).name }}</strong>
                     <span class="quiet">
                       fold in · {{ foldSide(d).identified ? 'tracked' : 'no UID' }} ·
-                      {{ foldSide(d).matches }} {{ foldSide(d).matches === 1 ? 'match' : 'matches' }}
+                      {{ foldSide(d).matches }}
+                      {{ foldSide(d).matches === 1 ? 'match' : 'matches' }}
                     </span>
                   </span>
                 </div>
@@ -204,10 +208,20 @@ interface MergeOffer {
                 <span class="dupe-actions">
                   <!-- The proposal favours the row a sync can already see; swapping is here
                        because the merge works either way and the officer may know better. -->
-                  <button type="button" (click)="swap(d)" [disabled]="merging() === d.foldId"
-                          title="Keep the other row instead">Swap</button>
-                  <button type="button" class="danger" (click)="merge(d)"
-                          [disabled]="merging() !== null">
+                  <button
+                    type="button"
+                    (click)="swap(d)"
+                    [disabled]="merging() === d.foldId"
+                    title="Keep the other row instead"
+                  >
+                    Swap
+                  </button>
+                  <button
+                    type="button"
+                    class="danger"
+                    (click)="merge(d)"
+                    [disabled]="merging() !== null"
+                  >
                     {{ merging() === d.foldId ? '…' : 'Merge' }}
                   </button>
                 </span>
@@ -222,24 +236,42 @@ interface MergeOffer {
         <!-- For guilds we have not played yet: a row is otherwise only born from Match History. -->
         <div class="track">
           <label for="track-uid">Track a new guild</label>
-          <input id="track-uid" class="mono" type="text" inputmode="numeric"
-                 [ngModel]="trackUid()" (ngModelChange)="editTrackUid($event)"
-                 (keydown.enter)="track()" placeholder="guild number" />
+          <input
+            id="track-uid"
+            class="mono"
+            type="text"
+            inputmode="numeric"
+            [ngModel]="trackUid()"
+            (ngModelChange)="editTrackUid($event)"
+            (keydown.enter)="track()"
+            placeholder="guild number"
+          />
           <button type="button" (click)="track()" [disabled]="!trackUid() || tracking()">
             {{ tracking() ? '…' : 'Track' }}
           </button>
-          <span class="quiet">for a guild we have not fought — its roster arrives on the next sync</span>
+          <span class="quiet"
+            >for a guild we have not fought — its roster arrives on the next sync</span
+          >
         </div>
 
         <div class="toolbar">
-          <input class="search" [ngModel]="search()" (ngModelChange)="search.set($event)"
-                 placeholder="Filter by name or alias…" />
+          <input
+            class="search"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="Filter by name or alias…"
+          />
           <label class="only">
-            <input type="checkbox" [ngModel]="unidentifiedOnly()"
-                   (ngModelChange)="unidentifiedOnly.set($event)" />
+            <input
+              type="checkbox"
+              [ngModel]="unidentifiedOnly()"
+              (ngModelChange)="unidentifiedOnly.set($event)"
+            />
             Needs a UID only
           </label>
-          <span class="count">{{ shown().length }} of {{ guilds().length }} · {{ pending() }} without a UID</span>
+          <span class="count"
+            >{{ shown().length }} of {{ guilds().length }} · {{ pending() }} without a UID</span
+          >
         </div>
 
         <table class="grid">
@@ -260,16 +292,26 @@ interface MergeOffer {
                     <!-- Not editable, and not merely disabled: the weekly name pass reads this
                          guild's name from the game, so a correction typed here would be reverted
                          within the week — and a wrong name upstream is already self-fixing. -->
-                    <span class="name"
-                          title="Read from the game by the weekly name pass — it cannot be edited here, and a wrong spelling corrects itself on the next run.">{{ g.name }}</span>
+                    <span
+                      class="name"
+                      title="Read from the game by the weekly name pass — it cannot be edited here, and a wrong spelling corrects itself on the next run."
+                      >{{ g.name }}</span
+                    >
                   } @else {
                     <div class="rename">
-                      <input class="name-input" type="text"
-                             [ngModel]="nameOf(g)" (ngModelChange)="editName(g, $event)"
-                             [ngModelOptions]="{ standalone: true }"
-                             [title]="'No sync will ever touch this name — a typo here is permanent until it is corrected'" />
-                      <button type="button" (click)="rename(g)"
-                              [disabled]="!isNameDirty(g) || busy() === g.id">
+                      <input
+                        class="name-input"
+                        type="text"
+                        [ngModel]="nameOf(g)"
+                        (ngModelChange)="editName(g, $event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        [title]="'No sync will ever touch this name — a typo here is permanent until it is corrected'"
+                      />
+                      <button
+                        type="button"
+                        (click)="rename(g)"
+                        [disabled]="!isNameDirty(g) || busy() === g.id"
+                      >
                         {{ busy() === g.id ? '…' : 'Rename' }}
                       </button>
                     </div>
@@ -277,17 +319,28 @@ interface MergeOffer {
                   <!-- Aliases are how an officer recognises a guild that has since renamed, which
                        is exactly the moment they are looking one up. -->
                   @if (g.aliases.length) {
-                    <span class="aka" [title]="g.aliases.join(', ')">aka {{ g.aliases.join(', ') }}</span>
+                    <span class="aka" [title]="g.aliases.join(', ')"
+                      >aka {{ g.aliases.join(', ') }}</span
+                    >
                   }
                 </td>
                 <td class="num">{{ g.matchCount || '—' }}</td>
                 <td>
                   <div class="uid">
-                    <input class="mono" type="text" inputmode="numeric"
-                           [ngModel]="uidOf(g)" (ngModelChange)="editUid(g, $event)"
-                           [ngModelOptions]="{ standalone: true }" placeholder="guild number" />
-                    <button type="button" (click)="identify(g)"
-                            [disabled]="!isUidDirty(g) || busy() === g.id">
+                    <input
+                      class="mono"
+                      type="text"
+                      inputmode="numeric"
+                      [ngModel]="uidOf(g)"
+                      (ngModelChange)="editUid(g, $event)"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="guild number"
+                    />
+                    <button
+                      type="button"
+                      (click)="identify(g)"
+                      [disabled]="!isUidDirty(g) || busy() === g.id"
+                    >
                       {{ busy() === g.id ? '…' : g.identified ? 'Update' : 'Identify' }}
                     </button>
                   </div>
@@ -296,14 +349,17 @@ interface MergeOffer {
                   @if (g.identified) {
                     <span class="tag tag-on">Tracked</span>
                     @if (g.syncedUtc) {
-                      <span class="quiet">synced {{ g.syncedUtc | date:'d MMM, HH:mm' }}</span>
+                      <span class="quiet">synced {{ g.syncedUtc | date: 'd MMM, HH:mm' }}</span>
                     } @else {
                       <!-- Identified but never synced: the id is in place and the next run will
                            fill the row. Distinct from "tracked and stale", and reads differently. -->
                       <span class="quiet">awaiting first sync</span>
                     }
                     <span class="quiet">
-                      {{ g.memberCount || '—' }} members@if (g.level) { · lv {{ g.level }} }
+                      {{ g.memberCount || '—' }} members
+                      @if (g.level) {
+                        · lv {{ g.level }}
+                      }
                     </span>
                   } @else {
                     <span class="tag tag-off">No UID</span>
@@ -311,18 +367,25 @@ interface MergeOffer {
                   }
                 </td>
                 <td class="row-actions">
-                  <button type="button" (click)="toggleScout(g)"
-                          [disabled]="!g.identified || scouting() === g.id"
-                          [title]="g.identified ? 'Read who is online right now' : 'Needs a UID first'">
+                  <button
+                    type="button"
+                    (click)="toggleScout(g)"
+                    [disabled]="!g.identified || scouting() === g.id"
+                    [title]="g.identified ? 'Read who is online right now' : 'Needs a UID first'"
+                  >
                     {{ scouting() === g.id ? '…' : expanded() === g.id ? 'Hide' : 'Scout' }}
                   </button>
                   <!-- Only on the rows it is for. Drawn everywhere and disabled, it would read as
                        the quick way to be rid of a guild whose matches are in the way — which is a
                        merge, or nothing at all. -->
                   @if (canDelete(g)) {
-                    <button type="button" class="danger" (click)="askDelete(g)"
-                            [disabled]="deleting() !== null"
-                            title="No UID and no matches — this row is only a name">
+                    <button
+                      type="button"
+                      class="danger"
+                      (click)="askDelete(g)"
+                      [disabled]="deleting() !== null"
+                      title="No UID and no matches — this row is only a name"
+                    >
                       Delete
                     </button>
                   }
@@ -338,16 +401,26 @@ interface MergeOffer {
                     <div class="offer">
                       <p class="offer-q">
                         Do you want to merge <strong>{{ offer.rowName }}</strong> into
-                        <strong>{{ offer.ownerName }}</strong>?
+                        <strong>{{ offer.ownerName }}</strong
+                        >?
                       </p>
                       <p class="offer-why">{{ offer.detail }}</p>
                       <span class="offer-actions">
-                        <button type="button" class="danger" (click)="confirmMergeOffer()"
-                                [disabled]="merging() !== null">
+                        <button
+                          type="button"
+                          class="danger"
+                          (click)="confirmMergeOffer()"
+                          [disabled]="merging() !== null"
+                        >
                           {{ merging() === offer.rowId ? '…' : 'Merge' }}
                         </button>
-                        <button type="button" (click)="dismissOffer()"
-                                [disabled]="merging() !== null">Keep both</button>
+                        <button
+                          type="button"
+                          (click)="dismissOffer()"
+                          [disabled]="merging() !== null"
+                        >
+                          Keep both
+                        </button>
                       </span>
                       @if (mergeErrorFor(offer.rowId); as msg) {
                         <p class="error merge-error">{{ msg }}</p>
@@ -363,24 +436,37 @@ interface MergeOffer {
                 <tr class="offer-row">
                   <td colspan="5">
                     <div class="offer">
-                      <p class="offer-q">Delete <strong>{{ g.name }}</strong>?</p>
+                      <p class="offer-q">
+                        Delete <strong>{{ g.name }}</strong
+                        >?
+                      </p>
                       <p class="offer-why">
                         Nothing is recorded against this row — no matches, no UID — so this removes
                         a name and nothing else.
                         @if (g.aliases.length) {
-                          Its {{ g.aliases.length === 1 ? 'alias' : 'aliases' }}
-                          ({{ g.aliases.join(', ') }}) go with it and will resolve to nothing.
+                          Its {{ g.aliases.length === 1 ? 'alias' : 'aliases' }} ({{
+                            g.aliases.join(', ')
+                          }}) go with it and will resolve to nothing.
                         }
                         Unlike a merge, no spelling is kept: if Match History meets this name again
                         the row is simply built again.
                       </p>
                       <span class="offer-actions">
-                        <button type="button" class="danger" (click)="confirmDelete(g)"
-                                [disabled]="deleting() !== null">
+                        <button
+                          type="button"
+                          class="danger"
+                          (click)="confirmDelete(g)"
+                          [disabled]="deleting() !== null"
+                        >
                           {{ deleting() === g.id ? '…' : 'Delete' }}
                         </button>
-                        <button type="button" (click)="dismissDelete()"
-                                [disabled]="deleting() !== null">Keep it</button>
+                        <button
+                          type="button"
+                          (click)="dismissDelete()"
+                          [disabled]="deleting() !== null"
+                        >
+                          Keep it
+                        </button>
                       </span>
                       @if (deleteErrorFor(g.id); as msg) {
                         <p class="error merge-error">{{ msg }}</p>
@@ -402,11 +488,11 @@ interface MergeOffer {
                         <header>
                           <strong>{{ s.guild }}</strong>
                           <span class="quiet">
-                            {{ s.onlineCount }} of {{ s.memberCount }} online ·
-                            {{ s.partyCount }} {{ s.partyCount === 1 ? 'group' : 'groups' }} sharing an instance
+                            {{ s.onlineCount }} of {{ s.memberCount }} online · {{ s.partyCount }}
+                            {{ s.partyCount === 1 ? 'group' : 'groups' }} sharing an instance
                           </span>
                           <!-- The time is part of the answer, not a footnote: this expires. -->
-                          <span class="taken">read {{ s.takenUtc | date:'HH:mm:ss' }}</span>
+                          <span class="taken">read {{ s.takenUtc | date: 'HH:mm:ss' }}</span>
                         </header>
 
                         <!-- ⚠ Worded as a guess on purpose. The API infers a match from the largest
@@ -435,8 +521,12 @@ interface MergeOffer {
                               @if (group.label) {
                                 <h4 [title]="group.title ?? group.label">
                                   @if (group.icon && !dead().has(group.icon)) {
-                                    <img class="fam" [src]="familyIcon(group.icon)"
-                                         [alt]="group.label" (error)="iconFailed(group.icon)" />
+                                    <img
+                                      class="fam"
+                                      [src]="familyIcon(group.icon)"
+                                      [alt]="group.label"
+                                      (error)="iconFailed(group.icon)"
+                                    />
                                   } @else {
                                     {{ group.label }}
                                   }
@@ -448,11 +538,18 @@ interface MergeOffer {
                                   @for (m of group.members; track m.ign) {
                                     <li [class.in-match]="m.inMatch">
                                       <span class="ign">{{ m.ign }}</span>
-                                      @if (m.level) { <span class="lv">lv {{ m.level }}</span> }
+                                      @if (m.level) {
+                                        <span class="lv">lv {{ m.level }}</span>
+                                      }
                                       @for (a of arts(m); track $index) {
                                         @if (a.icon) {
-                                          <img class="art" [src]="a.icon" [alt]="a.name" [title]="a.title"
-                                               (error)="iconFailed(a.slug)" />
+                                          <img
+                                            class="art"
+                                            [src]="a.icon"
+                                            [alt]="a.name"
+                                            [title]="a.title"
+                                            (error)="iconFailed(a.slug)"
+                                          />
                                         } @else {
                                           <span class="arts" [title]="a.title">{{ a.name }}</span>
                                         }
@@ -467,12 +564,19 @@ interface MergeOffer {
                                            instance the match is read from, so the number says nothing
                                            a reader of this box does not already know. -->
                                       @if (m.partyNumber && !m.inMatch) {
-                                        <span class="pill pill-party" title="Sharing an instance — a hint, not a confirmed party">
+                                        <span
+                                          class="pill pill-party"
+                                          title="Sharing an instance — a hint, not a confirmed party"
+                                        >
                                           group {{ m.partyNumber }} of {{ m.partySize }}
                                         </span>
                                       }
                                       @if (m.instanced) {
-                                        <span class="pill pill-inst" title="On an instance server, not in the open world">instanced</span>
+                                        <span
+                                          class="pill pill-inst"
+                                          title="On an instance server, not in the open world"
+                                          >instanced</span
+                                        >
                                       }
                                     </li>
                                   }
@@ -495,121 +599,407 @@ interface MergeOffer {
         @if (shown().length === 0) {
           <p class="quiet empty">No guild matches that filter.</p>
         }
-        @if (notice()) { <p class="notice">{{ notice() }}</p> }
+        @if (notice()) {
+          <p class="notice">{{ notice() }}</p>
+        }
       }
     </section>
   `,
-  styles: [`
-    .backoffice { padding: .25rem 0 0; }
-    .hint { opacity: .7; margin-bottom: 1rem; max-width: 70rem; }
-    .track { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
-    .track label { font-weight: 600; }
-    .track input { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; width: 11ch; }
-    .toolbar { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; margin-bottom: .75rem; }
-    .search { padding: .35rem .6rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; min-width: 16rem; }
-    .only { display: inline-flex; gap: .35rem; align-items: center; }
-    .count { margin-left: auto; opacity: .6; font-size: .85rem; }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        padding: 0.25rem 0 0;
+      }
+      .hint {
+        opacity: 0.7;
+        margin-bottom: 1rem;
+        max-width: 70rem;
+      }
+      .track {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+      .track label {
+        font-weight: 600;
+      }
+      .track input {
+        padding: 0.3rem 0.45rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        width: 11ch;
+      }
+      .toolbar {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+      }
+      .search {
+        padding: 0.35rem 0.6rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        min-width: 16rem;
+      }
+      .only {
+        display: inline-flex;
+        gap: 0.35rem;
+        align-items: center;
+      }
+      .count {
+        margin-left: auto;
+        opacity: 0.6;
+        font-size: 0.85rem;
+      }
 
-    /* Tinted like an unidentified row, because it is the same kind of thing: data that needs a
+      /* Tinted like an unidentified row, because it is the same kind of thing: data that needs a
        person, sitting above the list rather than inside it. */
-    .dupes { border: 1px solid rgba(173,122,76,.5); background: rgba(173,122,76,.06);
-      border-radius: 8px; padding: .8rem 1rem; margin-bottom: 1.25rem; }
-    .dupes h3 { margin: 0 0 .35rem; font-size: .95rem; }
-    .dupes-hint { opacity: .75; font-size: .84rem; margin: 0 0 .7rem; max-width: 62rem; }
-    .dupe { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap;
-      padding: .45rem 0; border-top: 1px solid rgba(128,128,128,.2); }
-    .dupe.saving { opacity: .5; }
-    .pair { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
-    .side { display: inline-flex; flex-direction: column; }
-    .arrow { opacity: .5; font-size: .8rem; }
-    /* Full width under the pair it is about: the page notice sits below the whole list, out of sight
+      .dupes {
+        border: 1px solid rgba(173, 122, 76, 0.5);
+        background: rgba(173, 122, 76, 0.06);
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .dupes h3 {
+        margin: 0 0 0.35rem;
+        font-size: 0.95rem;
+      }
+      .dupes-hint {
+        opacity: 0.75;
+        font-size: 0.84rem;
+        margin: 0 0 0.7rem;
+        max-width: 62rem;
+      }
+      .dupe {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 0.45rem 0;
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+      }
+      .dupe.saving {
+        opacity: 0.5;
+      }
+      .pair {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .side {
+        display: inline-flex;
+        flex-direction: column;
+      }
+      .arrow {
+        opacity: 0.5;
+        font-size: 0.8rem;
+      }
+      /* Full width under the pair it is about: the page notice sits below the whole list, out of sight
        of the button that was clicked. */
-    .merge-error { flex-basis: 100%; margin: .2rem 0 0; font-size: .85rem; }
-    .reason { font-size: .78rem; opacity: .7; font-style: italic; }
-    .dupe-actions { margin-left: auto; display: inline-flex; gap: .35rem; white-space: nowrap; }
-    /* Merging deletes a row and cannot be undone from this panel, so the button says so. */
-    button.danger { border-color: rgba(173,122,76,.75); color: #9a6a3f; }
+      .merge-error {
+        flex-basis: 100%;
+        margin: 0.2rem 0 0;
+        font-size: 0.85rem;
+      }
+      .reason {
+        font-size: 0.78rem;
+        opacity: 0.7;
+        font-style: italic;
+      }
+      .dupe-actions {
+        margin-left: auto;
+        display: inline-flex;
+        gap: 0.35rem;
+        white-space: nowrap;
+      }
+      /* Merging deletes a row and cannot be undone from this panel, so the button says so. */
+      button.danger {
+        border-color: rgba(173, 122, 76, 0.75);
+        color: #9a6a3f;
+      }
 
-    .grid { width: 100%; border-collapse: collapse; }
-    .grid th, .grid td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: middle; }
-    .grid th { font-size: .75rem; text-transform: uppercase; opacity: .6; font-weight: 600; }
-    .grid td.num, .grid th.num { text-align: right; }
-    .name { font-weight: 600; }
-    .rename { display: flex; gap: .35rem; align-items: center; }
-    .name-input { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; font-weight: 600; width: 14rem; }
-    .aka { display: block; font-size: .74rem; opacity: .55; overflow: hidden;
-      text-overflow: ellipsis; white-space: nowrap; max-width: 22rem; }
-    .uid { display: flex; gap: .35rem; align-items: center; }
-    .uid input { padding: .3rem .45rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; width: 11ch; }
-    .mono { font-family: monospace; }
-    .tracking { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; }
-    .quiet { opacity: .6; font-size: .82rem; white-space: nowrap; }
-    .tag { font-size: .72rem; padding: .1rem .4rem; border: 1px solid rgba(128,128,128,.45);
-      border-radius: 999px; opacity: .75; white-space: nowrap; }
-    .tag-on { border-color: rgba(124,148,115,.75); color: #5f7757; opacity: 1; }
-    .tag-off { border-color: rgba(173,122,76,.75); color: #9a6a3f; opacity: 1; }
-    /* A row with no UID is the one the panel exists for, so it is marked rather than left to be
+      .grid {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .grid th,
+      .grid td {
+        text-align: left;
+        padding: 0.45rem 0.6rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        vertical-align: middle;
+      }
+      .grid th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+      }
+      .grid td.num,
+      .grid th.num {
+        text-align: right;
+      }
+      .name {
+        font-weight: 600;
+      }
+      .rename {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+      }
+      .name-input {
+        padding: 0.3rem 0.45rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        font-weight: 600;
+        width: 14rem;
+      }
+      .aka {
+        display: block;
+        font-size: 0.74rem;
+        opacity: 0.55;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 22rem;
+      }
+      .uid {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+      }
+      .uid input {
+        padding: 0.3rem 0.45rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        width: 11ch;
+      }
+      .mono {
+        font-family: monospace;
+      }
+      .tracking {
+        display: flex;
+        gap: 0.4rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .quiet {
+        opacity: 0.6;
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+      .tag {
+        font-size: 0.72rem;
+        padding: 0.1rem 0.4rem;
+        border: 1px solid rgba(128, 128, 128, 0.45);
+        border-radius: 999px;
+        opacity: 0.75;
+        white-space: nowrap;
+      }
+      .tag-on {
+        border-color: rgba(124, 148, 115, 0.75);
+        color: #5f7757;
+        opacity: 1;
+      }
+      .tag-off {
+        border-color: rgba(173, 122, 76, 0.75);
+        color: #9a6a3f;
+        opacity: 1;
+      }
+      /* A row with no UID is the one the panel exists for, so it is marked rather than left to be
        found by reading the Tracking column. */
-    tr.unknown { background: rgba(173,122,76,.06); }
-    tr.saving { opacity: .5; }
-    .row-actions { white-space: nowrap; }
-    button { padding: .3rem .8rem; border: 1px solid rgba(128,128,128,.4); border-radius: 6px;
-      font: inherit; cursor: pointer; background: transparent; color: inherit; }
-    button:disabled { cursor: default; opacity: .45; }
-    /* Tinted like the duplicates block rather than like the scout row: it is work to do, and the
+      tr.unknown {
+        background: rgba(173, 122, 76, 0.06);
+      }
+      tr.saving {
+        opacity: 0.5;
+      }
+      .row-actions {
+        white-space: nowrap;
+      }
+      button {
+        padding: 0.3rem 0.8rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        cursor: pointer;
+        background: transparent;
+        color: inherit;
+      }
+      button:disabled {
+        cursor: default;
+        opacity: 0.45;
+      }
+      /* Tinted like the duplicates block rather than like the scout row: it is work to do, and the
        same kind of work that block holds. */
-    .offer-row > td { background: rgba(173,122,76,.1); }
-    .offer { display: flex; gap: .75rem; align-items: baseline; flex-wrap: wrap; }
-    .offer-q { margin: 0; }
-    .offer-why { margin: 0; opacity: .75; font-size: .84rem; max-width: 52rem; flex: 1 1 24rem; }
-    .offer-actions { margin-left: auto; display: inline-flex; gap: .35rem; white-space: nowrap; }
+      .offer-row > td {
+        background: rgba(173, 122, 76, 0.1);
+      }
+      .offer {
+        display: flex;
+        gap: 0.75rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .offer-q {
+        margin: 0;
+      }
+      .offer-why {
+        margin: 0;
+        opacity: 0.75;
+        font-size: 0.84rem;
+        max-width: 52rem;
+        flex: 1 1 24rem;
+      }
+      .offer-actions {
+        margin-left: auto;
+        display: inline-flex;
+        gap: 0.35rem;
+        white-space: nowrap;
+      }
 
-    .scout-row > td { background: rgba(128,128,128,.06); }
-    .scout header { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; margin-bottom: .4rem; }
-    .scout header .taken { margin-left: auto; opacity: .6; font-size: .8rem; font-variant-numeric: tabular-nums; }
-    .verdict { margin: .3rem 0 .6rem; opacity: .85; }
-    .verdict-match { color: #9a6a3f; }
-    /* Narrower than it was: a line is a name, a level and two badges now, not a name and two art
+      .scout-row > td {
+        background: rgba(128, 128, 128, 0.06);
+      }
+      .scout header {
+        display: flex;
+        gap: 0.6rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: 0.4rem;
+      }
+      .scout header .taken {
+        margin-left: auto;
+        opacity: 0.6;
+        font-size: 0.8rem;
+        font-variant-numeric: tabular-nums;
+      }
+      .verdict {
+        margin: 0.3rem 0 0.6rem;
+        opacity: 0.85;
+      }
+      .verdict-match {
+        color: #9a6a3f;
+      }
+      /* Narrower than it was: a line is a name, a level and two badges now, not a name and two art
        names, so the old 23rem column was mostly empty space. */
-    .online { list-style: none; margin: 0; padding: 0; display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr)); gap: .25rem .75rem; }
-    /* Ungrouped, the groups wrapper is a passthrough — one section, no heading, the list as it
+      .online {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+        gap: 0.25rem 0.75rem;
+      }
+      /* Ungrouped, the groups wrapper is a passthrough — one section, no heading, the list as it
        was. Only the boxed state lays anything out. */
-    .groups.boxed { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
-      gap: .5rem; }
-    .boxed .group { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; padding: .4rem .6rem .5rem; }
-    .boxed .group.wide { grid-column: 1 / -1; }
-    .boxed .group h4 { margin: 0 0 .3rem; font-size: .8rem; text-transform: uppercase;
-      letter-spacing: .03em; opacity: .75; }
-    /* One name per line inside a box: the box is already the column. The wide group is not a box
+      .groups.boxed {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+        gap: 0.5rem;
+      }
+      .boxed .group {
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 8px;
+        padding: 0.4rem 0.6rem 0.5rem;
+      }
+      .boxed .group.wide {
+        grid-column: 1 / -1;
+      }
+      .boxed .group h4 {
+        margin: 0 0 0.3rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        opacity: 0.75;
+      }
+      /* One name per line inside a box: the box is already the column. The wide group is not a box
        and goes back to filling the row. */
-    .boxed .online { grid-template-columns: 1fr; }
-    .boxed .group.wide .online { grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr)); }
-    .none { margin: 0; font-style: italic; }
-    .online li { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap;
-      padding: .25rem .4rem; border-radius: 6px; }
-    .online li.in-match { background: rgba(173,122,76,.14); }
-    .ign { font-weight: 600; }
-    .lv { opacity: .6; font-size: .8rem; }
-    .arts { opacity: .75; font-size: .84rem; }
-    /* The badges sit on the text baseline like the words they replaced, so a line of icons and a
+      .boxed .online {
+        grid-template-columns: 1fr;
+      }
+      .boxed .group.wide .online {
+        grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+      }
+      .none {
+        margin: 0;
+        font-style: italic;
+      }
+      .online li {
+        display: flex;
+        gap: 0.4rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+        padding: 0.25rem 0.4rem;
+        border-radius: 6px;
+      }
+      .online li.in-match {
+        background: rgba(173, 122, 76, 0.14);
+      }
+      .ign {
+        font-weight: 600;
+      }
+      .lv {
+        opacity: 0.6;
+        font-size: 0.8rem;
+      }
+      .arts {
+        opacity: 0.75;
+        font-size: 0.84rem;
+      }
+      /* The badges sit on the text baseline like the words they replaced, so a line of icons and a
        line that fell back to names are the same height. */
-    .art { width: 20px; height: 20px; border-radius: 50%; object-fit: contain;
-      align-self: center; flex: none; }
-    .boxed .group h4 .fam { width: 22px; height: 22px; border-radius: 50%; object-fit: contain;
-      vertical-align: middle; }
-    .pill { font-size: .7rem; padding: .05rem .4rem; border-radius: 999px;
-      border: 1px solid rgba(128,128,128,.4); opacity: .7; white-space: nowrap; }
-    .pill-party { border-color: rgba(110,130,160,.6); }
-    .pill-inst { border-color: rgba(124,148,115,.6); }
-    .empty { margin-top: .75rem; }
-    .error { color: #dc3545; }
-    .notice { margin-top: .75rem; opacity: .8; }
-  `],
+      .art {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: contain;
+        align-self: center;
+        flex: none;
+      }
+      .boxed .group h4 .fam {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: contain;
+        vertical-align: middle;
+      }
+      .pill {
+        font-size: 0.7rem;
+        padding: 0.05rem 0.4rem;
+        border-radius: 999px;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        opacity: 0.7;
+        white-space: nowrap;
+      }
+      .pill-party {
+        border-color: rgba(110, 130, 160, 0.6);
+      }
+      .pill-inst {
+        border-color: rgba(124, 148, 115, 0.6);
+      }
+      .empty {
+        margin-top: 0.75rem;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .notice {
+        margin-top: 0.75rem;
+        opacity: 0.8;
+      }
+    `,
+  ],
 })
 export class GuildsPanelComponent {
   private readonly backoffice = inject(BackofficeService);
@@ -674,9 +1064,11 @@ export class GuildsPanelComponent {
       if (!q) return true;
       // Aliases are searched too: looking up a guild by the name you remember is the whole point of
       // keeping the old spellings.
-      return g.name.toLowerCase().includes(q)
-        || g.aliases.some((a) => a.toLowerCase().includes(q))
-        || String(g.numberId ?? '').includes(q);
+      return (
+        g.name.toLowerCase().includes(q) ||
+        g.aliases.some((a) => a.toLowerCase().includes(q)) ||
+        String(g.numberId ?? '').includes(q)
+      );
     });
   });
 
@@ -757,10 +1149,11 @@ export class GuildsPanelComponent {
         // notice — and it is said plainly when it differs from the spelling we file them under.
         this.notice.set(
           res.upstreamName && res.upstreamName !== res.name
-            ? `${res.name} is “${res.upstreamName}” in game — ${res.memberCount ?? '?'} members. `
-              + 'Kept our spelling; the roster arrives on the next sync.'
-            : `Identified ${res.name} — ${res.memberCount ?? '?'} members. `
-              + 'The roster arrives on the next sync.');
+            ? `${res.name} is “${res.upstreamName}” in game — ${res.memberCount ?? '?'} members. ` +
+                'Kept our spelling; the roster arrives on the next sync.'
+            : `Identified ${res.name} — ${res.memberCount ?? '?'} members. ` +
+                'The roster arrives on the next sync.',
+        );
       },
       error: (err) => {
         this.busy.set(null);
@@ -770,15 +1163,16 @@ export class GuildsPanelComponent {
           err?.error?.error === 'no_such_guild'
             ? 'No guild carries that number — check the digits.'
             : err?.error?.error === 'club_id_taken'
-              ? `That guild is already tracked as “${err.error.ownerName}”. The two rows are one `
-                + 'guild — merge them instead.'
+              ? `That guild is already tracked as “${err.error.ownerName}”. The two rows are one ` +
+                'guild — merge them instead.'
               : err?.error?.error === 'invalid_number'
                 ? 'That is not a guild number.'
                 : ['token_required', 'signing_key_missing'].includes(err?.error?.error)
                   ? 'This needs a live read from the game, and no relay token is live. Try again while the relay is running.'
                   : err?.status === 403
                     ? 'Not permitted.'
-                    : 'Lookup failed — the game API did not answer.');
+                    : 'Lookup failed — the game API did not answer.',
+        );
       },
     });
   }
@@ -805,8 +1199,9 @@ export class GuildsPanelComponent {
         this.trackUid.set('');
         this.load();
         this.notice.set(
-          `Now tracking ${res.name} — ${res.memberCount ?? '?'} members`
-          + `${res.level ? `, lv ${res.level}` : ''}. The roster arrives on the next sync.`);
+          `Now tracking ${res.name} — ${res.memberCount ?? '?'} members` +
+            `${res.level ? `, lv ${res.level}` : ''}. The roster arrives on the next sync.`,
+        );
       },
       error: (err) => {
         this.tracking.set(false);
@@ -818,17 +1213,19 @@ export class GuildsPanelComponent {
             : e?.error === 'already_tracked'
               ? `That guild is already tracked as “${e.ownerName}”.`
               : e?.error === 'name_taken'
-                ? `“${e.ownerName}” is already a row here, most likely this guild met in a match — `
-                  + 'enter the number on that row instead, so its matches stay with it.'
+                ? `“${e.ownerName}” is already a row here, most likely this guild met in a match — ` +
+                  'enter the number on that row instead, so its matches stay with it.'
                 : e?.error === 'invalid_number'
                   ? 'That is not a guild number.'
                   : ['token_required', 'signing_key_missing'].includes(e?.error)
                     ? 'This needs a live read from the game, and no relay token is live. Try again while the relay is running.'
                     : err?.status === 403
                       ? 'Not permitted.'
-                      : 'Lookup failed — the game API did not answer.');
+                      : 'Lookup failed — the game API did not answer.',
+        );
         // Point the officer at the row the answer named.
-        if (e?.error === 'name_taken' || e?.error === 'already_tracked') this.search.set(e.ownerName ?? '');
+        if (e?.error === 'name_taken' || e?.error === 'already_tracked')
+          this.search.set(e.ownerName ?? '');
       },
     });
   }
@@ -867,10 +1264,11 @@ export class GuildsPanelComponent {
         // The alias is the half that is not obvious, so it is what the notice is about: the old
         // spelling still has to resolve or the next import rebuilds the row under it.
         this.notice.set(
-          `Renamed ${res.previousName} to ${res.name}.`
-          + (res.aliasKept
-            ? ` “${res.previousName}” is kept as an alias, so matches still filed under it land here.`
-            : ''));
+          `Renamed ${res.previousName} to ${res.name}.` +
+            (res.aliasKept
+              ? ` “${res.previousName}” is kept as an alias, so matches still filed under it land here.`
+              : ''),
+        );
       },
       error: (err) => {
         this.busy.set(null);
@@ -886,18 +1284,19 @@ export class GuildsPanelComponent {
 
         this.notice.set(
           code === 'name_is_synced'
-            ? 'This guild has a UID, so the weekly name pass reads its name from the game — a '
-              + 'wrong spelling there corrects itself on the next run.'
+            ? 'This guild has a UID, so the weekly name pass reads its name from the game — a ' +
+                'wrong spelling there corrects itself on the next run.'
             : code === 'name_taken'
-              ? `“${err.error.ownerName}” already holds that name. If they are the same guild, `
-                + 'merge the two rows instead of renaming.'
+              ? `“${err.error.ownerName}” already holds that name. If they are the same guild, ` +
+                'merge the two rows instead of renaming.'
               : code === 'name_is_alias'
                 ? 'Another guild already answers to that name as an alias.'
                 : code === 'invalid_name'
                   ? 'That is not a usable guild name.'
                   : err?.status === 403
                     ? 'Not permitted.'
-                    : 'Rename failed.');
+                    : 'Rename failed.',
+        );
       },
     });
   }
@@ -929,9 +1328,8 @@ export class GuildsPanelComponent {
   ): void {
     // The API sends the name; the list is the fallback for an older one, and the id is the last
     // resort — a question naming neither guild is not a question worth asking.
-    const owner = ownerName
-      || this.guilds().find((x) => x.id === ownerId)?.name
-      || `guild #${ownerId}`;
+    const owner =
+      ownerName || this.guilds().find((x) => x.id === ownerId)?.name || `guild #${ownerId}`;
     const moved = g.matchCount === 1 ? 'its 1 match' : `its ${g.matchCount} matches`;
 
     this.mergeOffer.set({
@@ -939,15 +1337,16 @@ export class GuildsPanelComponent {
       rowName: g.name,
       ownerId,
       ownerName: owner,
-      detail: (code === 'name_taken'
-        ? `“${typed}” is already a guild record of its own.`
-        : `“${typed}” is already an alias of “${owner}”, so the row answering to it is that one.`)
-        + ` Merging moves ${moved} onto “${owner}”, keeps “${g.name}” as a further alias so matches`
-        + ' filed under that spelling still land there, and deletes this row.'
-        + (code === 'name_is_alias'
+      detail:
+        (code === 'name_taken'
+          ? `“${typed}” is already a guild record of its own.`
+          : `“${typed}” is already an alias of “${owner}”, so the row answering to it is that one.`) +
+        ` Merging moves ${moved} onto “${owner}”, keeps “${g.name}” as a further alias so matches` +
+        ' filed under that spelling still land there, and deletes this row.' +
+        (code === 'name_is_alias'
           ? ` The surviving row stays named “${owner}” — a merge never renames the row it keeps.`
-          : '')
-        + ' It cannot be undone from here.',
+          : '') +
+        ' It cannot be undone from here.',
     });
   }
 
@@ -1028,35 +1427,39 @@ export class GuildsPanelComponent {
         });
         this.load();
         this.notice.set(
-          `Merged ${res.mergedName} into ${res.survivorName} — `
-          + `${res.matchesMoved} ${res.matchesMoved === 1 ? 'match' : 'matches'} moved`
-          + (res.aliasesKept.length
-            ? `, now also answering to ${res.aliasesKept.map((a) => `“${a}”`).join(', ')}.`
-            : '.')
-          + (res.adoptedIdentity
-            ? ' The kept row took the other one’s UID, so it is syncable now.'
-            : ''));
+          `Merged ${res.mergedName} into ${res.survivorName} — ` +
+            `${res.matchesMoved} ${res.matchesMoved === 1 ? 'match' : 'matches'} moved` +
+            (res.aliasesKept.length
+              ? `, now also answering to ${res.aliasesKept.map((a) => `“${a}”`).join(', ')}.`
+              : '.') +
+            (res.adoptedIdentity
+              ? ' The kept row took the other one’s UID, so it is syncable now.'
+              : ''),
+        );
       },
       error: (err) => {
         this.merging.set(null);
         // The offer is left standing on failure. Nothing was written, so the two rows are still
         // two rows and the question is still open — and on a collision the officer has something
         // to go and do first, then come back to.
-        this.mergeError.set({ sourceId, message: 
-          err?.error?.error === 'match_collision'
-            ? 'Both rows record the same match, so merging would lose one of the two records: '
-              + `${err.error.detail}. Delete one of them in Match History first — one may have `
-              + 'footage the other does not.'
-            : err?.error?.error === 'gvg_collision'
-              ? `Both rows are sides of the same recorded GvG match (${err.error.detail}), which `
-                + 'has to be sorted out first.'
-              : err?.error?.error === 'our_guild'
-                ? 'One of those rows is our own guild, which is never merged.'
-                : err?.error?.error === 'guild_not_found'
-                  ? 'One of those rows is already gone — reloading.'
-                  : err?.status === 403
-                    ? 'Not permitted.'
-                    : 'Merge failed, and nothing was changed.' });
+        this.mergeError.set({
+          sourceId,
+          message:
+            err?.error?.error === 'match_collision'
+              ? 'Both rows record the same match, so merging would lose one of the two records: ' +
+                `${err.error.detail}. Delete one of them in Match History first — one may have ` +
+                'footage the other does not.'
+              : err?.error?.error === 'gvg_collision'
+                ? `Both rows are sides of the same recorded GvG match (${err.error.detail}), which ` +
+                  'has to be sorted out first.'
+                : err?.error?.error === 'our_guild'
+                  ? 'One of those rows is our own guild, which is never merged.'
+                  : err?.error?.error === 'guild_not_found'
+                    ? 'One of those rows is already gone — reloading.'
+                    : err?.status === 403
+                      ? 'Not permitted.'
+                      : 'Merge failed, and nothing was changed.',
+        });
       },
     });
   }
@@ -1136,7 +1539,9 @@ export class GuildsPanelComponent {
     this.dead.update((d) => (d.has(slug) ? d : new Set(d).add(slug)));
   }
 
-  protected familyIcon(slug: string): string | null { return martialPathIcon(slug); }
+  protected familyIcon(slug: string): string | null {
+    return martialPathIcon(slug);
+  }
 
   /**
    * A member's arts as badges. Both are drawn even when they share a path — two icons is two arts,
@@ -1190,7 +1595,8 @@ export class GuildsPanelComponent {
             ? 'This guild has no UID yet — enter its number first.'
             : ['token_required', 'signing_key_missing'].includes(err?.error?.error)
               ? 'This needs a live read from the game, and no relay token is live. Try again while the relay is running.'
-              : 'The game API did not answer. Try again in a moment.');
+              : 'The game API did not answer. Try again in a moment.',
+        );
       },
     });
   }
@@ -1239,31 +1645,35 @@ export class GuildsPanelComponent {
         });
         this.load();
         this.notice.set(
-          `Deleted ${res.name}.`
-          + (res.aliasesDropped.length
-            ? ` ${res.aliasesDropped.map((a) => `“${a}”`).join(', ')} no longer `
-              + `${res.aliasesDropped.length === 1 ? 'resolves' : 'resolve'} to anything.`
-            : '')
-          + ' Match History will build the row again if it meets the name.');
+          `Deleted ${res.name}.` +
+            (res.aliasesDropped.length
+              ? ` ${res.aliasesDropped.map((a) => `“${a}”`).join(', ')} no longer ` +
+                `${res.aliasesDropped.length === 1 ? 'resolves' : 'resolve'} to anything.`
+              : '') +
+            ' Match History will build the row again if it meets the name.',
+        );
       },
       error: (err) => {
         this.deleting.set(null);
         const e = err?.error;
         // The question is left standing: nothing was written, and on a refusal the officer has
         // something to go and look at first — the counts name what is on the row.
-        this.deleteError.set({ rowId: g.id, message:
-          e?.error === 'guild_has_records'
-            ? `This row holds ${this.records(e)} — merge it onto the right guild instead, or `
-              + 'delete those in Match History first.'
-            : e?.error === 'guild_identified'
-              ? 'This row carries a guild number now, so it is a guild a sync owns. Reloading.'
-              : e?.error === 'our_guild'
-                ? 'That row is one of ours, which is never deleted.'
-                : e?.error === 'guild_not_found'
-                  ? 'That row is already gone — reloading.'
-                  : err?.status === 403
-                    ? 'Not permitted.'
-                    : 'Delete failed, and nothing was changed.' });
+        this.deleteError.set({
+          rowId: g.id,
+          message:
+            e?.error === 'guild_has_records'
+              ? `This row holds ${this.records(e)} — merge it onto the right guild instead, or ` +
+                'delete those in Match History first.'
+              : e?.error === 'guild_identified'
+                ? 'This row carries a guild number now, so it is a guild a sync owns. Reloading.'
+                : e?.error === 'our_guild'
+                  ? 'That row is one of ours, which is never deleted.'
+                  : e?.error === 'guild_not_found'
+                    ? 'That row is already gone — reloading.'
+                    : err?.status === 403
+                      ? 'Not permitted.'
+                      : 'Delete failed, and nothing was changed.',
+        });
         // The row's state is not what this panel thought it was, so stop showing the old one.
         if (e?.error === 'guild_not_found' || e?.error === 'guild_identified') this.load();
       },

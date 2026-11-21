@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { YouTubePlayer } from '@angular/youtube-player';
 import { FootageRecord } from '../footages.model';
 import { formatIsoDate } from '../../../core/utils/date.utils';
@@ -8,6 +8,7 @@ import { formatIsoDate } from '../../../core/utils/date.utils';
   standalone: true,
   imports: [YouTubePlayer],
   templateUrl: './footage-video-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./footage-video-card.component.scss'],
 })
 export class FootageVideoCardComponent {

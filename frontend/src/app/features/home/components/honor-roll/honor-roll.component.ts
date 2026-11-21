@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HonorsDataService } from '../../services/honors-data.service';
 import { HonorGroup, HonorHolder, HonorTitle } from '../../models/honor.model';
@@ -24,13 +24,17 @@ interface Plaque extends HonorTitle {
   selector: 'app-honor-roll',
   standalone: true,
   templateUrl: './honor-roll.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./honor-roll.component.scss'],
 })
 export class HonorRollComponent {
   /** `undefined` while loading, null when the API did not answer. */
-  readonly honors = toSignal<HonorGroup[] | null | undefined>(inject(HonorsDataService).getHonors(), {
-    initialValue: undefined,
-  });
+  readonly honors = toSignal<HonorGroup[] | null | undefined>(
+    inject(HonorsDataService).getHonors(),
+    {
+      initialValue: undefined,
+    },
+  );
 
   /**
    * Every title across every activity, in the API's order (GvG League first). No activity headings:
@@ -38,11 +42,13 @@ export class HonorRollComponent {
    * "MVP" is shown as its activity ("Breaking Army", "Showdown"), since "MVP" twice says nothing.
    */
   readonly plaques = computed<Plaque[]>(() =>
-    (this.honors() ?? []).flatMap((g) => g.titles.map((t) => ({
-      ...t,
-      key: `${g.activity}/${t.title}`,
-      label: t.title === 'MVP' ? g.activity : t.title,
-    }))),
+    (this.honors() ?? []).flatMap((g) =>
+      g.titles.map((t) => ({
+        ...t,
+        key: `${g.activity}/${t.title}`,
+        label: t.title === 'MVP' ? g.activity : t.title,
+      })),
+    ),
   );
 
   /** Images that failed to load, by URL — the plate then falls back rather than show a broken image. */

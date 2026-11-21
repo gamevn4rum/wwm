@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -116,7 +116,8 @@ type UrlField = (typeof URL_FIELDS)[number];
                 <input
                   [formControlName]="slot"
                   maxlength="500"
-                  placeholder="https://… (leave blank if unused)" />
+                  placeholder="https://… (leave blank if unused)"
+                />
                 <button type="button" (click)="insertToken(slot, contentEl)">Insert</button>
                 <span class="state" [class.on]="tokenUsed(slot)">
                   {{ slotState(slot) }}
@@ -179,8 +180,8 @@ type UrlField = (typeof URL_FIELDS)[number];
             }
             @if (danglingTokens(); as tokens) {
               <p class="warn">
-                {{ tokens }} in the body with no image behind {{ tokens.includes(',') ? 'them' : 'it' }} —
-                it will show as text.
+                {{ tokens }} in the body with no image behind
+                {{ tokens.includes(',') ? 'them' : 'it' }} — it will show as text.
               </p>
             }
           </div>
@@ -227,6 +228,7 @@ type UrlField = (typeof URL_FIELDS)[number];
       }
     </section>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .backoffice {
@@ -583,8 +585,18 @@ export class ManageEventsPageComponent {
     if (!iso) return '';
     const [y, m, d] = iso.split('-');
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     const month = months[Number(m) - 1];
     return month ? `${d}/${month}/${y}` : iso;
@@ -874,7 +886,11 @@ function isHttpUrl(value: string): boolean {
 }
 
 function labelOf(field: UrlField): string {
-  return field === 'banner' ? 'The banner' : field === 'link' ? 'The link' : `Slot ${tokenFor(field)}`;
+  return field === 'banner'
+    ? 'The banner'
+    : field === 'link'
+      ? 'The link'
+      : `Slot ${tokenFor(field)}`;
 }
 
 function messageFor(err: { error?: { error?: string }; status?: number }): string {

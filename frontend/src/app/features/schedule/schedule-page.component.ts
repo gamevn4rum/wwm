@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { EventsListComponent } from '../home/components/events-list/events-list.component';
 import { ConfigService } from '../../core/services/config.service';
 
@@ -16,6 +16,7 @@ import { ConfigService } from '../../core/services/config.service';
   standalone: true,
   imports: [EventsListComponent],
   templateUrl: './schedule-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./schedule-page.component.scss'],
 })
 export class SchedulePageComponent {

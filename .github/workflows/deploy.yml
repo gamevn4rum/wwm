@@ -26,12 +26,16 @@ jobs:
         with:
           # Full history needed so we can push to a different branch later.
           fetch-depth: 0
+          # Don't leave the write token in .git/config while `npm ci` runs every
+          # dependency's install scripts; the deploy step passes it explicitly.
+          persist-credentials: false
 
       # ── 2. Node.js ───────────────────────────────────────────────────────
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          # Angular 22 needs Node ^22.22 || ^24.15 || >=26.
+          node-version: '24'
           cache: npm
           # Monorepo: the lock file lives under frontend/, not the repo root —
           # without this, setup-node's npm cache 404s with "Dependencies lock
@@ -85,6 +89,8 @@ jobs:
       # Source: "Deploy from a branch" → Branch: gh-pages / docs
       #
       - name: Deploy to gh-pages branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Save built output before switching branches
           # (frontend/docs/.nojekyll already exists from the "Post-build extras" step)
@@ -104,4 +110,4 @@ jobs:
           git add -A
           SHORT_SHA="${GITHUB_SHA::7}"
           git commit -m "deploy: ${SHORT_SHA} ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-          git push origin gh-pages --force
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages --force

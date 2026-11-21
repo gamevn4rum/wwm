@@ -1,5 +1,5 @@
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DiscordAuthService } from '../../../core/services/discord-auth.service';
 import { ProfilePopupService } from '../../../core/services/profile-popup.service';
 
@@ -8,6 +8,7 @@ import { ProfilePopupService } from '../../../core/services/profile-popup.servic
   standalone: true,
   imports: [AsyncPipe, UpperCasePipe],
   templateUrl: './login-button.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./login-button.component.scss'],
 })
 export class LoginButtonComponent {

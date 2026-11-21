@@ -1,5 +1,9 @@
-import { Component, computed, inject, input } from '@angular/core';
-import { NgxTimelineComponent, NgxTimelineEventGroup, NgxTimelineOrientation } from '@frxjs/ngx-timeline';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
+import {
+  NgxTimelineComponent,
+  NgxTimelineEventGroup,
+  NgxTimelineOrientation,
+} from '@frxjs/ngx-timeline';
 import { MatchRecord, MatchType, TimelineNode } from '../match-record.model';
 import { FootagePopupService } from '../../../core/services/footage-popup.service';
 import { MatchFormPopupService } from '../../../core/services/match-form-popup.service';
@@ -28,6 +32,7 @@ function slugId(date: string, opponent: string): string {
   standalone: true,
   imports: [NgxTimelineComponent],
   templateUrl: './season-match-history.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./season-match-history.component.scss'],
 })
 export class SeasonMatchHistoryComponent {
@@ -51,7 +56,7 @@ export class SeasonMatchHistoryComponent {
 
   readonly leagueMatches = computed(() => this.matches().filter((m) => m.type === 'league'));
   readonly rankedMatches = computed(() => this.matches().filter((m) => m.type === 'ranked'));
-  readonly scrimMatches  = computed(() => this.matches().filter((m) => m.type === 'scrim'));
+  readonly scrimMatches = computed(() => this.matches().filter((m) => m.type === 'scrim'));
 
   readonly timelineEvents = computed<TimelineNode[]>(() => {
     if (this.historical()) {
@@ -78,17 +83,18 @@ export class SeasonMatchHistoryComponent {
     for (const anchor of months) {
       const y = anchor.getFullYear();
       const mo = anchor.getMonth();
-      const covered = nodes.some((n) => !n.phantom &&
-        n.timestamp.getFullYear() === y && n.timestamp.getMonth() === mo);
+      const covered = nodes.some(
+        (n) => !n.phantom && n.timestamp.getFullYear() === y && n.timestamp.getMonth() === mo,
+      );
       if (!covered) {
         nodes.push({
-          id:        `phantom-${y}-${mo}`,
+          id: `phantom-${y}-${mo}`,
           timestamp: anchor,
-          label:     '',
-          opponent:  '',
+          label: '',
+          opponent: '',
           matchType: 'scrim',
-          status:    '➕',
-          phantom:   true,
+          status: '➕',
+          phantom: true,
         } satisfies TimelineNode);
       }
     }
@@ -107,13 +113,13 @@ export class SeasonMatchHistoryComponent {
     return {
       // The row id as well: one opponent can be met twice in a day, and two nodes sharing an id
       // collide in the timeline.
-      id:        `${slugId(m.date, m.opponent)}-${m.id}`,
+      id: `${slugId(m.date, m.opponent)}-${m.id}`,
       timestamp,
       label,
-      opponent:  m.opponent,
+      opponent: m.opponent,
       matchType: m.type,
-      status:    m.status,
-      phantom:   false,
+      status: m.status,
+      phantom: false,
     } satisfies TimelineNode;
   }
 

@@ -1,4 +1,11 @@
-import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs/operators';
@@ -46,6 +53,7 @@ function todayIso(): string {
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './match-form-popup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./match-form-popup.component.scss'],
 })
 export class MatchFormPopupComponent {
@@ -146,7 +154,10 @@ export class MatchFormPopupComponent {
       validators: [Validators.required, Validators.maxLength(100)],
       nonNullable: true,
     }),
-    type: new FormControl<MatchType | ''>('', { validators: Validators.required, nonNullable: true }),
+    type: new FormControl<MatchType | ''>('', {
+      validators: Validators.required,
+      nonNullable: true,
+    }),
     result: new FormControl<MatchResult | ''>('', { nonNullable: true }),
     season: new FormControl<number | null>(null, { validators: Validators.required }),
   });
@@ -288,7 +299,9 @@ export class MatchFormPopupComponent {
       this.error.set(this.describeError(err));
       // Only a create can be turned into "another game"; an edit moves onto the next free game
       // number by itself, so a duplicate refusal there means a genuine race, not this question.
-      this.duplicateOffered.set(!this.editing() && !anotherGame && this.errorCode(err) === 'duplicate_match');
+      this.duplicateOffered.set(
+        !this.editing() && !anotherGame && this.errorCode(err) === 'duplicate_match',
+      );
     } finally {
       this.submitting.set(false);
     }
@@ -403,8 +416,8 @@ export class MatchFormPopupComponent {
       case 'duplicate_match':
         return this.editing()
           ? 'Someone else saved a match against this opponent on this date at the same moment. Try again.'
-          : 'A match against this opponent on this date, of this type, is already recorded. '
-            + 'If you played them again that day, add this one as another game.';
+          : 'A match against this opponent on this date, of this type, is already recorded. ' +
+              'If you played them again that day, add this one as another game.';
       case 'invalid_type':
         return 'Pick a valid match type.';
       case 'invalid_result':

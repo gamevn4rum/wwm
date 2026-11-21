@@ -1,4 +1,11 @@
-import { Component, forwardRef, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  inject,
+  input,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DiscordDirectoryService } from '../../core/services/discord-directory.service';
 
@@ -53,7 +60,8 @@ const CHANNEL_ICON: Record<string, string> = {
           [placeholder]="placeholder()"
           [disabled]="disabled()"
           [ngModel]="value()"
-          (ngModelChange)="write($event)" />
+          (ngModelChange)="write($event)"
+        />
         @if (!unsynced()) {
           <button type="button" class="link" (click)="typing.set(false)">choose from list</button>
         } @else {
@@ -61,7 +69,8 @@ const CHANNEL_ICON: Record<string, string> = {
             type="button"
             class="link"
             [disabled]="directory.refreshing()"
-            (click)="directory.refresh()">
+            (click)="directory.refresh()"
+          >
             {{ directory.refreshing() ? 'syncing…' : 'sync the list' }}
           </button>
           @if (directory.refreshError(); as e) {
@@ -73,10 +82,7 @@ const CHANNEL_ICON: Record<string, string> = {
       </span>
     } @else {
       <span class="picker">
-        <select
-          [disabled]="disabled()"
-          [ngModel]="value()"
-          (ngModelChange)="write($event)">
+        <select [disabled]="disabled()" [ngModel]="value()" (ngModelChange)="write($event)">
           <option value="">{{ blankLabel() }}</option>
 
           @if (kind() === 'channel') {
@@ -85,7 +91,9 @@ const CHANNEL_ICON: Record<string, string> = {
             }
           } @else {
             @for (r of directory.roles(); track r.id) {
-              <option [value]="r.id">{{ r.name }}{{ r.mentionable ? '' : ' (not mentionable)' }}</option>
+              <option [value]="r.id">
+                {{ r.name }}{{ r.mentionable ? '' : ' (not mentionable)' }}
+              </option>
             }
           }
 
@@ -102,18 +110,56 @@ const CHANNEL_ICON: Record<string, string> = {
       </span>
     }
   `,
-  styles: [`
-    .picker { display: inline-flex; gap: .4rem; align-items: center; flex-wrap: wrap; width: 100%; }
-    select, .id-input { padding: .45rem .6rem; border: 1px solid rgba(128,128,128,.4);
-      border-radius: 6px; font: inherit; flex: 1; min-width: 12rem; }
-    .id-input { font-family: monospace; }
-    .link { background: none; border: none; padding: 0; font-size: .72rem; cursor: pointer;
-      opacity: .7; text-decoration: underline; color: inherit; }
-    .link:hover { opacity: 1; }
-    .link:disabled { cursor: default; opacity: .45; text-decoration: none; }
-    .note { font-size: .72rem; opacity: .55; }
-    .bad { font-size: .72rem; color: #c0392b; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .picker {
+        display: inline-flex;
+        gap: 0.4rem;
+        align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      select,
+      .id-input {
+        padding: 0.45rem 0.6rem;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        font: inherit;
+        flex: 1;
+        min-width: 12rem;
+      }
+      .id-input {
+        font-family: monospace;
+      }
+      .link {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.72rem;
+        cursor: pointer;
+        opacity: 0.7;
+        text-decoration: underline;
+        color: inherit;
+      }
+      .link:hover {
+        opacity: 1;
+      }
+      .link:disabled {
+        cursor: default;
+        opacity: 0.45;
+        text-decoration: none;
+      }
+      .note {
+        font-size: 0.72rem;
+        opacity: 0.55;
+      }
+      .bad {
+        font-size: 0.72rem;
+        color: #c0392b;
+      }
+    `,
+  ],
 })
 export class DiscordPickerComponent implements ControlValueAccessor {
   protected readonly directory = inject(DiscordDirectoryService);
@@ -130,7 +176,9 @@ export class DiscordPickerComponent implements ControlValueAccessor {
    * ever synced). A typed id would be a fourth option the API refuses with `role_not_managed` —
    * an escape hatch onto a locked door.
    */
-  protected pastable(): boolean { return this.kind() === 'channel'; }
+  protected pastable(): boolean {
+    return this.kind() === 'channel';
+  }
 
   /**
    * Whether this picker's own list has never been filled.
@@ -142,7 +190,9 @@ export class DiscordPickerComponent implements ControlValueAccessor {
    */
   protected unsynced(): boolean {
     if (!this.directory.loaded()) return false;
-    return (this.kind() === 'channel' ? this.directory.channels() : this.directory.roles()).length === 0;
+    return (
+      (this.kind() === 'channel' ? this.directory.channels() : this.directory.roles()).length === 0
+    );
   }
   readonly placeholder = input('e.g. 123456789012345678');
   readonly blankLabel = input('— none —');

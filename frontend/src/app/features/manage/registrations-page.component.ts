@@ -1,7 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { martialPathOption } from '../../core/models/martial-path';
-import { BackofficeService, Registration, RegistrationApprove } from '../../core/services/backoffice.service';
+import {
+  BackofficeService,
+  Registration,
+  RegistrationApprove,
+} from '../../core/services/backoffice.service';
 
 @Component({
   selector: 'app-registrations-page',
@@ -9,8 +13,10 @@ import { BackofficeService, Registration, RegistrationApprove } from '../../core
   template: `
     <section class="backoffice">
       <h1>Registration requests</h1>
-      <p class="hint">Review each request, then grant access. Approving creates or
-        updates the member and lets them log in immediately (audited).</p>
+      <p class="hint">
+        Review each request, then grant access. Approving creates or updates the member and lets
+        them log in immediately (audited).
+      </p>
 
       @if (loading()) {
         <p>Loading…</p>
@@ -24,47 +30,154 @@ import { BackofficeService, Registration, RegistrationApprove } from '../../core
             <header>
               <strong>{{ r.ign }}</strong>
               <span class="mono">{{ r.discord }}</span>
-              <span class="when">{{ r.submittedUtc | date:'medium' }}</span>
+              <span class="when">{{ r.submittedUtc | date: 'medium' }}</span>
             </header>
             <dl class="fields">
-              <div><dt>UID</dt><dd>{{ r.uid || '—' }}</dd></div>
-              <div><dt>Main role</dt><dd>{{ roleLabel(r.mainRole) }}</dd></div>
-              <div><dt>Main path</dt><dd>{{ pathLabel(r.mainPath) }}</dd></div>
-              <div><dt>Sub path</dt><dd>{{ pathLabel(r.subPath) }}</dd></div>
-              @if (r.note) { <div><dt>Note</dt><dd>{{ r.note }}</dd></div> }
+              <div>
+                <dt>UID</dt>
+                <dd>{{ r.uid || '—' }}</dd>
+              </div>
+              <div>
+                <dt>Main role</dt>
+                <dd>{{ roleLabel(r.mainRole) }}</dd>
+              </div>
+              <div>
+                <dt>Main path</dt>
+                <dd>{{ pathLabel(r.mainPath) }}</dd>
+              </div>
+              <div>
+                <dt>Sub path</dt>
+                <dd>{{ pathLabel(r.subPath) }}</dd>
+              </div>
+              @if (r.note) {
+                <div>
+                  <dt>Note</dt>
+                  <dd>{{ r.note }}</dd>
+                </div>
+              }
             </dl>
             <footer class="grant">
-              <label><input type="checkbox" [checked]="grant(r.id).canLogin" (change)="set(r.id, 'canLogin', $event)" /> Can log in</label>
-              <label><input type="checkbox" [checked]="grant(r.id).fp" (change)="set(r.id, 'fp', $event)" /> Formation</label>
-              <label><input type="checkbox" [checked]="grant(r.id).ftp" (change)="set(r.id, 'ftp', $event)" /> Footage</label>
-              <button class="approve" (click)="approve(r)" [disabled]="busy() === r.id">Approve</button>
-              <button class="reject" (click)="reject(r)" [disabled]="busy() === r.id">Reject</button>
+              <label
+                ><input
+                  type="checkbox"
+                  [checked]="grant(r.id).canLogin"
+                  (change)="set(r.id, 'canLogin', $event)"
+                />
+                Can log in</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  [checked]="grant(r.id).fp"
+                  (change)="set(r.id, 'fp', $event)"
+                />
+                Formation</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  [checked]="grant(r.id).ftp"
+                  (change)="set(r.id, 'ftp', $event)"
+                />
+                Footage</label
+              >
+              <button class="approve" (click)="approve(r)" [disabled]="busy() === r.id">
+                Approve
+              </button>
+              <button class="reject" (click)="reject(r)" [disabled]="busy() === r.id">
+                Reject
+              </button>
             </footer>
           </article>
         }
       }
-      @if (notice()) { <p class="notice">{{ notice() }}</p> }
+      @if (notice()) {
+        <p class="notice">{{ notice() }}</p>
+      }
     </section>
   `,
-  styles: [`
-    .backoffice { max-width: 820px; margin: 0 auto; padding: 1.5rem; }
-    h1 { margin-bottom: .25rem; }
-    .hint { opacity: .7; margin-bottom: 1rem; }
-    .card { border: 1px solid rgba(128,128,128,.3); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
-    .card.busy { opacity: .5; }
-    .card header { display: flex; gap: .75rem; align-items: baseline; flex-wrap: wrap; }
-    .card header .when { margin-left: auto; opacity: .6; font-size: .85rem; }
-    .mono { font-family: monospace; opacity: .8; }
-    .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .4rem 1rem; margin: .75rem 0; }
-    .fields dt { font-size: .75rem; opacity: .6; text-transform: uppercase; }
-    .fields dd { margin: 0; }
-    .grant { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; border-top: 1px solid rgba(128,128,128,.2); padding-top: .75rem; }
-    .grant label { display: inline-flex; gap: .35rem; align-items: center; }
-    .approve, .reject { padding: .35rem .9rem; cursor: pointer; }
-    .approve { margin-left: auto; }
-    .error { color: #dc3545; }
-    .notice { opacity: .8; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .backoffice {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+      .hint {
+        opacity: 0.7;
+        margin-bottom: 1rem;
+      }
+      .card {
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      .card.busy {
+        opacity: 0.5;
+      }
+      .card header {
+        display: flex;
+        gap: 0.75rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .card header .when {
+        margin-left: auto;
+        opacity: 0.6;
+        font-size: 0.85rem;
+      }
+      .mono {
+        font-family: monospace;
+        opacity: 0.8;
+      }
+      .fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.4rem 1rem;
+        margin: 0.75rem 0;
+      }
+      .fields dt {
+        font-size: 0.75rem;
+        opacity: 0.6;
+        text-transform: uppercase;
+      }
+      .fields dd {
+        margin: 0;
+      }
+      .grant {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        padding-top: 0.75rem;
+      }
+      .grant label {
+        display: inline-flex;
+        gap: 0.35rem;
+        align-items: center;
+      }
+      .approve,
+      .reject {
+        padding: 0.35rem 0.9rem;
+        cursor: pointer;
+      }
+      .approve {
+        margin-left: auto;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .notice {
+        opacity: 0.8;
+      }
+    `,
+  ],
 })
 export class RegistrationsPageComponent {
   /** Title-cases the stored id for display; the ids themselves are lower case everywhere. */
@@ -84,18 +197,26 @@ export class RegistrationsPageComponent {
   readonly busy = signal<number | null>(null);
   readonly notice = signal<string | null>(null);
 
-  private readonly grants = signal<Record<number, RegistrationApprove & { canLogin: boolean; fp: boolean; ftp: boolean }>>({});
+  private readonly grants = signal<
+    Record<number, RegistrationApprove & { canLogin: boolean; fp: boolean; ftp: boolean }>
+  >({});
 
   ngOnInit(): void {
     this.backoffice.getRegistrations('pending').subscribe({
       next: (list) => {
         this.pending.set(list);
-        const defaults: Record<number, RegistrationApprove & { canLogin: boolean; fp: boolean; ftp: boolean }> = {};
+        const defaults: Record<
+          number,
+          RegistrationApprove & { canLogin: boolean; fp: boolean; ftp: boolean }
+        > = {};
         for (const r of list) defaults[r.id] = { canLogin: true, fp: false, ftp: false };
         this.grants.set(defaults);
         this.loading.set(false);
       },
-      error: () => { this.error.set('Failed to load registrations.'); this.loading.set(false); },
+      error: () => {
+        this.error.set('Failed to load registrations.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -112,10 +233,16 @@ export class RegistrationsPageComponent {
     this.busy.set(reg.id);
     this.notice.set(null);
     this.backoffice.approveRegistration(reg.id, this.grant(reg.id)).subscribe({
-      next: () => { this.remove(reg.id); this.notice.set(`Approved ${reg.ign}.`); this.busy.set(null); },
+      next: () => {
+        this.remove(reg.id);
+        this.notice.set(`Approved ${reg.ign}.`);
+        this.busy.set(null);
+      },
       error: (err) => {
         this.busy.set(null);
-        this.notice.set(err?.status === 403 ? 'Not permitted (role-grant policy).' : 'Approve failed.');
+        this.notice.set(
+          err?.status === 403 ? 'Not permitted (role-grant policy).' : 'Approve failed.',
+        );
       },
     });
   }
@@ -125,8 +252,15 @@ export class RegistrationsPageComponent {
     this.busy.set(reg.id);
     this.notice.set(null);
     this.backoffice.rejectRegistration(reg.id, note).subscribe({
-      next: () => { this.remove(reg.id); this.notice.set(`Rejected ${reg.ign}.`); this.busy.set(null); },
-      error: () => { this.busy.set(null); this.notice.set('Reject failed.'); },
+      next: () => {
+        this.remove(reg.id);
+        this.notice.set(`Rejected ${reg.ign}.`);
+        this.busy.set(null);
+      },
+      error: () => {
+        this.busy.set(null);
+        this.notice.set('Reject failed.');
+      },
     });
   }
 

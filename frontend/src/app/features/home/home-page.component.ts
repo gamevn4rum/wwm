@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HonorRollComponent } from './components/honor-roll/honor-roll.component';
 import { extractYouTubeVideoId } from '../../core/utils/youtube.utils';
@@ -17,6 +17,7 @@ const HOME_VIDEO = 'https://www.youtube.com/watch?v=qUI7MmyGVnE';
   standalone: true,
   imports: [HonorRollComponent],
   templateUrl: './home-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent {
@@ -30,7 +31,8 @@ export class HomePageComponent {
     // ⚠ `mute=1` is not optional: browsers only autoplay a muted video, so the music starts when
     // the viewer unmutes it in the player. `playlist=<id>` is what makes `loop` work on a single
     // video. A viewer who asked for reduced motion gets the player without autoplay.
-    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced =
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     const params = new URLSearchParams({
       autoplay: reduced ? '0' : '1',
       mute: '1',
@@ -40,6 +42,7 @@ export class HomePageComponent {
       rel: '0',
     });
     return this.sanitizer.bypassSecurityTrustResourceUrl(
-      `https://www.youtube-nocookie.com/embed/${id}?${params}`);
+      `https://www.youtube-nocookie.com/embed/${id}?${params}`,
+    );
   }
 }

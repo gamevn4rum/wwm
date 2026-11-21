@@ -1,25 +1,55 @@
-import { Component, ElementRef, HostListener, OnInit, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  inject,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
 import { toBlob } from 'html-to-image';
 import { cardFontCss } from '../../../core/utils/card-fonts';
 import { captureScale } from '../../../core/utils/card-shot';
 import { ProfilePopupService } from '../../../core/services/profile-popup.service';
-import { DiscordAuthService, DiscordUserSession } from '../../../core/services/discord-auth.service';
+import {
+  DiscordAuthService,
+  DiscordUserSession,
+} from '../../../core/services/discord-auth.service';
 import { PlayerProfileService } from '../../../features/roster-stats/player-profile.service';
 import { PlayerProfile } from '../../../features/roster-stats/player-profile.model';
 import { PlayerDetail, PlayerInnerWay } from '../../../features/roster-stats/player-stats.model';
 import { Appearance, AppearanceService } from '../../../features/roster-stats/appearance.service';
-import { Gallery, GalleryPhoto, GalleryService } from '../../../features/roster-stats/gallery.service';
+import {
+  Gallery,
+  GalleryPhoto,
+  GalleryService,
+} from '../../../features/roster-stats/gallery.service';
 import { InnerWayCatalogueService } from '../../../features/roster-stats/inner-way-catalogue.service';
 import { InnerWayCatalogueEntry } from '../../../features/roster-stats/inner-way-catalogue.model';
 import { SetCatalogueService } from '../../../features/roster-stats/set-catalogue.service';
 import { SetCatalogueEntry } from '../../../features/roster-stats/set-catalogue.model';
 import {
-  ActiveSetEffect, computeActiveSetEffects, gearRows, isEffectAffix, martialArtBuild, martialArts,
-  innerWayIcon, noteMartialArtIconFailed, schoolColor, tierClass, visibleGear,
+  ActiveSetEffect,
+  computeActiveSetEffects,
+  gearRows,
+  isEffectAffix,
+  martialArtBuild,
+  martialArts,
+  innerWayIcon,
+  noteMartialArtIconFailed,
+  schoolColor,
+  tierClass,
+  visibleGear,
 } from '../../../features/roster-stats/build.utils';
-import { compactNumber, formatUnixDate, playtimeLabel, relativeTime } from '../../../features/guild/guild-format';
+import {
+  compactNumber,
+  formatUnixDate,
+  playtimeLabel,
+  relativeTime,
+} from '../../../features/guild/guild-format';
 
 /** Where the screenshot ended up. Clipboard first; a download is the fallback
  *  for browsers that refuse image writes (Firefox, older Safari). */
@@ -27,16 +57,21 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
 
 /** Locale codes the game reports for this region (`oversea_language_choose`). */
 const LANGUAGES: Record<string, string> = {
-  en: 'English', vi: 'Tiếng Việt', zh: '中文', ko: '한국어',
-  ja: '日本語', th: 'ไทย', id: 'Bahasa Indonesia',
+  en: 'English',
+  vi: 'Tiếng Việt',
+  zh: '中文',
+  ko: '한국어',
+  ja: '日本語',
+  th: 'ไทย',
+  id: 'Bahasa Indonesia',
 };
-
 
 @Component({
   selector: 'app-profile-modal',
   standalone: true,
   imports: [DecimalPipe, NgTemplateOutlet],
   templateUrl: './profile-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./profile-modal.component.scss'],
 })
 export class ProfileModalComponent implements OnInit {
@@ -152,7 +187,10 @@ export class ProfileModalComponent implements OnInit {
   @HostListener('document:keydown.escape')
   onEscape(): void {
     // The first Escape closes the photo, the second the modal.
-    if (this.viewing()) { this.viewing.set(null); return; }
+    if (this.viewing()) {
+      this.viewing.set(null);
+      return;
+    }
     this.close();
   }
 
@@ -231,7 +269,9 @@ export class ProfileModalComponent implements OnInit {
 
   /** Today's date on the card, so a shared screenshot carries its own as-of. */
   readonly capturedOn = new Date().toLocaleDateString('en-GB', {
-    day: '2-digit', month: 'short', year: 'numeric',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 
   // ── Screenshot ────────────────────────────────────────────────────────────
@@ -254,8 +294,10 @@ export class ProfileModalComponent implements OnInit {
       // Less whatever `.pm-noshot` leaves out (the gallery): the library sizes the image from the
       // live card, so a filtered node would otherwise come back as blank space above the footer.
       // offsetHeight covers a section's own padding, which is all the spacing these carry.
-      const skipped = Array.from(card.querySelectorAll<HTMLElement>('.pm-noshot'))
-        .reduce((sum, n) => sum + n.offsetHeight, 0);
+      const skipped = Array.from(card.querySelectorAll<HTMLElement>('.pm-noshot')).reduce(
+        (sum, n) => sum + n.offsetHeight,
+        0,
+      );
       const fullHeight = card.scrollHeight - skipped;
       const blob = await toBlob(card, {
         // Shared with the member card so neither surface can end up sharper than the other; a
@@ -264,16 +306,19 @@ export class ProfileModalComponent implements OnInit {
         // Width stays at the on-screen value (clientWidth, i.e. scrollbar
         // already discounted) so nothing reflows in the clone.
         height: fullHeight,
-        backgroundColor: getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-surface').trim() || '#ffffff',
+        backgroundColor:
+          getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim() ||
+          '#ffffff',
         style: { maxHeight: 'none', height: `${fullHeight}px`, overflow: 'visible' },
         // Curated font set — see card-fonts.ts for why we don't let the library
         // discover them itself.
         fontEmbedCSS: await cardFontCss(),
-        filter: (node) =>
-          !(node instanceof HTMLElement && node.classList.contains('pm-noshot')),
+        filter: (node) => !(node instanceof HTMLElement && node.classList.contains('pm-noshot')),
       });
-      if (!blob) { this.shot.set('failed'); return; }
+      if (!blob) {
+        this.shot.set('failed');
+        return;
+      }
 
       try {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -292,8 +337,10 @@ export class ProfileModalComponent implements OnInit {
   private download(blob: Blob): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    const name = (this.profile()?.ign || this.session()?.username || 'profile')
-      .replace(/[^\w.-]+/g, '-');
+    const name = (this.profile()?.ign || this.session()?.username || 'profile').replace(
+      /[^\w.-]+/g,
+      '-',
+    );
     a.href = url;
     a.download = `${name}-profile.png`;
     a.click();
@@ -302,11 +349,16 @@ export class ProfileModalComponent implements OnInit {
 
   shotLabel(): string {
     switch (this.shot()) {
-      case 'working':    return 'CAPTURING…';
-      case 'copied':     return 'COPIED TO CLIPBOARD';
-      case 'downloaded': return 'IMAGE DOWNLOADED';
-      case 'failed':     return 'CAPTURE FAILED';
-      default:           return 'SCREENSHOT';
+      case 'working':
+        return 'CAPTURING…';
+      case 'copied':
+        return 'COPIED TO CLIPBOARD';
+      case 'downloaded':
+        return 'IMAGE DOWNLOADED';
+      case 'failed':
+        return 'CAPTURE FAILED';
+      default:
+        return 'SCREENSHOT';
     }
   }
 }

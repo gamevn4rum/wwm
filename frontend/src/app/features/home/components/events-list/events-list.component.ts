@@ -1,4 +1,12 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { EventsDataService } from '../../../events/events-data.service';
 import { EventRecord } from '../../../events/event-record.model';
@@ -11,6 +19,7 @@ const PAGE_SIZE = 2;
   standalone: true,
   imports: [],
   templateUrl: './events-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./events-list.component.scss'],
 })
 export class EventsListComponent implements OnInit, OnDestroy {
@@ -77,8 +86,18 @@ export class EventsListComponent implements OnInit, OnDestroy {
   isFuture(date: string): boolean {
     if (!date) return false;
     const MONTHS: Record<string, number> = {
-      jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
-      jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+      jan: 0,
+      feb: 1,
+      mar: 2,
+      apr: 3,
+      may: 4,
+      jun: 5,
+      jul: 6,
+      aug: 7,
+      sep: 8,
+      oct: 9,
+      nov: 10,
+      dec: 11,
     };
     const parts = date.split('/');
     if (parts.length !== 3) return false;

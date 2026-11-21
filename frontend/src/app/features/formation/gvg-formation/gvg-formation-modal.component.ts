@@ -1,5 +1,22 @@
-import { Component, HostListener, OnDestroy, OnInit, computed, inject, input, output, signal } from '@angular/core';
-import { CdkDrag, CdkDragDrop, CdkDragPlaceholder, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
+import {
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragPlaceholder,
+  CdkDropList,
+  CdkDropListGroup,
+} from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { toBlob } from 'html-to-image';
 import { firstValueFrom } from 'rxjs';
@@ -9,8 +26,19 @@ import { cardFontCss } from '../../../core/utils/card-fonts';
 import { GvgChipComponent } from './gvg-chip.component';
 import { GvgFormationService } from './gvg-formation.service';
 import {
-  BoxId, DropTarget, FORMATION_BOXES, FormationLayout, FormationPool, FormationTasks, PoolMember,
-  SLOTS_PER_BOX, ShareChannel, TASK_OPTIONS, TaskId, emptyLayout, taskOption,
+  BoxId,
+  DropTarget,
+  FORMATION_BOXES,
+  FormationLayout,
+  FormationPool,
+  FormationTasks,
+  PoolMember,
+  SLOTS_PER_BOX,
+  ShareChannel,
+  TASK_OPTIONS,
+  TaskId,
+  emptyLayout,
+  taskOption,
 } from './gvg-formation.models';
 
 type Busy = 'idle' | 'working' | 'done' | 'failed';
@@ -29,8 +57,16 @@ const ERROR_TEXT: Record<string, string> = {
 @Component({
   selector: 'app-gvg-formation-modal',
   standalone: true,
-  imports: [CdkDropListGroup, CdkDropList, CdkDrag, CdkDragPlaceholder, FormsModule, GvgChipComponent],
+  imports: [
+    CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
+    CdkDragPlaceholder,
+    FormsModule,
+    GvgChipComponent,
+  ],
   templateUrl: './gvg-formation-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./gvg-formation-modal.component.scss'],
 })
 export class GvgFormationModalComponent implements OnInit, OnDestroy {
@@ -89,7 +125,9 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   readonly maybe = computed(() => this.unplaced(this.pool()?.maybe ?? []));
   readonly everyone = computed(() => {
     const q = this.filter().trim().toLowerCase();
-    return this.unplaced(this.pool()?.roster ?? []).filter((m) => !q || m.name.toLowerCase().includes(q));
+    return this.unplaced(this.pool()?.roster ?? []).filter(
+      (m) => !q || m.name.toLowerCase().includes(q),
+    );
   });
 
   readonly headline = computed(() => {
@@ -104,8 +142,13 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     if (!iso) return '';
     const utc = /[zZ]|[+-]\d\d:\d\d$/.test(iso) ? iso : `${iso}Z`;
     return new Intl.DateTimeFormat('vi-VN', {
-      timeZone: 'Asia/Ho_Chi_Minh', weekday: 'long', day: '2-digit', month: '2-digit',
-      hour: '2-digit', minute: '2-digit', hour12: false,
+      timeZone: 'Asia/Ho_Chi_Minh',
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
     }).format(new Date(utc));
   });
 
@@ -119,19 +162,23 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     this.channelId.set(this.service.loadChannelId() ?? '');
 
     // The channel list is independent of the pool: a failure there only disables Share.
-    firstValueFrom(this.service.getChannels()).then((list) => {
-      this.channels.set(list);
-      if (!list.some((c) => c.id === this.channelId())) this.channelId.set('');
-    }).catch(() => this.channels.set([]));
+    firstValueFrom(this.service.getChannels())
+      .then((list) => {
+        this.channels.set(list);
+        if (!list.some((c) => c.id === this.channelId())) this.channelId.set('');
+      })
+      .catch(() => this.channels.set([]));
 
     try {
       const pool = await firstValueFrom(this.service.getPool(this.eventId()));
       this.pool.set(pool);
       await this.restoreSaved();
     } catch (err) {
-      this.loadError.set(err instanceof HttpErrorResponse && err.status === 403
-        ? 'Bạn không có quyền (cần Commander trở lên).'
-        : 'Không tải được danh sách thành viên.');
+      this.loadError.set(
+        err instanceof HttpErrorResponse && err.status === 403
+          ? 'Bạn không có quyền (cần Commander trở lên).'
+          : 'Không tải được danh sách thành viên.',
+      );
     } finally {
       this.loading.set(false);
     }
@@ -144,18 +191,25 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.taskMenu()) { this.closeTaskMenu(); return; }
+    if (this.taskMenu()) {
+      this.closeTaskMenu();
+      return;
+    }
     this.closed.emit();
   }
 
   /** A press anywhere else puts the dropdown away; the badge itself stops the event. */
   @HostListener('document:pointerdown')
-  onPointerDown(): void { this.closeTaskMenu(); }
+  onPointerDown(): void {
+    this.closeTaskMenu();
+  }
 
   /** The menu is pinned to the viewport, so anything that moves the badge under it — the boxes
    *  scrolling (the template calls this too), the window resizing — has to put it away. */
   @HostListener('window:resize')
-  onViewportMoved(): void { this.closeTaskMenu(); }
+  onViewportMoved(): void {
+    this.closeTaskMenu();
+  }
 
   memberAt(box: BoxId, idx: number): PoolMember | null {
     const key = this.layout()[box][idx];
@@ -164,10 +218,14 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
 
   // ── Drag and drop ────────────────────────────────────────────────────────────────────────────
 
-  slotTarget(box: BoxId, idx: number): DropTarget { return { kind: 'slot', box, idx }; }
+  slotTarget(box: BoxId, idx: number): DropTarget {
+    return { kind: 'slot', box, idx };
+  }
   readonly poolTarget: DropTarget = { kind: 'pool' };
 
-  hoverId(box: BoxId, idx: number): string { return `${box}:${idx}`; }
+  hoverId(box: BoxId, idx: number): string {
+    return `${box}:${idx}`;
+  }
 
   /**
    * The state is the source of truth, so CDK's own array transfer is not used. Dropping a pool chip
@@ -181,7 +239,8 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     const to = ev.container.data;
     if (!key || !from || !to) return;
     if (from.kind === 'pool' && to.kind === 'pool') return;
-    if (from.kind === 'slot' && to.kind === 'slot' && from.box === to.box && from.idx === to.idx) return;
+    if (from.kind === 'slot' && to.kind === 'slot' && from.box === to.box && from.idx === to.idx)
+      return;
 
     const next = this.cloneLayout();
     if (to.kind === 'slot') {
@@ -203,12 +262,18 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
 
   // ── Tasks ────────────────────────────────────────────────────────────────────────────────────
 
-  taskOf(key: string): TaskId | null { return this.tasks()[key] ?? null; }
+  taskOf(key: string): TaskId | null {
+    return this.tasks()[key] ?? null;
+  }
 
   /** The badge face: the job's emoji, or a hollow ring for nobody-assigned-yet. */
-  taskEmoji(key: string): string { return taskOption(this.taskOf(key))?.emoji ?? '○'; }
+  taskEmoji(key: string): string {
+    return taskOption(this.taskOf(key))?.emoji ?? '○';
+  }
 
-  taskLabel(key: string): string { return taskOption(this.taskOf(key))?.label ?? 'Chưa giao'; }
+  taskLabel(key: string): string {
+    return taskOption(this.taskOf(key))?.label ?? 'Chưa giao';
+  }
 
   /**
    * Opens the dropdown under the badge. Fixed to the viewport rather than positioned inside the
@@ -217,22 +282,31 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
    */
   openTaskMenu(ev: MouseEvent, key: string): void {
     ev.stopPropagation();
-    if (this.taskMenu()?.key === key) { this.closeTaskMenu(); return; }
+    if (this.taskMenu()?.key === key) {
+      this.closeTaskMenu();
+      return;
+    }
     const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
     const width = 132;
     const height = 4 * 30 + 8;
     this.taskMenu.set({
       key,
       x: Math.min(rect.left, window.innerWidth - width - 8),
-      y: rect.bottom + height > window.innerHeight ? Math.max(8, rect.top - height) : rect.bottom + 4,
+      y:
+        rect.bottom + height > window.innerHeight
+          ? Math.max(8, rect.top - height)
+          : rect.bottom + 4,
     });
   }
 
-  closeTaskMenu(): void { this.taskMenu.set(null); }
+  closeTaskMenu(): void {
+    this.taskMenu.set(null);
+  }
 
   setTask(key: string, task: TaskId | null): void {
     const next = { ...this.tasks() };
-    if (task) next[key] = task; else delete next[key];
+    if (task) next[key] = task;
+    else delete next[key];
     this.tasks.set(next);
     this.closeTaskMenu();
   }
@@ -245,7 +319,11 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     this.saving.set(true);
     this.saveText.set('Đang lưu…');
     try {
-      await this.service.saveFormation(this.pool()?.event?.eventId ?? null, this.layout(), this.tasks());
+      await this.service.saveFormation(
+        this.pool()?.event?.eventId ?? null,
+        this.layout(),
+        this.tasks(),
+      );
       this.saveText.set('Đã lưu cho cả đội');
     } catch {
       this.saveText.set('Không lưu được');
@@ -277,7 +355,10 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
       for (let i = 0; i < SLOTS_PER_BOX; i++) {
         const key = saved.layout[box.id][i];
         if (!key) continue;
-        if (!known.has(key) || seen.has(key)) { dropped++; continue; }
+        if (!known.has(key) || seen.has(key)) {
+          dropped++;
+          continue;
+        }
         seen.add(key);
         layout[box.id][i] = key;
       }
@@ -285,14 +366,27 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
     this.layout.set(layout);
     // Only the jobs of the people who made it back in: a task map keyed by somebody no longer on
     // the board would quietly reappear the next time they were placed.
-    this.tasks.set(Object.fromEntries(Object.entries(saved.tasks).filter(([key]) => seen.has(key))));
+    this.tasks.set(
+      Object.fromEntries(Object.entries(saved.tasks).filter(([key]) => seen.has(key))),
+    );
 
     const when = new Intl.DateTimeFormat('vi-VN', {
-      timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
-    }).format(new Date(/[zZ]|[+-]\d\d:\d\d$/.test(saved.savedAtUtc) ? saved.savedAtUtc : `${saved.savedAtUtc}Z`));
-    const parts = [saved.inherited
-      ? `Lấy đội hình gần nhất làm mẫu (${saved.savedBy}, ${when}); bấm Lưu để chốt cho trận này.`
-      : `Đội hình đã lưu bởi ${saved.savedBy} lúc ${when}.`];
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(
+      new Date(
+        /[zZ]|[+-]\d\d:\d\d$/.test(saved.savedAtUtc) ? saved.savedAtUtc : `${saved.savedAtUtc}Z`,
+      ),
+    );
+    const parts = [
+      saved.inherited
+        ? `Lấy đội hình gần nhất làm mẫu (${saved.savedBy}, ${when}); bấm Lưu để chốt cho trận này.`
+        : `Đội hình đã lưu bởi ${saved.savedBy} lúc ${when}.`,
+    ];
     if (dropped > 0) parts.push(`${dropped} người không đăng ký trận này đã được bỏ ra.`);
     this.note.set(parts.join(' '));
   }
@@ -352,7 +446,10 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
       this.copyState.set('failed');
       this.copyText.set('Không chụp được ảnh');
     }
-    setTimeout(() => { this.copyState.set('idle'); this.copyText.set(''); }, 3500);
+    setTimeout(() => {
+      this.copyState.set('idle');
+      this.copyText.set('');
+    }, 3500);
   }
 
   async share(): Promise<void> {
@@ -369,10 +466,14 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
       this.shareText.set(name ? `Đã gửi vào #${name}` : 'Đã gửi');
     } catch (err) {
       this.shareState.set('failed');
-      const code = err instanceof HttpErrorResponse ? (err.error?.error as string | undefined) : undefined;
+      const code =
+        err instanceof HttpErrorResponse ? (err.error?.error as string | undefined) : undefined;
       this.shareText.set((code && ERROR_TEXT[code]) || 'Gửi không thành công');
     }
-    setTimeout(() => { this.shareState.set('idle'); this.shareText.set(''); }, 4500);
+    setTimeout(() => {
+      this.shareState.set('idle');
+      this.shareText.set('');
+    }, 4500);
   }
 
   onChannelChange(id: string): void {

@@ -1,4 +1,13 @@
-import { Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { MatchRecord, seasonSortValue } from './match-record.model';
@@ -18,6 +27,7 @@ export interface SeasonGroup {
   standalone: true,
   imports: [SeasonMatchHistoryComponent],
   templateUrl: './match-history-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./match-history-page.component.scss'],
 })
 export class MatchHistoryPageComponent implements OnInit, OnDestroy {
@@ -42,15 +52,20 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
 
   // ── Loaded from service ───────────────────────────────────────────────────
   readonly allMatches = signal<MatchRecord[]>([]);
-  readonly loading    = signal(true);
+  readonly loading = signal(true);
 
   // ── Opponent filter ───────────────────────────────────────────────────────
   /** Selected opponents; an empty set means "All". Applies across every season. */
   readonly selectedOpponents = signal<ReadonlySet<string>>(new Set());
 
   readonly opponentOptions = computed(() =>
-    Array.from(new Set(this.allMatches().map(m => m.opponent).filter(o => !!o)))
-      .sort((a, b) => a.localeCompare(b))
+    Array.from(
+      new Set(
+        this.allMatches()
+          .map((m) => m.opponent)
+          .filter((o) => !!o),
+      ),
+    ).sort((a, b) => a.localeCompare(b)),
   );
 
   /** All matches after applying the opponent filter (still every season, unsplit). */
@@ -58,7 +73,7 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
     const selected = this.selectedOpponents();
     return selected.size === 0
       ? this.allMatches()
-      : this.allMatches().filter(m => selected.has(m.opponent));
+      : this.allMatches().filter((m) => selected.has(m.opponent));
   });
 
   /** Seasons present in the filtered set, highest (by seasonSortValue) first. */
@@ -70,8 +85,9 @@ export class MatchHistoryPageComponent implements OnInit, OnDestroy {
       if (list) list.push(m);
       else bySeason.set(key, [m]);
     }
-    return Array.from(bySeason, ([season, matches]) => ({ season, matches }))
-      .sort((a, b) => seasonSortValue(b.season) - seasonSortValue(a.season));
+    return Array.from(bySeason, ([season, matches]) => ({ season, matches })).sort(
+      (a, b) => seasonSortValue(b.season) - seasonSortValue(a.season),
+    );
   });
 
   /** The highest-numbered season — shown expanded by default. */

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FootagePopupService } from './core/services/footage-popup.service';
 import { RegisterPopupService } from './core/services/register-popup.service';
@@ -19,6 +19,7 @@ import { ProfileModalComponent } from './shared/components/profile-modal/profile
     RegisterFormPopupComponent,
     ProfileModalComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <router-outlet />
 

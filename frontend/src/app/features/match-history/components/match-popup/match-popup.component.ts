@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { FootagePopupService } from '../../../../core/services/footage-popup.service';
@@ -43,6 +50,7 @@ type MemberSortKey = 'name' | 'joined';
   standalone: true,
   imports: [FootageVideoCardComponent],
   templateUrl: './match-popup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./match-popup.component.scss'],
 })
 export class MatchPopupComponent {
@@ -85,8 +93,9 @@ export class MatchPopupComponent {
    *  direction convention as the Guild page. */
   readonly members = computed<OpponentGuildMember[]>(() => {
     const q = this.memberQuery().trim().toLowerCase();
-    const list = (this.guild()?.members ?? [])
-      .filter((m) => !q || (m.name ?? '').toLowerCase().includes(q));
+    const list = (this.guild()?.members ?? []).filter(
+      (m) => !q || (m.name ?? '').toLowerCase().includes(q),
+    );
 
     const byName = (a: OpponentGuildMember, b: OpponentGuildMember) =>
       (a.name ?? '').localeCompare(b.name ?? '');
@@ -112,7 +121,11 @@ export class MatchPopupComponent {
   /** Which way the chosen column is ordered. Every column can go both ways. */
   readonly scoreboardSortDir = signal<ScoreboardSortDir>(defaultSortDir('mvp'));
 
-  readonly scoreboardColumns: ReadonlyArray<{ key: ScoreboardSortKey; label: string; title: string }> = [
+  readonly scoreboardColumns: ReadonlyArray<{
+    key: ScoreboardSortKey;
+    label: string;
+    title: string;
+  }> = [
     { key: 'mvp', label: '★', title: 'Match score' },
     { key: 'kills', label: 'K', title: 'Kills' },
     { key: 'deaths', label: 'D', title: 'Deaths' },

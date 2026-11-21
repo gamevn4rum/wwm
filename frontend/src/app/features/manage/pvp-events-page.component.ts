@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toBlob } from 'html-to-image';
 import {
@@ -55,8 +55,8 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
       <p class="hint">
         Self-hosted tournaments: two registration pools, teams drawn fresh every round, a point per
         win. Creating one posts its registration form to the channel straight away — there is no
-        draft state. The bot takes it from there with <code>/gtourstart</code>, and the scoreboard is
-        <code>/gtourboard</code>. Times are Vietnam (UTC+7).
+        draft state. The bot takes it from there with <code>/gtourstart</code>, and the scoreboard
+        is <code>/gtourboard</code>. Times are Vietnam (UTC+7).
       </p>
 
       @if (loading()) {
@@ -130,7 +130,12 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
 
           <label>
             <span>Capacity</span>
-            <input type="number" formControlName="capacity" min="1" placeholder="blank = unlimited" />
+            <input
+              type="number"
+              formControlName="capacity"
+              min="1"
+              placeholder="blank = unlimited"
+            />
           </label>
 
           <label>
@@ -139,7 +144,8 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
               kind="role"
               blankLabel="— default for Pvp —"
               placeholder="blank = the Pvp type's own role"
-              formControlName="mentionRoleId" />
+              formControlName="mentionRoleId"
+            />
           </label>
 
           <label class="check">
@@ -147,9 +153,9 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
             <span>
               Let a Tank/DPS fill an empty healer seat
               <small>
-                Off means a round is simply shorter when healers run out. On a realistic registration
-                this is the difference between most people finishing their bouts and almost nobody
-                doing so.
+                Off means a round is simply shorter when healers run out. On a realistic
+                registration this is the difference between most people finishing their bouts and
+                almost nobody doing so.
               </small>
             </span>
           </label>
@@ -361,8 +367,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                         <div class="field-shot">
                           <div class="field-head">
                             <span>
-                              <strong>{{ e.title }}</strong> ·
-                              {{ field().length }} in the field ·
+                              <strong>{{ e.title }}</strong> · {{ field().length }} in the field ·
                               {{ e.boutsReported }}/{{ e.boutsDrawn }} bouts reported · cap
                               {{ e.boutCap }} · +{{ e.pointsPerWin }}/{{ e.pointsPerLoss }}pt
                             </span>
@@ -370,7 +375,11 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                               <!-- The bouts are reported in Discord, so this table goes stale while
                                    it is open. Cheaper to re-ask than to guess when. -->
                               <button type="button" (click)="loadField(e)">Refresh</button>
-                              <button type="button" (click)="share(e, $event)" [disabled]="shot() === 'working'">
+                              <button
+                                type="button"
+                                (click)="share(e, $event)"
+                                [disabled]="shot() === 'working'"
+                              >
                                 {{ shotLabel() }}
                               </button>
                             </span>
@@ -382,7 +391,9 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                           <p class="note legend">
                             <span>✅ won</span><span>❌ lost</span><span>⌚ not reported yet</span>
                             <span><span class="idle">–</span> not drawn</span>
-                            <span><span class="drafted-key">❌</span> drafted into a healer seat</span>
+                            <span
+                              ><span class="drafted-key">❌</span> drafted into a healer seat</span
+                            >
                           </p>
 
                           @if (e.pointsPerLoss > 0) {
@@ -391,9 +402,10 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                  points. Said out loud here, because a Pts column that does not fall
                                  all the way down reads as a broken table rather than as a tiebreak. -->
                             <p class="note">
-                              Ranked by wins, then win rate, then fewer bouts played — the same order
-                              <code>/gtourboard</code> uses. With a point per loss, points can run out
-                              of step with that order.
+                              Ranked by wins, then win rate, then fewer bouts played — the same
+                              order
+                              <code>/gtourboard</code> uses. With a point per loss, points can run
+                              out of step with that order.
                             </p>
                           }
 
@@ -410,7 +422,9 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                      bouts rather than counted off, so a round the whole field
                                      skipped leaves no empty column and R4 still says R4. -->
                                 @for (r of roundColumns(); track r) {
-                                  <th class="round" [class.first]="$first" [title]="'Round ' + r">R{{ r }}</th>
+                                  <th class="round" [class.first]="$first" [title]="'Round ' + r">
+                                    R{{ r }}
+                                  </th>
                                 }
                               </tr>
                             </thead>
@@ -419,7 +433,9 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                 <tr>
                                   <td class="rank">{{ medal(p.rank) }}</td>
                                   <td class="who">
-                                    <span class="mark" [title]="poolLabel(p)">{{ poolMark(p) }}</span>
+                                    <span class="mark" [title]="poolLabel(p)">{{
+                                      poolMark(p)
+                                    }}</span>
                                     {{ p.name }}
                                     @if (p.status !== 'active') {
                                       <span class="pill" [class]="p.status" [title]="statusHelp(p)">
@@ -439,7 +455,11 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                   @for (c of p.cells; track c.round) {
                                     <td class="round" [class.first]="$first">
                                       @if (c.bouts.length === 0) {
-                                        <span class="idle" [title]="'Not drawn into round ' + c.round">–</span>
+                                        <span
+                                          class="idle"
+                                          [title]="'Not drawn into round ' + c.round"
+                                          >–</span
+                                        >
                                       } @else {
                                         @for (b of c.bouts; track b.boutId) {
                                           <span
@@ -448,7 +468,8 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
                                             [class.drafted]="b.draftedHealer"
                                             [title]="boutTip(b)"
                                             [attr.aria-label]="boutTip(b)"
-                                          >{{ outcomeIcon(b) }}</span>
+                                            >{{ outcomeIcon(b) }}</span
+                                          >
                                         }
                                       }
                                     </td>
@@ -469,6 +490,7 @@ type ShotState = 'idle' | 'working' | 'copied' | 'downloaded' | 'failed';
       }
     </section>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       /* Matches the other Manage pages: a centred column, an h1 with a hint under it, 8px cards and
@@ -869,7 +891,8 @@ export class PvpEventsPageComponent {
    * detection pass, on a table that can run to a few hundred lines.
    */
   private readonly played = computed(() =>
-    this.field().map((r) => ({ ...r, history: r.history.filter((b) => b.outcome !== 'skipped') })));
+    this.field().map((r) => ({ ...r, history: r.history.filter((b) => b.outcome !== 'skipped') })),
+  );
 
   /**
    * The rounds that get a column, ascending.
@@ -935,11 +958,11 @@ export class PvpEventsPageComponent {
 
   /** Healer counts allowed for the size currently chosen: none up to all-but-one, so there is always
    *  somebody to do damage. A 1v1 can only be 0, which is what makes it a role-less duel. */
-  protected readonly healerChoices = computed(() =>
-    this.choicesFor(Number(this.formTeamSize())));
+  protected readonly healerChoices = computed(() => this.choicesFor(Number(this.formTeamSize())));
 
   protected readonly editHealerChoices = computed(() =>
-    this.choicesFor(Number(this.editTeamSize())));
+    this.choicesFor(Number(this.editTeamSize())),
+  );
 
   /** Reads the selects back as numbers — a native select yields strings, and `4 + '1'` is `'41'`. */
   private readonly formTeamSize = signal(3);
@@ -1117,7 +1140,9 @@ export class PvpEventsPageComponent {
   }
 
   protected cancelEvent(e: PvpEvent): void {
-    if (!confirm(`Cancel "${e.title}"? Its registration post stops taking answers. Results are kept.`)) {
+    if (
+      !confirm(`Cancel "${e.title}"? Its registration post stops taking answers. Results are kept.`)
+    ) {
       return;
     }
     this.busy.set(e.id);
@@ -1183,13 +1208,15 @@ export class PvpEventsPageComponent {
    * existing is not a reason to keep offering the destructive one by default, so now it is asked.
    */
   protected reopenEvent(e: PvpEvent, keepField: boolean): void {
-    const drawn = e.boutsDrawn > 0
-      ? `The ${e.boutsDrawn} bouts drawn before it was called off will be deleted permanently, along with every point. `
-      : '';
-    const closed = e.rsvpClosesAt !== null && new Date(e.rsvpClosesAt) < new Date()
-      ? '\n\nNote: its registration deadline has already passed, so the form will not take new ' +
-        'answers — the ones already given still count, and /gtourstart works on them.'
-      : '';
+    const drawn =
+      e.boutsDrawn > 0
+        ? `The ${e.boutsDrawn} bouts drawn before it was called off will be deleted permanently, along with every point. `
+        : '';
+    const closed =
+      e.rsvpClosesAt !== null && new Date(e.rsvpClosesAt) < new Date()
+        ? '\n\nNote: its registration deadline has already passed, so the form will not take new ' +
+          'answers — the ones already given still count, and /gtourstart works on them.'
+        : '';
     const field = keepField
       ? `Everyone currently in it stays in it, with their wins and bouts cleared. ` +
         `Nobody has to sign up again.`
@@ -1284,7 +1311,9 @@ export class PvpEventsPageComponent {
   protected async share(e: PvpEvent, event: Event): Promise<void> {
     if (this.shot() === 'working') return;
 
-    const panel = (event.currentTarget as HTMLElement)?.closest('.field-shot') as HTMLElement | null;
+    const panel = (event.currentTarget as HTMLElement)?.closest(
+      '.field-shot',
+    ) as HTMLElement | null;
     if (!panel) return;
 
     this.shot.set('working');
@@ -1302,8 +1331,7 @@ export class PvpEventsPageComponent {
 
       // Off-screen but laid out — display:none would give every child zero size. Pinned to the live
       // width so the history lines wrap exactly where they do on screen.
-      host.style.cssText =
-        `position: fixed; left: -10000px; top: 0; width: ${panel.offsetWidth}px; pointer-events: none;`;
+      host.style.cssText = `position: fixed; left: -10000px; top: 0; width: ${panel.offsetWidth}px; pointer-events: none;`;
       host.appendChild(clone);
       document.body.appendChild(host);
 
