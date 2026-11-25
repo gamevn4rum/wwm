@@ -1,24 +1,17 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { SchedulesPageComponent } from './schedules-page.component';
 import { ScheduledEventsPageComponent } from './scheduled-events-page.component';
 import { PingRolesPanelComponent } from './ping-roles-panel.component';
 import { ScoutWatchPanelComponent } from './scout-watch-panel.component';
 
 /**
- * Admin "Bot management" hub (was "Bot schedule"): the two things the bot posts on a timer — recurring RSVP events,
- * and plain scheduled messages — each in its own collapsible panel, so one nav entry covers both.
- * The panels are the existing standalone components, embedded rather than routed to.
- *
- * A third panel sits under them for the role each event type pings, which is settings rather than
- * schedule — but it is what the other two mean by "default", so it belongs where they are.
- *
- * The fourth is the Scout list: the guilds the GvG panel's Scout button reports on every minute.
+ * "Bot management" hub: recurring RSVP events the bot posts on a timer, the role each event type
+ * pings, and the Scout list (the guilds the GvG panel's Scout button reports on). Each is an
+ * existing standalone component in its own collapsible panel.
  */
 @Component({
   selector: 'app-bot-schedule-page',
   standalone: true,
   imports: [
-    SchedulesPageComponent,
     ScheduledEventsPageComponent,
     PingRolesPanelComponent,
     ScoutWatchPanelComponent,
@@ -27,23 +20,16 @@ import { ScoutWatchPanelComponent } from './scout-watch-panel.component';
     <section class="wrap">
       <h1>Bot management</h1>
       <p class="intro">
-        What the bot posts on a timer, and what it watches. Times are Vietnam (UTC+7).
+        The RSVP events the bot posts on a timer, who they ping, and what it watches. Times are
+        Vietnam (UTC+7).
       </p>
 
-      <details class="panel">
+      <details class="panel" open>
         <summary>
           <span class="name">Scheduled events</span>
           <span class="tag">recurring /gvg</span>
         </summary>
         <div class="body"><app-scheduled-events-page /></div>
-      </details>
-
-      <details class="panel" open>
-        <summary>
-          <span class="name">Scheduled messages</span>
-          <span class="tag">plain text</span>
-        </summary>
-        <div class="body"><app-schedules-page /></div>
       </details>
 
       <details class="panel">

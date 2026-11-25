@@ -19,4 +19,6 @@ export interface HonorHolder {
   ign: string;
   portraitId: number | null;
   nameCardId: number | null;
+  /** School (faction) name; null when unknown. Absent against an older API. */
+  school?: string | null;
 }

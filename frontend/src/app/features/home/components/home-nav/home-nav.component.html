@@ -1,19 +1,5 @@
 <nav class="home-nav">
   <div class="nav-actions">
-    @if (config.isOn('page.schedule')) {
-      <a class="nav-btn nav-btn--blue" routerLink="/schedule" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
-        <span class="nav-icon">
-          <img src="icons/icon-schedule.png" alt="Schedule" class="nav-icon-img" />
-        </span>
-        <span class="nav-text">
-          <span class="nav-main">GUILD EVENTS</span>
-          <!-- Kept short: the longer main label leaves less room, and the sub
-               ellipsizes rather than wrapping. -->
-          <span class="nav-sub">MATCHES &amp; EVENTS</span>
-        </span>
-      </a>
-    }
-
     @if (authResolved$ | async) {
       @if (currentUser$ | async; as user) {
         @if (config.isOn('page.guild')) {
@@ -75,32 +61,13 @@
             </span>
           </a>
 
-          <a class="nav-btn nav-btn--bronze" routerLink="/manage/registrations" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
-            <span class="nav-icon">
-              <img src="icons/icon-events.png" alt="Registrations" class="nav-icon-img" />
-            </span>
-            <span class="nav-text">
-              <span class="nav-main">REGISTRATIONS</span>
-              <span class="nav-sub">REVIEW REQUESTS</span>
-            </span>
-          </a>
-
-          <a class="nav-btn nav-btn--blue" routerLink="/manage/events" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
-            <span class="nav-icon">
-              <img src="icons/icon-daily.png" alt="Events" class="nav-icon-img" />
-            </span>
-            <span class="nav-text">
-              <span class="nav-main">EVENTS</span>
-              <span class="nav-sub">POST ARTICLES</span>
-            </span>
-          </a>
           <a class="nav-btn nav-btn--sage" routerLink="/manage/bot-management" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
             <span class="nav-icon">
               <img src="icons/icon-schedule.png" alt="Bot management" class="nav-icon-img" />
             </span>
             <span class="nav-text">
               <span class="nav-main">BOT MANAGEMENT</span>
-              <span class="nav-sub">SCHEDULES &amp; SCOUT</span>
+              <span class="nav-sub">RSVP EVENTS &amp; SCOUT</span>
             </span>
           </a>
         }
@@ -112,7 +79,7 @@
             </span>
             <span class="nav-text">
               <span class="nav-main">ADMIN</span>
-              <span class="nav-sub">FEATURE FLAGS</span>
+              <span class="nav-sub">BOT &amp; WEB CONFIG</span>
             </span>
           </a>
           <a class="nav-btn nav-btn--sage" routerLink="/manage/pvp-events" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">

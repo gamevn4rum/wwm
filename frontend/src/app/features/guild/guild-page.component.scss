@@ -313,10 +313,6 @@
     border-left-color: var(--color-border);
     border-style: dashed;
 
-    .member-ign {
-      color: var(--color-ink-soft);
-    }
-
     &:hover {
       border-left-color: var(--color-border-strong);
     }
@@ -372,148 +368,16 @@
 }
 
 // ─── Name card behind the head ────────────────────────────────────────────────
-// The member's in-game name card as a band across the top of the card, edge to edge (the negative
-// margins cancel the card's padding). The art runs from near-white to near-black, so the text does
-// not rely on it: a dark shade sits between the two, and everything on it turns white with a
-// shadow, legible on any card.
+// The head itself is <app-member-card-head>; --card-pad lets its name card bleed to the edges.
+.roster-card {
+  --card-pad: var(--space-4);
+}
+
 .roster-card.has-card {
   overflow: hidden;
 
-  .member-head {
-    position: relative;
-    margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0;
-    padding: var(--space-4);
-    min-height: 76px;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.42) 60%, rgba(0, 0, 0, 0.2) 100%);
-    }
-    > :not(.member-card-art) { position: relative; z-index: 2; }
-  }
-
-  .member-ign {
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 1px rgba(0, 0, 0, 0.9);
-  }
-  .member-school {
-    color: rgba(255, 255, 255, 0.88);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
-  }
-  .member-avatar {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
-  }
-  .member-level {
-    color: #fff;
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-  }
-  .member-portrait {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.member-uid {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  color: var(--color-ink-faint);
-  font-variant-numeric: tabular-nums;
-  user-select: all;
-}
-
-.member-dot { border-color: #fff; }
   // The band's lower edge already separates the head from the stats.
   .member-stats { border-top: none; }
-}
-
-.member-card-art {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-// ─── Card head: avatar + name/school + level ──────────────────────────────────
-.member-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.member-avatar {
-  position: relative;
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--color-surface-alt);
-  color: var(--color-primary-dark);
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.member-dot {
-  position: absolute;
-  right: -1px;
-  bottom: -1px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-secondary);
-  border: 2px solid var(--color-surface);
-}
-
-.member-id {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.member-ign {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-ink);
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.member-school {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  color: var(--color-ink-faint);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.member-level {
-  flex-shrink: 0;
-  font-family: var(--font-heading);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  background: var(--color-primary-tint);
-  border-radius: var(--radius-pill);
-  padding: 0.15rem 0.55rem;
-  white-space: nowrap;
 }
 
 // ─── Card body: per-member stat rows ─────────────────────────────────────────

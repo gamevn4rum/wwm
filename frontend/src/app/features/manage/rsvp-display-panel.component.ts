@@ -106,22 +106,23 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Vietnam is a fixed UTC+7 (no DST)
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
-        border: 1px solid rgba(128, 128, 128, 0.4);
-        border-radius: 8px;
-        background: transparent;
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-sm);
+        background: var(--color-surface);
         color: inherit;
         font: inherit;
       }
       .choice:hover:not(:disabled) {
-        background: rgba(128, 128, 128, 0.1);
+        background: var(--color-surface-alt);
       }
       .choice:disabled {
         opacity: 0.6;
         cursor: default;
       }
       .choice.picked {
-        border-color: #1f8b4c;
-        background: rgba(31, 139, 76, 0.12);
+        border-color: var(--color-secondary);
+        background: var(--color-secondary-tint);
+        box-shadow: inset 3px 0 0 var(--color-secondary);
       }
       .mark {
         font-size: 0.95rem;

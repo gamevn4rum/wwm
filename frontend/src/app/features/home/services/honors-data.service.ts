@@ -16,7 +16,7 @@ export class HonorsDataService {
   // hour, so a change to its shape must come with a new URL or a returning visitor's browser keeps
   // handing the new page the old shape. Bump it whenever the response changes.
   private readonly honors$: Observable<HonorGroup[] | null> = this.http
-    .get<HonorGroup[]>(apiUrl('/public/honors?v=2'))
+    .get<HonorGroup[]>(apiUrl('/public/honors?v=3'))
     .pipe(
       catchError(() => of(null)),
       shareReplay(1),

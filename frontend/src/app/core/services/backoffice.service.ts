@@ -11,6 +11,28 @@ export interface FeatureFlag {
   label: string | null;
 }
 
+/** One sync source's freshness (GET /admin/sync/status). `lastRunUtc` is when it last
+ *  applied a change, not when it last ran. */
+export interface SyncState {
+  source: string;
+  lastRunUtc: string;
+  lastHash: string;
+}
+
+export interface SyncStatus {
+  sources: SyncState[];
+  rowCounts: Record<string, number>;
+}
+
+/** What a sync trigger run did (POST /admin/sync/{source}). */
+export interface SyncRunResult {
+  source: string;
+  status: 'applied' | 'unchanged' | 'degraded' | 'applied-degraded' | 'no-op';
+  details: { outcome: string; message: string }[];
+  itemWarnings: string[];
+  itemWarningCount: number;
+}
+
 export interface CommanderMember {
   id: number;
   ign: string;
@@ -64,123 +86,6 @@ export interface MemberPatch {
   team?: string;
   notes?: string;
 }
-
-/**
- * A guild news article, as the editor sees it.
- *
- * `description` is **HTML**, and may contain the literal tokens `[P1]`..`[P5]`. The public renderer
- * replaces each one with an `<img>` pointing at the matching `p1`..`p5` URL, then sanitizes the
- * result — so tags survive, `<script>` and `onerror=` do not, and a token with no URL behind it is
- * simply left as text.
- *
- * Every image is a **link**; nothing is uploaded or hosted by the site, and the API refuses anything
- * that is not an absolute http(s) URL.
- */
-export interface AdminEvent {
-  id: number;
-  title: string;
-  /** ISO `yyyy-MM-dd`. The public feed sends `dd/MMM/yyyy` instead; this one is what a date input
-   *  reads and writes, which is why the editor has its own DTO. */
-  date: string | null;
-  description: string;
-  /** Held at the top of the feed whatever its date. */
-  pin: boolean;
-  banner: string | null;
-  p1: string | null;
-  p2: string | null;
-  p3: string | null;
-  p4: string | null;
-  p5: string | null;
-  link: string | null;
-}
-
-/** A new article. Title and date are required; an announcement that is only a headline and a day is
- *  a legitimate thing to post. */
-export interface EventCreate {
-  title: string;
-  date: string;
-  description: string | null;
-  pin: boolean;
-  banner: string | null;
-  p1: string | null;
-  p2: string | null;
-  p3: string | null;
-  p4: string | null;
-  p5: string | null;
-  link: string | null;
-}
-
-/** Omitted means "leave alone"; an empty string clears a text field — the same distinction
- *  {@link MemberPatch} draws. `date` has no cleared spelling: a create refuses a dateless article,
- *  so an edit must not be able to produce one. */
-export interface EventPatch {
-  title?: string;
-  date?: string;
-  description?: string;
-  pin?: boolean;
-  banner?: string;
-  p1?: string;
-  p2?: string;
-  p3?: string;
-  p4?: string;
-  p5?: string;
-  link?: string;
-}
-
-export interface Registration {
-  id: number;
-  discord: string;
-  uid: string | null;
-  ign: string;
-  /** tank | dps | healer — the seat they mainly want. */
-  mainRole: string | null;
-  /** The martial path they run, or null. */
-  mainPath: string | null;
-  /** A second path, or null for none. */
-  subPath: string | null;
-  note: string | null;
-  status: 'pending' | 'approved' | 'rejected';
-  submittedUtc: string;
-  reviewedBy: string | null;
-  reviewedUtc: string | null;
-  reviewNote: string | null;
-  memberId: number | null;
-}
-
-export interface RegistrationApprove {
-  canLogin?: boolean;
-  fp?: boolean;
-  ftp?: boolean;
-  role?: UserRole;
-}
-
-/** A recurring weekly message the bot posts to a Discord channel. Times are Vietnam
- *  local (UTC+7); dayOfWeek is Sunday=0 … Saturday=6. */
-export interface ScheduledMessage {
-  id: number;
-  dayOfWeek: number;
-  /** "HH:mm", Vietnam time. */
-  time: string;
-  channelId: string;
-  message: string;
-  /** Role id called out on its own line above the message. Null pings nobody. It counts
-   *  against the same 2000-character limit as the text. */
-  mentionRoleId: string | null;
-  enabled: boolean;
-  lastSentUtc: string | null;
-}
-
-export interface ScheduleCreate {
-  dayOfWeek: number;
-  time: string;
-  channelId: string;
-  message: string;
-  /** Empty or null both mean "ping nobody" — a message has no per-type default to fall back to. */
-  mentionRoleId: string | null;
-  enabled: boolean;
-}
-
-export type SchedulePatch = Partial<ScheduleCreate>;
 
 /** The kind of RSVP event a scheduled template posts. */
 export type ScheduledEventType = 'GvG' | 'GvE' | 'Event';
@@ -635,25 +540,21 @@ export class BackofficeService {
     return this.http.patch<FeatureFlag>(apiUrl(`/admin/features/${key}`), { enabled });
   }
 
+  getSyncStatus(): Observable<SyncStatus> {
+    return this.http.get<SyncStatus>(apiUrl('/admin/sync/status'));
+  }
+
+  /** Run one sync source now. The body is null when the API is older than the JSON pass-through. */
+  runSync(source: string): Observable<SyncRunResult | null> {
+    return this.http.post<SyncRunResult | null>(apiUrl(`/admin/sync/${encodeURIComponent(source)}`), {});
+  }
+
   getMembers(): Observable<CommanderMember[]> {
     return this.http.get<CommanderMember[]>(apiUrl('/commander/members'));
   }
 
   patchMember(id: number, patch: MemberPatch): Observable<CommanderMember> {
     return this.http.patch<CommanderMember>(apiUrl(`/commander/members/${id}`), patch);
-  }
-
-  getRegistrations(status?: string): Observable<Registration[]> {
-    const q = status ? `?status=${encodeURIComponent(status)}` : '';
-    return this.http.get<Registration[]>(apiUrl(`/commander/registrations${q}`));
-  }
-
-  approveRegistration(id: number, body: RegistrationApprove): Observable<Registration> {
-    return this.http.post<Registration>(apiUrl(`/commander/registrations/${id}/approve`), body);
-  }
-
-  rejectRegistration(id: number, note?: string): Observable<Registration> {
-    return this.http.post<Registration>(apiUrl(`/commander/registrations/${id}/reject`), { note });
   }
 
   getMatchOptions(): Observable<MatchOptions> {
@@ -773,30 +674,6 @@ export class BackofficeService {
     return this.http.delete<GuildDeleted>(apiUrl(`/commander/guilds/${id}`));
   }
 
-  // ── Scheduled messages (Admin) ────────────────────────────────────────────
-  getSchedules(): Observable<ScheduledMessage[]> {
-    return this.http.get<ScheduledMessage[]>(apiUrl('/admin/schedules'));
-  }
-
-  createSchedule(body: ScheduleCreate): Observable<ScheduledMessage> {
-    return this.http.post<ScheduledMessage>(apiUrl('/admin/schedules'), body);
-  }
-
-  patchSchedule(id: number, patch: SchedulePatch): Observable<ScheduledMessage> {
-    return this.http.patch<ScheduledMessage>(apiUrl(`/admin/schedules/${id}`), patch);
-  }
-
-  deleteSchedule(id: number): Observable<{ deleted: number }> {
-    return this.http.delete<{ deleted: number }>(apiUrl(`/admin/schedules/${id}`));
-  }
-
-  /** Post a schedule's message to its channel right now (test). Resolves with the outcome —
-   *  `ok:false` carries the exact Discord failure (permission/channel) for display. */
-  sendScheduleNow(id: number): Observable<{ ok: boolean; status?: number; error?: string }> {
-    return this.http.post<{ ok: boolean; status?: number; error?: string }>(
-      apiUrl(`/admin/schedules/${id}/send-now`), {});
-  }
-
   // ── Scheduled events (Admin) — a recurring /gvg ───────────────────────────
   getScheduledEvents(): Observable<ScheduledEvent[]> {
     return this.http.get<ScheduledEvent[]>(apiUrl('/admin/scheduled-events'));
@@ -819,30 +696,6 @@ export class BackofficeService {
   postScheduledEventNow(id: number): Observable<{ ok: boolean; slug?: string; status?: number; error?: string }> {
     return this.http.post<{ ok: boolean; slug?: string; status?: number; error?: string }>(
       apiUrl(`/admin/scheduled-events/${id}/post-now`), {});
-  }
-
-  // ── Events — the guild's news articles (Commander) ───────────────────
-  /** Every article, pinned first then newest — the order the public feed renders in, so the
-   *  editor's list matches the page it writes. Not gated on the `page.events` flag: turning the
-   *  section off should not also take away the tool for writing what goes back on it. */
-  getEvents(): Observable<AdminEvent[]> {
-    return this.http.get<AdminEvent[]>(apiUrl('/commander/events'));
-  }
-
-  createEvent(body: EventCreate): Observable<AdminEvent> {
-    return this.http.post<AdminEvent>(apiUrl('/commander/events'), body);
-  }
-
-  /** Send only what changed — the API reads an absent field as "leave alone" and an empty string
-   *  as "clear", which is the only way to ask it to drop a banner or empty an image slot. */
-  patchEvent(id: number, patch: EventPatch): Observable<AdminEvent> {
-    return this.http.patch<AdminEvent>(apiUrl(`/commander/events/${id}`), patch);
-  }
-
-  /** A hard delete, unlike cancelling a tournament: an article taken down is meant to be gone from
-   *  the page, and the audit row is what keeps the record of it. */
-  deleteEvent(id: number): Observable<{ deleted: number }> {
-    return this.http.delete<{ deleted: number }>(apiUrl(`/commander/events/${id}`));
   }
 
   // ── Hosted PvP tournaments (Admin) ────────────────────────────────────────

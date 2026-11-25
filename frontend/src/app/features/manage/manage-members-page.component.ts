@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, effect, inject, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   BackofficeService,
@@ -79,50 +79,82 @@ type Draft = {
   template: `
     <section class="backoffice">
       <p class="hint">
-        Edit a member's details and permissions, then press <strong>Save</strong> on that row.
-        Changes are audited server-side, and role changes are policy-bounded. IGN and UID come from
-        the roster sync and cannot be edited here. Members who have left are hidden until they
-        rejoin.
+        Edit a row, then press <strong>Save</strong> on it. Changes are audited; IGN and UID come
+        from the roster sync. Members who have left are hidden until they rejoin.
       </p>
 
       @if (loading()) {
-        <p>Loading…</p>
+        <p class="quiet">Loading…</p>
       } @else if (error()) {
         <p class="error">{{ error() }}</p>
       } @else {
+        <div class="toolbar">
+          <input
+            class="search"
+            type="search"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Search IGN, UID or Discord…"
+            aria-label="Search members"
+          />
+          <label class="only">
+            <input
+              type="checkbox"
+              [ngModel]="unregisteredOnly()"
+              (ngModelChange)="unregisteredOnly.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            Unregistered only
+          </label>
+          <span class="sort">
+            <label for="member-sort">Sort GameVN</label>
+            <select
+              id="member-sort"
+              [ngModel]="sortKey()"
+              (ngModelChange)="sortKey.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              @for (o of sorts; track o.value) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </select>
+            <button
+              type="button"
+              class="icon"
+              (click)="sortDesc.set(!sortDesc())"
+              [title]="sortDesc() ? 'Descending' : 'Ascending'"
+              [attr.aria-label]="sortDesc() ? 'Descending' : 'Ascending'"
+            >
+              {{ sortDesc() ? '↓' : '↑' }}
+            </button>
+          </span>
+          <span class="count">
+            @if (dirtyCount() > 0) {
+              <span class="unsaved">{{ dirtyCount() }} unsaved</span> ·
+            }
+            {{ shownCount() }} of {{ members().length }}
+          </span>
+        </div>
+        @if (notice()) {
+          <p class="notice" role="status">{{ notice() }}</p>
+        }
+
+        @if (shownCount() === 0) {
+          <p class="quiet empty">No member matches that filter.</p>
+        }
         @for (section of sections(); track section.key) {
           @if (section.members.length > 0) {
             <h3 class="section-title">
-              {{ section.title }} <span class="count">{{ section.members.length }}</span>
+              {{ section.title }} <span class="count-pill">{{ section.members.length }}</span>
             </h3>
-            @if (section.primary) {
-              <div class="sort">
-                <label>
-                  <span>Sort by</span>
-                  <select
-                    [ngModel]="sortKey()"
-                    (ngModelChange)="sortKey.set($event)"
-                    [ngModelOptions]="{ standalone: true }"
-                  >
-                    @for (o of sorts; track o.value) {
-                      <option [value]="o.value">{{ o.label }}</option>
-                    }
-                  </select>
-                </label>
-                <button
-                  type="button"
-                  (click)="sortDesc.set(!sortDesc())"
-                  [title]="sortDesc() ? 'Descending' : 'Ascending'"
-                >
-                  {{ sortDesc() ? '↓' : '↑' }}
-                </button>
-              </div>
-            } @else {
-              <p class="hint">
-                GVN2 members can use the personal bot commands only. They are never Commander/Admin
-                and have no roles, team or FP/FTP.
+            @if (!section.primary) {
+              <p class="hint small">
+                GVN2 members can use the personal bot commands only — never Commander/Admin, and no
+                roles, team or FP/FTP.
               </p>
             }
+            <div class="table-wrap">
             <table class="grid">
               <thead>
                 <tr>
@@ -151,7 +183,7 @@ type Draft = {
               <tbody>
                 @for (m of section.members; track m.id) {
                   <tr [class.saving]="busy() === m.id" [class.dirty]="isDirty(m)">
-                    <td>{{ m.ign }}</td>
+                    <td class="ign">{{ m.ign }}</td>
                     <td class="mono">{{ m.uid || '—' }}</td>
                     <td>
                       <input
@@ -275,10 +307,8 @@ type Draft = {
                 }
               </tbody>
             </table>
+            </div>
           }
-        }
-        @if (notice()) {
-          <p class="notice">{{ notice() }}</p>
         }
       }
     </section>
@@ -286,109 +316,181 @@ type Draft = {
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
-      /* Embedded in the Manage hub's panel, which supplies the page width and the heading. */
-      .backoffice {
-        padding: 0.25rem 0 0;
-      }
       .hint {
-        opacity: 0.7;
-        margin-bottom: 1rem;
+        color: var(--color-ink-soft);
+        font-size: 0.88rem;
+        margin: 0 0 var(--space-3);
         max-width: 70rem;
       }
-      .section-title {
-        margin: 1.5rem 0 0.5rem;
-        font-size: 1rem;
+      .hint.small {
+        font-size: 0.8rem;
+        margin-bottom: var(--space-2);
       }
-      .section-title .count {
-        opacity: 0.6;
-        font-weight: 400;
-        margin-left: 0.35rem;
-      }
-      .sort {
+      .toolbar {
         display: flex;
-        gap: 0.4rem;
+        gap: var(--space-3);
         align-items: center;
-        margin-bottom: 0.6rem;
+        flex-wrap: wrap;
+        padding: var(--space-3);
+        margin-bottom: var(--space-3);
+        background: var(--color-surface-alt);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+      }
+      .search {
+        flex: 1 1 16rem;
+        max-width: 24rem;
+      }
+      .only,
+      .sort {
+        display: inline-flex;
+        gap: var(--space-2);
+        align-items: center;
+        font-size: 0.88rem;
       }
       .sort label {
-        display: flex;
-        gap: 0.4rem;
-        align-items: center;
-      }
-      .sort label span {
+        color: var(--color-ink-soft);
         font-size: 0.8rem;
-        opacity: 0.7;
       }
-      .sort select {
-        padding: 0.3rem 0.45rem;
-        border: 1px solid rgba(128, 128, 128, 0.4);
-        border-radius: 6px;
-        font: inherit;
+      .count {
+        margin-left: auto;
+        color: var(--color-ink-soft);
+        font-size: 0.85rem;
       }
-      .sort button {
-        padding: 0.3rem 0.6rem;
+      .unsaved {
+        color: var(--color-primary-dark);
+        font-weight: 600;
+      }
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin: var(--space-4) 0 var(--space-2);
+        font-family: var(--font-heading);
+        font-size: 1.25rem;
+      }
+      .count-pill {
+        font-family: var(--font-body);
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.05rem 0.5rem;
+        border-radius: var(--radius-pill);
+        background: var(--color-bg-alt);
+        color: var(--color-ink-soft);
+      }
+      /* Scrolls on its own, so the header can stick and a phone can pan sideways. */
+      .table-wrap {
+        overflow: auto;
+        max-height: 72vh;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
       }
       .grid {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.88rem;
       }
       .grid th,
       .grid td {
         text-align: left;
-        padding: 0.45rem 0.6rem;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        padding: 0.4rem 0.55rem;
+        border-bottom: 1px solid var(--color-border);
         vertical-align: middle;
+        background: var(--color-surface);
       }
       .grid th {
-        font-size: 0.75rem;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        font-size: 0.7rem;
+        letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        opacity: 0.6;
+        color: var(--color-ink-soft);
         font-weight: 600;
+        background: var(--color-surface-alt);
+        white-space: nowrap;
       }
-      .grid input,
-      .grid select {
+      /* IGN stays in view while the row scrolls sideways. */
+      .grid th:first-child,
+      .grid td.ign {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: 1px 0 0 var(--color-border);
+      }
+      .grid th:first-child {
+        z-index: 3;
+      }
+      .grid tbody tr:hover td {
+        background: var(--color-surface-alt);
+      }
+      input,
+      select {
         padding: 0.3rem 0.45rem;
-        border: 1px solid rgba(128, 128, 128, 0.4);
+        border: 1px solid var(--color-border-strong);
         border-radius: 6px;
         font: inherit;
-        width: 100%;
+        background: var(--color-surface);
+        color: inherit;
         box-sizing: border-box;
         min-width: 0;
       }
+      input:focus-visible,
+      select:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 1px;
+      }
+      .grid input,
+      .grid select {
+        width: 100%;
+        min-width: 7rem;
+      }
+      input[type='checkbox'],
       .grid input[type='checkbox'] {
         width: var(--checkbox-size);
+        min-width: 0;
       }
       .grid td.mid {
         text-align: center;
       }
       .mono {
         font-family: monospace;
-        opacity: 0.8;
+        color: var(--color-ink-soft);
       }
       .quiet {
-        opacity: 0.7;
+        color: var(--color-ink-soft);
         white-space: nowrap;
+      }
+      .empty {
+        padding: var(--space-4) 0;
+        text-align: center;
       }
       .tag {
         font-size: 0.72rem;
-        padding: 0.1rem 0.4rem;
-        border: 1px solid rgba(128, 128, 128, 0.45);
-        border-radius: 999px;
-        opacity: 0.75;
+        padding: 0.1rem 0.45rem;
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-pill);
+        color: var(--color-ink-soft);
         white-space: nowrap;
       }
       .tag-on {
-        border-color: rgba(124, 148, 115, 0.75);
-        color: #5f7757;
-        opacity: 1;
+        border-color: var(--color-secondary);
+        background: var(--color-secondary-tint);
+        color: var(--color-secondary-dark);
       }
       tr.saving {
         opacity: 0.5;
       }
-      /* An unsaved row is marked, because a table full of inputs otherwise gives no sign that a Save
-       is still owed on a row that has scrolled out of view. */
-      tr.dirty {
-        background: rgba(173, 122, 76, 0.08);
+      /* An unsaved row is marked: a table of inputs otherwise gives no sign a Save is still owed. */
+      tr.dirty td {
+        background: var(--color-primary-tint);
+      }
+      tr.dirty td.ign {
+        box-shadow: inset 3px 0 0 var(--color-primary), 1px 0 0 var(--color-border);
       }
       .row-actions {
         display: flex;
@@ -397,30 +499,60 @@ type Draft = {
         white-space: nowrap;
       }
       button {
-        padding: 0.35rem 0.9rem;
-        border: 1px solid rgba(128, 128, 128, 0.4);
-        border-radius: 6px;
+        padding: 0.3rem 0.85rem;
+        border: 1px solid var(--color-primary-dark);
+        border-radius: var(--radius-pill);
         font: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
         cursor: pointer;
-        background: transparent;
-        color: inherit;
+        background: var(--color-primary);
+        color: #fff;
       }
       button:disabled {
         cursor: default;
-        opacity: 0.5;
+        background: transparent;
+        color: var(--color-ink-faint);
+        border-color: var(--color-border-strong);
+      }
+      button.icon {
+        background: transparent;
+        color: var(--color-ink);
+        border-color: var(--color-border-strong);
+        padding: 0.25rem 0.6rem;
       }
       button.link {
         border: none;
-        padding: 0.35rem 0.2rem;
+        background: transparent;
+        color: var(--color-ink-soft);
+        padding: 0.3rem 0.2rem;
         text-decoration: underline;
-        opacity: 0.7;
+        font-weight: 400;
       }
       .error {
-        color: #dc3545;
+        color: var(--color-danger);
       }
       .notice {
-        margin-top: 0.75rem;
-        opacity: 0.8;
+        margin: 0 0 var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        background: var(--color-secondary-tint);
+        font-size: 0.88rem;
+      }
+      @media (max-width: 600px) {
+        .toolbar {
+          padding: var(--space-2);
+        }
+        .search {
+          max-width: none;
+        }
+        .count {
+          margin-left: 0;
+          flex-basis: 100%;
+        }
+        .table-wrap {
+          max-height: none;
+        }
       }
     `,
   ],
@@ -430,13 +562,19 @@ export class ManageMembersPageComponent {
 
   readonly members = signal<CommanderMember[]>([]);
 
+  /** How many members are listed, for the hub's tab badge. */
+  readonly countChange = output<number>();
+
+  protected readonly query = signal('');
+  protected readonly unregisteredOnly = signal(false);
+
   protected readonly sortKey = signal<SortKey>('ign');
   protected readonly sortDesc = signal(false);
 
   /** One table per guild: GameVN first, then GVN2. A guild with nobody listed draws no table. Only
    *  GameVN is sorted; GVN2 keeps the API's IGN order. */
   protected readonly sections = computed(() => {
-    const all = this.members();
+    const all = this.members().filter((m) => this.matches(m));
     return [
       {
         key: 'gvn',
@@ -453,10 +591,34 @@ export class ManageMembersPageComponent {
     ];
   });
 
+  protected readonly shownCount = computed(() =>
+    this.sections().reduce((n, s) => n + s.members.length, 0),
+  );
+
+  /** Rows with an unsaved change. */
+  protected readonly dirtyCount = computed(
+    () => this.members().filter((m) => this.isDirty(m)).length,
+  );
+
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly busy = signal<number | null>(null);
   readonly notice = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      if (!this.loading()) this.countChange.emit(this.members().length);
+    });
+  }
+
+  /** The search and the Unregistered filter, on saved values — so editing a row's Discord box
+   *  does not make it vanish. */
+  private matches(m: CommanderMember): boolean {
+    if (this.unregisteredOnly() && m.registered) return false;
+    const q = this.query().trim().toLowerCase();
+    if (!q) return true;
+    return [m.ign, m.uid, m.discord].some((v) => !!v && v.toLowerCase().includes(q));
+  }
 
   protected readonly combatRoles = COMBAT_ROLES;
   protected readonly pathChoices = MARTIAL_PATH_CHOICES;

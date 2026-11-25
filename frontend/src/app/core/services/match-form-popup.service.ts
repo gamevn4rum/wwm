@@ -3,8 +3,8 @@ import { MatchRecord } from '../../features/match-history/match-record.model';
 
 /**
  * Open state for the add/edit-match dialog, held here rather than in the page so the
- * dialog can be mounted once at the app root — the same arrangement FootagePopupService
- * and RegisterPopupService use. Body scroll locking lives here too, so a caller cannot
+ * dialog can be mounted once at the app root — the same arrangement FootagePopupService uses.
+ * Body scroll locking lives here too, so a caller cannot
  * open the dialog and forget it.
  */
 @Injectable({ providedIn: 'root' })

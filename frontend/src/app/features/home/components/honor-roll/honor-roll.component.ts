@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { HonorsDataService } from '../../services/honors-data.service';
 import { HonorGroup, HonorHolder, HonorTitle } from '../../models/honor.model';
 import { apiUrl } from '../../../../core/api';
+import { MemberCardHeadComponent } from '../../../../shared/components/member-card-head/member-card-head.component';
 
 /** The game's own default name card — plain dark linen — for a holder without art of their own. */
 const DEFAULT_NAME_CARD_ID = 1;
@@ -14,8 +15,8 @@ interface Plaque extends HonorTitle {
 }
 
 /**
- * The honors our members hold right now, one plaque per title in a single box, each holder drawn
- * as their in-game nameplate: name card behind, portrait beside the IGN.
+ * The honors our members hold right now, one plaque per title, each holder drawn as the Guild
+ * roster's member card (name card behind, portrait, IGN, school) with the title as its pill.
  *
  * "Of the week" in the sense the game means it: an honor lasts about seven days, so this is what
  * is still held rather than what was won since the Monday reset (see the API's HeldHonorsAsync).
@@ -23,6 +24,7 @@ interface Plaque extends HonorTitle {
 @Component({
   selector: 'app-honor-roll',
   standalone: true,
+  imports: [MemberCardHeadComponent],
   templateUrl: './honor-roll.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./honor-roll.component.scss'],
@@ -67,10 +69,6 @@ export class HonorRollComponent {
 
   drop(src: string | null): void {
     if (src) this.broken.update((s) => new Set(s).add(src));
-  }
-
-  initial(ign: string): string {
-    return [...ign.trim()][0]?.toUpperCase() ?? '?';
   }
 
   private art(kind: 'name-card' | 'portrait', id: number): string {

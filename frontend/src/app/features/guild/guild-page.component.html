@@ -101,16 +101,7 @@
             <div class="roster-grid">
               @for (member of view.former; track member.ign) {
                 <article class="roster-card is-former">
-                  <div class="member-head">
-                    <span class="member-avatar">{{ initial(member.ign) }}</span>
-                    <div class="member-id">
-                      <span class="member-ign">{{ member.ign }}</span>
-                      <span class="member-school">{{ member.role || '—' }}</span>
-                      @if (member.uid) {
-                        <span class="member-uid">UID {{ member.uid }}</span>
-                      }
-                    </div>
-                  </div>
+                  <app-member-card-head [ign]="member.ign" [school]="member.role ?? null" [uid]="member.uid ?? null" />
 
                   <dl class="member-stats">
                     <div class="member-stat member-stat-wide">
@@ -130,7 +121,7 @@
 <!-- One roster card, shared by the GameVN roster and the GVN2 section. -->
 <ng-template #memberCard let-entry>
   <!-- The member's in-game name card behind the head, fetched when the card nears the
-                 viewport (see loadNameCard). Without one the card is drawn exactly as before. -->
+       viewport (see loadNameCard). -->
   @let card = nameCards()[entry.member.ign];
   <article
     class="roster-card"
@@ -138,45 +129,17 @@
     [class.has-card]="!!card"
     (appInView)="loadNameCard(entry.member.ign)"
   >
-    <div class="member-head">
-      @if (card) {
-        <img
-          class="member-card-art"
-          [src]="card"
-          alt=""
-          crossorigin="anonymous"
-          decoding="async"
-          (error)="dropNameCard(entry.member.ign)"
-        />
-      }
-      @let face = portraits()[entry.member.ign];
-      <span class="member-avatar">
-        @if (face) {
-          <img
-            class="member-portrait"
-            [src]="face"
-            alt=""
-            decoding="async"
-            (error)="dropPortrait(entry.member.ign)"
-          />
-        } @else {
-          {{ initial(entry.member.ign) }}
-        }
-        @if (entry.online) {
-          <span class="member-dot" aria-hidden="true"></span>
-        }
-      </span>
-      <div class="member-id">
-        <span class="member-ign">{{ entry.member.ign }}</span>
-        <span class="member-school">{{ entry.player?.school || '—' }}</span>
-        @if (entry.player?.numberId) {
-          <span class="member-uid">UID {{ entry.player!.numberId }}</span>
-        }
-      </div>
-      <span class="member-level">
-        {{ entry.player?.level != null ? 'Lv ' + entry.player!.level : '—' }}
-      </span>
-    </div>
+    <app-member-card-head
+      [ign]="entry.member.ign"
+      [school]="entry.player?.school ?? null"
+      [uid]="entry.player?.numberId ?? null"
+      [cardSrc]="card ?? null"
+      [portraitSrc]="portraits()[entry.member.ign] ?? null"
+      [online]="entry.online"
+      [pill]="entry.player?.level != null ? 'Lv ' + entry.player!.level : '—'"
+      (cardError)="dropNameCard(entry.member.ign)"
+      (portraitError)="dropPortrait(entry.member.ign)"
+    />
 
     <dl class="member-stats">
       <div class="member-stat">

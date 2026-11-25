@@ -9,6 +9,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { AppearanceService } from '../roster-stats/appearance.service';
 import { InViewDirective } from '../../shared/directives/in-view.directive';
+import { MemberCardHeadComponent } from '../../shared/components/member-card-head/member-card-head.component';
 import { GuildDataService, GuildLoad } from './guild-data.service';
 import { PlayerStatsDataService } from '../roster-stats/player-stats-data.service';
 import { MatchedPlayerStats, PlayerDetail } from '../roster-stats/player-stats.model';
@@ -52,7 +53,7 @@ interface GuildView {
 @Component({
   selector: 'app-guild-page',
   standalone: true,
-  imports: [InViewDirective, NgTemplateOutlet],
+  imports: [InViewDirective, NgTemplateOutlet, MemberCardHeadComponent],
   templateUrl: './guild-page.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./guild-page.component.scss'],
@@ -269,9 +270,5 @@ export class GuildPageComponent implements OnInit {
    *  must not go through the Date constructor. */
   formatLeaveDate(iso: string | null | undefined): string {
     return formatIsoDate(iso);
-  }
-
-  initial(ign: string): string {
-    return ign.charAt(0).toUpperCase() || '?';
   }
 }

@@ -46,13 +46,8 @@ secret. The only configuration it holds is the API's hostname (`environment.prod
   - `connect-src` allows the API, the Discord CDN and Google Fonts. The profile modal's
     screenshot (`html-to-image`) fetches the avatar and fonts to inline them.
   - `style-src 'unsafe-inline'` is required by Angular.
-- **XSS.** The only `[innerHTML]` sinks are event articles (the public feed and the
-  Manage preview).
-  - Both go through `sanitize(SecurityContext.HTML, …)`, with image URLs
-    attribute-escaped first.
-  - Since 2026-11-21, author-written `class` attributes are also stripped. Tailwind
-    utilities are global, so `class="fixed inset-0 z-50"` could otherwise lay a
-    full-page link over `/schedule`.
+- **XSS.** There is no `[innerHTML]` sink (the event articles that had one were retired
+  on 2026-11-25).
   - The only `bypassSecurityTrustResourceUrl` builds a YouTube embed URL from a
     hard-coded id checked against `[A-Za-z0-9_-]{11}`.
   - Player-supplied names are only ever interpolated as text.
@@ -69,7 +64,7 @@ secret. The only configuration it holds is the API's hostname (`environment.prod
 - **CORS and headers.** CORS is an explicit origin list, with no credentials, plus a
   middleware that rejects unknown `Origin`s. HSTS, the HTTPS redirect, `nosniff`,
   `X-Frame-Options: DENY` and `Referrer-Policy` are all set.
-- **Rate limits** per IP: 120/min globally, 10/min on `/auth/*`, 5/min on `/register`.
+- **Rate limits** per IP: 120/min globally, 10/min on `/auth/*`.
 - **Bot and internal calls** authenticate with `X-Bot-Key` / `ADMIN_KEY` in headers,
   compared in constant time. An empty key fails closed.
 - **Roles.** Only an Admin may edit, retire or re-link a Commander/Admin row. Since

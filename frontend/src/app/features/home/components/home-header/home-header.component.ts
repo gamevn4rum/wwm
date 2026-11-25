@@ -3,14 +3,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
 import { LoginButtonComponent } from '../../../../shared/components/login-button/login-button.component';
-import { RegisterButtonComponent } from '../register-button/register-button.component';
 import { GuildOverviewComponent } from '../../../guild/components/guild-overview/guild-overview.component';
 import { GuildDataService } from '../../../guild/guild-data.service';
 
 @Component({
   selector: 'app-home-header',
   standalone: true,
-  imports: [RouterLink, LoginButtonComponent, RegisterButtonComponent, GuildOverviewComponent],
+  imports: [RouterLink, LoginButtonComponent, GuildOverviewComponent],
   templateUrl: './home-header.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./home-header.component.scss'],

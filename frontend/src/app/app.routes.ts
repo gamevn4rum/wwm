@@ -35,12 +35,6 @@ export const routes: Routes = [
           import('./features/formation/formation-page.component').then((m) => m.FormationPageComponent),
       },
       {
-        path: 'schedule',
-        canActivate: [featureGuard('page.schedule')],
-        loadComponent: () =>
-          import('./features/schedule/schedule-page.component').then((m) => m.SchedulePageComponent),
-      },
-      {
         // Our guild's identity + roster — member-only (requires login in both
         // static and backend modes; not public even though the data is baked in).
         path: 'guild',
@@ -69,18 +63,6 @@ export const routes: Routes = [
           import('./features/admin/admin-page.component').then((m) => m.AdminPageComponent),
       },
       {
-        path: 'manage/registrations',
-        canActivate: [commanderGuard],
-        loadComponent: () =>
-          import('./features/manage/registrations-page.component').then((m) => m.RegistrationsPageComponent),
-      },
-      {
-        path: 'manage/events',
-        canActivate: [commanderGuard],
-        loadComponent: () =>
-          import('./features/manage/events-page.component').then((m) => m.ManageEventsPageComponent),
-      },
-      {
         path: 'manage/bot-management',
         canActivate: [commanderGuard],
         loadComponent: () =>
@@ -92,16 +74,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/manage/pvp-events-page.component').then((m) => m.PvpEventsPageComponent),
       },
-      // Old split routes now live as collapsible panels under one page. These sit above the bare
-      // `manage` route deliberately: the router would fall through to them anyway, but relying on
-      // that is a subtlety, and a redirect listed after the route it redirects to reads wrongly.
-      { path: 'manage/members', redirectTo: 'manage', pathMatch: 'full' },
-      { path: 'manage/bot-schedule', redirectTo: 'manage/bot-management', pathMatch: 'full' },
-      { path: 'manage/schedules', redirectTo: 'manage/bot-management', pathMatch: 'full' },
-      { path: 'manage/scheduled-events', redirectTo: 'manage/bot-management', pathMatch: 'full' },
       {
-        // Members and opponent guilds, as two collapsible panels. Last of the `manage/*` group so
-        // every specific route above matches first — this one takes the bare segment.
+        // Members, opponent guilds and event posts, as tabs (?tab=). Retired URLs fall to `**`.
         path: 'manage',
         canActivate: [commanderGuard],
         loadComponent: () =>

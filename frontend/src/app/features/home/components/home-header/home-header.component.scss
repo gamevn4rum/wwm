@@ -199,23 +199,8 @@
 
 /* ── Right ── */
 .header-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  align-self: stretch;
-
-  @media (max-width: 480px) {
-    justify-content: flex-start;
-    margin-top: var(--space-3);
-  }
-}
-
-.header-register {
-  display: flex;
-
-  @media (max-width: 480px) {
-    width: 100%;
+  @media (max-width: 768px) {
+    display: none;
   }
 }
 

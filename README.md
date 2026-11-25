@@ -21,12 +21,12 @@ A guild roster and information page for **GameVN**, deployed as a static site on
 **This repo is the frontend only, and it is public** — GitHub Pages serves it, so
 everything here is world-readable by design.
 
-- **`frontend/`** — the Angular 21 app, and the whole of this repo's build. **All Node
+- **`frontend/`** — the Angular 22 app, and the whole of this repo's build. **All Node
   commands run from `frontend/`** (`cd frontend && npm install`); the deploy workflow sets
   `working-directory: frontend`.
 
 There is no `frontend/data/` and no data-sync tooling any more — the API is the only
-source. `frontend/scripts/` keeps just `generate-dummy-assets.py`, which touches no data.
+source.
 
 The **.NET 10 backend lives in a separate private repository** (Neon Postgres +
 ASP.NET Core Minimal API + Azure Functions sync). It implements the server-side trust
@@ -55,17 +55,18 @@ limitation) with a proper server boundary, and adds back-office management:
 - **Server-side auth** — Discord **Authorization Code** flow: the server holds the
   client secret, mints a short-lived **app JWT**, and gates data with it. The browser
   ships **no secret**.
-- **Gated data** — only **Events, our guild's own board standing, opponent guilds, a
+- **Gated data** — only **the honor board, our guild's own board standing, opponent guilds, a
   safe roster projection** (IGN/role/notes) and the feature config are public. **Match
   history, footages, roster-stats, player-stats, catalogues and formation require a valid
-  JWT**; footage URLs need `ftp`. A not-logged-in visitor sees the Guild Events page and
-  the roster grid, and an empty homepage.
+  JWT**; footage URLs need `ftp`. A not-logged-in visitor sees the homepage (video and
+  honor board).
 - **Roles** — Admin ⊇ Commander ⊇ Warrior, enforced server-side (Admin = the legacy
   "Creator").
-- **`/admin`** — feature-flag screen (Admin only): toggle any page/feature on or off.
-  Disabling a page hides its nav button, blocks its route, **and** stops the API
-  serving its data (404) — not just hiding the link.
-- **`/manage`** — two collapsible panels (Commander+); `/manage/members` redirects here.
+- **`/admin`** — Admin only. **Bot configuration** (`bot.*` flags, e.g. *Show stale data*),
+  **Web configuration** (page/feature flags — disabling a page hides its nav button, blocks its
+  route, **and** stops the API serving its data), and **Sync triggers** to run a sync source now.
+- **`/manage`** — tabs (Commander+), the active one in `?tab=` (`guilds`, `event-posts`);
+  `/manage/members` redirects here.
   - **Members** — permission editor: `canLogin` / `fp` / `ftp` / role, audited, with a
     role-grant escalation guard.
   - **Guilds** — opponent guilds. A row is only a name until it has a **UID** (the in-game
@@ -82,8 +83,8 @@ limitation) with a proper server boundary, and adds back-office management:
     - A guild with **no UID** can also be renamed in place, since no sync will ever touch that name.
       One that has a UID cannot: the weekly name pass reads it from the game, so a typo there
       corrects itself.
-- **`/manage/registrations`** — review the public Register form submissions and grant
-  access (creates/updates the member so they can log in immediately).
+  - **Event posts** — whether RSVP posts list sign-ups by combat role or martial path.
+- Sign-up happens in Discord (the bot's panel); the site has no registration form.
 - **Sync** — Azure Functions reconcile the in-game guild into SQL on a timer, waking the DB only
   when data actually changed (cost-minimised).
 - **Security hardening** — refuses to start in prod without a strong `JWT_SIGNING_KEY`
@@ -120,7 +121,7 @@ ng build (in frontend/)  →  frontend/docs/  →  force-pushed to gh-pages bran
 - **SPA deep-link routing**: GitHub Pages 404s on any path other than `/`.
   `frontend/public/404.html` encodes the path into a `?p=` param and redirects to root;
   `frontend/public/spa-restore.js` (loaded un-deferred from `index.html`, so the CSP needs no
-  inline script) restores the real URL via `history.replaceState` before the router runs — so deep links (e.g. `/wwm/schedule`) survive a refresh.
+  inline script) restores the real URL via `history.replaceState` before the router runs — so deep links (e.g. `/wwm/guild`) survive a refresh.
 
 > **wwmdb is gone.** `wwmdb.vlt.fyi` stopped resolving on 2026-07-30. It was the only
 > source for player stats, the inner-way and gear-set catalogues, guild rosters, rankings
@@ -229,8 +230,8 @@ The `gh-pages` branch is created automatically the first time `deploy.yml` runs.
 That is the only workflow. The four `sync-*` jobs that used to fetch the sheet, wwmdb and
 the game API were removed — that work now runs in the backend's Azure Functions, writing
 to SQL instead of committing files here. The Google Sheet itself has since been retired
-altogether: the roster is reconciled against the in-game guild, and matches and events are
-edited on the site or through the Discord bot.
+altogether: the roster is reconciled against the in-game guild, and matches are edited on the
+site or through the Discord bot.
 
 ---
 

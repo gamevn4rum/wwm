@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy, effect, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { martialPathIcon, martialPathOption } from '../../core/models/martial-path';
@@ -257,6 +257,8 @@ interface MergeOffer {
         <div class="toolbar">
           <input
             class="search"
+            type="search"
+            aria-label="Filter guilds"
             [ngModel]="search()"
             (ngModelChange)="search.set($event)"
             placeholder="Filter by name or alias…"
@@ -274,6 +276,7 @@ interface MergeOffer {
           >
         </div>
 
+        <div class="table-wrap">
         <table class="grid">
           <thead>
             <tr>
@@ -595,6 +598,7 @@ interface MergeOffer {
             }
           </tbody>
         </table>
+        </div>
 
         @if (shown().length === 0) {
           <p class="quiet empty">No guild matches that filter.</p>
@@ -609,11 +613,12 @@ interface MergeOffer {
   styles: [
     `
       .backoffice {
-        padding: 0.25rem 0 0;
+        padding: 0;
       }
       .hint {
-        opacity: 0.7;
-        margin-bottom: 1rem;
+        color: var(--color-ink-soft);
+        font-size: 0.88rem;
+        margin: 0 0 var(--space-3);
         max-width: 70rem;
       }
       .track {
@@ -621,7 +626,10 @@ interface MergeOffer {
         gap: 0.5rem;
         align-items: center;
         flex-wrap: wrap;
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-3);
+        padding: var(--space-3);
+        border: 1px dashed var(--color-border-strong);
+        border-radius: var(--radius-sm);
       }
       .track label {
         font-weight: 600;
@@ -635,17 +643,29 @@ interface MergeOffer {
       }
       .toolbar {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--space-3);
         align-items: center;
         flex-wrap: wrap;
-        margin-bottom: 0.75rem;
+        padding: var(--space-3);
+        margin-bottom: var(--space-3);
+        background: var(--color-surface-alt);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
       }
       .search {
         padding: 0.35rem 0.6rem;
-        border: 1px solid rgba(128, 128, 128, 0.4);
+        border: 1px solid var(--color-border-strong);
         border-radius: 6px;
         font: inherit;
-        min-width: 16rem;
+        background: var(--color-surface);
+        flex: 1 1 16rem;
+        max-width: 24rem;
+        min-width: 0;
+      }
+      input:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 1px;
       }
       .only {
         display: inline-flex;
@@ -726,22 +746,40 @@ interface MergeOffer {
         color: #9a6a3f;
       }
 
+      /* Scrolls on its own, so the header can stick and a phone can pan sideways. */
+      .table-wrap {
+        overflow: auto;
+        max-height: 75vh;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+      }
       .grid {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.88rem;
       }
       .grid th,
       .grid td {
         text-align: left;
         padding: 0.45rem 0.6rem;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        border-bottom: 1px solid var(--color-border);
         vertical-align: middle;
       }
       .grid th {
-        font-size: 0.75rem;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        font-size: 0.7rem;
+        letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        opacity: 0.6;
+        color: var(--color-ink-soft);
         font-weight: 600;
+        background: var(--color-surface-alt);
+        white-space: nowrap;
+      }
+      .grid tbody tr:not(.scout-row):not(.offer-row):hover > td {
+        background: var(--color-surface-alt);
       }
       .grid td.num,
       .grid th.num {
@@ -829,12 +867,17 @@ interface MergeOffer {
       }
       button {
         padding: 0.3rem 0.8rem;
-        border: 1px solid rgba(128, 128, 128, 0.4);
-        border-radius: 6px;
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-pill);
         font: inherit;
+        font-size: 0.85rem;
         cursor: pointer;
-        background: transparent;
+        background: var(--color-surface);
         color: inherit;
+      }
+      button:hover:not(:disabled) {
+        border-color: var(--color-primary);
+        background: var(--color-primary-tint);
       }
       button:disabled {
         cursor: default;
@@ -992,11 +1035,33 @@ interface MergeOffer {
         margin-top: 0.75rem;
       }
       .error {
-        color: #dc3545;
+        color: var(--color-danger);
       }
       .notice {
-        margin-top: 0.75rem;
-        opacity: 0.8;
+        margin-top: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        background: var(--color-secondary-tint);
+        font-size: 0.88rem;
+      }
+      @media (max-width: 600px) {
+        .toolbar,
+        .track {
+          padding: var(--space-2);
+        }
+        .search {
+          max-width: none;
+        }
+        .count {
+          margin-left: 0;
+          flex-basis: 100%;
+        }
+        .table-wrap {
+          max-height: none;
+        }
+        .name-input {
+          width: 10rem;
+        }
       }
     `,
   ],
@@ -1055,6 +1120,15 @@ export class GuildsPanelComponent {
   private readonly deleteError = signal<{ rowId: number; message: string } | null>(null);
 
   readonly pending = computed(() => this.guilds().filter((g) => !g.identified).length);
+
+  /** Guilds still without a UID, for the hub's tab badge. */
+  readonly pendingChange = output<number>();
+
+  constructor() {
+    effect(() => {
+      if (!this.loading()) this.pendingChange.emit(this.pending());
+    });
+  }
 
   readonly shown = computed(() => {
     const q = this.search().trim().toLowerCase();
