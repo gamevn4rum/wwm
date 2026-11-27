@@ -88,7 +88,8 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   readonly layout = signal<FormationLayout>(emptyLayout());
   readonly tasks = signal<FormationTasks>({});
   readonly filter = signal('');
-  readonly maybeOpen = signal(false);
+  readonly unregisteredOpen = signal(false);
+  readonly declinedOpen = signal(false);
   readonly hover = signal<string | null>(null);
   /** The open task dropdown: whose it is, and where on screen to draw it. */
   readonly taskMenu = signal<{ key: string; x: number; y: number } | null>(null);
@@ -110,7 +111,7 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
   private readonly byKey = computed(() => {
     const map = new Map<string, PoolMember>();
     const p = this.pool();
-    if (p) for (const m of [...p.going, ...p.maybe, ...p.roster]) map.set(m.key, m);
+    if (p) for (const m of [...p.going, ...(p.unregistered ?? []), ...(p.declined ?? []), ...p.roster]) map.set(m.key, m);
     return map;
   });
 
@@ -122,7 +123,8 @@ export class GvgFormationModalComponent implements OnInit, OnDestroy {
 
   readonly hasEvent = computed(() => !!this.pool()?.event);
   readonly going = computed(() => this.unplaced(this.pool()?.going ?? []));
-  readonly maybe = computed(() => this.unplaced(this.pool()?.maybe ?? []));
+  readonly unregistered = computed(() => this.unplaced(this.pool()?.unregistered ?? []));
+  readonly declined = computed(() => this.unplaced(this.pool()?.declined ?? []));
   readonly everyone = computed(() => {
     const q = this.filter().trim().toLowerCase();
     return this.unplaced(this.pool()?.roster ?? []).filter(

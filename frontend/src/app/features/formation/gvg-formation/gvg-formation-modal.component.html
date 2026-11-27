@@ -38,14 +38,32 @@
           </div>
 
           @if (hasEvent()) {
-            <button type="button" class="gf-maybe-toggle" (click)="maybeOpen.set(!maybeOpen())"
-                    [attr.aria-expanded]="maybeOpen()">
-              {{ maybeOpen() ? '▾' : '▸' }} Có thể ({{ maybe().length }})
+            <!-- Reserves: still draggable, for a backup plan or a late change of mind. -->
+            <button type="button" class="gf-maybe-toggle" (click)="unregisteredOpen.set(!unregisteredOpen())"
+                    [attr.aria-expanded]="unregisteredOpen()">
+              {{ unregisteredOpen() ? '▾' : '▸' }} Chưa đăng ký ({{ unregistered().length }})
             </button>
-            @if (maybeOpen()) {
+            @if (unregisteredOpen()) {
               <div class="gf-chips gf-chips-maybe" cdkDropList [cdkDropListData]="poolTarget"
                    cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)">
-                @for (m of maybe(); track m.key) {
+                @for (m of unregistered(); track m.key) {
+                  <div class="gf-drag" cdkDrag [cdkDragData]="m.key">
+                    <app-gvg-chip [member]="m" />
+                    <div *cdkDragPlaceholder class="gf-ph"></div>
+                  </div>
+                } @empty {
+                  <span class="gf-empty">Không có ai.</span>
+                }
+              </div>
+            }
+            <button type="button" class="gf-maybe-toggle" (click)="declinedOpen.set(!declinedOpen())"
+                    [attr.aria-expanded]="declinedOpen()">
+              {{ declinedOpen() ? '▾' : '▸' }} Không tham gia ({{ declined().length }})
+            </button>
+            @if (declinedOpen()) {
+              <div class="gf-chips gf-chips-maybe gf-chips-declined" cdkDropList [cdkDropListData]="poolTarget"
+                   cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)">
+                @for (m of declined(); track m.key) {
                   <div class="gf-drag" cdkDrag [cdkDragData]="m.key">
                     <app-gvg-chip [member]="m" />
                     <div *cdkDragPlaceholder class="gf-ph"></div>

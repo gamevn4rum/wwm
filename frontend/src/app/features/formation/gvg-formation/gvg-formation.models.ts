@@ -41,11 +41,14 @@ export interface FormationEvent {
   startsAtUtc: string | null;
 }
 
-/** `event` is null when there is no upcoming GvG/Event: `roster` then holds everyone. */
+/** `event` is null when there is no upcoming GvG/Event: `roster` then holds everyone. With an event,
+ *  `unregistered` (roster members who answered neither Có nor Không) and `declined` (Không) are the
+ *  reserves a commander can still pull in. */
 export interface FormationPool {
   event: FormationEvent | null;
   going: PoolMember[];
-  maybe: PoolMember[];
+  unregistered?: PoolMember[];
+  declined?: PoolMember[];
   roster: PoolMember[];
 }
 
@@ -70,7 +73,7 @@ export type DropTarget =
   | { kind: 'slot'; box: BoxId; idx: number };
 
 /** The jobs a commander can pin on a placed member. One per member, none by default. */
-export type TaskId = 'chicken' | 'tree' | 'money';
+export type TaskId = 'chicken' | 'tree' | 'money' | 'fan';
 
 export interface TaskOption {
   id: TaskId;
@@ -82,6 +85,7 @@ export const TASK_OPTIONS: readonly TaskOption[] = [
   { id: 'chicken', emoji: '🐔', label: 'Gà' },
   { id: 'tree', emoji: '🌳', label: 'Cây' },
   { id: 'money', emoji: '💰', label: 'Tiền' },
+  { id: 'fan', emoji: '🪭', label: 'Quạt' },
 ];
 
 /** Member key → task. Keyed by member, not by slot, so the job follows a name that is moved or
