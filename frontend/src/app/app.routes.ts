@@ -12,6 +12,7 @@ export const routes: Routes = [
     // The bare "Form GvG Team" modal the Discord RSVP post links to. Deliberately outside
     // MainLayoutComponent — this window holds the modal and nothing else.
     path: 'embed/gvg-formation',
+    data: { preload: false },
     // No rank guard: a guard redirects, and in a window that holds only this modal the home page
     // is not a useful answer. The page says why instead — see FormationEmbedPageComponent.access.
     canActivate: [featureGuard('page.formation')],
@@ -58,18 +59,21 @@ export const routes: Routes = [
       },
       {
         path: 'admin',
+        data: { preload: false },
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/admin/admin-page.component').then((m) => m.AdminPageComponent),
       },
       {
         path: 'manage/bot-management',
+        data: { preload: false },
         canActivate: [commanderGuard],
         loadComponent: () =>
           import('./features/manage/bot-schedule-page.component').then((m) => m.BotSchedulePageComponent),
       },
       {
         path: 'manage/pvp-events',
+        data: { preload: false },
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/manage/pvp-events-page.component').then((m) => m.PvpEventsPageComponent),
@@ -77,6 +81,7 @@ export const routes: Routes = [
       {
         // Members, opponent guilds and event posts, as tabs (?tab=). Retired URLs fall to `**`.
         path: 'manage',
+        data: { preload: false },
         canActivate: [commanderGuard],
         loadComponent: () =>
           import('./features/manage/manage-page.component').then((m) => m.ManagePageComponent),

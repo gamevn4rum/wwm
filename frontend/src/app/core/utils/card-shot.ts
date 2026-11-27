@@ -39,3 +39,14 @@ const MAX_RATIO = 3;
 
 /** Never softer than this — the value both cards used before, so nothing regresses. */
 const MIN_RATIO = 2;
+
+/**
+ * `html-to-image`'s `toBlob`, fetched on the first screenshot rather than shipped in every bundle
+ * that can take one — most visits never press a share button.
+ */
+export async function toBlob(
+  ...args: Parameters<typeof import('html-to-image').toBlob>
+): Promise<Blob | null> {
+  const { toBlob: render } = await import('html-to-image');
+  return render(...args);
+}

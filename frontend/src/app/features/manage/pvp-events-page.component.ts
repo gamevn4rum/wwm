@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toBlob } from 'html-to-image';
 import {
   BackofficeService,
   PvpEvent,
@@ -9,7 +8,7 @@ import {
   PvpFieldRow,
 } from '../../core/services/backoffice.service';
 import { cardFontCss } from '../../core/utils/card-fonts';
-import { captureScale } from '../../core/utils/card-shot';
+import { captureScale, toBlob } from '../../core/utils/card-shot';
 import { DiscordPickerComponent } from './discord-picker.component';
 
 /** Vietnam is a fixed UTC+7 with no DST, so plain arithmetic on the offset is exact. */

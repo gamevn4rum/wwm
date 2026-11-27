@@ -10,9 +10,8 @@ import {
 } from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
-import { toBlob } from 'html-to-image';
 import { cardFontCss } from '../../../core/utils/card-fonts';
-import { captureScale } from '../../../core/utils/card-shot';
+import { captureScale, toBlob } from '../../../core/utils/card-shot';
 import { ProfilePopupService } from '../../../core/services/profile-popup.service';
 import {
   DiscordAuthService,

@@ -9,9 +9,8 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
-import { toBlob } from 'html-to-image';
 import { cardFontCss } from '../../../../core/utils/card-fonts';
-import { captureScale } from '../../../../core/utils/card-shot';
+import { captureScale, toBlob } from '../../../../core/utils/card-shot';
 import { Player } from '../../models/player.model';
 import { HomeDataService } from '../../services/home-data.service';
 import { PlayerStatsDataService } from '../../../roster-stats/player-stats-data.service';

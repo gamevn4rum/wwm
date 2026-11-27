@@ -7,30 +7,30 @@
   <section class="filter-bar" aria-label="Footage filters">
     <label class="filter-field">
       <span>Match Type</span>
-      <select [ngModel]="selectedMatchType()" (ngModelChange)="onMatchTypeChange($event)">
+      <select (change)="onMatchTypeChange($any($event.target).value)">
         <option value="All">All</option>
         @for (type of matchTypeOptions; track type) {
-          <option [value]="type">{{ type }}</option>
+          <option [value]="type" [selected]="selectedMatchType() === type">{{ type }}</option>
         }
       </select>
     </label>
 
     <label class="filter-field">
       <span>Opponent</span>
-      <select [ngModel]="selectedOpponent()" (ngModelChange)="onOpponentChange($event)">
+      <select (change)="onOpponentChange($any($event.target).value)">
         <option value="All">All</option>
         @for (opponent of opponentOptions(); track opponent) {
-          <option [value]="opponent">{{ opponent }}</option>
+          <option [value]="opponent" [selected]="selectedOpponent() === opponent">{{ opponent }}</option>
         }
       </select>
     </label>
 
     <label class="filter-field">
       <span>Uploader</span>
-      <select [ngModel]="selectedUploader()" (ngModelChange)="onUploaderChange($event)">
+      <select (change)="onUploaderChange($any($event.target).value)">
         <option value="All">All</option>
         @for (uploader of uploaderOptions(); track uploader) {
-          <option [value]="uploader">{{ uploader }}</option>
+          <option [value]="uploader" [selected]="selectedUploader() === uploader">{{ uploader }}</option>
         }
       </select>
     </label>

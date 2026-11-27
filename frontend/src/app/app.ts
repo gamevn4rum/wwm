@@ -20,21 +20,28 @@ import { ProfileModalComponent } from './shared/components/profile-modal/profile
   template: `
     <router-outlet />
 
-    @if (popup.popupOpen()) {
-      <app-match-popup />
+    <!-- The match popup and profile modal are ~80 kB together (plus the YouTube
+         player) and most visits open neither, so they leave the initial bundle.
+         "when" loads them on first open; "prefetch on idle" fetches the chunk once
+         the page has settled, so that first open does not wait on the network. -->
+    @defer (when popup.popupOpen(); prefetch on idle) {
+      @if (popup.popupOpen()) {
+        <app-match-popup />
+      }
     }
 
-    <!-- Deferred, unlike its siblings: it is Commander-only and pulls ~16 kB into a
-         bundle that is already over budget, so it is fetched on first open instead
-         of by every visitor. -->
+    <!-- Commander-only, so not prefetched: fetched on first open instead of by
+         every visitor. -->
     @if (matchFormPopup.open()) {
       @defer (on immediate) {
         <app-match-form-popup />
       }
     }
 
-    @if (profilePopup.open()) {
-      <app-profile-modal />
+    @defer (when profilePopup.open(); prefetch on idle) {
+      @if (profilePopup.open()) {
+        <app-profile-modal />
+      }
     }
   `,
 })

@@ -6,7 +6,6 @@ import {
   signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FootagesDataService } from './footages-data.service';
 import { FootageRecord, MatchType, UploaderKey } from './footages.model';
@@ -15,7 +14,7 @@ import { FootageVideoCardComponent } from './components/footage-video-card.compo
 @Component({
   selector: 'app-footages-page',
   standalone: true,
-  imports: [FormsModule, FootageVideoCardComponent],
+  imports: [FootageVideoCardComponent],
   templateUrl: './footages-page.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./footages-page.component.scss'],

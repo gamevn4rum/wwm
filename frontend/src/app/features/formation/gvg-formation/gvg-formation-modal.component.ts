@@ -18,10 +18,9 @@ import {
   CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
-import { toBlob } from 'html-to-image';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { captureScale } from '../../../core/utils/card-shot';
+import { captureScale, toBlob } from '../../../core/utils/card-shot';
 import { cardFontCss } from '../../../core/utils/card-fonts';
 import { GvgChipComponent } from './gvg-chip.component';
 import { GvgFormationService } from './gvg-formation.service';
