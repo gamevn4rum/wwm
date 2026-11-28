@@ -1,0 +1,1 @@
+function o(e){let t=e.trim();if(!t)return``;if(/^[a-zA-Z0-9_-]{11}$/.test(t))return t;for(let a of[/(?:v=)([a-zA-Z0-9_-]{11})/,/(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,/(?:embed\/)([a-zA-Z0-9_-]{11})/,/(?:shorts\/)([a-zA-Z0-9_-]{11})/,/(?:live\/)([a-zA-Z0-9_-]{11})/]){let r=t.match(a);if(r?.[1])return r[1]}return``}export{o as t};
