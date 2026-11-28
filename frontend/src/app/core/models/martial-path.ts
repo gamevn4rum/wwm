@@ -1,10 +1,11 @@
 /**
  * The martial paths a member can be filed under, matching the API's `MemberPath` ids.
  *
- * The eleven real paths are the slugs the artwork is named by (`public/icons/paths/<slug>.png`,
+ * The twelve real paths are the slugs the artwork is named by (`public/icons/paths/<slug>.png`,
  * with a 54px copy under `small/`). Wings' badge is cut from an in-game screenshot, the official
  * site naming an image it has not published; its two art ids arrived with the official list on
- * 2026-10-28, so the API derives it like any other path now.
+ * 2026-10-28, so the API derives it like any other path now. Bellstrike - Bolt (2026-11-28) went the
+ * same way: its badge is cut from an in-game list, its two art ids read off a member's loadout.
  *
  * The three mixes are the guild's own way of filing a member holding arts from two paths of one
  * family, so the game has no badge for them: each wears the badge of a path of that family on a red
@@ -28,6 +29,7 @@ export interface MartialPathOption {
 export const MARTIAL_PATHS: readonly MartialPathOption[] = [
   { value: 'bellstrike-splendor', label: 'Bellstrike - Splendor', initials: 'BS', hasIcon: true },
   { value: 'bellstrike-umbra', label: 'Bellstrike - Umbra', initials: 'BU', hasIcon: true },
+  { value: 'bellstrike-bolt', label: 'Bellstrike - Bolt', initials: 'BB', hasIcon: true },
   { value: 'stonesplit-might', label: 'Stonesplit - Might', initials: 'SM', hasIcon: true },
   { value: 'stonesplit-strength', label: 'Stonesplit - Strength', initials: 'SS', hasIcon: true },
   { value: 'bamboocut-wind', label: 'Bamboocut - Wind', initials: 'BW', hasIcon: true },
